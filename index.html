@@ -130,20 +130,6 @@ body{padding-bottom:60px}
 .overall-bar .label{font-size:11px;color:var(--text2);margin-bottom:3px;display:flex;justify-content:space-between}
 .overall-bar .bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}
 .overall-bar .bar .fill{height:100%;border-radius:4px;background:var(--green);transition:.3s}
-
-/* Standalone setup screen */
-.setup-screen{max-width:480px;margin:40px auto;padding:24px;background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow)}
-.setup-screen h2{font-size:18px;margin-bottom:4px;color:var(--maroon)}
-.setup-screen .desc{font-size:12px;color:var(--text2);margin-bottom:16px}
-.setup-screen label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;margin-top:12px}
-.setup-screen label:first-of-type{margin-top:0}
-.setup-screen input,.setup-screen select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px}
-.setup-screen .hint{font-size:11px;color:var(--text2);margin-top:2px}
-.setup-screen .setup-actions{margin-top:20px;display:flex;gap:8px}
-.setup-screen .setup-actions button{flex:1;padding:10px;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer}
-.setup-screen .btn-go{background:var(--green);color:#fff}
-.setup-screen .btn-demo{background:#f5f5f5;color:var(--text);border:1px solid var(--border)!important}
-.setup-screen .mode-switch{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text2);text-align:center}
 </style>
 </head>
 <body>
@@ -158,7 +144,6 @@ body{padding-bottom:60px}
   <span class="tag" id="whoRole">—</span>
   <span style="flex:1"></span>
   <span id="backendStatus" style="font-size:10px;color:var(--text2)"></span>
-  <span id="settingsBtn" style="font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline" onclick="openSettings()">⚙</span>
 </div>
 
 <div class="rst" id="rstBanner" style="display:none">
@@ -231,113 +216,55 @@ body{padding-bottom:60px}
 
 <div class="tst" id="tst"></div>
 
-<!-- Standalone setup screen (shown when no u parameter) -->
-<div class="setup-screen" id="setupScreen" style="display:none">
-  <h2>🔥 深資童軍進度性獎章追蹤</h2>
-  <p class="desc">首次使用請設定以下資訊，或選擇「示範模式」直接體驗。</p>
-  
-  <label>旅團編號</label>
-  <input id="setupUnit" placeholder="例：0082">
-  <div class="hint">旅團用純數字，區用字母</div>
-  
-  <label>我的身份</label>
-  <select id="setupRole">
-    <option value="leader">領袖（可勾選完成項目）</option>
-    <option value="member">成員（只看自己進度）</option>
-  </select>
-  
-  <label>YMIS（成員編號）</label>
-  <input id="setupYmis" placeholder="10位數字（成員用，領袖可留空）">
-  
-  <label>Apps Script 後端 URL（選用）</label>
-  <input id="setupBackend" placeholder="https://script.google.com/macros/s/...">
-  <div class="hint">留空 = 只用瀏覽器儲存（示範模式）</div>
-  
-  <label>API Key（選用）</label>
-  <input id="setupApikey" placeholder="與 Apps Script 設定一致的 Key">
-  
-  <div class="setup-actions">
-    <button class="btn-go" onclick="setupGo()">進入系統</button>
-    <button class="btn-demo" onclick="setupDemo()">示範模式</button>
-  </div>
-  
-  <div class="mode-switch">
-    💡 設定會存入瀏覽器，下次自動帶入<br>
-    從主系統進入時不需要此畫面
-  </div>
-</div>
-
 <script>
 // ============================================================
 // 深資童軍進度性獎章追蹤系統 v2.0
 // 四級級聯自動完成
 // ============================================================
 
-// --- Check standalone mode ---
-const _q = new URLSearchParams(location.search);
-const _savedSettings = (() => {
-  try { return JSON.parse(localStorage.getItem('vsbt2_settings') || '{}'); } catch(e) { return {}; }
-})();
-
-// If no 'u' param and not embedded → show setup screen
-if (!_q.get('u') && _q.get('embed') !== '1') {
-  // Pre-fill with saved settings
-  if (_savedSettings.unit) document.getElementById('setupUnit').value = _savedSettings.unit;
-  if (_savedSettings.role) document.getElementById('setupRole').value = _savedSettings.role;
-  if (_savedSettings.ymis) document.getElementById('setupYmis').value = _savedSettings.ymis;
-  if (_savedSettings.backend) document.getElementById('setupBackend').value = _savedSettings.backend;
-  if (_savedSettings.apikey) document.getElementById('setupApikey').value = _savedSettings.apikey;
-  
-  // Show setup, hide main app
-  document.getElementById('setupScreen').style.display = 'block';
-  document.getElementById('idStrip').style.display = 'none';
-  document.getElementById('tabBar').style.display = 'none';
-  document.getElementById('tab-progress').style.display = 'none';
-  document.getElementById('tab-overview').style.display = 'none';
-  document.getElementById('tab-byitem').style.display = 'none';
-  document.getElementById('cbar').style.display = 'none';
-  
-  // Hide header too in standalone setup
-  document.querySelector('.hdr').style.display = 'none';
-}
-
-function setupGo() {
-  const unit = document.getElementById('setupUnit').value.trim();
-  const role = document.getElementById('setupRole').value;
-  const ymis = document.getElementById('setupYmis').value.trim();
-  const backend = document.getElementById('setupBackend').value.trim();
-  const apikey = document.getElementById('setupApikey').value.trim();
-  
-  if (!unit) { alert('請填寫旅團編號'); return; }
-  
-  // Save settings
-  localStorage.setItem('vsbt2_settings', JSON.stringify({unit, role, ymis, backend, apikey}));
-  
-  // Redirect with params
-  const params = new URLSearchParams({u: unit, role, ymis, backend, apikey});
-  location.search = params.toString();
-}
-
-function setupDemo() {
-  const unit = document.getElementById('setupUnit').value.trim() || 'DEMO';
-  const role = document.getElementById('setupRole').value;
-  const ymis = document.getElementById('setupYmis').value.trim();
-  
-  // Save settings (no backend)
-  localStorage.setItem('vsbt2_settings', JSON.stringify({unit, role, ymis, backend: '', apikey: ''}));
-  
-  // Redirect with params (no backend)
-  const params = new URLSearchParams({u: unit, role, ymis});
-  location.search = params.toString();
-}
-
-// --- Parse actual params (may come from setup redirect or from main system) ---
+// --- Parse URL params ---
+const q = new URLSearchParams(location.search);
 const UNIT = q.get('u')||'';
 const ROLE = q.get('role')||'member';
 const YMIS = q.get('ymis')||'';
 const EMBED = q.get('embed')==='1';
-const BE = q.get('backend')||'';
-const AK = q.get('apikey')||'';
+let BE = q.get('backend')||'';
+let AK = q.get('apikey')||'';
+
+// --- Check if troop is registered ---
+if (!UNIT) {
+  // 顯示旅團選擇列表
+  showTroopSelector();
+}
+
+// 顯示旅團選擇列表
+async function showTroopSelector() {
+  try {
+    const troopsResp = await fetch('troops.json');
+    const troopsData = await troopsResp.json();
+    const troops = troopsData.troops || {};
+    const troopIds = Object.keys(troops);
+    
+    if (troopIds.length === 0) {
+      document.body.innerHTML = '<div style="text-align:center;padding:40px"><h2 style="color:var(--maroon)">⚠️ 沒有可用的旅團</h2><p style="color:var(--text2)">請聯絡系統管理員</p></div>';
+      return;
+    }
+    
+    let html = '<div style="text-align:center;padding:40px"><h2 style="color:var(--maroon);margin-bottom:20px">🔥 深資童軍進度性獎章追蹤</h2>';
+    html += '<p style="color:var(--text2);margin-bottom:30px">請選擇你的旅團</p>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:15px;justify-content:center;max-width:800px;margin:0 auto">';
+    
+    troopIds.forEach(id => {
+      const troop = troops[id];
+      html += `<button onclick="window.location.href='?u=${id}&role=leader'" style="padding:15px 30px;background:var(--maroon);color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;min-width:150px">${troop.name || '第 ' + id + ' 旅'}</button>`;
+    });
+    
+    html += '</div></div>';
+    document.body.innerHTML = html;
+  } catch(e) {
+    document.body.innerHTML = '<div style="text-align:center;padding:40px"><h2 style="color:var(--maroon)">⚠️ 載入失敗</h2><p style="color:var(--text2)">無法載入旅團列表</p></div>';
+  }
+}
 
 const LR = ['leader','branch_leader','group_leader','admin','troop_super','super_admin','dc'];
 const IS_L = LR.includes(ROLE);
@@ -574,35 +501,25 @@ function isAutoComplete(y, leafIds) {
 }
 
 // ============================================================
-// Settings & standalone support
-// ============================================================
-function openSettings() {
-  // Show setup screen
-  const saved = (() => { try { return JSON.parse(localStorage.getItem('vsbt2_settings') || '{}'); } catch(e) { return {}; } })();
-  document.getElementById('setupUnit').value = saved.unit || UNIT;
-  document.getElementById('setupRole').value = saved.role || ROLE;
-  document.getElementById('setupYmis').value = saved.ymis || YMIS;
-  document.getElementById('setupBackend').value = saved.backend || BE;
-  document.getElementById('setupApikey').value = saved.apikey || AK;
-  
-  // Show setup, hide main content temporarily
-  document.getElementById('setupScreen').style.display = 'block';
-  document.getElementById('tabBar').style.display = 'none';
-  document.getElementById('tab-progress').style.display = 'none';
-  document.getElementById('tab-overview').style.display = 'none';
-  document.getElementById('tab-byitem').style.display = 'none';
-  document.getElementById('cbar').style.display = 'none';
-  
-  // Scroll to top
-  window.scrollTo(0, 0);
-}
-
-// ============================================================
 // Init
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  // Hide setup screen if showing
-  document.getElementById('setupScreen').style.display = 'none';
+  // Load troop configuration
+  if (UNIT && !BE) {
+    try {
+      const troopsResp = await fetch('troops.json');
+      const troopsData = await troopsResp.json();
+      if (troopsData.troops[UNIT]) {
+        BE = troopsData.troops[UNIT].backend;
+        AK = troopsData.troops[UNIT].apikey;
+      } else {
+        document.body.innerHTML = `<div style="text-align:center;padding:40px"><h2 style="color:var(--maroon)">⚠️ 未註冊的旅團</h2><p style="color:var(--text2)">旅團編號 ${UNIT} 尚未註冊<br>請聯絡系統管理員</p></div>`;
+        return;
+      }
+    } catch(e) {
+      console.error('Failed to load troops.json:', e);
+    }
+  }
   
   document.getElementById('unitInfo').textContent = UNIT ? `單位 ${UNIT}` : '';
   document.getElementById('whoName').textContent = YMIS ? `YMIS: ${YMIS}` : '未識別';
