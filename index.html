@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>深資童軍進度性獎章追蹤</title>
+<style>
+:root{--maroon:#800020;--green:#2e7d32;--blue:#1565c0;--orange:#e65100;--bg:#fafafa;--card:#fff;--border:#e0e0e0;--text:#212121;--text2:#757575;--r:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px}
+.hdr{background:var(--maroon);color:#fff;padding:12px 16px}
+.hdr h1{font-size:15px;font-weight:600}
+.hdr .sub{font-size:11px;opacity:.8}
+body.embedded .hdr{display:none}
+
+.id-strip{background:#fff;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12px}
+.id-strip .nm{font-weight:600}
+.id-strip .tag{padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.id-strip .tag.L{background:var(--maroon);color:#fff}
+.id-strip .tag.M{background:var(--blue);color:#fff}
+
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);transition:.15s;white-space:nowrap}
+.tab:hover{background:#f5f5f5}
+.tab.active{color:var(--maroon);border-bottom-color:var(--maroon)}
+.tab.hide{display:none}
+
+.chips{padding:6px 12px;display:flex;gap:4px;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--border)}
+.chip{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer}
+.chip.c1{background:#e3f2fd;color:var(--blue)}
+.chip.c2{background:#e8f5e9;color:var(--green)}
+.chip.c3{background:#fff3e0;color:var(--orange)}
+.chip.c4{background:#fce4ec;color:var(--maroon)}
+.chip.done{outline:2px solid var(--green)}
+
+.L1{margin:6px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.L1h{display:flex;align-items:center;padding:10px 12px;cursor:pointer;user-select:none}
+.L1h:hover{background:#fafafa}
+.L1h .ic{font-size:18px;margin-right:8px}
+.L1h .nm{flex:1;font-weight:700;font-size:14px}
+.L1h .st{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.L1h .pct{font-size:10px;color:var(--text2);margin-left:6px}
+.L1h .ar{font-size:11px;color:var(--text2);margin-left:6px;transition:.2s}
+.L1h .ar.op{transform:rotate(90deg)}
+.L1b{display:none;border-top:1px solid var(--border)}
+.L1b.op{display:block}
+
+.L2{border-bottom:1px solid #f0f0f0}.L2:last-child{border-bottom:none}
+.L2h{display:flex;align-items:center;padding:8px 12px;cursor:pointer;user-select:none;background:#fafafa}
+.L2h:hover{background:#f0f0f0}
+.L2h .nm{flex:1;font-weight:600;font-size:13px}
+.L2h .st{font-size:11px;color:var(--text2)}
+.L2h .pct{font-size:10px;color:var(--text2);margin-left:4px}
+.L2h .ar{font-size:10px;color:#bbb;margin-left:6px;transition:.2s}
+.L2h .ar.op{transform:rotate(90deg)}
+.L2b{display:none}.L2b.op{display:block}
+.L2n{padding:3px 12px;font-size:11px;color:var(--orange);background:#fff8e1;font-style:italic}
+
+.L3{border-bottom:1px solid #f5f5f5}.L3:last-child{border-bottom:none}
+.L3h{display:flex;align-items:center;padding:6px 12px 6px 24px;cursor:pointer;user-select:none;gap:6px}
+.L3h:hover{background:#fafafa}
+.L3h .nm{flex:1;font-size:13px}
+.L3h .ar{font-size:10px;color:#ccc;transition:.2s}
+.L3h .ar.op{transform:rotate(90deg)}
+.L3h .st{font-size:11px;color:var(--text2)}
+.L3c{display:flex;align-items:center;padding:6px 12px 6px 24px;gap:8px}
+.L3b{display:none}.L3b.op{display:block}
+
+.L4{display:flex;align-items:center;padding:5px 12px 5px 40px;border-bottom:1px solid #fafafa;gap:8px}
+.L4:last-child{border-bottom:none}
+.L4 .nm{flex:1;font-size:12px;line-height:1.4}.L4 .nm.dn{text-decoration:line-through;color:var(--text2)}
+.L4 .dt{font-size:10px;color:var(--text2);white-space:nowrap}
+
+input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:var(--green);flex-shrink:0}
+
+.mbar{background:#fff;padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center}
+.mbar select{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px}
+.mbar button{padding:6px 10px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-size:11px;white-space:nowrap}
+
+.ov{padding:6px}
+.ovc{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;overflow:hidden}
+.ovh{display:flex;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
+.ovh:hover{background:#fafafa}
+.ovh .nm{flex:1;font-weight:600;font-size:13px}
+.ovh .ym{font-size:10px;color:var(--text2);margin-right:6px}
+.ovh .pc{font-size:11px;color:var(--text2)}
+.ovh .ar{font-size:10px;color:#bbb;margin-left:6px;transition:.2s}
+.ovh .ar.op{transform:rotate(90deg)}
+.ovb{display:none;border-top:1px solid var(--border);padding:6px}
+.ovb.op{display:block}
+.obr{height:5px;background:#eee;border-radius:3px;margin:3px 0;overflow:hidden}
+.obr .fill{height:100%;border-radius:3px;transition:.3s}
+
+.bi{padding:6px}
+.bif{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
+.bif select{padding:6px;border:1px solid var(--border);border-radius:var(--r);font-size:11px}
+.bibt{width:100%;background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.bibt th{background:#f5f5f5;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border)}
+.bibt td{padding:5px 8px;font-size:12px;border-bottom:1px solid #f5f5f5}
+
+.cbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;z-index:100;transform:translateY(100%);transition:.3s}
+.cbar.vis{transform:translateY(0)}
+.cbar .pt{font-size:12px;color:var(--orange);font-weight:500}
+.cbtn{background:var(--green);color:#fff;border:none;padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer}
+.cbtn:disabled{background:#ccc;cursor:not-allowed}
+
+.mov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+.mov.vis{display:flex}
+.mo{background:#fff;border-radius:var(--r);padding:20px;max-width:360px;width:90%}
+.mo h3{margin-bottom:8px;font-size:14px}
+.mo p{font-size:12px;color:var(--text2);margin-bottom:12px}
+.mo .acts{display:flex;gap:6px;justify-content:flex-end}
+.mo .mb{padding:6px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;border:1px solid var(--border);background:#fff}
+.mo .mb.ok{background:var(--green);color:#fff;border:none;font-weight:600}
+.mo .mb.ok:disabled{background:#ccc}
+
+.tst{position:fixed;top:40px;left:50%;transform:translateX(-50%) translateY(-80px);background:#333;color:#fff;padding:6px 14px;border-radius:var(--r);font-size:12px;z-index:300;transition:.3s;white-space:nowrap}
+.tst.vis{transform:translateX(-50%) translateY(0)}
+.tst.ok{background:var(--green)}.tst.err{background:#c62828}
+
+.rst{background:#fff3e0;padding:8px 12px;display:flex;align-items:center;gap:6px;font-size:11px;border-bottom:1px solid #ffe0b2}
+.rst button{padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:10px;font-weight:600}
+.rst .ro{background:var(--orange);color:#fff}.rst .rd{background:#eee;color:#666}
+
+.empty{text-align:center;padding:24px 12px;color:var(--text2)}.empty .em{font-size:28px;margin-bottom:6px}
+body{padding-bottom:60px}
+
+/* Overall progress bar at top of progress view */
+.overall-bar{padding:8px 12px;background:#fff;border-bottom:1px solid var(--border)}
+.overall-bar .label{font-size:11px;color:var(--text2);margin-bottom:3px;display:flex;justify-content:space-between}
+.overall-bar .bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}
+.overall-bar .bar .fill{height:100%;border-radius:4px;background:var(--green);transition:.3s}
+
+/* Standalone setup screen */
+.setup-screen{max-width:480px;margin:40px auto;padding:24px;background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow)}
+.setup-screen h2{font-size:18px;margin-bottom:4px;color:var(--maroon)}
+.setup-screen .desc{font-size:12px;color:var(--text2);margin-bottom:16px}
+.setup-screen label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;margin-top:12px}
+.setup-screen label:first-of-type{margin-top:0}
+.setup-screen input,.setup-screen select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px}
+.setup-screen .hint{font-size:11px;color:var(--text2);margin-top:2px}
+.setup-screen .setup-actions{margin-top:20px;display:flex;gap:8px}
+.setup-screen .setup-actions button{flex:1;padding:10px;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer}
+.setup-screen .btn-go{background:var(--green);color:#fff}
+.setup-screen .btn-demo{background:#f5f5f5;color:var(--text);border:1px solid var(--border)!important}
+.setup-screen .mode-switch{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text2);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>🔥 深資童軍進度性獎章追蹤</h1>
+  <div class="sub" id="unitInfo"></div>
+</div>
+
+<div class="id-strip" id="idStrip">
+  <span class="nm" id="whoName">載入中…</span>
+  <span class="tag" id="whoRole">—</span>
+  <span style="flex:1"></span>
+  <span id="backendStatus" style="font-size:10px;color:var(--text2)"></span>
+  <span id="settingsBtn" style="font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline" onclick="openSettings()">⚙</span>
+</div>
+
+<div class="rst" id="rstBanner" style="display:none">
+  <span>⚠ 發現未保存的變更</span>
+  <button class="ro" onclick="restorePending()">繼續</button>
+  <button class="rd" onclick="discardPending()">放棄</button>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-tab="progress" onclick="switchTab('progress')">📊 進度</div>
+  <div class="tab" data-tab="overview" onclick="switchTab('overview')">👥 全團</div>
+  <div class="tab" data-tab="byitem" onclick="switchTab('byitem')">🔍 按項目</div>
+</div>
+
+<div id="tab-progress">
+  <div class="mbar" id="mbar" style="display:none">
+    <select id="viewSel" onchange="onViewChange()"><option value="">— 選擇成員 —</option></select>
+    <button onclick="showAdd()">+ 新增</button>
+  </div>
+  <div class="overall-bar" id="overallBar" style="display:none">
+    <div class="label"><span>整體完成度</span><span id="overallPct">0%</span></div>
+    <div class="bar"><div class="fill" id="overallFill" style="width:0%"></div></div>
+  </div>
+  <div class="chips" id="statChips"></div>
+  <div id="progArea"><div class="empty"><div class="em">📊</div><p>載入中…</p></div></div>
+</div>
+
+<div id="tab-overview" style="display:none">
+  <div class="mbar"><button onclick="showAdd()">+ 新增成員</button></div>
+  <div class="ov" id="ovArea"><div class="empty"><div class="em">👥</div><p>尚未有成員</p></div></div>
+</div>
+
+<div id="tab-byitem" style="display:none">
+  <div class="bi">
+    <div class="bif">
+      <select id="biB" onchange="onBiBChange()" style="flex:0 0 90px"><option value="">全部</option></select>
+      <select id="biI" onchange="renderBI()" style="flex:1"><option value="">— 選擇項目 —</option></select>
+    </div>
+    <div id="biArea"><div class="empty"><div class="em">🔍</div><p>選擇項目查看</p></div></div>
+  </div>
+</div>
+
+<div class="cbar" id="cbar">
+  <span class="pt" id="ptxt">0 項未保存</span>
+  <button class="cbtn" onclick="showConfirm()">確認寫入 Google Sheet</button>
+</div>
+
+<div class="mov" id="modal">
+  <div class="mo">
+    <h3 id="moT">確認</h3>
+    <p id="moB">確定？</p>
+    <div class="acts">
+      <button class="mb" onclick="closeMo()">取消</button>
+      <button class="mb ok" id="moOk" onclick="moAct()">確認</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="addMo">
+  <div class="mo">
+    <h3>新增成員</h3>
+    <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--text2)">YMIS</label><input id="addY" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;margin-top:2px;font-size:12px" placeholder="10位數字"></div>
+    <div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text2)">姓名</label><input id="addN" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;margin-top:2px;font-size:12px" placeholder="姓名"></div>
+    <div class="acts">
+      <button class="mb" onclick="closeAdd()">取消</button>
+      <button class="mb ok" onclick="doAdd()">新增</button>
+    </div>
+  </div>
+</div>
+
+<div class="tst" id="tst"></div>
+
+<!-- Standalone setup screen (shown when no u parameter) -->
+<div class="setup-screen" id="setupScreen" style="display:none">
+  <h2>🔥 深資童軍進度性獎章追蹤</h2>
+  <p class="desc">首次使用請設定以下資訊，或選擇「示範模式」直接體驗。</p>
+  
+  <label>旅團編號</label>
+  <input id="setupUnit" placeholder="例：0082">
+  <div class="hint">旅團用純數字，區用字母</div>
+  
+  <label>我的身份</label>
+  <select id="setupRole">
+    <option value="leader">領袖（可勾選完成項目）</option>
+    <option value="member">成員（只看自己進度）</option>
+  </select>
+  
+  <label>YMIS（成員編號）</label>
+  <input id="setupYmis" placeholder="10位數字（成員用，領袖可留空）">
+  
+  <label>Apps Script 後端 URL（選用）</label>
+  <input id="setupBackend" placeholder="https://script.google.com/macros/s/...">
+  <div class="hint">留空 = 只用瀏覽器儲存（示範模式）</div>
+  
+  <label>API Key（選用）</label>
+  <input id="setupApikey" placeholder="與 Apps Script 設定一致的 Key">
+  
+  <div class="setup-actions">
+    <button class="btn-go" onclick="setupGo()">進入系統</button>
+    <button class="btn-demo" onclick="setupDemo()">示範模式</button>
+  </div>
+  
+  <div class="mode-switch">
+    💡 設定會存入瀏覽器，下次自動帶入<br>
+    從主系統進入時不需要此畫面
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 深資童軍進度性獎章追蹤系統 v2.0
+// 四級級聯自動完成
+// ============================================================
+
+// --- Check standalone mode ---
+const _q = new URLSearchParams(location.search);
+const _savedSettings = (() => {
+  try { return JSON.parse(localStorage.getItem('vsbt2_settings') || '{}'); } catch(e) { return {}; }
+})();
+
+// If no 'u' param and not embedded → show setup screen
+if (!_q.get('u') && _q.get('embed') !== '1') {
+  // Pre-fill with saved settings
+  if (_savedSettings.unit) document.getElementById('setupUnit').value = _savedSettings.unit;
+  if (_savedSettings.role) document.getElementById('setupRole').value = _savedSettings.role;
+  if (_savedSettings.ymis) document.getElementById('setupYmis').value = _savedSettings.ymis;
+  if (_savedSettings.backend) document.getElementById('setupBackend').value = _savedSettings.backend;
+  if (_savedSettings.apikey) document.getElementById('setupApikey').value = _savedSettings.apikey;
+  
+  // Show setup, hide main app
+  document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('idStrip').style.display = 'none';
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('tab-progress').style.display = 'none';
+  document.getElementById('tab-overview').style.display = 'none';
+  document.getElementById('tab-byitem').style.display = 'none';
+  document.getElementById('cbar').style.display = 'none';
+  
+  // Hide header too in standalone setup
+  document.querySelector('.hdr').style.display = 'none';
+}
+
+function setupGo() {
+  const unit = document.getElementById('setupUnit').value.trim();
+  const role = document.getElementById('setupRole').value;
+  const ymis = document.getElementById('setupYmis').value.trim();
+  const backend = document.getElementById('setupBackend').value.trim();
+  const apikey = document.getElementById('setupApikey').value.trim();
+  
+  if (!unit) { alert('請填寫旅團編號'); return; }
+  
+  // Save settings
+  localStorage.setItem('vsbt2_settings', JSON.stringify({unit, role, ymis, backend, apikey}));
+  
+  // Redirect with params
+  const params = new URLSearchParams({u: unit, role, ymis, backend, apikey});
+  location.search = params.toString();
+}
+
+function setupDemo() {
+  const unit = document.getElementById('setupUnit').value.trim() || 'DEMO';
+  const role = document.getElementById('setupRole').value;
+  const ymis = document.getElementById('setupYmis').value.trim();
+  
+  // Save settings (no backend)
+  localStorage.setItem('vsbt2_settings', JSON.stringify({unit, role, ymis, backend: '', apikey: ''}));
+  
+  // Redirect with params (no backend)
+  const params = new URLSearchParams({u: unit, role, ymis});
+  location.search = params.toString();
+}
+
+// --- Parse actual params (may come from setup redirect or from main system) ---
+const UNIT = q.get('u')||'';
+const ROLE = q.get('role')||'member';
+const YMIS = q.get('ymis')||'';
+const EMBED = q.get('embed')==='1';
+const BE = q.get('backend')||'';
+const AK = q.get('apikey')||'';
+
+const LR = ['leader','branch_leader','group_leader','admin','troop_super','super_admin','dc'];
+const IS_L = LR.includes(ROLE);
+
+if(EMBED) document.body.classList.add('embedded');
+
+let items=null, members=[], progress={}, pending=[], viewY=YMIS, moCb=null;
+
+// ============================================================
+// 收集所有可勾選的項目 ID（最底層的 leaf nodes）
+// ============================================================
+function getAllLeafIds() {
+  // Returns flat list of all leaf-level item IDs
+  const leaves = [];
+  if (!items) return leaves;
+  items.badges.forEach(b => {
+    b.segments.forEach(s => {
+      s.items.forEach(it => {
+        if (it.subItems && it.subItems.length > 0) {
+          it.subItems.forEach(si => leaves.push(si.id));
+        } else {
+          leaves.push(it.id);
+        }
+      });
+    });
+  });
+  return leaves;
+}
+
+// Get all descendant leaf IDs of a badge
+function getBadgeLeaves(badge) {
+  const leaves = [];
+  badge.segments.forEach(s => {
+    s.items.forEach(it => {
+      if (it.subItems && it.subItems.length > 0) {
+        it.subItems.forEach(si => leaves.push(si.id));
+      } else {
+        leaves.push(it.id);
+      }
+    });
+  });
+  return leaves;
+}
+
+// Get all descendant leaf IDs of a segment
+function getSegmentLeaves(segment) {
+  const leaves = [];
+  segment.items.forEach(it => {
+    if (it.subItems && it.subItems.length > 0) {
+      it.subItems.forEach(si => leaves.push(si.id));
+    } else {
+      leaves.push(it.id);
+    }
+  });
+  return leaves;
+}
+
+// Get all descendant leaf IDs of an item
+function getItemLeaves(item) {
+  if (item.subItems && item.subItems.length > 0) {
+    return item.subItems.map(si => si.id);
+  }
+  return [item.id];
+}
+
+// ============================================================
+// 級聯自動完成
+// ============================================================
+function cascadeComplete(ymis, itemId, today) {
+  // Find the item in the data structure and mark all descendants
+  for (const b of items.badges) {
+    for (const s of b.segments) {
+      for (const it of s.items) {
+        if (it.id === itemId) {
+          // This is an L3 item - complete all L4 sub-items
+          if (it.subItems) {
+            it.subItems.forEach(si => {
+              setComplete(ymis, si.id, today);
+            });
+          }
+          return;
+        }
+        if (it.subItems) {
+          for (const si of it.subItems) {
+            if (si.id === itemId) {
+              // This is an L4 item - just complete it
+              setComplete(ymis, si.id, today);
+              return;
+            }
+          }
+        }
+      }
+      if (s.id === itemId) {
+        // This is an L2 segment - complete all descendants
+        getSegmentLeaves(s).forEach(lid => setComplete(ymis, lid, today));
+        return;
+      }
+    }
+    if (b.id === itemId) {
+      // This is an L1 badge - complete all descendants
+      getBadgeLeaves(b).forEach(lid => setComplete(ymis, lid, today));
+      return;
+    }
+  }
+}
+
+function cascadeUncomplete(ymis, itemId) {
+  for (const b of items.badges) {
+    for (const s of b.segments) {
+      for (const it of s.items) {
+        if (it.id === itemId) {
+          if (it.subItems) {
+            it.subItems.forEach(si => setUncomplete(ymis, si.id));
+          }
+          return;
+        }
+        if (it.subItems) {
+          for (const si of it.subItems) {
+            if (si.id === itemId) {
+              setUncomplete(ymis, si.id);
+              return;
+            }
+          }
+        }
+      }
+      if (s.id === itemId) {
+        getSegmentLeaves(s).forEach(lid => setUncomplete(ymis, lid));
+        return;
+      }
+    }
+    if (b.id === itemId) {
+      getBadgeLeaves(b).forEach(lid => setUncomplete(ymis, lid));
+      return;
+    }
+  }
+}
+
+function setComplete(ymis, leafId, date) {
+  if (!progress[ymis]) progress[ymis] = {};
+  if (progress[ymis][leafId]) return; // already done
+  // Add to pending
+  const idx = pending.findIndex(c => c.ymis===ymis && c.itemId===leafId);
+  if (idx >= 0) {
+    if (pending[idx].action === 'uncomplete') {
+      pending.splice(idx, 1); // back to original (done)
+    }
+  } else {
+    pending.push({ymis, itemId:leafId, action:'complete', date});
+  }
+  progress[ymis][leafId] = date;
+}
+
+function setUncomplete(ymis, leafId) {
+  const date = progress[ymis]?.[leafId];
+  if (!date) return; // already not done
+  const idx = pending.findIndex(c => c.ymis===ymis && c.itemId===leafId);
+  if (idx >= 0) {
+    if (pending[idx].action === 'complete') {
+      pending.splice(idx, 1); // back to original (not done)
+    }
+  } else {
+    pending.push({ymis, itemId:leafId, action:'uncomplete', date});
+  }
+  if (progress[ymis]) delete progress[ymis][leafId];
+}
+
+// Auto-check parents when all children complete
+function autoCheckParents(ymis) {
+  // This is computed dynamically in the render, no need to explicitly set
+  // The render functions check if all leaves are done
+}
+
+// ============================================================
+// Count helpers
+// ============================================================
+function cntB(y, b) {
+  let d=0, t=0;
+  const mp = progress[y]||{};
+  b.segments.forEach(s => {
+    s.items.forEach(it => {
+      if (it.subItems && it.subItems.length > 0) {
+        it.subItems.forEach(si => { t++; if(mp[si.id]) d++; });
+      } else { t++; if(mp[it.id]) d++; }
+    });
+  });
+  return {done:d, total:t};
+}
+
+function cntS(y, s) {
+  let d=0, t=0;
+  const mp = progress[y]||{};
+  s.items.forEach(it => {
+    if (it.subItems && it.subItems.length > 0) {
+      it.subItems.forEach(si => { t++; if(mp[si.id]) d++; });
+    } else { t++; if(mp[it.id]) d++; }
+  });
+  return {done:d, total:t};
+}
+
+function cntI(y, it) {
+  let d=0, t=0;
+  const mp = progress[y]||{};
+  if (it.subItems && it.subItems.length > 0) {
+    it.subItems.forEach(si => { t++; if(mp[si.id]) d++; });
+  } else { t++; if(mp[it.id]) d++; }
+  return {done:d, total:t};
+}
+
+function cntAll(y) {
+  let d=0, t=0;
+  items.badges.forEach(b => { const s=cntB(y,b); d+=s.done; t+=s.total; });
+  return {done:d, total:t};
+}
+
+// Effective state (considering pending changes)
+function eff(y, id) {
+  const mp = progress[y]||{};
+  const o = !!mp[id];
+  const p = pending.find(c => c.ymis===y && c.itemId===id);
+  if (p) return p.action==='complete';
+  return o;
+}
+
+function effD(y, id) {
+  const mp = progress[y]||{};
+  const p = pending.find(c => c.ymis===y && c.itemId===id);
+  if (p) return p.action==='complete' ? '(待保存)' : '(取消)';
+  return mp[id]||'';
+}
+
+// Check if a parent is "auto-complete" (all leaves done)
+function isAutoComplete(y, leafIds) {
+  return leafIds.every(lid => eff(y, lid));
+}
+
+// ============================================================
+// Settings & standalone support
+// ============================================================
+function openSettings() {
+  // Show setup screen
+  const saved = (() => { try { return JSON.parse(localStorage.getItem('vsbt2_settings') || '{}'); } catch(e) { return {}; } })();
+  document.getElementById('setupUnit').value = saved.unit || UNIT;
+  document.getElementById('setupRole').value = saved.role || ROLE;
+  document.getElementById('setupYmis').value = saved.ymis || YMIS;
+  document.getElementById('setupBackend').value = saved.backend || BE;
+  document.getElementById('setupApikey').value = saved.apikey || AK;
+  
+  // Show setup, hide main content temporarily
+  document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('tab-progress').style.display = 'none';
+  document.getElementById('tab-overview').style.display = 'none';
+  document.getElementById('tab-byitem').style.display = 'none';
+  document.getElementById('cbar').style.display = 'none';
+  
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// Init
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  // Hide setup screen if showing
+  document.getElementById('setupScreen').style.display = 'none';
+  
+  document.getElementById('unitInfo').textContent = UNIT ? `單位 ${UNIT}` : '';
+  document.getElementById('whoName').textContent = YMIS ? `YMIS: ${YMIS}` : '未識別';
+  const rt = document.getElementById('whoRole');
+  rt.textContent = IS_L ? '領袖' : '成員';
+  rt.className = 'tag ' + (IS_L ? 'L' : 'M');
+  
+  // Show backend status
+  const bsEl = document.getElementById('backendStatus');
+  if (BE) {
+    bsEl.textContent = '🟢 已連接後端';
+    bsEl.style.color = 'var(--green)';
+  } else {
+    bsEl.textContent = '🟡 僅本地儲存';
+    bsEl.style.color = 'var(--orange)';
+  }
+
+  if (!IS_L) {
+    document.querySelectorAll('[data-tab="overview"],[data-tab="byitem"]').forEach(t => t.classList.add('hide'));
+  }
+
+  try { const r = await fetch('data/items.json'); items = await r.json(); }
+  catch(e) { toast('載入失敗','err'); return; }
+
+  const biB = document.getElementById('biB');
+  items.badges.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.id; o.textContent = b.icon + ' ' + b.name;
+    biB.appendChild(o);
+  });
+
+  await loadData();
+  checkRestore();
+
+  if (IS_L) {
+    document.getElementById('mbar').style.display = 'flex';
+    renderMSel();
+    if (members.length > 0 && !viewY) viewY = members[0].ymis;
+    document.getElementById('viewSel').value = viewY;
+  }
+  if (viewY) renderProg(viewY);
+  renderOV();
+  popBI();
+});
+
+// ============================================================
+// Data
+// ============================================================
+async function loadData() {
+  if (!BE || !UNIT) { loadLoc(); return; }
+  try {
+    const r = await fetch(`${BE}?action=load&u=${UNIT}&apikey=${encodeURIComponent(AK)}`);
+    const d = await r.json();
+    members = d.members || [];
+    progress = d.progress || {};
+  } catch(e) { console.error(e); toast('無法連接後端，用本地資料','err'); loadLoc(); }
+}
+
+const LS = () => `vsbt2_${UNIT||'demo'}`;
+function saveLoc() { try{localStorage.setItem(LS(),JSON.stringify({members,progress,pending,ts:Date.now()}));}catch(e){} }
+function loadLoc() { try{const d=JSON.parse(localStorage.getItem(LS())||'{}');members=d.members||[];progress=d.progress||{};}catch(e){} }
+
+function checkRestore() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS())||'{}');
+    if (d.pending && d.pending.length > 0) {
+      pending = d.pending;
+      document.getElementById('rstBanner').style.display = 'flex';
+      updBar();
+    }
+  } catch(e) {}
+}
+function restorePending() {
+  document.getElementById('rstBanner').style.display = 'none';
+  // Re-apply pending to progress state
+  pending.forEach(c => {
+    if (!progress[c.ymis]) progress[c.ymis] = {};
+    if (c.action==='complete') progress[c.ymis][c.itemId] = c.date;
+    else delete progress[c.ymis][c.itemId];
+  });
+  updBar();
+  refresh();
+}
+function discardPending() {
+  pending = []; saveLoc();
+  document.getElementById('rstBanner').style.display = 'none';
+  updBar();
+}
+
+// ============================================================
+// Tabs
+// ============================================================
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelector(`[data-tab="${t}"]`).classList.add('active');
+  ['progress','overview','byitem'].forEach(x => {
+    document.getElementById('tab-'+x).style.display = x===t ? '' : 'none';
+  });
+  if (t==='overview') renderOV();
+  if (t==='byitem') popBI();
+}
+
+// ============================================================
+// Member select
+// ============================================================
+function renderMSel() {
+  const s = document.getElementById('viewSel'), v = s.value;
+  s.innerHTML = '<option value="">— 選擇成員 —</option>';
+  members.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.ymis; o.textContent = `${m.name} (${m.ymis})`;
+    s.appendChild(o);
+  });
+  if (v) s.value = v;
+}
+function onViewChange() {
+  viewY = document.getElementById('viewSel').value;
+  if (viewY) renderProg(viewY);
+}
+
+// ============================================================
+// Toggle handler — cascade logic
+// ============================================================
+function tog(ymis, id, checked) {
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (checked) {
+    cascadeComplete(ymis, id, today);
+  } else {
+    cascadeUncomplete(ymis, id);
+  }
+  
+  saveLoc();
+  updBar();
+  refresh();
+}
+
+// ============================================================
+// Render Progress (4-level collapsible with cascade)
+// ============================================================
+function renderProg(y) {
+  if (!y) return;
+  const cls = ['c1','c2','c3','c4'];
+
+  // Overall bar
+  const all = cntAll(y);
+  const pct = all.total > 0 ? Math.round(all.done/all.total*100) : 0;
+  document.getElementById('overallBar').style.display = '';
+  document.getElementById('overallPct').textContent = `${all.done}/${all.total} (${pct}%)`;
+  document.getElementById('overallFill').style.width = pct + '%';
+
+  // Chips
+  const chips = document.getElementById('statChips');
+  chips.innerHTML = '';
+  items.badges.forEach((b, i) => {
+    const s = cntB(y, b);
+    const done = s.done === s.total;
+    const c = document.createElement('span');
+    c.className = 'chip ' + (cls[i]||'') + (done ? ' done' : '');
+    c.textContent = `${b.icon} ${b.name} ${s.done}/${s.total}`;
+    c.onclick = () => {
+      const el = document.getElementById('l1b-'+b.id);
+      const ar = document.querySelector(`[data-a="l1-${b.id}"]`);
+      el.classList.toggle('op'); ar.classList.toggle('op');
+    };
+    chips.appendChild(c);
+  });
+
+  // Tree
+  let h = '';
+  items.badges.forEach(b => {
+    const bs = cntB(y, b);
+    const bd = bs.done === bs.total;
+    const bpct = bs.total > 0 ? Math.round(bs.done/bs.total*100) : 0;
+    
+    h += `<div class="L1" id="l1-${b.id}">
+      <div class="L1h" onclick="togL1('${b.id}')">
+        <span class="ar" data-a="l1-${b.id}">▶</span>
+        <span class="ic">${b.icon}</span>
+        <span class="nm">${b.name}</span>
+        <span class="st" style="background:${bd?'#c8e6c9':'#f5f5f5'};color:${bd?'#2e7d32':'#999'}">${bd?'✓ 完成':bs.done+'/'+bs.total}</span>
+        <span class="pct">${bpct}%</span>
+      </div>
+      <div class="L1b" id="l1b-${b.id}">`;
+
+    b.segments.forEach(s => {
+      const ss = cntS(y, s);
+      const sd = ss.done === ss.total;
+      const spct = ss.total > 0 ? Math.round(ss.done/ss.total*100) : 0;
+      
+      h += `<div class="L2">
+        <div class="L2h" onclick="togL2('${b.id}','${s.id}')">
+          <span class="ar" data-a="l2-${b.id}-${s.id}">▶</span>
+          <span class="nm">${s.name}</span>
+          <span class="st">${sd?'✓ ':''}${ss.done}/${ss.total}</span>
+          <span class="pct">${spct}%</span>
+        </div>
+        <div class="L2b" id="l2b-${b.id}-${s.id}">`;
+      
+      if (s.note) h += `<div class="L2n">ℹ️ ${s.note}</div>`;
+
+      s.items.forEach(it => {
+        if (it.subItems && it.subItems.length > 0) {
+          // L3 with sub-items → expandable
+          const is = cntI(y, it);
+          const id2 = is.done === is.total;
+          const ipct = is.total > 0 ? Math.round(is.done/is.total*100) : 0;
+          
+          // L3 parent checkbox (cascade to all children)
+          h += `<div class="L3">
+            <div class="L3h" onclick="togL3('${b.id}','${s.id}','${it.id}')">
+              <input type="checkbox" ${id2?'checked':''} ${IS_L?'':'disabled'} 
+                onclick="event.stopPropagation()" 
+                onchange="tog('${y}','${it.id}',this.checked)" 
+                title="勾選 = 完成所有子項">
+              <span class="ar" data-a="l3-${b.id}-${s.id}-${it.id}">▶</span>
+              <span class="nm">${it.name}</span>
+              <span class="st">${id2?'✓ ':''}${is.done}/${is.total}</span>
+              <span class="pct" style="font-size:10px;color:var(--text2)">${ipct}%</span>
+            </div>
+            <div class="L3b" id="l3b-${b.id}-${s.id}-${it.id}">`;
+          
+          it.subItems.forEach(si => {
+            const ck = eff(y, si.id);
+            const dt = effD(y, si.id);
+            h += `<div class="L4">
+              <input type="checkbox" ${ck?'checked':''} ${IS_L?'':'disabled'} onchange="tog('${y}','${si.id}',this.checked)">
+              <span class="nm ${ck?'dn':''}">${si.name}</span>
+              <span class="dt">${fmtD(dt)}</span>
+            </div>`;
+          });
+          h += '</div></div>';
+        } else {
+          // L3 without sub-items → just a checkbox
+          const ck = eff(y, it.id);
+          const dt = effD(y, it.id);
+          h += `<div class="L3c">
+            <input type="checkbox" ${ck?'checked':''} ${IS_L?'':'disabled'} onchange="tog('${y}','${it.id}',this.checked)">
+            <span class="nm ${ck?'dn':''}" style="flex:1;font-size:13px">${it.name}</span>
+            <span class="dt">${fmtD(dt)}</span>
+          </div>`;
+        }
+      });
+      h += '</div></div>';
+    });
+    h += '</div></div>';
+  });
+
+  document.getElementById('progArea').innerHTML = h;
+}
+
+function togL1(id){const b=document.getElementById('l1b-'+id),a=document.querySelector(`[data-a="l1-${id}"]`);b.classList.toggle('op');a.classList.toggle('op');}
+function togL2(b,s){const el=document.getElementById(`l2b-${b}-${s}`),a=document.querySelector(`[data-a="l2-${b}-${s}"]`);el.classList.toggle('op');a.classList.toggle('op');}
+function togL3(b,s,i){const el=document.getElementById(`l3b-${b}-${s}-${i}`),a=document.querySelector(`[data-a="l3-${b}-${s}-${i}"]`);el.classList.toggle('op');a.classList.toggle('op');}
+
+// ============================================================
+// Confirm & Save
+// ============================================================
+function updBar() {
+  const b=document.getElementById('cbar'),t=document.getElementById('ptxt');
+  if(pending.length>0){b.classList.add('vis');t.textContent=`⚠ ${pending.length} 項未保存`;}
+  else b.classList.remove('vis');
+}
+
+function showConfirm() {
+  document.getElementById('moT').textContent = '確認寫入';
+  document.getElementById('moB').textContent = `即將寫入 ${pending.length} 項到 Google Sheet（${UNIT}）`;
+  document.getElementById('modal').classList.add('vis');
+  moCb = doSave;
+}
+function closeMo() { document.getElementById('modal').classList.remove('vis'); moCb=null; }
+function moAct() { if(moCb) moCb(); }
+
+async function doSave() {
+  const btn = document.getElementById('moOk');
+  btn.disabled = true; btn.textContent = '寫入中…';
+  try {
+    if (BE) {
+      const r = await fetch(BE, {
+        method:'POST', headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify({action:'save',unit:UNIT,apikey:AK,changes:pending})
+      });
+      if (!r.ok) throw 0;
+    } else {
+      await new Promise(r => setTimeout(r, 500));
+    }
+    applyP(); closeMo(); toast('✓ 已保存','ok');
+  } catch(e) {
+    toast('✗ 失敗，已暫存瀏覽器','err');
+  } finally {
+    btn.disabled = false; btn.textContent = '確認';
+  }
+}
+
+function applyP() {
+  // Pending already applied to progress state during tog()
+  pending = [];
+  saveLoc();
+  updBar();
+  refresh();
+}
+
+// ============================================================
+// Overview (all members)
+// ============================================================
+function renderOV() {
+  if (!IS_L) return;
+  const c = document.getElementById('ovArea');
+  if (members.length===0) { c.innerHTML='<div class="empty"><div class="em">👥</div><p>尚未新增成員</p></div>'; return; }
+  const cols = ['#1565c0','#2e7d32','#e65100','#800020'];
+  
+  let h = '';
+  members.forEach(m => {
+    const a = cntAll(m.ymis);
+    const pc = a.total>0 ? Math.round(a.done/a.total*100) : 0;
+    h += `<div class="ovc">
+      <div class="ovh" onclick="togOv('${m.ymis}')">
+        <span class="ar" data-a="ov-${m.ymis}">▶</span>
+        <span class="nm">${m.name}</span>
+        <span class="ym">${m.ymis}</span>
+        <span class="pc">${a.done}/${a.total} (${pc}%)</span>
+      </div>
+      <div class="ovb" id="ovb-${m.ymis}">`;
+    
+    items.badges.forEach((b,i) => {
+      const bs = cntB(m.ymis, b);
+      const bp = bs.total>0 ? Math.round(bs.done/bs.total*100) : 0;
+      h += `<div style="margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:500">
+          <span>${b.icon} ${b.name}</span><span>${bs.done}/${bs.total} (${bp}%)</span>
+        </div>
+        <div class="obr"><div class="fill" style="width:${bp}%;background:${cols[i]||'#999'}"></div></div>
+      </div>`;
+    });
+    h += '</div></div>';
+  });
+  c.innerHTML = h;
+}
+function togOv(y){const b=document.getElementById('ovb-'+y),a=document.querySelector(`[data-a="ov-${y}"]`);b.classList.toggle('op');a.classList.toggle('op');}
+
+// ============================================================
+// By-item view
+// ============================================================
+function onBiBChange() { popBI(); }
+function popBI() {
+  const s = document.getElementById('biI'), bf = document.getElementById('biB').value;
+  s.innerHTML = '<option value="">— 選擇項目 —</option>';
+  if (!items) return;
+  let all = [];
+  items.badges.forEach(b => {
+    if (bf && b.id !== bf) return;
+    b.segments.forEach(sg => sg.items.forEach(it => {
+      if (it.subItems && it.subItems.length > 0) {
+        it.subItems.forEach(si => all.push({id:si.id, label:`${b.icon}${b.name} › ${sg.name} › ${it.name} › ${si.name}`}));
+      } else {
+        all.push({id:it.id, label:`${b.icon}${b.name} › ${sg.name} › ${it.name}`});
+      }
+    }));
+  });
+  all.sort((a,b) => a.label.localeCompare(b.label,'zh-Hant'));
+  all.forEach(x => {const o=document.createElement('option');o.value=x.id;o.textContent=x.label;s.appendChild(o);});
+}
+
+function renderBI() {
+  if (!IS_L) return;
+  const id = document.getElementById('biI').value;
+  const c = document.getElementById('biArea');
+  if (!id) { c.innerHTML='<div class="empty"><div class="em">🔍</div><p>選擇項目查看</p></div>'; return; }
+  
+  let nm = id;
+  items.badges.forEach(b => b.segments.forEach(sg => sg.items.forEach(it => {
+    if (it.subItems) it.subItems.forEach(si => { if(si.id===id) nm=si.name; });
+    if (it.id===id) nm=it.name;
+  })));
+  
+  let h = `<div style="font-size:12px;font-weight:600;padding:6px;background:#f5f5f5;border-radius:4px;margin-bottom:6px">${nm}</div>`;
+  
+  // Count completed
+  const doneCount = members.filter(m => progress[m.ymis]?.[id]).length;
+  h += `<div style="font-size:11px;color:var(--text2);margin-bottom:6px">已完成：${doneCount}/${members.length}</div>`;
+  
+  h += '<table class="bibt"><thead><tr><th>成員</th><th>YMIS</th><th>狀態</th><th>日期</th><th></th></tr></thead><tbody>';
+  
+  const sorted = [...members].sort((a,b) => {
+    const ad=!!progress[a.ymis]?.[id], bd=!!progress[b.ymis]?.[id];
+    return ad===bd ? 0 : ad ? 1 : -1;
+  });
+  
+  sorted.forEach(m => {
+    const d = progress[m.ymis]?.[id];
+    h += `<tr>
+      <td>${m.name}</td>
+      <td style="font-size:10px;color:var(--text2)">${m.ymis}</td>
+      <td style="color:${d?'var(--green)':'#ccc'};font-weight:600">${d?'✓ 已完成':'○ 未完成'}</td>
+      <td style="font-size:10px">${fmtD(d)}</td>
+      <td><input type="checkbox" ${d?'checked':''} onchange="tog('${m.ymis}','${id}',this.checked)"></td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  c.innerHTML = h;
+}
+
+// ============================================================
+// Add member
+// ============================================================
+function showAdd() { document.getElementById('addMo').classList.add('vis'); }
+function closeAdd() { document.getElementById('addMo').classList.remove('vis'); }
+function doAdd() {
+  const y=document.getElementById('addY').value.trim(), n=document.getElementById('addN').value.trim();
+  if(!y||!n){toast('請填寫 YMIS 及姓名','err');return;}
+  if(members.find(m=>m.ymis===y)){toast('YMIS 已存在','err');return;}
+  members.push({ymis:y, name:n}); saveLoc(); closeAdd();
+  document.getElementById('addY').value=''; document.getElementById('addN').value='';
+  refresh(); toast(`已新增：${n}`,'ok');
+}
+
+// ============================================================
+// Refresh & Utils
+// ============================================================
+function refresh() { renderMSel(); if(viewY) renderProg(viewY); renderOV(); renderBI(); }
+function fmtD(d) { if(!d)return'—'; if(typeof d==='string'&&d.startsWith('('))return d; try{return d.length>=10?d.substring(0,10):d;}catch(e){return d;} }
+function toast(m,t='') { const e=document.getElementById('tst'); e.textContent=m; e.className=`tst ${t} vis`; setTimeout(()=>e.classList.remove('vis'),2500); }
+</script>
+</body>
+</html>
