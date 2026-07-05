@@ -1,0 +1,14 @@
+{
+  "troops": {
+    "0082": {
+      "name": "第 82 旅",
+      "backend": "https://script.google.com/macros/s/XXXXXXXXX/exec",
+      "apikey": "troop0082_vs_badge_2026"
+    },
+    "0123": {
+      "name": "第 123 旅",
+      "backend": "https://script.google.com/macros/s/YYYYYYYYY/exec",
+      "apikey": "troop0123_vs_badge_2026"
+    }
+  }
+}
