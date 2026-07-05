@@ -2,9 +2,11 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "data/**", "use": "@vercel/static" }
+    { "src": "data/**", "use": "@vercel/static" },
+    { "src": "apps-script/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/apps-script/(.*)", "dest": "/apps-script/$1" },
     { "src": "/data/(.*)", "dest": "/data/$1" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
