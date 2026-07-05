@@ -520,7 +520,43 @@
       z-index: 999;
     }
 
-    .help-btn:hover { transform: scale(1.1); }
+    /* Nav Tabs */
+    .welcome-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 25px 0;
+    }
+
+    .welcome-nav button {
+      padding: 12px 24px;
+      border: 2px solid var(--vs-maroon);
+      border-radius: 8px;
+      background: var(--vs-card);
+      color: var(--vs-maroon);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .welcome-nav button.active {
+      background: var(--vs-maroon);
+      color: white;
+    }
+
+    .welcome-nav button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139,0,0,0.2);
+    }
+
+    .welcome-section {
+      display: none;
+    }
+
+    .welcome-section.active {
+      display: block;
+    }
 
     .loading {
       text-align: center;
@@ -568,6 +604,12 @@
       cursor: not-allowed;
     }
 
+    .download-btn:hover {
+      background: #6B0000;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139,0,0,0.3);
+    }
+
     @media (max-width: 768px) {
       .level-structure { grid-template-columns: repeat(2, 1fr); }
       .info-grid { grid-template-columns: 1fr; }
@@ -587,114 +629,208 @@
         </div>
       </div>
       <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
+
+      <div class="welcome-nav">
+        <button class="active" onclick="showWelcomeTab('enter')">🎯 進入系統</button>
+        <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
+        <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
+      </div>
     </div>
 
     <div class="container">
-      <!-- 四級勾選架構 -->
-      <div class="section-title">
-        <h2>四級勾選架構</h2>
-      </div>
-
-      <div class="level-structure">
-        <div class="level-box">
-          <div class="level-num">L1</div>
-          <div class="level-name">徽章</div>
-          <div class="level-desc">會員章/肩章/獎章/榮譽童軍</div>
-        </div>
-        <div class="level-box">
-          <div class="level-num">L2</div>
-          <div class="level-name">段章/類別</div>
-          <div class="level-desc">活動/理解/露營/急救...</div>
-        </div>
-        <div class="level-box">
-          <div class="level-num">L3</div>
-          <div class="level-name">小分項</div>
-          <div class="level-desc">參加六次團活動...</div>
-        </div>
-        <div class="level-box">
-          <div class="level-num">L4</div>
-          <div class="level-name">子分項</div>
-          <div class="level-desc">第1次出席/第2次出席...</div>
-        </div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-card">
-          <h3> 靈活勾選</h3>
-          <p>領袖可以在任何層級勾選：</p>
-          <ul>
-            <li>勾 L4 = 完成一個子分項</li>
-            <li>勾 L3 = 完成小分項（自動勾選所有 L4）</li>
-            <li>勾 L2 = 完成段章（自動勾選所有下層）</li>
-            <li>勾 L1 = 完成徽章（自動勾選全部）</li>
-          </ul>
-        </div>
-
-        <div class="info-card">
-          <h3>🔄 雙向級聯</h3>
-          <p>勾選會自動聯動：</p>
-          <ul>
-            <li>勾上層 → 自動完成所有下層</li>
-            <li>下層全完成 → 上層自動完成</li>
-            <li>一天只能完成幾項？勾 L4 即可</li>
-            <li>一次完成整個段章？直接勾 L2</li>
-          </ul>
-        </div>
-
-        <div class="info-card">
-          <h3>👥 兩種身份</h3>
-          <p>根據角色提供不同功能：</p>
-          <ul>
-            <li>領袖：勾選成員完成項目</li>
-            <li>成員：查看自己的進度</li>
-            <li>全團總覽：查看所有成員</li>
-            <li>按項目查看：特定項目狀況</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 旅團選擇 -->
-      <div class="troop-section">
+      <!-- 已有旅團進入 -->
+      <div id="welcome-enter" class="welcome-section active">
         <div class="section-title">
-          <h2>🎯 請選擇您的旅團</h2>
+          <h2>四級勾選架構</h2>
         </div>
-        <div class="troop-grid" id="troopGrid"></div>
+        
+        <div class="level-structure">
+          <div class="level-box">
+            <div class="level-num">L1</div>
+            <div class="level-name">徽章</div>
+            <div class="level-desc">會員章/肩章/獎章/榮譽童軍</div>
+          </div>
+          <div class="level-box">
+            <div class="level-num">L2</div>
+            <div class="level-name">段章/類別</div>
+            <div class="level-desc">活動/理解/露營/急救...</div>
+          </div>
+          <div class="level-box">
+            <div class="level-num">L3</div>
+            <div class="level-name">小分項</div>
+            <div class="level-desc">參加六次團活動...</div>
+          </div>
+          <div class="level-box">
+            <div class="level-num">L4</div>
+            <div class="level-name">子分項</div>
+            <div class="level-desc">第1次出席/第2次出席...</div>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <h3> 靈活勾選</h3>
+            <p>領袖可以在任何層級勾選：</p>
+            <ul>
+              <li>勾 L4 = 完成一個子分項</li>
+              <li>勾 L3 = 完成小分項（自動勾選所有 L4）</li>
+              <li>勾 L2 = 完成段章（自動勾選所有下層）</li>
+              <li>勾 L1 = 完成徽章（自動勾選全部）</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <h3>🔄 雙向級聯</h3>
+            <p>勾選會自動聯動：</p>
+            <ul>
+              <li>勾上層 → 自動完成所有下層</li>
+              <li>下層全完成 → 上層自動完成</li>
+              <li>一天只能完成幾項？勾 L4 即可</li>
+              <li>一次完成整個段章？直接勾 L2</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <h3>👥 兩種身份</h3>
+            <p>根據角色提供不同功能：</p>
+            <ul>
+              <li>領袖：勾選成員完成項目</li>
+              <li>成員：查看自己的進度</li>
+              <li>全團總覽：查看所有成員</li>
+              <li>按項目查看：特定項目狀況</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 旅團選擇 -->
+        <div class="troop-section">
+          <div class="section-title">
+            <h2> 請選擇您的旅團</h2>
+          </div>
+          <div class="troop-grid" id="troopGrid"></div>
+        </div>
+      </div>
+
+      <!-- 新旅團部署 -->
+      <div id="welcome-setup" class="welcome-section">
+        <div class="section-title">
+          <h2> 新旅團部署指南</h2>
+        </div>
+
+        <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;">
+          <h3> 只需 10 分鐘，3 步完成</h3>
+          <p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p>
+        </div>
+
+        <div class="tutorial" style="margin-bottom: 20px;">
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>下載後端程式碼</h4>
+                <p>點擊下方按鈕下載 Code.gs 檔案：</p>
+                <a href="apps-script/Code.gs" download="Code.gs" class="download-btn" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background: var(--vs-maroon); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;"> 下載 Code.gs</a>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>建立 Google Sheet 並部署</h4>
+                <p>
+                  <strong>2.1</strong> 開啟 <a href="https://sheets.google.com" target="_blank" style="color: var(--vs-maroon);">Google Sheets</a>，建立新試算表<br>
+                  <strong>2.2</strong> 命名為「深資童軍進度追蹤」，複製網址中的 Sheet ID<br>
+                  <strong>2.3</strong> 點擊「擴充功能」→「Apps Script」<br>
+                  <strong>2.4</strong> 刪除預設內容，貼上 Code.gs 的內容<br>
+                  <strong>2.5</strong> 修改第一行的 SHEET_ID 為您的 Sheet ID<br>
+                  <strong>2.6</strong> 儲存後執行 <code>initializeSheets</code> 函數（會自動生成 API Key）<br>
+                  <strong>2.7</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br>
+                  <strong>2.8</strong> 複製部署後的網址
+                </p>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>提交給系統管理員</h4>
+                <p>把以下資訊交給系統管理員，即可完成登記：</p>
+                <ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);">
+                  <li>旅團編號（例：0082）</li>
+                  <li>Apps Script 網址（以 /exec 結尾）</li>
+                  <li>API Key（執行 initializeSheets 時顯示的隨機字串）</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--vs-text-light);">管理員會將您的旅團加入系統，之後您和成員就能直接使用。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3> 資料安全說明</h3>
+          <ul>
+            <li>資料存在您自己建立的 Google Sheet，完全由您掌控</li>
+            <li>API Key 由系統自動生成，防止爬虫存取</li>
+            <li>Google Sheet 需要登入才能編輯，保護您的資料</li>
+            <li>忘記 API Key？在 Apps Script 執行 showApiKey() 即可重新顯示</li>
+          </ul>
+        </div>
       </div>
 
       <!-- 使用教學 -->
-      <div class="tutorial">
+      <div id="welcome-guide" class="welcome-section">
         <div class="section-title">
-          <h2>📚 使用教學</h2>
+          <h2>📖 使用教學</h2>
         </div>
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h4>選擇旅團</h4>
-              <p>從上方列表中選擇您的旅團</p>
+        <div class="tutorial">
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>選擇旅團</h4>
+                <p>從旅團列表中選擇您的旅團，系統會自動載入旅團設定</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>選擇身份</h4>
+                <p>領袖可以管理全團進度，成員只能查看自己的進度</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>填寫 YMIS（成員必填）</h4>
+                <p>成員需要填寫自己的 YMIS（10位數字），領袖可以留空</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>開始使用</h4>
+                <p>系統會自動載入您的進度，建議加入書籤方便下次使用</p>
+              </div>
             </div>
           </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h4>選擇身份</h4>
-              <p>領袖可以管理全團進度，成員只能查看自己的進度</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h4>填寫 YMIS（成員必填）</h4>
-              <p>成員需填寫 YMIS（10位數字），領袖可以留空</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-number">4</div>
-            <div class="step-content">
-              <h4>開始使用</h4>
-              <p>系統自動載入進度，建議加入書籤</p>
-            </div>
-          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 30px;">
+          <h2>四級勾選說明</h2>
+        </div>
+
+        <div class="info-card">
+          <h3> 領袖勾選操作</h3>
+          <ul>
+            <li>勾選 L4 子分項：完成一個細項（例：第1次團活動）</li>
+            <li>勾選 L3 小分項：自動完成所有子分項（例：完成六次團活動）</li>
+            <li>勾選 L2 段章：自動完成所有小分項和子分項（例：完成會員章全部活動）</li>
+            <li>勾選 L1 徽章：自動完成該徽章所有下層項目</li>
+          </ul>
+          <p style="margin-top: 12px;"><strong>提示：</strong>所有下層完成後，上層會自動標記為完成。領袖只需勾選已完成的層級即可。</p>
+        </div>
+
+        <div class="info-card" style="margin-top: 15px;">
+          <h3> 批量保存</h3>
+          <p>勾選後資料會暫存在瀏覽器，點擊底部的「確認寫入」按鈕才會儲存到 Google Sheet。這樣可以一次性勾選多項，避免頻繁等待。</p>
         </div>
       </div>
     </div>
@@ -774,6 +910,14 @@
           this.value === 'member' ? 'block' : 'none';
       });
     });
+
+    function showWelcomeTab(tabName) {
+      document.querySelectorAll('.welcome-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.welcome-nav button').forEach(b => b.classList.remove('active'));
+      
+      document.getElementById('welcome-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
 
     async function loadTroops() {
       try {
