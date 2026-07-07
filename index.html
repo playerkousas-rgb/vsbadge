@@ -42,8 +42,8 @@
     }
 
     .logo-img {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
     }
 
@@ -622,7 +622,7 @@
   <div id="welcomeScreen">
     <div class="header">
       <div class="logo-container">
-        <img src="assets/vs-logo.png" alt="深資童軍標誌" class="logo-img">
+        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
         <div>
           <h1>深資童軍進度追蹤系統</h1>
           <p>Venture Scout Progress Tracking</p>
@@ -647,23 +647,23 @@
         <div class="level-structure">
           <div class="level-box">
             <div class="level-num">L1</div>
-            <div class="level-name">徽章</div>
-            <div class="level-desc">會員章/肩章/獎章/榮譽童軍</div>
+            <div class="level-name">進度獎章</div>
+            <div class="level-desc">會員章/肩章/深資童軍獎章/榮譽童軍獎章</div>
           </div>
           <div class="level-box">
             <div class="level-num">L2</div>
-            <div class="level-name">段章/類別</div>
-            <div class="level-desc">活動/理解/露營/急救...</div>
+            <div class="level-name">段章 / 金帶</div>
+            <div class="level-desc">活動策劃/社會服務/多元技能/戶外探險</div>
           </div>
           <div class="level-box">
             <div class="level-num">L3</div>
-            <div class="level-name">小分項</div>
-            <div class="level-desc">參加六次團活動...</div>
+            <div class="level-name">大項</div>
+            <div class="level-desc">露營/繩結/遠足/急救/個人興趣...</div>
           </div>
           <div class="level-box">
             <div class="level-num">L4</div>
-            <div class="level-name">子分項</div>
-            <div class="level-desc">第1次出席/第2次出席...</div>
+            <div class="level-name">小項</div>
+            <div class="level-desc">第1次出席/第2次出席/具體要求...</div>
           </div>
         </div>
 
@@ -672,10 +672,10 @@
             <h3> 靈活勾選</h3>
             <p>領袖可以在任何層級勾選：</p>
             <ul>
-              <li>勾 L4 = 完成一個子分項</li>
-              <li>勾 L3 = 完成小分項（自動勾選所有 L4）</li>
-              <li>勾 L2 = 完成段章（自動勾選所有下層）</li>
-              <li>勾 L1 = 完成徽章（自動勾選全部）</li>
+              <li>勾 L4 小項 = 完成一個具體要求</li>
+              <li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li>
+              <li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li>
+              <li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li>
             </ul>
           </div>
           <div class="info-card">
@@ -685,7 +685,7 @@
               <li>勾上層 → 自動完成所有下層</li>
               <li>下層全完成 → 上層自動完成</li>
               <li>一天只能完成幾項？勾 L4 即可</li>
-              <li>一次完成整個段章？直接勾 L2</li>
+              <li>一次完成整個大項？直接勾 L3</li>
             </ul>
           </div>
           <div class="info-card">
@@ -761,6 +761,24 @@
                 <p style="margin-top: 10px; font-size: 12px; color: var(--vs-text-light);">管理員會將您的旅團加入系統，之後您和成員就能直接使用。</p>
               </div>
             </div>
+
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>（選用）接入主系統</h4>
+                <p>如果您的旅團有使用 scoutsystem-2.0 主系統，可以把此系統接入：</p>
+                <ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);">
+                  <li>把上述 3 項資訊交給主系統管理員</li>
+                  <li>管理員會在主系統的「元件設定」中加入您的旅團</li>
+                  <li>設定完成後，從主系統 Dashboard 的元件卡片就能直接進入</li>
+                  <li>身份會自動帶入，不需要再選擇旅團和身份</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--vs-text-light);">
+                  <strong>提示：</strong>獨立使用和接入主系統可以同時使用，不衝突。
+                  領袖可以從主系統進入（身份自動帶入），成員可以直接 bookmark 前端 URL。
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -820,10 +838,10 @@
         <div class="info-card">
           <h3> 領袖勾選操作</h3>
           <ul>
-            <li>勾選 L4 子分項：完成一個細項（例：第1次團活動）</li>
-            <li>勾選 L3 小分項：自動完成所有子分項（例：完成六次團活動）</li>
-            <li>勾選 L2 段章：自動完成所有小分項和子分項（例：完成會員章全部活動）</li>
-            <li>勾選 L1 徽章：自動完成該徽章所有下層項目</li>
+            <li>勾選 L4 小項：完成一個具體要求（例：第1次團活動）</li>
+            <li>勾選 L3 大項：自動完成所有小項（例：完成露營全部要求）</li>
+            <li>勾選 L2 段章：自動完成所有大項和小項（例：完成活動策劃段章）</li>
+            <li>勾選 L1 獎章：自動完成該獎章所有下層項目</li>
           </ul>
           <p style="margin-top: 12px;"><strong>提示：</strong>所有下層完成後，上層會自動標記為完成。領袖只需勾選已完成的層級即可。</p>
         </div>
@@ -866,7 +884,7 @@
   <div id="mainApp" class="main-app">
     <div class="app-header">
       <h1>
-        <img src="assets/vs-logo.png" alt="Logo" class="logo-img">
+        <img src="assets/vs-logo-small.png" alt="Logo" class="logo-img">
         <span id="appTitle">深資童軍進度追蹤</span>
       </h1>
       <div class="user-info" id="userInfo"></div>
@@ -890,7 +908,7 @@
   </div>
 
   <!-- Help Button -->
-  <div class="help-btn" onclick="alert('四級勾選說明：\n\nL1 徽章：勾選 = 完成整個徽章\nL2 段章：勾選 = 完成整個段章\nL3 小分項：勾選 = 完成小分項\nL4 子分項：勾選 = 完成子分項\n\n勾上層會自動勾選所有下層\n下層全完成會自動勾上層\n\n如有問題請聯絡系統管理員')">❓</div>
+  <div class="help-btn" onclick="alert('四級勾選說明：\n\nL1 進度獎章：勾選 = 完成整個獎章\nL2 段章/金帶：勾選 = 完成整個段章\nL3 大項：勾選 = 完成大項（如露營）\nL4 小項：勾選 = 完成小項（如第1次出席）\n\n勾上層會自動勾選所有下層\n下層全完成會自動勾上層\n\n如有問題請聯絡系統管理員')">❓</div>
 
   <script>
     let troopsData = null;
@@ -921,18 +939,37 @@
 
     async function loadTroops() {
       try {
-        const response = await fetch('troops.json');
-        troopsData = await response.json();
-        displayTroops();
+        // 從 troops.json 讀取旅團名稱
+        const troopsResponse = await fetch('troops.json');
+        const troopsData = await troopsResponse.json();
+        
+        // 從 API 讀取 backend 和 apikey
+        const apiResponse = await fetch('/api/troops');
+        const apiData = await apiResponse.json();
+        
+        // 合併資料
+        const troops = troopsData.troops || {};
+        const apiTroops = apiData.troops || {};
+        
+        Object.keys(troops).forEach(id => {
+          if (apiTroops[id]) {
+            // backend URL 已從 troops.json 讀取
+            troops[id].apikey = apiTroops[id].apikey;
+          }
+        });
+        
+        troopsData.troops = troops;
+        displayTroops(troopsData);
       } catch (error) {
+        console.error('Failed to load troops:', error);
         document.getElementById('troopGrid').innerHTML = 
           '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">無法載入旅團列表</p>';
       }
     }
 
-    function displayTroops() {
+    function displayTroops(data) {
       const grid = document.getElementById('troopGrid');
-      const troops = troopsData.troops || {};
+      const troops = data.troops || {};
       
       if (Object.keys(troops).length === 0) {
         grid.innerHTML = '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">目前沒有可用的旅團</p>';
