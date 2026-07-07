@@ -3,9 +3,11 @@
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "data/**", "use": "@vercel/static" },
-    { "src": "apps-script/**", "use": "@vercel/static" }
+    { "src": "apps-script/**", "use": "@vercel/static" },
+    { "src": "api/**", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/apps-script/(.*)", "dest": "/apps-script/$1" },
     { "src": "/data/(.*)", "dest": "/data/$1" },
     { "src": "/(.*)", "dest": "/$1" }

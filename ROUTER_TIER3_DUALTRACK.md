@@ -145,24 +145,28 @@ Router（登記一次）
 ```json
 {
   "id": "vs_badge_tracker",
-  "title": "深資童軍進度性獎章追蹤",
+  "title": "深資童軍進度追蹤 (Tier 3)",
   "icon": "🔥",
-  "url": "https://vsbadge.vercel.app",
-  "description": "追蹤四級進度性獎章考核。支援獨立使用或接入主系統。",
-  "version": "2.0.0",
   "tier": 3,
-  "embed": true,
-  "needsUnitBackend": true,
-  "dualTrack": true,
-  "status": "active"
+  "path": "https://vsbadge.vercel.app/",
+  "roles": ["member", "leader"],
+  "needsTroopBackend": true,
+  "description": "基於第11版訓練綱要的四級進度追蹤系統。支援獨立使用或接入主系統。"
 }
 ```
 
-新增欄位：
-| 欄位 | 說明 |
-|------|------|
-| `dualTrack` | `true` = 支援雙軌制（獨立+主系統） |
-| `needsUnitBackend` | `true` = 需要單位部署後端 |
+**欄位說明：**
+
+| 欄位 | 說明 | 範例 |
+|------|------|------|
+| `id` | 全域唯一識別碼 | `"vs_badge_tracker"` |
+| `title` | 顯示名稱 | `"深資童軍進度追蹤 (Tier 3)"` |
+| `icon` | Emoji 圖示 | `"🔥"` |
+| `tier` | 元件等級（2 或 3） | `3` |
+| `path` | 元件 URL（第3級填完整 URL） | `"https://vsbadge.vercel.app/"` |
+| `roles` | 可使用的角色列表 | `["member", "leader"]` |
+| `needsTroopBackend` | 是否需要單位後端 | `true` |
+| `description` | 簡短描述 | `"基於第11版訓練綱要..."` |
 
 ### 2. 就這麼簡單。完了。
 
