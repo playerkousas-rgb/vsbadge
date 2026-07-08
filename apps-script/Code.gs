@@ -4,7 +4,6 @@
 // ============================================================
 
 // ===== 設定 =====
-const SHEET_ID = 'YOUR_SHEET_ID_HERE';
 
 // 預設超管帳號（開發測試用，隱藏）
 const DEFAULT_SUPER_YMIS = 'sheep';
@@ -19,8 +18,9 @@ const DEFAULT_ADMIN_EMAIL = 'admin@example.com';
 // ===== 工具函式 =====
 
 function getSheet() {
-  return SpreadsheetApp.openById(SHEET_ID);
+  return SpreadsheetApp.getActiveSpreadsheet();
 }
+
 
 function getApiKey() {
   const props = PropertiesService.getScriptProperties();
