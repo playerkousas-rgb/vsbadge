@@ -28,11 +28,7 @@ https://vsbadge.vercel.app/
 
 1. 開啟 [Google Sheets](https://sheets.google.com)
 2. 建立新試算表
-3. 命名為「深資童軍進度追蹤 - 您的旅團名稱」
-4. 複製網址中的 **Sheet ID**：
-   ```
-   https://docs.google.com/spreadsheets/d/【這段就是 Sheet ID】/edit
-   ```
+3. 命名為任何你喜歡的名稱（例如：「深資童軍進度追蹤 - 第 82 旅」）
 
 ### 第 3 步：部署 Apps Script
 
@@ -40,7 +36,7 @@ https://vsbadge.vercel.app/
 2. 刪除所有預設程式碼
 3. 開啟下載的 `Code.gs` 檔案，**複製全部內容**
 4. **貼上**到 Apps Script 編輯器
-5. 修改第一行的 `SHEET_ID`：
+5. **不需要修改任何程式碼**（系統會自動綁定此 Sheet）
    ```javascript
    const SHEET_ID = '您的Sheet ID';  // 替換為第 2 步複製的 ID
    ```
