@@ -1,6 +1,6 @@
 # Vercel 環境變數設定指南
 
-> **只有 API Key 需要放在環境變數**，BACKEND URL 可以放 troops.json。
+> 只有 API Key 需要放在環境變數，BACKEND URL 可以放 troops.json。
 
 ---
 
@@ -14,8 +14,8 @@
 - Code.gs 有 API Key 驗證，保護資料安全
 
 **放在 troops.json 的好處：**
-- ✅ 前端直接讀 troops.json，**速度最快**（不需要透過 Serverless Function）
-- ✅ 減少一次 API 呼叫
+- ✅ 前端直接讀 troops.json，**速度最快**
+- ✅ 不需要透過 Serverless Function 多一次 API 呼叫
 - ✅ 簡化架構
 
 **結論：**
@@ -163,21 +163,6 @@ async function loadTroops() {
 
 ---
 
-##  速度比較
-
-| 方案 | API 呼叫次數 | 讀取速度 | 安全性 |
-|------|-------------|---------|--------|
-| 全部在環境變數 | 2 次（troops.json + /api/troops） | 較慢 | 最高 |
-| **優化方案** | **2 次（troops.json + /api/troops）** | **較快** | **高** |
-| 全部在 troops.json | 1 次（troops.json） | 最快 | 較低 |
-
-**優化方案是最佳平衡點：**
-- BACKEND URL 放 troops.json（減少資料量）
-- API Key 放環境變數（保密）
-- 只需要 2 次 API 呼叫
-
----
-
 ##  新增旅團流程
 
 ### 獨立使用
@@ -232,19 +217,6 @@ async function loadTroops() {
 - [ ] `.gitignore` 包含 `.env` 檔案
 - [ ] Serverless Function 正確讀取環境變數
 - [ ] 前端合併 troops.json 和 /api/troops 的資料
-
----
-
-##  常見問題
-
-**Q: 為什麼不全部放 troops.json？**
-A: API Key 是保護資料的最後一道防線，放進 Git 會暴露在歷史記錄中。
-
-**Q: 為什麼不全部放環境變數？**
-A: BACKEND URL 不需要保密，放 troops.json 可以簡化架構，減少維護成本。
-
-**Q: 可以混用嗎？**
-A: 可以。有些旅團用獨立模式（troops.json），有些接入主系統，互不影響。
 
 ---
 
