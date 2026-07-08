@@ -438,7 +438,7 @@
 
     async function loadTroops() {
       try {
-        const troopsResponse = await fetch('troops.json');
+        const troopsResponse = await fetch('data/troops.json');
         const troopsData = await troopsResponse.json();
         displayTroops(troopsData);
       } catch (error) {
@@ -449,7 +449,7 @@
 
     async function selectTroop(troopId) {
       try {
-        const troopsResponse = await fetch('troops.json');
+        const troopsResponse = await fetch('data/troops.json');
         const troopsData = await troopsResponse.json();
         const troop = troopsData.troops[troopId];
         
