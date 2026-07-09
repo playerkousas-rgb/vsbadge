@@ -48,386 +48,124 @@
     .step-content p { color: var(--vs-text-light); font-size: 13px; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
     .modal.active { display: flex; }
-    .modal-content { background: var(--vs-card); border-radius: 12px; padding: 25px; max-width: 450px; width: 90%; max-height: 90vh; overflow-y: auto; }
-    .modal-content h3 { color: var(--vs-maroon); font-size: 18px; margin-bottom: 15px; }
+    .modal-content { background: var(--vs-card); border-radius: 12px; padding: 25px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-content h3 { color: var(--vs-maroon); font-size: 20px; margin-bottom: 20px; text-align: center; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid var(--vs-border); border-radius: 6px; font-size: 13px; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--vs-maroon); }
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    .btn { flex: 1; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid var(--vs-border); border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--vs-maroon); }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.3s; border: none; }
     .btn-primary { background: var(--vs-maroon); color: white; }
     .btn-primary:hover { background: #6B0000; }
     .btn-secondary { background: var(--vs-border); color: var(--vs-text); }
-    .btn-secondary:hover { background: #D0D0D0; }
-    .btn-success { background: #28A745; color: white; }
-    .btn-success:hover { background: #218838; }
-    .btn-danger { background: #DC3545; color: white; }
-    .btn-danger:hover { background: #C82333; }
-    .main-app { display: none; }
-    .main-app.active { display: block; }
-    .app-header { background: var(--vs-maroon); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--vs-gold); }
-    .app-header h1 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
-    .app-header .logo-img { width: 45px; height: 45px; }
-    .user-info { font-size: 13px; display: flex; align-items: center; gap: 10px; }
-    .nav-tabs { display: flex; background: var(--vs-card); border-bottom: 2px solid var(--vs-border); flex-wrap: wrap; }
-    .nav-tab { flex: 1; min-width: 100px; padding: 12px; text-align: center; cursor: pointer; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--vs-text-light); border-bottom: 3px solid transparent; transition: all 0.3s; }
-    .nav-tab:hover { background: var(--vs-bg); }
-    .nav-tab.active { color: var(--vs-maroon); border-bottom-color: var(--vs-maroon); }
-    .tab-content { display: none; padding: 20px; }
-    .tab-content.active { display: block; }
-    .l1-badge { background: var(--vs-card); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; }
-    .l1-header { padding: 14px 18px; background: var(--vs-maroon); color: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .l1-header h3 { font-size: 16px; }
-    .l1-body { padding: 0; display: none; }
-    .l1-body.expanded { display: block; }
-    .l2-segment { border-bottom: 1px solid var(--vs-border); padding: 0; }
-    .l2-header { padding: 12px 18px; background: #F8F8F8; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--vs-maroon); }
-    .l2-header h4 { font-size: 14px; color: var(--vs-maroon); }
-    .l2-body { display: none; padding: 10px 18px; }
-    .l2-body.expanded { display: block; }
-    .l3-item { border-bottom: 1px solid #F0F0F0; padding: 8px 0; }
-    .l3-header { display: flex; align-items: center; gap: 10px; padding: 5px 0; cursor: pointer; }
-    .l3-header input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--vs-maroon); cursor: pointer; }
-    .l3-header label { flex: 1; font-size: 13px; cursor: pointer; }
-    .l3-header .date { font-size: 11px; color: var(--vs-text-light); }
-    .l4-subitems { display: none; padding-left: 30px; margin-top: 5px; }
-    .l4-subitems.expanded { display: block; }
-    .l4-item { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
-    .l4-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--vs-maroon); cursor: pointer; }
-    .l4-item label { flex: 1; font-size: 12px; cursor: pointer; }
-    .l4-item .date { font-size: 10px; color: var(--vs-text-light); }
-    .help-btn { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: var(--vs-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 3px solid var(--vs-gold); transition: transform 0.3s; z-index: 999; }
-    .help-btn:hover { transform: scale(1.1); }
-    .loading { text-align: center; padding: 30px; color: var(--vs-text-light); }
-    .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--vs-card); border-top: 2px solid var(--vs-maroon); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 8px rgba(0,0,0,0.1); transform: translateY(100%); transition: transform 0.3s; z-index: 998; }
-    .save-bar.visible { transform: translateY(0); }
-    .save-bar .pending-text { font-size: 13px; color: var(--vs-maroon); font-weight: 600; }
-    .save-btn { background: var(--vs-maroon); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
-    .save-btn:disabled { background: #CCC; cursor: not-allowed; }
-    .download-btn:hover { background: #6B0000; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139,0,0,0.3); }
+    .btn-blue { background: #1565C0; color: white; }
+    .btn-blue:hover { background: #0D47A1; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
     
-    /* Login Page Styles */
-    .login-page { max-width: 400px; margin: 40px auto; padding: 30px; background: var(--vs-card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-    .login-page h2 { color: var(--vs-maroon); text-align: center; margin-bottom: 25px; font-size: 22px; }
-    .login-page .login-type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-    .login-page .login-type-btn { flex: 1; padding: 10px; border: 2px solid var(--vs-border); border-radius: 6px; background: var(--vs-bg); cursor: pointer; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.3s; }
-    .login-page .login-type-btn.active { border-color: var(--vs-maroon); background: #FFF5F5; color: var(--vs-maroon); }
-    .login-page .error-msg { color: #DC3545; background: #FFF5F5; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; display: none; }
-    .login-page .error-msg.show { display: block; }
-    .login-page .success-msg { color: #28A745; background: #F5FFF5; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; display: none; }
-    .login-page .success-msg.show { display: block; }
-    .login-page .forgot-link { text-align: center; margin-top: 15px; }
-    .login-page .forgot-link a { color: var(--vs-maroon); font-size: 12px; text-decoration: none; }
-    .login-page .forgot-link a:hover { text-decoration: underline; }
-    
-    /* Application Styles */
-    .app-list { margin-top: 15px; }
-    .app-item { background: var(--vs-bg); border-radius: 8px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .app-item-info { flex: 1; }
-    .app-item-actions { display: flex; gap: 8px; }
-    .app-item-actions button { padding: 6px 12px; font-size: 12px; }
-    
-    /* User Management Styles */
-    .user-list { margin-top: 15px; }
-    .user-item { background: var(--vs-bg); border-radius: 8px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .user-item-info { flex: 1; min-width: 200px; }
-    .user-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .user-item-actions select { padding: 6px; font-size: 12px; border: 1px solid var(--vs-border); border-radius: 4px; }
-    
-    .role-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; }
-    .role-admin { background: #8B0000; color: white; }
-    .role-leader { background: #28A745; color: white; }
-    .role-exec { background: #FFC107; color: #333; }
-    .role-member { background: #6C757D; color: white; }
-    
-    @media (max-width: 768px) {
-      .level-structure { grid-template-columns: repeat(2, 1fr); }
-      .info-grid { grid-template-columns: 1fr; }
-      .troop-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    /* Toast Notification */
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
   </style>
 </head>
 <body>
-  <!-- Welcome Screen -->
-  <div id="welcomeScreen">
-    <div class="header">
-      <div class="logo-container">
-        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
-        <div><h1>深資童軍進度追蹤系統</h1><p>Venture Scout Progress Tracking</p></div>
+  <div class="header">
+    <div class="logo-container">
+      <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
+      <div><h1>深資童軍進度追蹤系統</h1><p>Venture Scout Progress Tracking</p></div>
+    </div>
+    <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
+    <div class="welcome-nav">
+      <button class="active" onclick="showWelcomeTab('enter')">🎯 進入系統</button>
+      <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
+      <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="welcome-enter" class="welcome-section active">
+      <div class="section-title"><h2>四級勾選架構</h2></div>
+      <div class="level-structure">
+        <div class="level-box"><div class="level-num">L1</div><div class="level-name">進度獎章</div><div class="level-desc">會員章/肩章/深資童軍獎章/榮譽童軍獎章</div></div>
+        <div class="level-box"><div class="level-num">L2</div><div class="level-name">段章 / 金帶</div><div class="level-desc">活動策劃/社會服務/多元技能/戶外探險</div></div>
+        <div class="level-box"><div class="level-num">L3</div><div class="level-name">大項</div><div class="level-desc">露營/繩結/遠足/急救/個人興趣...</div></div>
+        <div class="level-box"><div class="level-num">L4</div><div class="level-name">小項</div><div class="level-desc">第 1 次出席/第 2 次出席/具體要求...</div></div>
       </div>
-      <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
-      <div class="welcome-nav">
-        <button class="active" onclick="showWelcomeTab('enter')"> 進入系統</button>
-        <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
-        <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
+      <div class="info-grid">
+        <div class="info-card"><h3> 靈活勾選</h3><p>領袖可以在任何層級勾選：</p><ul><li>勾 L4 小項 = 完成一個具體要求</li><li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li><li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li><li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li></ul></div>
+        <div class="info-card"><h3>🔄 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
+        <div class="info-card"><h3>👥 權限管理</h3><p>根據角色提供不同功能：</p><ul><li>管理員：管理全旅團</li><li>團長/支部領袖：管理所屬支部</li><li>執委：可勾選進度（需授權）</li><li>團員：只能查看自己的進度</li></ul></div>
+      </div>
+      <div class="troop-section"><div class="section-title"><h2> 請選擇您的旅團</h2></div><div class="troop-grid" id="troopGrid"></div></div>
+    </div>
+
+    <div id="welcome-setup" class="welcome-section">
+      <div class="section-title"><h2>📋 新旅團部署指南</h2></div>
+      <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;">
+        <h3>✨ 只需 10 分鐘，3 步完成</h3>
+        <p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p>
+      </div>
+      <div class="tutorial" style="margin-bottom: 20px;">
+        <div class="steps">
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p>點擊下方按鈕下載 Code.gs 檔案：</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">⬇️ 下載 Code.gs</a></div></div>
+          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><strong>2.1</strong> 開啟 Google Sheets，建立新試算表（任何名稱都可以）<br><strong>2.2</strong> 點擊「擴充功能」→「Apps Script」<br><strong>2.3</strong> 刪除預設內容，貼上 Code.gs 的內容<br><strong>2.4</strong> 儲存後執行 <code>initializeSheets</code> 函數（系統會自動綁定此 Sheet）<br><strong>2.5</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br><strong>2.6</strong> 複製部署後的網址</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>把以下資訊交給系統管理員：</p><ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);"><li>旅團編號（例：0082）</li><li>Apps Script 網址（以 /exec 結尾）</li><li>API Key（執行 initializeSheets 時顯示的隨機字串）</li></ul></div></div>
+        </div>
+      </div>
+
+      <!-- 一鍵通知管理員按鈕 -->
+      <div class="info-card" style="border-color: #1565C0; background: #E3F2FD;">
+        <h3 style="color: #1565C0;">📧 完成部署後，請通知管理員</h3>
+        <p style="margin-bottom: 15px;">請將您的 <strong>旅團編號</strong>、<strong>Script URL</strong> 和 <strong>API Key</strong> 發送給系統管理員進行登記。</p>
+        <button class="btn btn-blue" onclick="showContactModal()" style="width: 100%;">
+          📧 一鍵提交申請給管理員
+        </button>
+        <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 10px;">* 點擊後會直接提交申請，管理員收到後會為您開通系統。</p>
       </div>
     </div>
-    <div class="container">
-      <div id="welcome-enter" class="welcome-section active">
-        <div class="section-title"><h2>四級勾選架構</h2></div>
-        <div class="level-structure">
-          <div class="level-box"><div class="level-num">L1</div><div class="level-name">進度獎章</div><div class="level-desc">會員章/肩章/深資童軍獎章/榮譽童軍獎章</div></div>
-          <div class="level-box"><div class="level-num">L2</div><div class="level-name">段章 / 金帶</div><div class="level-desc">活動策劃/社會服務/多元技能/戶外探險</div></div>
-          <div class="level-box"><div class="level-num">L3</div><div class="level-name">大項</div><div class="level-desc">露營/繩結/遠足/急救/個人興趣...</div></div>
-          <div class="level-box"><div class="level-num">L4</div><div class="level-name">小項</div><div class="level-desc">第 1 次出席/第 2 次出席/具體要求...</div></div>
-        </div>
-        <div class="info-grid">
-          <div class="info-card"><h3>🔑 靈活勾選</h3><p>領袖可以在任何層級勾選：</p><ul><li>勾 L4 小項 = 完成一個具體要求</li><li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li><li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li><li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li></ul></div>
-          <div class="info-card"><h3>🔄 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
-          <div class="info-card"><h3>👥 權限管理</h3><p>根據角色提供不同功能：</p><ul><li>管理員：管理全旅團</li><li>團長/支部領袖：管理所屬支部</li><li>執委：可勾選進度（需授權）</li><li>團員：只能查看自己的進度</li></ul></div>
-        </div>
-        <div class="troop-section"><div class="section-title"><h2>🎯 請選擇您的旅團</h2></div><div class="troop-grid" id="troopGrid"></div></div>
-      </div>
-      <div id="welcome-setup" class="welcome-section">
-        <div class="section-title"><h2> 新旅團部署指南</h2></div>
-        <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;"><h3>✨ 只需 10 分鐘，3 步完成</h3><p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p></div>
-        <div class="tutorial" style="margin-bottom: 20px;">
-          <div class="steps">
-            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p>點擊下方按鈕下載 Code.gs 檔案：</p><a href="apps-script/Code.gs" download="Code.gs" class="download-btn" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background: var(--vs-maroon); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">⬇️ 下載 Code.gs</a></div></div>
-            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><strong>2.1</strong> 開啟 Google Sheets，建立新試算表（任何名稱都可以）<br><strong>2.2</strong> 點擊「擴充功能」→「Apps Script」<br><strong>2.3</strong> 刪除預設內容，貼上 Code.gs 的內容<br><strong>2.4</strong> 儲存後執行 <code>initializeSheets</code> 函數（系統會自動綁定此 Sheet）<br><strong>2.5</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br><strong>2.6</strong> 複製部署後的網址</p></div></div>
-            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>把以下資訊交給系統管理員：</p><ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);"><li>旅團編號（例：0082）</li><li>Apps Script 網址（以 /exec 結尾）</li><li>API Key（執行 initializeSheets 時顯示的隨機字串）</li></ul></div></div>
-            <div class="step"><div class="step-number">4</div><div class="step-content"><h4>（選用）接入主系統</h4><p>把上述 3 項資訊交給主系統管理員，主系統會自動帶入身份。</p></div></div>
-          </div>
-        </div>
-      </div>
-      <div id="welcome-guide" class="welcome-section">
-        <div class="section-title"><h2>📖 使用教學</h2></div>
-        <div class="tutorial">
-          <div class="steps">
-            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>選擇旅團</h4><p>從旅團列表中選擇您的旅團</p></div></div>
-            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入或申請帳號</h4><p>領袖：用 Email 登入<br>成員：用 YMIS 登入<br>沒有帳號：點擊「申請加入」</p></div></div>
-            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>等待審批（新用戶）</h4><p>管理員會審批您的申請，批准後即可登入</p></div></div>
-            <div class="step"><div class="step-number">4</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色顯示對應功能</p></div></div>
-          </div>
+
+    <div id="welcome-guide" class="welcome-section">
+      <div class="section-title"><h2>📖 使用教學</h2></div>
+      <div class="tutorial">
+        <div class="steps">
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>選擇旅團</h4><p>從旅團列表中選擇您的旅團</p></div></div>
+          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入或申請帳號</h4><p>領袖：用 Email 登入<br>成員：用 YMIS 登入<br>沒有帳號：點擊「申請加入」</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>等待審批（新用戶）</h4><p>管理員會審批您的申請，批准後即可登入</p></div></div>
+          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色顯示對應功能</p></div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Login Page -->
-  <div id="loginPage" style="display: none;">
-    <div class="header">
-      <div class="logo-container">
-        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
-        <div><h1>深資童軍進度追蹤</h1><p id="loginTroopName"></p></div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="login-page">
-        <h2>登入系統</h2>
-        
-        <div class="login-type-selector">
-          <div class="login-type-btn active" onclick="switchLoginType('member')">成員登入<br><small style="font-weight: normal;">用 YMIS</small></div>
-          <div class="login-type-btn" onclick="switchLoginType('leader')">領袖登入<br><small style="font-weight: normal;">用 Email</small></div>
-        </div>
-        
-        <div id="loginError" class="error-msg"></div>
-        <div id="loginSuccess" class="success-msg"></div>
-        
-        <div class="form-group">
-          <label id="loginIdLabel">YMIS</label>
-          <input type="text" id="loginId" placeholder="請輸入您的 YMIS" maxlength="10">
-        </div>
-        <div class="form-group">
-          <label>密碼</label>
-          <input type="password" id="loginPassword" placeholder="請輸入密碼">
-        </div>
-        <button class="btn btn-primary" onclick="doLogin()" style="width: 100%;">登入</button>
-        
-        <div style="margin-top: 15px; text-align: center;">
-          <a href="#" onclick="showApplyForm(); return false;" style="color: var(--vs-maroon); font-size: 13px;">還沒有帳號？申請加入</a>
-        </div>
-        <div class="forgot-link" style="margin-top: 10px;">
-          <a href="#" onclick="showForgotPassword(); return false;">忘記密碼？</a>
-        </div>
-        <div style="margin-top: 20px; text-align: center;">
-          <a href="#" onclick="backToTroopSelect(); return false;" style="color: var(--vs-maroon); font-size: 13px;">← 返回旅團選擇</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Apply Form Modal -->
-  <div id="applyModal" class="modal">
+  <!-- 聯絡管理員 Modal (對接 Scout Admin Apps Script) -->
+  <div id="contactModal" class="modal">
     <div class="modal-content">
-      <h3>申請加入</h3>
-      <div id="applyError" class="error-msg" style="margin-bottom: 15px;"></div>
-      <div id="applySuccess" class="success-msg" style="margin-bottom: 15px;"></div>
+      <h3>📧 提交旅團接入申請</h3>
+      <div class="form-group"><label>旅團編號 (例: 0082) <span style="color:red">*</span></label><input type="text" id="c_troopId" placeholder="0082"></div>
+      <div class="form-group"><label>旅團名稱</label><input type="text" id="c_troopName" placeholder="第 82 旅"></div>
+      <div class="form-group"><label>Apps Script URL <span style="color:red">*</span></label><input type="text" id="c_scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
+      <div class="form-group"><label>API Key <span style="color:red">*</span></label><input type="text" id="c_apiKey" placeholder="vs_xxxxxxxxxxxx"></div>
+      <div class="form-group"><label>備注 / 聯絡方式 (選填)</label><textarea id="c_note" placeholder="請留下您的 Email 或聯絡方式，以便管理員通知您..."></textarea></div>
       
-      <div class="form-group">
-        <label>申請類型</label>
-        <select id="applyType" onchange="toggleApplyFields()">
-          <option value="member">成員（用 YMIS）</option>
-          <option value="leader">領袖（用 Email）</option>
-        </select>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeContactModal()" style="flex: 1;">取消</button>
+        <button class="btn btn-primary" id="btnSubmitContact" onclick="submitRegistration()" style="flex: 1;">提交申請</button>
       </div>
-      
-      <div class="form-group" id="ymisField">
-        <label>YMIS <span style="color: red;">*</span></label>
-        <input type="text" id="applyYmis" placeholder="10 位數字" maxlength="10">
-      </div>
-      
-      <div class="form-group" id="emailField" style="display: none;">
-        <label>Email <span style="color: red;">*</span></label>
-        <input type="email" id="applyEmail" placeholder="your@email.com">
-      </div>
-      
-      <div class="form-group">
-        <label>姓名 <span style="color: red;">*</span></label>
-        <input type="text" id="applyName" placeholder="您的姓名">
-      </div>
-      <div class="form-group">
-        <label>申請角色</label>
-        <select id="applyRole">
-          <option value="member">團員</option>
-          <option value="exec_committee">主席/執行委員</option>
-          <option value="branch_leader">支部領袖</option>
-          <option value="group_leader">團長</option>
-        </select>
-      </div>
-      <div class="btn-group">
-        <button class="btn btn-secondary" onclick="closeApplyModal()">取消</button>
-        <button class="btn btn-primary" onclick="doApply()">提交申請</button>
-      </div>
+      <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 15px; text-align: center;">* 資料將直接發送至管理員的 Google Sheet。</p>
     </div>
   </div>
 
-  <!-- Forgot Password Modal -->
-  <div id="forgotModal" class="modal">
-    <div class="modal-content">
-      <h3>重置密碼</h3>
-      <div id="forgotError" class="error-msg" style="margin-bottom: 15px;"></div>
-      <div id="forgotSuccess" class="success-msg" style="margin-bottom: 15px;"></div>
-      <div class="form-group">
-        <label>YMIS 或 Email</label>
-        <input type="text" id="forgotLoginId" placeholder="請輸入您的 YMIS 或 Email">
-      </div>
-      <div class="form-group">
-        <label>電子郵件（選填）</label>
-        <input type="email" id="forgotEmail" placeholder="接收新密碼的 Email">
-      </div>
-      <div class="btn-group">
-        <button class="btn btn-secondary" onclick="closeForgotModal()">取消</button>
-        <button class="btn btn-primary" onclick="doResetPassword()">發送新密碼</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main App -->
-  <div id="mainApp" class="main-app">
-    <div class="app-header">
-      <h1><img src="assets/vs-logo-small.png" alt="Logo" class="logo-img"><span id="appTitle">深資童軍進度追蹤</span></h1>
-      <div class="user-info">
-        <span id="userInfo"></span>
-        <button class="btn btn-secondary" onclick="showSettingsModal()" style="padding: 5px 10px; font-size: 11px;">設定</button>
-        <button class="btn btn-secondary" onclick="doLogout()" style="padding: 5px 10px; font-size: 11px;">登出</button>
-      </div>
-    </div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('progress')">📊 我的進度</button>
-      <button class="nav-tab" onclick="switchTab('overview')" id="overviewTab">👥 全團</button>
-      <button class="nav-tab" onclick="switchTab('byitem')" id="byitemTab">🔍 按項目</button>
-      <button class="nav-tab" onclick="switchTab('users')" id="usersTab" style="display:none;">👥 用戶管理</button>
-      <button class="nav-tab" onclick="switchTab('applications')" id="appsTab" style="display:none;">📋 審批申請</button>
-    </div>
-    <div id="progressTab" class="tab-content active"></div>
-    <div id="overviewTab" class="tab-content"></div>
-    <div id="byitemTab" class="tab-content"></div>
-    <div id="usersTab" class="tab-content"></div>
-    <div id="appsTab" class="tab-content"></div>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <h3>設定</h3>
-      <div id="settingsError" class="error-msg" style="margin-bottom: 15px;"></div>
-      <div id="settingsSuccess" class="success-msg" style="margin-bottom: 15px;"></div>
-      <div class="form-group">
-        <label>修改密碼</label>
-        <input type="password" id="oldPassword" placeholder="原密碼" style="margin-bottom: 8px;">
-        <input type="password" id="newPassword" placeholder="新密碼（至少 6 位）">
-      </div>
-      <div class="btn-group">
-        <button class="btn btn-secondary" onclick="closeSettingsModal()">取消</button>
-        <button class="btn btn-primary" onclick="doChangePassword()">更改密碼</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="save-bar" id="saveBar"><span class="pending-text" id="pendingText">0 項未保存</span><button class="save-btn" onclick="saveChanges()">確認寫入</button></div>
-  <div class="help-btn" onclick="alert('四級勾選說明：\n\nL1 進度獎章 → L2 段章/金帶 → L3 大項 → L4 小項\n\n勾上層會自動勾選所有下層\n下層全完成會自動勾上層\n\n如有問題請聯絡系統管理員')">❓</div>
+  <div id="toast" class="toast"></div>
 
   <script>
-    let troopsData = null;
-    let selectedTroopId = null;
-    let currentTroopName = '';
-    let currentBackend = null;
-    let currentApikey = null;
-    let currentUser = null;
-    let currentToken = null;
-    let currentRole = 'member';
-    let currentYmis = '';
-    let itemsData = null;
-    let progressData = {};
-    let pendingChanges = [];
-    let loginMode = 'standalone';
-    let currentLoginType = 'member';
-
-    const STORAGE_KEY = 'vsbadge_session';
+    // Scout Admin 的 Apps Script Web App URL (唯一接收端點)
+    const SCOUT_ADMIN_API = 'https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
 
     document.addEventListener('DOMContentLoaded', function() {
       loadTroops();
-      checkSavedSession();
     });
-
-    function checkSavedSession() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const session = JSON.parse(saved);
-          if (session.token && session.backend && session.apikey && session.user) {
-            fetch(session.backend, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain' },
-              body: JSON.stringify({ action: 'getLoginMode' })
-            }).then(r => r.json()).then(data => {
-              if (data.success) {
-                currentBackend = session.backend;
-                currentApikey = session.apikey;
-                currentToken = session.token;
-                currentUser = session.user;
-                currentYmis = session.user.ymis;
-                currentRole = session.user.role;
-                currentTroopName = session.troopName || '';
-                showMainApp();
-              }
-            }).catch(() => {
-              localStorage.removeItem(STORAGE_KEY);
-            });
-          }
-        }
-      } catch(e) {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-
-    function saveSession() {
-      const session = {
-        token: currentToken,
-        backend: currentBackend,
-        apikey: currentApikey,
-        user: currentUser,
-        troopName: currentTroopName,
-        savedAt: Date.now()
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-    }
-
-    function clearSession() {
-      localStorage.removeItem(STORAGE_KEY);
-    }
 
     function showWelcomeTab(tabName) {
       document.querySelectorAll('.welcome-section').forEach(s => s.classList.remove('active'));
@@ -438,660 +176,91 @@
 
     async function loadTroops() {
       try {
-        const troopsResponse = await fetch('data/troops.json');
-        const troopsData = await troopsResponse.json();
-        displayTroops(troopsData);
-      } catch (error) {
-        console.error('Failed to load troops:', error);
-        document.getElementById('troopGrid').innerHTML = '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">無法載入旅團列表</p>';
-      }
-    }
-
-    async function selectTroop(troopId) {
-      try {
-        const troopsResponse = await fetch('data/troops.json');
-        const troopsData = await troopsResponse.json();
-        const troop = troopsData.troops[troopId];
+        const res = await fetch('data/troops.json');
+        const data = await res.json();
+        const grid = document.getElementById('troopGrid');
+        const troops = data.troops || {};
         
-        if (!troop || !troop.backend) {
-          alert('此旅團設定不完整');
+        if (Object.keys(troops).length === 0) {
+          grid.innerHTML = '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">目前沒有可用的旅團，請聯絡管理員。</p>';
           return;
         }
         
-        selectedTroopId = troopId;
-        currentTroopName = troop.name;
-        currentBackend = troop.backend;
-        
-        try {
-          const modeResponse = await fetch(currentBackend + '?action=getLoginMode');
-          const modeData = await modeResponse.json();
-          loginMode = modeData.login_mode || 'standalone';
-        } catch(e) {
-          loginMode = 'standalone';
-        }
-        
-        showLoginPage();
-      } catch (error) {
-        console.error('Failed to select troop:', error);
-        alert('無法取得旅團設定');
+        grid.innerHTML = Object.entries(troops).map(([id, troop]) => 
+          `<div class="troop-card" onclick="alert('旅團: ${troop.name} (ID: ${id})\\n\\n請等待登入功能就緒！')">
+            <div class="troop-id">${id}</div>
+            <div class="troop-name">${troop.name}</div>
+          </div>`
+        ).join('');
+      } catch (e) { 
+        console.error(e); 
+        document.getElementById('troopGrid').innerHTML = '<p style="text-align: center; color: red;">無法載入旅團資料</p>';
       }
     }
 
-    function showLoginPage() {
-      document.getElementById('welcomeScreen').style.display = 'none';
-      document.getElementById('loginPage').style.display = 'block';
-      document.getElementById('loginTroopName').textContent = currentTroopName;
-    }
+    // Contact Modal Functions
+    function showContactModal() { document.getElementById('contactModal').classList.add('active'); }
+    function closeContactModal() { document.getElementById('contactModal').classList.remove('active'); }
 
-    function switchLoginType(type) {
-      currentLoginType = type;
-      document.querySelectorAll('.login-type-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      const loginIdLabel = document.getElementById('loginIdLabel');
-      const loginIdInput = document.getElementById('loginId');
-      
-      if (type === 'member') {
-        loginIdLabel.textContent = 'YMIS';
-        loginIdInput.placeholder = '請輸入您的 YMIS';
-        loginIdInput.type = 'text';
-        loginIdInput.maxLength = 10;
-      } else {
-        loginIdLabel.textContent = 'Email';
-        loginIdInput.placeholder = '請輸入您的 Email';
-        loginIdInput.type = 'email';
-        loginIdInput.maxLength = 100;
-      }
-    }
+    async function submitRegistration() {
+      const troopId = document.getElementById('c_troopId').value.trim();
+      const troopName = document.getElementById('c_troopName').value.trim();
+      const scriptUrl = document.getElementById('c_scriptUrl').value.trim();
+      const apiKey = document.getElementById('c_apiKey').value.trim();
+      const note = document.getElementById('c_note').value.trim();
+      const btn = document.getElementById('btnSubmitContact');
 
-    function backToTroopSelect() {
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('welcomeScreen').style.display = 'block';
-      document.getElementById('loginError').classList.remove('show');
-      document.getElementById('loginSuccess').classList.remove('show');
-    }
-
-    async function doLogin() {
-      const loginId = document.getElementById('loginId').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const errorDiv = document.getElementById('loginError');
-      const successDiv = document.getElementById('loginSuccess');
-      
-      errorDiv.classList.remove('show');
-      successDiv.classList.remove('show');
-      
-      if (!loginId || !password) {
-        errorDiv.textContent = '請填寫登入帳號和密碼';
-        errorDiv.classList.add('show');
+      if (!troopId || !scriptUrl || !apiKey) {
+        showToast('請填寫旅團編號、Script URL 和 API Key', 'error');
         return;
       }
-      
+
+      btn.disabled = true;
+      btn.textContent = '提交中...';
+
+      // 準備 Payload (對應 Google Sheet 欄位)
+      const payload = {
+        troopId: troopId,
+        troopName: troopName,
+        scriptUrl: scriptUrl,
+        apiKey: apiKey,
+        appType: 'vsbadge', // 固定標記來源
+        note: note
+      };
+
       try {
-        const response = await fetch(currentBackend, {
+        // 使用 no-cors 模式發送 (Scout Admin 要求)
+        await fetch(SCOUT_ADMIN_API, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'login', login_id: loginId, password: password })
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
-        const data = await response.json();
+
+        showToast('✅ 申請已提交！請等待管理員處理。', 'success');
+        closeContactModal();
         
-        if (data.success) {
-          currentUser = data.user;
-          currentToken = data.token;
-          currentYmis = data.user.ymis;
-          currentRole = data.user.role;
-          
-          saveSession();
-          showMainApp();
-        } else {
-          errorDiv.textContent = data.error || '登入失敗';
-          errorDiv.classList.add('show');
-        }
+        // 清空表單
+        document.getElementById('c_troopId').value = '';
+        document.getElementById('c_troopName').value = '';
+        document.getElementById('c_scriptUrl').value = '';
+        document.getElementById('c_apiKey').value = '';
+        document.getElementById('c_note').value = '';
+
       } catch (error) {
-        errorDiv.textContent = '無法連接伺服器';
-        errorDiv.classList.add('show');
+        console.error(error);
+        showToast('❌ 提交失敗，請稍後再試。', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '提交申請';
       }
     }
 
-    async function doLogout() {
-      if (currentToken) {
-        try {
-          await fetch(currentBackend, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: 'logout', token: currentToken })
-          });
-        } catch(e) {}
-      }
-      
-      clearSession();
-      currentUser = null;
-      currentToken = null;
-      currentYmis = '';
-      currentRole = '';
-      progressData = {};
-      pendingChanges = [];
-      
-      document.getElementById('mainApp').classList.remove('active');
-      document.getElementById('loginPage').style.display = 'block';
-      document.getElementById('loginId').value = '';
-      document.getElementById('loginPassword').value = '';
-    }
-
-    function showApplyForm() {
-      document.getElementById('applyModal').classList.add('active');
-    }
-
-    function closeApplyModal() {
-      document.getElementById('applyModal').classList.remove('active');
-      document.getElementById('applyError').classList.remove('show');
-      document.getElementById('applySuccess').classList.remove('show');
-    }
-
-    function toggleApplyFields() {
-      const applyType = document.getElementById('applyType').value;
-      const ymisField = document.getElementById('ymisField');
-      const emailField = document.getElementById('emailField');
-      
-      if (applyType === 'leader') {
-        ymisField.style.display = 'none';
-        emailField.style.display = 'block';
-      } else {
-        ymisField.style.display = 'block';
-        emailField.style.display = 'none';
-      }
-    }
-
-    async function doApply() {
-      const applyType = document.getElementById('applyType').value;
-      const ymis = document.getElementById('applyYmis').value.trim();
-      const email = document.getElementById('applyEmail').value.trim();
-      const name = document.getElementById('applyName').value.trim();
-      const role = document.getElementById('applyRole').value;
-      const errorDiv = document.getElementById('applyError');
-      const successDiv = document.getElementById('applySuccess');
-      
-      errorDiv.classList.remove('show');
-      successDiv.classList.remove('show');
-      
-      if (!name) {
-        errorDiv.textContent = '請填寫姓名';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      if (applyType === 'member' && !ymis) {
-        errorDiv.textContent = '成員申請需要填寫 YMIS';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      if (applyType === 'leader' && !email) {
-        errorDiv.textContent = '領袖申請需要填寫 Email';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'apply', ymis: ymis, name: name, email: email, requested_role: role, branch: 'b4' })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          successDiv.textContent = data.message;
-          successDiv.classList.add('show');
-          setTimeout(() => closeApplyModal(), 2000);
-        } else {
-          errorDiv.textContent = data.error || '申請失敗';
-          errorDiv.classList.add('show');
-        }
-      } catch (error) {
-        errorDiv.textContent = '無法連接伺服器';
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function showForgotPassword() {
-      document.getElementById('forgotModal').classList.add('active');
-    }
-
-    function closeForgotModal() {
-      document.getElementById('forgotModal').classList.remove('active');
-      document.getElementById('forgotError').classList.remove('show');
-      document.getElementById('forgotSuccess').classList.remove('show');
-    }
-
-    async function doResetPassword() {
-      const loginId = document.getElementById('forgotLoginId').value.trim();
-      const email = document.getElementById('forgotEmail').value.trim();
-      const errorDiv = document.getElementById('forgotError');
-      const successDiv = document.getElementById('forgotSuccess');
-      
-      errorDiv.classList.remove('show');
-      successDiv.classList.remove('show');
-      
-      if (!loginId) {
-        errorDiv.textContent = '請填寫 YMIS 或 Email';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'resetPassword', login_id: loginId, email: email })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          successDiv.textContent = data.message;
-          successDiv.classList.add('show');
-        } else {
-          errorDiv.textContent = data.error || '重置失敗';
-          errorDiv.classList.add('show');
-        }
-      } catch (error) {
-        errorDiv.textContent = '無法連接伺服器';
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function showSettingsModal() {
-      document.getElementById('settingsModal').classList.add('active');
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settingsModal').classList.remove('active');
-      document.getElementById('settingsError').classList.remove('show');
-      document.getElementById('settingsSuccess').classList.remove('show');
-    }
-
-    async function doChangePassword() {
-      const oldPassword = document.getElementById('oldPassword').value;
-      const newPassword = document.getElementById('newPassword').value;
-      const errorDiv = document.getElementById('settingsError');
-      const successDiv = document.getElementById('settingsSuccess');
-      
-      errorDiv.classList.remove('show');
-      successDiv.classList.remove('show');
-      
-      if (!oldPassword || !newPassword) {
-        errorDiv.textContent = '請填寫原密碼和新密碼';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      if (newPassword.length < 6) {
-        errorDiv.textContent = '新密碼至少 6 位元';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'changePassword', token: currentToken, old_password: oldPassword, new_password: newPassword })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          successDiv.textContent = '密碼已成功更改';
-          successDiv.classList.add('show');
-          document.getElementById('oldPassword').value = '';
-          document.getElementById('newPassword').value = '';
-        } else {
-          errorDiv.textContent = data.error || '更改失敗';
-          errorDiv.classList.add('show');
-        }
-      } catch (error) {
-        errorDiv.textContent = '無法連接伺服器';
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function displayTroops(data) {
-      const grid = document.getElementById('troopGrid');
-      const troops = data.troops || {};
-      if (Object.keys(troops).length === 0) {
-        grid.innerHTML = '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">目前沒有可用的旅團</p>';
-        return;
-      }
-      grid.innerHTML = Object.entries(troops).map(([id, troop]) => 
-        '<div class="troop-card" onclick="selectTroop(\'' + id + '\')"><div class="troop-id">' + id + '</div><div class="troop-name">' + (troop.name || '旅團') + '</div></div>'
-      ).join('');
-    }
-
-    function showMainApp() {
-      document.getElementById('welcomeScreen').style.display = 'none';
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('mainApp').classList.add('active');
-      
-      document.getElementById('appTitle').textContent = currentTroopName + ' - 進度追蹤';
-      document.getElementById('userInfo').textContent = currentUser.name + ' [' + getRoleName(currentRole) + ']';
-      
-      const canManage = ['super_admin', 'admin', 'group_leader', 'branch_leader'].indexOf(currentRole) >= 0;
-      document.getElementById('usersTab').style.display = canManage ? 'block' : 'none';
-      document.getElementById('appsTab').style.display = canManage ? 'block' : 'none';
-      
-      if (!canUserTick(currentRole)) {
-        document.getElementById('overviewTab').style.display = 'none';
-        document.getElementById('byitemTab').style.display = 'none';
-      }
-      
-      loadItemsAndProgress();
-    }
-
-    function getRoleName(role) {
-      const names = { 'super_admin': '超管', 'admin': '管理員', 'group_leader': '團長', 'branch_leader': '支部領袖', 'exec_committee': '執委', 'member': '團員' };
-      return names[role] || role;
-    }
-
-    function canUserTick(role) {
-      return ['super_admin', 'admin', 'group_leader', 'branch_leader', 'exec_committee'].indexOf(role) >= 0;
-    }
-
-    async function loadItemsAndProgress() {
-      try {
-        const itemsResponse = await fetch('data/items.json');
-        itemsData = await itemsResponse.json();
-        
-        const progressResponse = await fetch(currentBackend + '?action=load&apikey=' + currentApikey);
-        const progressData_raw = await progressResponse.json();
-        progressData = progressData_raw.progress || {};
-        
-        loadProgress();
-      } catch (error) {
-        console.error('Failed to load data:', error);
-        document.getElementById('progressTab').innerHTML = '<div class="loading">載入失敗</div>';
-      }
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById(tabName + 'Tab').classList.add('active');
-      if (tabName === 'progress') loadProgress();
-      if (tabName === 'overview') loadOverview();
-      if (tabName === 'byitem') loadByItem();
-      if (tabName === 'users') loadUsers();
-      if (tabName === 'applications') loadApplications();
-    }
-
-    function loadProgress() {
-      const content = document.getElementById('progressTab');
-      let html = '';
-      itemsData.badges.forEach(badge => {
-        html += '<div class="l1-badge"><div class="l1-header" onclick="toggleL1(\'' + badge.id + '\')"><h3>' + badge.icon + ' ' + badge.name + '</h3><span>▶</span></div><div class="l1-body" id="l1-' + badge.id + '">' + renderSegments(badge.segments) + '</div></div>';
-      });
-      content.innerHTML = html;
-    }
-
-    function renderSegments(segments) {
-      return segments.map(seg => '<div class="l2-segment"><div class="l2-header" onclick="toggleL2(\'' + seg.id + '\')"><h4>' + seg.name + '</h4><span>▶</span></div><div class="l2-body" id="l2-' + seg.id + '">' + renderItems(seg.items) + '</div></div>').join('');
-    }
-
-    function renderItems(items) {
-      return items.map(item => {
-        if (item.subItems && item.subItems.length > 0) {
-          const allDone = item.subItems.every(si => progressData[si.id]);
-          const canTick = canUserTick(currentRole);
-          let html = '<div class="l3-item"><div class="l3-header"><input type="checkbox" id="' + item.id + '" ' + (allDone ? 'checked' : '') + ' ' + (!canTick ? 'disabled' : '') + ' onchange="toggleItem(\'' + item.id + '\', true)"><label for="' + item.id + '" onclick="toggleL3(\'' + item.id + '\')">' + item.name + '</label><span class="date">' + (allDone ? '✓' : '') + '</span></div><div class="l4-subitems" id="l3-' + item.id + '">';
-          item.subItems.forEach(si => {
-            const checked = progressData[si.id] ? 'checked' : '';
-            html += '<div class="l4-item"><input type="checkbox" id="' + si.id + '" ' + checked + ' ' + (!canTick ? 'disabled' : '') + ' onchange="toggleItem(\'' + si.id + '\', false)"><label for="' + si.id + '">' + si.name + '</label><span class="date">' + (progressData[si.id] || '') + '</span></div>';
-          });
-          html += '</div></div>';
-          return html;
-        } else {
-          const checked = progressData[item.id] ? 'checked' : '';
-          const canTick = canUserTick(currentRole);
-          return '<div class="l3-item"><div class="l3-header"><input type="checkbox" id="' + item.id + '" ' + checked + ' ' + (!canTick ? 'disabled' : '') + ' onchange="toggleItem(\'' + item.id + '\', false)"><label for="' + item.id + '">' + item.name + '</label><span class="date">' + (progressData[item.id] || '') + '</span></div></div>';
-        }
-      }).join('');
-    }
-
-    function toggleL1(id) { document.getElementById('l1-' + id).classList.toggle('expanded'); }
-    function toggleL2(id) { document.getElementById('l2-' + id).classList.toggle('expanded'); }
-    function toggleL3(id) { document.getElementById('l3-' + id).classList.toggle('expanded'); }
-
-    function toggleItem(itemId, isParent) {
-      const checkbox = document.getElementById(itemId);
-      const date = checkbox.checked ? new Date().toISOString().split('T')[0] : '';
-      
-      if (isParent && checkbox.checked) {
-        const subitems = findSubItems(itemId);
-        subitems.forEach(si => {
-          if (!progressData[si]) {
-            progressData[si] = date;
-            pendingChanges.push({ ymis: currentYmis, itemId: si, date: date });
-            const cb = document.getElementById(si);
-            if (cb) cb.checked = true;
-          }
-        });
-      } else if (isParent && !checkbox.checked) {
-        const subitems = findSubItems(itemId);
-        subitems.forEach(si => {
-          if (progressData[si]) {
-            delete progressData[si];
-            pendingChanges.push({ ymis: currentYmis, itemId: si, date: '', uncomplete: true });
-            const cb = document.getElementById(si);
-            if (cb) cb.checked = false;
-          }
-        });
-      }
-      
-      progressData[itemId] = date;
-      pendingChanges.push({ ymis: currentYmis, itemId: itemId, date: date, uncomplete: !checkbox.checked });
-      updateSaveBar();
-    }
-
-    function findSubItems(parentId) {
-      for (const badge of itemsData.badges) {
-        for (const seg of badge.segments) {
-          for (const item of seg.items) {
-            if (item.id === parentId && item.subItems) return item.subItems.map(si => si.id);
-          }
-        }
-      }
-      return [];
-    }
-
-    function updateSaveBar() {
-      const bar = document.getElementById('saveBar');
-      const text = document.getElementById('pendingText');
-      if (pendingChanges.length > 0) {
-        bar.classList.add('visible');
-        text.textContent = pendingChanges.length + ' 項未保存';
-      } else {
-        bar.classList.remove('visible');
-      }
-    }
-
-    async function saveChanges() {
-      if (pendingChanges.length === 0) return;
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'save', apikey: currentApikey, changes: pendingChanges })
-        });
-        const result = await response.json();
-        if (result.success) {
-          pendingChanges = [];
-          updateSaveBar();
-          alert('✓ 已成功保存！');
-        } else {
-          throw new Error(result.error || '保存失敗');
-        }
-      } catch (error) {
-        alert('✗ 保存失敗：' + error.message);
-      }
-    }
-
-    function loadOverview() {
-      document.getElementById('overviewTab').innerHTML = '<div class="loading">全團總覽功能開發中...</div>';
-    }
-
-    function loadByItem() {
-      document.getElementById('byitemTab').innerHTML = '<div class="loading">按項目查看功能開發中...</div>';
-    }
-
-    async function loadUsers() {
-      const content = document.getElementById('usersTab');
-      content.innerHTML = '<div class="loading">載入中...</div>';
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'getAllUsers', token: currentToken })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          let html = '<h3 style="margin-bottom: 15px; color: var(--vs-maroon);">用戶管理</h3><div class="user-list">';
-          data.users.forEach(user => {
-            const roleClass = 'role-' + user.role.split('_')[0];
-            html += '<div class="user-item"><div class="user-item-info"><strong>' + user.name + '</strong>';
-            if (user.ymis && user.ymis !== '0000000000') html += ' (' + user.ymis + ')';
-            if (user.email) html += ' - ' + user.email;
-            html += '<span class="role-badge ' + roleClass + '">' + getRoleName(user.role) + '</span></div><div class="user-item-actions">';
-            
-            if (canManageUser(user.role)) {
-              html += '<select onchange="updateUserRole(\'' + user.ymis + '\', this.value)" style="margin-right: 8px;">';
-              html += '<option value="member"' + (user.role === 'member' ? ' selected' : '') + '>團員</option>';
-              html += '<option value="exec_committee"' + (user.role === 'exec_committee' ? ' selected' : '') + '>執委</option>';
-              html += '<option value="branch_leader"' + (user.role === 'branch_leader' ? ' selected' : '') + '>支部領袖</option>';
-              html += '<option value="group_leader"' + (user.role === 'group_leader' ? ' selected' : '') + '>團長</option>';
-              html += '<option value="admin"' + (user.role === 'admin' ? ' selected' : '') + '>管理員</option>';
-              html += '</select>';
-              html += '<button class="btn btn-success" onclick="toggleCanTick(\'' + user.ymis + '\', ' + (!user.can_tick) + ')">' + (user.can_tick ? '收回權限' : '授權勾選') + '</button>';
-            }
-            
-            html += '</div></div>';
-          });
-          html += '</div>';
-          content.innerHTML = html;
-        } else {
-          content.innerHTML = '<div class="loading">載入失敗</div>';
-        }
-      } catch (error) {
-        content.innerHTML = '<div class="loading">載入失敗</div>';
-      }
-    }
-
-    function canManageUser(targetRole) {
-      const managerLevel = getRoleLevel(currentRole);
-      const targetLevel = getRoleLevel(targetRole);
-      return managerLevel > targetLevel;
-    }
-
-    function getRoleLevel(role) {
-      const levels = { 'super_admin': 100, 'admin': 80, 'group_leader': 60, 'branch_leader': 40, 'exec_committee': 20, 'member': 0 };
-      return levels[role] || 0;
-    }
-
-    async function updateUserRole(targetYmis, newRole) {
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'updateUserRole', token: currentToken, target_ymis: targetYmis, new_role: newRole, can_tick: true })
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert('角色已更新');
-          loadUsers();
-        } else {
-          alert(data.error || '更新失敗');
-        }
-      } catch (error) {
-        alert('無法連接伺服器');
-      }
-    }
-
-    async function toggleCanTick(targetYmis, canTick) {
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'updateUserRole', token: currentToken, target_ymis: targetYmis, new_role: currentUser.role, can_tick: canTick })
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert(canTick ? '已授權勾選' : '已收回權限');
-          loadUsers();
-        } else {
-          alert(data.error || '更新失敗');
-        }
-      } catch (error) {
-        alert('無法連接伺服器');
-      }
-    }
-
-    async function loadApplications() {
-      const content = document.getElementById('appsTab');
-      content.innerHTML = '<div class="loading">載入中...</div>';
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'getApplications', token: currentToken })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          let html = '<h3 style="margin-bottom: 15px; color: var(--vs-maroon);">待審批申請</h3>';
-          if (data.applications.length === 0) {
-            html += '<p style="color: var(--vs-text-light);">目前沒有待審批的申請</p>';
-          } else {
-            html += '<div class="app-list">';
-            data.applications.forEach(app => {
-              html += '<div class="app-item"><div class="app-item-info"><strong>' + app.name + '</strong>';
-              if (app.ymis) html += ' (' + app.ymis + ')';
-              if (app.email) html += ' - ' + app.email;
-              html += '<br><span style="font-size: 12px; color: var(--vs-text-light);">申請角色：' + getRoleName(app.requested_role) + ' | 申請日期：' + app.applied_at + '</span></div><div class="app-item-actions">';
-              html += '<button class="btn btn-success" onclick="reviewApplication(\'' + app.app_id + '\', \'approved\')">批准</button>';
-              html += '<button class="btn btn-danger" onclick="reviewApplication(\'' + app.app_id + '\', \'rejected\')">拒絕</button>';
-              html += '</div></div>';
-            });
-            html += '</div>';
-          }
-          content.innerHTML = html;
-        } else {
-          content.innerHTML = '<div class="loading">載入失敗</div>';
-        }
-      } catch (error) {
-        content.innerHTML = '<div class="loading">載入失敗</div>';
-      }
-    }
-
-    async function reviewApplication(appId, decision) {
-      if (!confirm('確定要' + (decision === 'approved' ? '批准' : '拒絕') + '此申請嗎？')) return;
-      
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'reviewApplication', token: currentToken, app_id: appId, decision: decision, review_note: '' })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          alert(data.message);
-          loadApplications();
-        } else {
-          alert(data.error || '操作失敗');
-        }
-      } catch (error) {
-        alert('無法連接伺服器');
-      }
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => { toast.className = 'toast'; }, 3000);
     }
   </script>
 </body>
