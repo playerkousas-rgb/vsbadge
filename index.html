@@ -5,83 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>深資童軍進度追蹤系統</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --vs-maroon: #8B0000; --vs-gold: #FFD700; --vs-text: #333; --vs-text-light: #666; --vs-bg: #F5F5F5; --vs-card: #FFFFFF; --vs-border: #E0E0E0; }
-    body { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--vs-bg); color: var(--vs-text); line-height: 1.6; }
-    .header { background: var(--vs-maroon); color: white; padding: 30px 20px; text-align: center; border-bottom: 4px solid var(--vs-gold); }
-    .logo-container { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px; }
-    .logo-img { width: 80px; height: 80px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
-    .header h1 { font-size: 28px; font-weight: 700; }
-    .header p { font-size: 14px; opacity: 0.9; margin-top: 10px; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-    .section-title { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 3px solid var(--vs-maroon); }
-    .section-title h2 { font-size: 22px; color: var(--vs-maroon); font-weight: 700; }
-    .level-structure { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
-    .level-box { background: var(--vs-card); border: 2px solid var(--vs-border); border-radius: 8px; padding: 15px; text-align: center; }
-    .level-box .level-num { font-size: 28px; font-weight: bold; color: var(--vs-maroon); margin-bottom: 5px; }
-    .level-box .level-name { font-size: 13px; color: var(--vs-text); font-weight: 600; }
-    .level-box .level-desc { font-size: 11px; color: var(--vs-text-light); margin-top: 5px; }
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .info-card { background: var(--vs-card); border-radius: 10px; padding: 25px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border-left: 4px solid var(--vs-maroon); }
-    .info-card h3 { color: var(--vs-maroon); font-size: 18px; margin-bottom: 12px; }
-    .info-card p { color: var(--vs-text-light); font-size: 13px; line-height: 1.7; }
-    .info-card ul { list-style: none; padding-left: 0; }
-    .info-card li { padding: 6px 0; padding-left: 20px; position: relative; color: var(--vs-text-light); font-size: 13px; }
-    .info-card li:before { content: "✓"; position: absolute; left: 0; color: var(--vs-maroon); font-weight: bold; }
-    .troop-section { background: var(--vs-card); border-radius: 10px; padding: 25px; margin-bottom: 30px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-    .troop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 15px; }
-    .troop-card { background: var(--vs-bg); border: 2px solid var(--vs-border); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.3s; }
-    .troop-card:hover { border-color: var(--vs-maroon); background: #FFF5F5; transform: translateY(-2px); }
-    .troop-card .troop-id { font-size: 24px; font-weight: bold; color: var(--vs-maroon); }
-    .troop-card .troop-name { font-size: 13px; color: var(--vs-text-light); margin-top: 3px; }
-    .welcome-nav { display: flex; gap: 10px; justify-content: center; margin: 25px 0; }
-    .welcome-nav button { padding: 12px 24px; border: 2px solid var(--vs-maroon); border-radius: 8px; background: var(--vs-card); color: var(--vs-maroon); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-    .welcome-nav button.active { background: var(--vs-maroon); color: white; }
-    .welcome-nav button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139,0,0,0.2); }
-    .welcome-section { display: none; }
-    .welcome-section.active { display: block; }
-    .tutorial { background: var(--vs-card); border-radius: 10px; padding: 25px; margin-bottom: 30px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-    .steps { margin-top: 15px; }
-    .step { display: flex; gap: 15px; margin-bottom: 15px; padding: 15px; background: var(--vs-bg); border-radius: 8px; border-left: 4px solid var(--vs-maroon); }
-    .step-number { width: 40px; height: 40px; background: var(--vs-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; flex-shrink: 0; }
-    .step-content h4 { color: var(--vs-text); font-size: 15px; margin-bottom: 5px; }
-    .step-content p { color: var(--vs-text-light); font-size: 13px; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
-    .modal.active { display: flex; }
-    .modal-content { background: var(--vs-card); border-radius: 12px; padding: 25px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
-    .modal-content h3 { color: var(--vs-maroon); font-size: 20px; margin-bottom: 20px; text-align: center; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid var(--vs-border); border-radius: 6px; font-size: 14px; font-family: inherit; }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--vs-maroon); }
-    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.3s; border: none; }
-    .btn-primary { background: var(--vs-maroon); color: white; }
-    .btn-primary:hover { background: #6B0000; }
-    .btn-secondary { background: var(--vs-border); color: var(--vs-text); }
-    .btn-blue { background: #1565C0; color: white; }
-    .btn-blue:hover { background: #0D47A1; }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    
-    /* Login Page */
-    .login-container { max-width: 420px; margin: 40px auto; padding: 30px; background: var(--vs-card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-    .login-container h2 { color: var(--vs-maroon); text-align: center; margin-bottom: 20px; font-size: 22px; }
-    .login-container .troop-info { text-align: center; padding: 12px; background: #FFF5F5; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: var(--vs-maroon); font-weight: 600; }
-    .login-type-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-    .login-type-tab { flex: 1; padding: 10px; border: 2px solid var(--vs-border); border-radius: 8px; background: var(--vs-bg); cursor: pointer; text-align: center; font-size: 13px; font-weight: 600; color: var(--vs-text-light); transition: 0.3s; }
-    .login-type-tab.active { border-color: var(--vs-maroon); background: #FFF5F5; color: var(--vs-maroon); }
-    .login-msg { padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; display: none; text-align: center; }
-    .login-msg.error { display: block; background: #FFF5F5; color: #DC3545; border: 1px solid #F5C6CB; }
-    .login-msg.success { display: block; background: #F5FFF5; color: #28A745; border: 1px solid #C3E6CB; }
-    .login-links { text-align: center; margin-top: 15px; }
-    .login-links a { color: var(--vs-maroon); font-size: 13px; text-decoration: none; margin: 0 10px; }
-    .login-links a:hover { text-decoration: underline; }
-    
-    /* Toast Notification */
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-    .toast.success { background: #28a745; }
-    .toast.error { background: #dc3545; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--vs-maroon:#8B0000;--vs-gold:#FFD700;--vs-text:#333;--vs-text-light:#666;--vs-bg:#F5F5F5;--vs-card:#FFF;--vs-border:#E0E0E0;--vs-blue:#1565C0;--vs-green:#28A745;--vs-orange:#FD7E14;--vs-red:#DC3545}
+    body{font-family:'Noto Sans TC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--vs-bg);color:var(--vs-text);line-height:1.6}
+    .header{background:var(--vs-maroon);color:#fff;padding:20px;text-align:center;border-bottom:4px solid var(--vs-gold)}
+    .logo-container{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:10px}
+    .logo-img{width:60px;height:60px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+    .header h1{font-size:24px;font-weight:700}
+    .header p{font-size:13px;opacity:.9}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    .section-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:10px;border-bottom:3px solid var(--vs-maroon)}
+    .section-title h2{font-size:20px;color:var(--vs-maroon);font-weight:700}
+    .level-structure{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:25px}
+    .level-box{background:var(--vs-card);border:2px solid var(--vs-border);border-radius:8px;padding:12px;text-align:center}
+    .level-box .level-num{font-size:24px;font-weight:bold;color:var(--vs-maroon);margin-bottom:4px}
+    .level-box .level-name{font-size:12px;color:var(--vs-text);font-weight:600}
+    .level-box .level-desc{font-size:10px;color:var(--vs-text-light);margin-top:4px}
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:25px}
+    .info-card{background:var(--vs-card);border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:4px solid var(--vs-maroon)}
+    .info-card h3{color:var(--vs-maroon);font-size:16px;margin-bottom:10px}
+    .info-card p,.info-card li{color:var(--vs-text-light);font-size:13px;line-height:1.6}
+    .info-card ul{list-style:none;padding-left:0}
+    .info-card li{padding:4px 0 4px 18px;position:relative;font-size:12px}
+    .info-card li:before{content:"✓";position:absolute;left:0;color:var(--vs-maroon);font-weight:bold}
+    .troop-section{background:var(--vs-card);border-radius:10px;padding:20px;margin-bottom:25px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .troop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+    .troop-card{background:var(--vs-bg);border:2px solid var(--vs-border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:.3s}
+    .troop-card:hover{border-color:var(--vs-maroon);background:#FFF5F5;transform:translateY(-2px)}
+    .troop-card .troop-id{font-size:22px;font-weight:bold;color:var(--vs-maroon)}
+    .troop-card .troop-name{font-size:12px;color:var(--vs-text-light);margin-top:2px}
+    .welcome-nav{display:flex;gap:8px;justify-content:center;margin:20px 0}
+    .welcome-nav button{padding:10px 20px;border:2px solid var(--vs-maroon);border-radius:8px;background:var(--vs-card);color:var(--vs-maroon);font-size:13px;font-weight:600;cursor:pointer;transition:.3s}
+    .welcome-nav button.active{background:var(--vs-maroon);color:#fff}
+    .welcome-nav button:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.15)}
+    .welcome-section{display:none}
+    .welcome-section.active{display:block}
+    .tutorial{background:var(--vs-card);border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .steps{margin-top:12px}
+    .step{display:flex;gap:12px;margin-bottom:12px;padding:12px;background:var(--vs-bg);border-radius:8px;border-left:4px solid var(--vs-maroon)}
+    .step-number{width:36px;height:36px;background:var(--vs-maroon);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;flex-shrink:0}
+    .step-content h4{color:var(--vs-text);font-size:14px;margin-bottom:4px}
+    .step-content p{color:var(--vs-text-light);font-size:12px}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+    .modal.active{display:flex}
+    .modal-content{background:var(--vs-card);border-radius:12px;padding:24px;max-width:480px;width:90%;max-height:90vh;overflow-y:auto}
+    .modal-content h3{color:var(--vs-maroon);font-size:18px;margin-bottom:16px;text-align:center}
+    .form-group{margin-bottom:12px}
+    .form-group label{display:block;margin-bottom:4px;font-weight:600;font-size:12px}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px;border:2px solid var(--vs-border);border-radius:6px;font-size:13px;font-family:inherit}
+    .form-group textarea{resize:vertical;min-height:70px}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--vs-maroon)}
+    .btn{padding:9px 18px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:.3s}
+    .btn-primary{background:var(--vs-maroon);color:#fff}
+    .btn-primary:hover{background:#6B0000}
+    .btn-secondary{background:var(--vs-border);color:var(--vs-text)}
+    .btn-blue{background:var(--vs-blue);color:#fff}
+    .btn-blue:hover{background:#0D47A1}
+    .btn-success{background:var(--vs-green);color:#fff}
+    .btn-danger{background:var(--vs-red);color:#fff}
+    .btn-sm{padding:5px 12px;font-size:11px}
+    .btn:disabled{background:#ccc;cursor:not-allowed}
+    .login-container{max-width:400px;margin:30px auto;padding:28px;background:var(--vs-card);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+    .login-container h2{color:var(--vs-maroon);text-align:center;margin-bottom:16px;font-size:20px}
+    .login-container .troop-info{text-align:center;padding:10px;background:#FFF5F5;border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--vs-maroon);font-weight:600}
+    .login-type-tabs{display:flex;gap:8px;margin-bottom:16px}
+    .login-type-tab{flex:1;padding:9px;border:2px solid var(--vs-border);border-radius:8px;background:var(--vs-bg);cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--vs-text-light);transition:.3s}
+    .login-type-tab.active{border-color:var(--vs-maroon);background:#FFF5F5;color:var(--vs-maroon)}
+    .login-msg{padding:9px;border-radius:6px;margin-bottom:12px;font-size:12px;display:none;text-align:center}
+    .login-msg.error{display:block;background:#FFF5F5;color:#DC3545;border:1px solid #F5C6CB}
+    .login-msg.success{display:block;background:#F5FFF5;color:#28A745;border:1px solid #C3E6CB}
+    .login-links{text-align:center;margin-top:12px}
+    .login-links a{color:var(--vs-maroon);font-size:12px;text-decoration:none;margin:0 8px}
+    .login-links a:hover{text-decoration:underline}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:.3s;pointer-events:none}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+    .toast.success{background:#28a745}
+    .toast.error{background:#dc3545}
+    .app-header{background:var(--vs-maroon);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--vs-gold);flex-wrap:wrap;gap:8px}
+    .app-header h1{font-size:16px;display:flex;align-items:center;gap:8px}
+    .app-header h1 .logo-img{width:36px;height:36px}
+    .user-info{font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .nav-tabs{display:flex;background:var(--vs-card);border-bottom:2px solid var(--vs-border);flex-wrap:wrap}
+    .nav-tab{flex:1;min-width:90px;padding:10px;text-align:center;cursor:pointer;border:none;background:none;font-size:12px;font-weight:600;color:var(--vs-text-light);border-bottom:3px solid transparent;transition:.3s}
+    .nav-tab:hover{background:var(--vs-bg)}
+    .nav-tab.active{color:var(--vs-maroon);border-bottom-color:var(--vs-maroon)}
+    .tab-content{display:none;padding:16px}
+    .tab-content.active{display:block}
+    .l1-badge{background:var(--vs-card);border-radius:8px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+    .l1-header{padding:12px 16px;background:var(--vs-maroon);color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+    .l1-header h3{font-size:15px}
+    .l1-body{padding:0;display:none}
+    .l1-body.expanded{display:block}
+    .l2-segment{border-bottom:1px solid var(--vs-border)}
+    .l2-segment:last-child{border-bottom:none}
+    .l2-header{padding:10px 16px;background:#F8F8F8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--vs-maroon)}
+    .l2-header h4{font-size:13px;color:var(--vs-maroon)}
+    .l2-body{display:none;padding:8px 16px}
+    .l2-body.expanded{display:block}
+    .l3-item{border-bottom:1px solid #F0F0F0}
+    .l3-item:last-child{border-bottom:none}
+    .l3-header{display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer}
+    .l3-header input[type=checkbox]{width:17px;height:17px;accent-color:var(--vs-maroon);cursor:pointer}
+    .l3-header label{flex:1;font-size:13px;cursor:pointer}
+    .l3-header .date{font-size:10px;color:var(--vs-text-light)}
+    .l4-subitems{display:none;padding-left:26px;margin-top:4px}
+    .l4-subitems.expanded{display:block}
+    .l4-item{display:flex;align-items:center;gap:8px;padding:5px 0}
+    .l4-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--vs-maroon);cursor:pointer}
+    .l4-item label{flex:1;font-size:12px;cursor:pointer}
+    .l4-item .date{font-size:10px;color:var(--vs-text-light)}
+    .save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--vs-card);border-top:2px solid var(--vs-maroon);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 6px rgba(0,0,0,.08);transform:translateY(100%);transition:.3s;z-index:998}
+    .save-bar.visible{transform:translateY(0)}
+    .save-bar .pending-text{font-size:12px;color:var(--vs-maroon);font-weight:600}
+    .role-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-left:6px}
+    .role-admin{background:#8B0000;color:#fff}
+    .role-leader{background:#28A745;color:#fff}
+    .role-exec{background:#FFC107;color:#333}
+    .role-member{background:#6C757D;color:#fff}
+    .user-item{background:var(--vs-bg);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .user-item-info{flex:1;min-width:180px}
+    .user-item-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .user-item-actions select{padding:5px;font-size:11px;border:1px solid var(--vs-border);border-radius:4px}
+    .app-item{background:var(--vs-bg);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+    .app-item-info{flex:1}
+    .app-item-actions{display:flex;gap:6px}
+    @media(max-width:768px){.level-structure{grid-template-columns:repeat(2,1fr)}.info-grid{grid-template-columns:1fr}.troop-grid{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
@@ -94,12 +142,11 @@
       </div>
       <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
       <div class="welcome-nav">
-        <button class="active" onclick="showWelcomeTab('enter')">🎯 進入系統</button>
+        <button class="active" onclick="showWelcomeTab('enter')"> 進入系統</button>
         <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
         <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
       </div>
     </div>
-
     <div class="container">
       <div id="welcome-enter" class="welcome-section active">
         <div class="section-title"><h2>四級勾選架構</h2></div>
@@ -111,43 +158,34 @@
         </div>
         <div class="info-grid">
           <div class="info-card"><h3> 靈活勾選</h3><p>領袖可以在任何層級勾選：</p><ul><li>勾 L4 小項 = 完成一個具體要求</li><li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li><li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li><li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li></ul></div>
-          <div class="info-card"><h3>🔄 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
+          <div class="info-card"><h3> 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
           <div class="info-card"><h3>👥 權限管理</h3><p>根據角色提供不同功能：</p><ul><li>管理員：管理全旅團</li><li>團長/支部領袖：管理所屬支部</li><li>執委：可勾選進度（需授權）</li><li>團員：只能查看自己的進度</li></ul></div>
         </div>
         <div class="troop-section"><div class="section-title"><h2> 請選擇您的旅團</h2></div><div class="troop-grid" id="troopGrid"></div></div>
       </div>
-
       <div id="welcome-setup" class="welcome-section">
-        <div class="section-title"><h2> 新旅團部署指南</h2></div>
-        <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;">
-          <h3>✨ 只需 10 分鐘，3 步完成</h3>
-          <p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p>
-        </div>
-        <div class="tutorial" style="margin-bottom: 20px;">
+        <div class="section-title"><h2>📋 新旅團部署指南</h2></div>
+        <div class="info-card" style="background:#FFF5F5;border-color:var(--vs-maroon);margin-bottom:16px"><h3>✨ 只需 10 分鐘，3 步完成</h3><p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p></div>
+        <div class="tutorial">
           <div class="steps">
-            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p>點擊下方按鈕下載 Code.gs 檔案：</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">⬇️ 下載 Code.gs</a></div></div>
-            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><strong>2.1</strong> 開啟 Google Sheets，建立新試算表（任何名稱都可以）<br><strong>2.2</strong> 點擊「擴充功能」→「Apps Script」<br><strong>2.3</strong> 刪除預設內容，貼上 Code.gs 的內容<br><strong>2.4</strong> 儲存後執行 <code>initializeSheets</code> 函數（系統會自動綁定此 Sheet）<br><strong>2.5</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br><strong>2.6</strong> 複製部署後的網址</p></div></div>
-            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>把以下資訊交給系統管理員：</p><ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);"><li>旅團編號（例：0082）</li><li>Apps Script 網址（以 /exec 結尾）</li><li>API Key（執行 initializeSheets 時顯示的隨機字串）</li></ul></div></div>
+            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary" style="display:inline-block;margin-top:6px;text-decoration:none;font-size:12px">⬇️ 下載 Code.gs</a></p></div></div>
+            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><b>2.1</b> 開啟 Google Sheets 建立新試算表<br><b>2.2</b> 點擊「擴充功能」→「Apps Script」<br><b>2.3</b> 刪除預設內容，貼上 Code.gs<br><b>2.4</b> 儲存後執行 <code>initializeSheets</code><br><b>2.5</b> 部署為網頁應用程式，存取權設為「任何人」<br><b>2.6</b> 複製部署後網址</p></div></div>
+            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p><ul style="margin-top:6px;padding-left:16px;color:var(--vs-text-light)"><li>旅團編號（例：0082）</li><li>Apps Script 網址</li><li>API Key</li></ul></p></div></div>
           </div>
         </div>
-
-        <div class="info-card" style="border-color: #1565C0; background: #E3F2FD;">
-          <h3 style="color: #1565C0;">📧 完成部署後，請通知管理員</h3>
-          <p style="margin-bottom: 15px;">請將您的 <strong>旅團編號</strong>、<strong>Script URL</strong> 和 <strong>API Key</strong> 發送給系統管理員進行登記。</p>
-          <button class="btn btn-blue" onclick="showContactModal()" style="width: 100%;">
-            📧 一鍵提交申請給管理員
-          </button>
-          <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 10px;">* 點擊後會直接提交申請，管理員收到後會為您開通系統。</p>
+        <div class="info-card" style="border-color:var(--vs-blue);background:#E3F2FD">
+          <h3 style="color:var(--vs-blue)">📧 完成部署後，請通知管理員</h3>
+          <p style="margin-bottom:12px">請將您的 <b>旅團編號</b>、<b>Script URL</b> 和 <b>API Key</b> 發送給系統管理員進行登記。</p>
+          <button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交申請給管理員</button>
         </div>
       </div>
-
       <div id="welcome-guide" class="welcome-section">
-        <div class="section-title"><h2>📖 使用教學</h2></div>
+        <div class="section-title"><h2> 使用教學</h2></div>
         <div class="tutorial">
           <div class="steps">
             <div class="step"><div class="step-number">1</div><div class="step-content"><h4>選擇旅團</h4><p>從旅團列表中選擇您的旅團</p></div></div>
-            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入系統</h4><p>領袖：用 Email 登入<br>成員：用 YMIS 登入</p></div></div>
-            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色顯示對應功能</p></div></div>
+            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入系統</h4><p>領袖：用 Email 登入 | 成員：用 YMIS 登入</p></div></div>
+            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色查看或管理進度</p></div></div>
           </div>
         </div>
       </div>
@@ -155,10 +193,10 @@
   </div>
 
   <!-- ===== 登入頁 ===== -->
-  <div id="loginPage" style="display:none;">
+  <div id="loginPage" style="display:none">
     <div class="header">
       <div class="logo-container">
-        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
+        <img src="assets/vs-logo-small.png" alt="Logo" class="logo-img">
         <div><h1>深資童軍進度追蹤</h1></div>
       </div>
     </div>
@@ -166,45 +204,59 @@
       <div class="login-container">
         <h2>登入系統</h2>
         <div class="troop-info" id="loginTroopInfo">—</div>
-        
         <div class="login-type-tabs">
-          <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')">👤 成員登入<br><small style="font-weight:normal;">用 YMIS</small></div>
-          <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')">👨‍💼 領袖登入<br><small style="font-weight:normal;">用 Email</small></div>
+          <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')">👤 成員<br><small style="font-weight:normal">用 YMIS</small></div>
+          <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')">👨‍💼 領袖<br><small style="font-weight:normal">用 Email</small></div>
         </div>
-        
         <div id="loginMsg" class="login-msg"></div>
-        
-        <div class="form-group">
-          <label id="loginIdLabel">YMIS（10 位數字）</label>
-          <input type="text" id="loginId" placeholder="請輸入您的 YMIS" maxlength="10" onkeypress="if(event.key==='Enter')doLogin()">
-        </div>
-        <div class="form-group">
-          <label>密碼</label>
-          <input type="password" id="loginPassword" placeholder="請輸入密碼" onkeypress="if(event.key==='Enter')doLogin()">
-        </div>
-        <button class="btn btn-primary" onclick="doLogin()" style="width:100%;" id="btnLogin">登入</button>
-        
+        <div class="form-group"><label id="loginIdLabel">YMIS（10 位數字）</label><input type="text" id="loginId" placeholder="請輸入您的 YMIS" maxlength="10" onkeypress="if(event.key==='Enter')doLogin()"></div>
+        <div class="form-group"><label>密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼" onkeypress="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin">登入</button>
         <div class="login-links">
-          <a href="#" onclick="showContactModal(); return false;">新旅團登記</a>
-          <a href="#" onclick="backToHome(); return false;">← 返回旅團選擇</a>
+          <a href="#" onclick="showContactModal();return false">新旅團登記</a>
+          <a href="#" onclick="backToHome();return false">← 返回</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== 聯絡管理員 Modal ===== -->
+  <!-- ===== 主系統 ===== -->
+  <div id="mainApp" style="display:none">
+    <div class="app-header">
+      <h1><img src="assets/vs-logo-small.png" alt="Logo" class="logo-img"><span id="appTitle">深資童軍進度追蹤</span></h1>
+      <div class="user-info">
+        <span id="userInfo"></span>
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">登出</button>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('progress')">📊 我的進度</button>
+      <button class="nav-tab" onclick="switchTab('overview')" id="overviewTab">👥 全團</button>
+      <button class="nav-tab" onclick="switchTab('byitem')" id="byitemTab">🔍 按項目</button>
+      <button class="nav-tab" onclick="switchTab('users')" id="usersTab" style="display:none">👥 用戶管理</button>
+      <button class="nav-tab" onclick="switchTab('applications')" id="appsTab" style="display:none">📋 審批申請</button>
+    </div>
+    <div id="progressTab" class="tab-content active"></div>
+    <div id="overviewTab" class="tab-content"></div>
+    <div id="byitemTab" class="tab-content"></div>
+    <div id="usersTab" class="tab-content"></div>
+    <div id="appsTab" class="tab-content"></div>
+  </div>
+
+  <div class="save-bar" id="saveBar"><span class="pending-text" id="pendingText">0 項未保存</span><button class="btn btn-primary btn-sm" onclick="saveChanges()">確認寫入</button></div>
+
+  <!-- ===== 聯絡 Modal ===== -->
   <div id="contactModal" class="modal">
     <div class="modal-content">
       <h3>📧 提交旅團接入申請</h3>
-      <div class="form-group"><label>旅團編號 (例: 0082) <span style="color:red">*</span></label><input type="text" id="c_troopId" placeholder="0082"></div>
+      <div class="form-group"><label>旅團編號 <span style="color:red">*</span></label><input type="text" id="c_troopId" placeholder="0082"></div>
       <div class="form-group"><label>旅團名稱</label><input type="text" id="c_troopName" placeholder="第 82 旅"></div>
       <div class="form-group"><label>Apps Script URL <span style="color:red">*</span></label><input type="text" id="c_scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
       <div class="form-group"><label>API Key <span style="color:red">*</span></label><input type="text" id="c_apiKey" placeholder="vs_xxxxxxxxxxxx"></div>
-      <div class="form-group"><label>備注 / 聯絡方式 (選填)</label><textarea id="c_note" placeholder="請留下您的 Email 或聯絡方式..."></textarea></div>
-      
-      <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button class="btn btn-secondary" onclick="closeContactModal()" style="flex: 1;">取消</button>
-        <button class="btn btn-primary" id="btnSubmitContact" onclick="submitRegistration()" style="flex: 1;">提交申請</button>
+      <div class="form-group"><label>備注 (選填)</label><textarea id="c_note" placeholder="請留下 Email 或聯絡方式..."></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-secondary" onclick="closeContactModal()" style="flex:1">取消</button>
+        <button class="btn btn-primary" id="btnSubmitContact" onclick="submitRegistration()" style="flex:1">提交申請</button>
       </div>
     </div>
   </div>
@@ -212,249 +264,174 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const SCOUT_ADMIN_API = 'https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
+  const SCOUT_ADMIN_API='https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
+  let currentTroopId='',currentTroopName='',currentBackend='',currentApikey='';
+  let currentUser=null,currentToken='',loginType='member';
+  let itemsData=null,progressData={},pendingChanges=[];
 
-    // 全域狀態
-    let currentTroopId = '';
-    let currentTroopName = '';
-    let currentBackend = '';
-    let currentApikey = '';
-    let loginType = 'member';
+  document.addEventListener('DOMContentLoaded',function(){loadTroops();checkSavedSession()});
 
-    document.addEventListener('DOMContentLoaded', function() { loadTroops(); checkSavedSession(); });
+  function showWelcomeTab(n){document.querySelectorAll('.welcome-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.welcome-nav button').forEach(b=>b.classList.remove('active'));document.getElementById('welcome-'+n).classList.add('active');event.target.classList.add('active')}
+  function backToHome(){document.getElementById('loginPage').style.display='none';document.getElementById('homePage').style.display='block';document.getElementById('loginMsg').className='login-msg';document.getElementById('loginId').value='';document.getElementById('loginPassword').value=''}
 
-    // ===== 首頁切換 =====
-    function showWelcomeTab(tabName) {
-      document.querySelectorAll('.welcome-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.welcome-nav button').forEach(b => b.classList.remove('active'));
-      document.getElementById('welcome-' + tabName).classList.add('active');
-      event.target.classList.add('active');
-    }
+  async function loadTroops(){try{const r=await fetch('data/troops.json'),d=await r.json(),g=document.getElementById('troopGrid'),t=d.troops||{};if(Object.keys(t).length===0){g.innerHTML='<p style="text-align:center;color:var(--vs-text-light)">目前沒有可用的旅團</p>';return}g.innerHTML=Object.entries(t).map(([id,tt])=>'<div class="troop-card" onclick="selectTroop(\''+id+'\')"><div class="troop-id">'+id+'</div><div class="troop-name">'+tt.name+'</div></div>').join('')}catch(e){console.error(e);document.getElementById('troopGrid').innerHTML='<p style="text-align:center;color:red">無法載入旅團資料</p>'}}
 
-    function backToHome() {
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('homePage').style.display = 'block';
-      document.getElementById('loginMsg').className = 'login-msg';
-      document.getElementById('loginId').value = '';
-      document.getElementById('loginPassword').value = '';
-    }
+  async function selectTroop(id){try{const r=await fetch('data/troops.json'),d=await r.json(),tt=d.troops[id];if(!tt||!tt.backend){alert('此旅團設定不完整');return}currentTroopId=id;currentTroopName=tt.name;currentBackend=tt.backend;currentApikey=tt.apikey||'';document.getElementById('loginTroopInfo').textContent=' '+currentTroopName+' (ID: '+currentTroopId+')';document.getElementById('homePage').style.display='none';document.getElementById('loginPage').style.display='block';document.getElementById('loginMsg').className='login-msg';document.getElementById('loginId').value='';document.getElementById('loginPassword').value='';switchLoginType('member')}catch(e){console.error(e);alert('無法取得旅團設定')}}
 
-    // ===== 旅團載入 =====
-    async function loadTroops() {
-      try {
-        const res = await fetch('data/troops.json');
-        const data = await res.json();
-        const grid = document.getElementById('troopGrid');
-        const troops = data.troops || {};
-        
-        if (Object.keys(troops).length === 0) {
-          grid.innerHTML = '<p style="text-align:center;color:var(--vs-text-light);">目前沒有可用的旅團，請聯絡管理員。</p>';
-          return;
-        }
-        
-        grid.innerHTML = Object.entries(troops).map(([id, troop]) => 
-          `<div class="troop-card" onclick="selectTroop('${id}')">
-            <div class="troop-id">${id}</div>
-            <div class="troop-name">${troop.name}</div>
-          </div>`
-        ).join('');
-      } catch (e) { 
-        console.error(e); 
-        document.getElementById('troopGrid').innerHTML = '<p style="text-align:center;color:red;">無法載入旅團資料</p>';
-      }
-    }
+  function switchLoginType(t){loginType=t;document.getElementById('tabMember').classList.toggle('active',t==='member');document.getElementById('tabLeader').classList.toggle('active',t==='leader');const l=document.getElementById('loginIdLabel'),i=document.getElementById('loginId');if(t==='member'){l.textContent='YMIS（10 位數字）';i.placeholder='請輸入您的 YMIS';i.type='text';i.maxLength=10}else{l.textContent='Email';i.placeholder='請輸入您的 Email';i.type='email';i.maxLength=100}}
 
-    // ===== 選擇旅團 → 跳登入頁 =====
-    async function selectTroop(id) {
-      try {
-        const res = await fetch('data/troops.json');
-        const data = await res.json();
-        const troop = data.troops[id];
-        
-        if (!troop || !troop.backend) {
-          alert('此旅團設定不完整');
-          return;
-        }
-        
-        currentTroopId = id;
-        currentTroopName = troop.name;
-        currentBackend = troop.backend;
-        currentApikey = troop.apikey || '';
-        
-        document.getElementById('loginTroopInfo').textContent = ' ' + currentTroopName + ' (ID: ' + currentTroopId + ')';
-        document.getElementById('homePage').style.display = 'none';
-        document.getElementById('loginPage').style.display = 'block';
-        document.getElementById('loginMsg').className = 'login-msg';
-        document.getElementById('loginId').value = '';
-        document.getElementById('loginPassword').value = '';
-        
-        switchLoginType('member');
-      } catch (e) {
-        console.error(e);
-        alert('無法取得旅團設定');
-      }
-    }
+  async function doLogin(){const lid=document.getElementById('loginId').value.trim(),pw=document.getElementById('loginPassword').value,msg=document.getElementById('loginMsg'),btn=document.getElementById('btnLogin');msg.className='login-msg';if(!lid||!pw){msg.textContent='請填寫帳號和密碼';msg.className='login-msg error';return}btn.disabled=true;btn.textContent='登入中...';try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'login',login_id:lid,password:pw})}),d=await r.json();if(d.success){currentUser=d.user;currentToken=d.token;localStorage.setItem('vsbadge_session',JSON.stringify({troopId:currentTroopId,troopName:currentTroopName,backend:currentBackend,apikey:currentApikey,token:currentToken,user:currentUser,savedAt:Date.now()}));msg.textContent='登入成功！';msg.className='login-msg success';setTimeout(()=>{document.getElementById('loginPage').style.display='none';document.getElementById('mainApp').style.display='block';document.getElementById('appTitle').textContent=currentTroopName+' - 進度追蹤';document.getElementById('userInfo').textContent=currentUser.name+' ['+getRoleName(currentUser.role)+']';const cm=['admin','group_leader','branch_leader'].indexOf(currentUser.role)>=0;document.getElementById('usersTab').style.display=cm?'block':'none';document.getElementById('appsTab').style.display=cm?'block':'none';loadItemsAndProgress()},800)}else{msg.textContent=d.error||'登入失敗';msg.className='login-msg error'}}catch(e){console.error(e);msg.textContent='無法連接伺服器';msg.className='login-msg error'}finally{btn.disabled=false;btn.textContent='登入'}}
 
-    // ===== 登入類型切換 =====
-    function switchLoginType(type) {
-      loginType = type;
-      document.getElementById('tabMember').classList.toggle('active', type === 'member');
-      document.getElementById('tabLeader').classList.toggle('active', type === 'leader');
+  function doLogout(){localStorage.removeItem('vsbadge_session');currentUser=null;currentToken='';currentTroopId='';currentTroopName='';document.getElementById('mainApp').style.display='none';document.getElementById('homePage').style.display='block'}
+
+  function checkSavedSession(){const s=localStorage.getItem('vsbadge_session');if(s){try{const ss=JSON.parse(s);if(Date.now()-ss.savedAt<30*24*36e5){currentTroopId=ss.troopId;currentTroopName=ss.troopName;currentBackend=ss.backend;currentApikey=ss.apikey;currentToken=ss.token;currentUser=ss.user;document.getElementById('homePage').style.display='none';document.getElementById('mainApp').style.display='block';document.getElementById('appTitle').textContent=currentTroopName+' - 進度追蹤';document.getElementById('userInfo').textContent=currentUser.name+' ['+getRoleName(currentUser.role)+']';const cm=['admin','group_leader','branch_leader'].indexOf(currentUser.role)>=0;document.getElementById('usersTab').style.display=cm?'block':'none';document.getElementById('appsTab').style.display=cm?'block':'none';loadItemsAndProgress()}}catch(e){}}}
+
+  function showContactModal(){document.getElementById('contactModal').classList.add('active')}
+  function closeContactModal(){document.getElementById('contactModal').classList.remove('active')}
+
+  async function submitRegistration(){const ti=document.getElementById('c_troopId').value.trim(),tn=document.getElementById('c_troopName').value.trim(),su=document.getElementById('c_scriptUrl').value.trim(),ak=document.getElementById('c_apiKey').value.trim(),nt=document.getElementById('c_note').value.trim(),btn=document.getElementById('btnSubmitContact');if(!ti||!su||!ak){showToast('請填寫旅團編號、Script URL 和 API Key','error');return}btn.disabled=true;btn.textContent='提交中...';try{await fetch(SCOUT_ADMIN_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({troopId:ti,troopName:tn,scriptUrl:su,apiKey:ak,appType:'vsbadge',note:nt})});showToast('✅ 申請已提交！','success');closeContactModal();['c_troopId','c_troopName','c_scriptUrl','c_apiKey','c_note'].forEach(id=>document.getElementById(id).value='')}catch(e){showToast('❌ 提交失敗','error')}finally{btn.disabled=false;btn.textContent='提交申請'}}
+
+  function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className='toast show '+t;setTimeout(()=>e.className='toast',3000)}
+
+  // ===== 主系統功能 =====
+  function getRoleName(r){const n={'super_admin':'超管','admin':'管理員','group_leader':'團長','branch_leader':'支部領袖','exec_committee':'執委','member':'團員'};return n[r]||r}
+  function canUserTick(r){return['admin','group_leader','branch_leader','exec_committee','super_admin'].indexOf(r)>=0}
+
+  async function loadItemsAndProgress(){try{const r1=await fetch('data/items.json');itemsData=await r1.json();const r2=await fetch(currentBackend+'?action=load&apikey='+currentApikey),d=await r2.json();progressData=d.progress||{};loadProgress()}catch(e){console.error(e);document.getElementById('progressTab').innerHTML='<div style="text-align:center;padding:24px;color:var(--vs-text-light)">載入失敗</div>'}}
+
+  function switchTab(n){document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');document.getElementById(n+'Tab').classList.add('active');if(n==='progress')loadProgress();if(n==='overview')loadOverview();if(n==='byitem')loadByItem();if(n==='users')loadUsers();if(n==='applications')loadApplications()}
+
+  function loadProgress(){const c=document.getElementById('progressTab');let h='';itemsData.badges.forEach(b=>{h+='<div class="l1-badge"><div class="l1-header" onclick="this.nextElementSibling.classList.toggle(\'expanded\')"><h3>'+b.icon+' '+b.name+'</h3><span>▶</span></div><div class="l1-body">'+renderSegments(b.segments)+'</div></div>'});c.innerHTML=h}
+
+  function renderSegments(segments){return segments.map(s=>'<div class="l2-segment"><div class="l2-header" onclick="this.nextElementSibling.classList.toggle(\'expanded\')"><h4>'+s.name+'</h4><span>▶</span></div><div class="l2-body">'+renderItems(s.items)+'</div></div>').join('')}
+
+  function renderItems(items){return items.map(it=>{const ct=canUserTick(currentUser.role),ck=progressData[it.id]?'checked':'',dt=progressData[it.id]||'';if(it.subItems&&it.subItems.length>0){const subH=it.subItems.map(si=>{const sc=progressData[si.id]?'checked':'',sd=progressData[si.id]||'';return'<div class="l4-item"><input type="checkbox" '+(ct?'':'disabled')+' '+sc+' onchange="toggleItem(\''+si.id+'\',this.checked)"><label>'+si.name+'</label><span class="date">'+sd+'</span></div>'}).join('');return'<div class="l3-item"><div class="l3-header" onclick="this.nextElementSibling.classList.toggle(\'expanded\')"><input type="checkbox" '+(ct?'':'disabled')+' '+ck+' onclick="event.stopPropagation()" onchange="toggleItem(\''+it.id+'\',this.checked,true)"><label>'+it.name+'</label><span class="date">'+dt+'</span><span style="font-size:10px;color:var(--vs-text-light);margin-left:4px">▶</span></div><div class="l4-subitems">'+subH+'</div></div>'}return'<div class="l3-item"><div class="l3-header"><input type="checkbox" '+(ct?'':'disabled')+' '+ck+' onchange="toggleItem(\''+it.id+'\',this.checked)"><label>'+it.name+'</label><span class="date">'+dt+'</span></div></div>'}).join('')}
+
+  function toggleItem(id,checked,isParent){const d=new Date().toISOString().split('T')[0];if(isParent&&checked){findSubItems(id).forEach(si=>{if(!progressData[si]){progressData[si]=d;pendingChanges.push({ymis:currentUser.ymis,itemId:si,date:d})}})}progressData[id]=checked?d:'';pendingChanges.push({ymis:currentUser.ymis,itemId:id,date:d,uncomplete:!checked});updateSaveBar();loadProgress()}
+
+  function findSubItems(pid){for(const b of itemsData.badges)for(const s of b.segments)for(const it of s.items)if(it.id===pid&&it.subItems)return it.subItems.map(si=>si.id);return[]}
+
+  function updateSaveBar(){const b=document.getElementById('saveBar'),t=document.getElementById('pendingText');if(pendingChanges.length>0){b.classList.add('visible');t.textContent=pendingChanges.length+' 項未保存'}else b.classList.remove('visible')}
+
+  async function saveChanges(){if(pendingChanges.length===0)return;try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',apikey:currentApikey,changes:pendingChanges})}),d=await r.json();if(d.success){pendingChanges=[];updateSaveBar();showToast('✓ 已保存','success');loadProgress()}else throw new Error(d.error)}catch(e){showToast('✗ 保存失敗: '+e.message,'error')}}
+
+  // ===== 全團總覽（橫式 - 批量考核）=====
+  async function loadOverview(){
+    const c=document.getElementById('overviewTab');
+    c.innerHTML='<div style="text-align:center;padding:24px">載入中...</div>';
+    try{
+      const r1=await fetch('data/items.json');
+      const items=await r1.json();
+      const r2=await fetch(currentBackend+'?action=load&apikey='+currentApikey);
+      const data=await r2.json();
+      const members=data.members||[];
+      const progress=data.progress||{};
       
-      const label = document.getElementById('loginIdLabel');
-      const input = document.getElementById('loginId');
-      
-      if (type === 'member') {
-        label.textContent = 'YMIS（10 位數字）';
-        input.placeholder = '請輸入您的 YMIS';
-        input.type = 'text';
-        input.maxLength = 10;
-      } else {
-        label.textContent = 'Email';
-        input.placeholder = '請輸入您的 Email';
-        input.type = 'email';
-        input.maxLength = 100;
-      }
-    }
-
-    // ===== 登入 =====
-    async function doLogin() {
-      const loginId = document.getElementById('loginId').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const msgEl = document.getElementById('loginMsg');
-      const btn = document.getElementById('btnLogin');
-      
-      msgEl.className = 'login-msg';
-      
-      if (!loginId || !password) {
-        msgEl.textContent = '請填寫帳號和密碼';
-        msgEl.className = 'login-msg error';
+      if(members.length===0){
+        c.innerHTML='<div style="text-align:center;padding:24px;color:var(--vs-text-light)">暫無成員資料</div>';
         return;
       }
       
-      btn.disabled = true;
-      btn.textContent = '登入中...';
+      // 建立項目列表（扁平化）
+      const allItems=[];
+      items.badges.forEach(b=>{
+        b.segments.forEach(s=>{
+          s.items.forEach(it=>{
+            if(it.subItems&&it.subItems.length>0){
+              it.subItems.forEach(si=>allItems.push({id:si.id,name:si.name,group:it.name}))
+            }else{
+              allItems.push({id:it.id,name:it.name,group:s.name})
+            }
+          })
+        })
+      });
       
-      try {
-        const response = await fetch(currentBackend, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'login', login_id: loginId, password: password })
+      let h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+      h+='<thead><tr style="background:var(--vs-maroon);color:#fff"><th style="padding:8px;text-align:left;position:sticky;left:0;background:var(--vs-maroon);z-index:1">成員</th>';
+      allItems.forEach(it=>{h+='<th style="padding:4px;min-width:60px" title="'+it.group+' - '+it.name+'">'+it.id.substring(it.id.length-2)+'</th>'});
+      h+='</tr></thead><tbody>';
+      
+      members.forEach(m=>{
+        h+='<tr style="border-bottom:1px solid var(--vs-border)"><td style="padding:6px;position:sticky;left:0;background:var(--vs-card);font-weight:600">'+m.name+'</td>';
+        allItems.forEach(it=>{
+          const done=progress[m.ymis]&&progress[m.ymis][it.id]?'✓':'';
+          const color=done?'var(--vs-green)':'var(--vs-border)';
+          h+='<td style="padding:4px;text-align:center;color:'+color+';cursor:pointer" onclick="toggleMemberItem(\''+m.ymis+'\',\''+it.id+'\',this)">'+done+'</td>';
         });
-        const data = await response.json();
-        
-        if (data.success) {
-          // 儲存 session
-          localStorage.setItem('vsbadge_session', JSON.stringify({
-            troopId: currentTroopId,
-            troopName: currentTroopName,
-            backend: currentBackend,
-            apikey: currentApikey,
-            token: data.token,
-            user: data.user,
-            savedAt: Date.now()
-          }));
-          
-          msgEl.textContent = '登入成功！即將進入系統...';
-          msgEl.className = 'login-msg success';
-          
-          setTimeout(() => {
-            alert('歡迎 ' + data.user.name + ' (' + data.user.role + ')！\n\n系統功能開發中，請稍候...');
-            backToHome();
-          }, 1000);
-          
-        } else {
-          msgEl.textContent = data.error || '登入失敗';
-          msgEl.className = 'login-msg error';
-        }
-      } catch (error) {
-        console.error(error);
-        msgEl.textContent = '無法連接伺服器，請確認網路';
-        msgEl.className = 'login-msg error';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '登入';
-      }
-    }
+        h+='</tr>';
+      });
+      
+      h+='</tbody></table></div>';
+      c.innerHTML=h;
+    }catch(e){console.error(e);c.innerHTML='<div style="text-align:center;color:red">載入失敗</div>'}
+  }
 
-    // ===== Session 恢復 =====
-    function checkSavedSession() {
-      const saved = localStorage.getItem('vsbadge_session');
-      if (saved) {
-        try {
-          const session = JSON.parse(saved);
-          // 30 天內有效
-          if (Date.now() - session.savedAt < 30 * 24 * 60 * 60 * 1000) {
-            currentTroopId = session.troopId;
-            currentTroopName = session.troopName;
-            currentBackend = session.backend;
-            currentApikey = session.apikey;
-            // 可以自動跳登入頁
-          }
-        } catch(e) {}
-      }
-    }
+  async function toggleMemberItem(ymis,itemId,cell){
+    const done=cell.textContent==='✓';
+    const d=new Date().toISOString().split('T')[0];
+    cell.textContent=done?'':'✓';
+    cell.style.color=done?'var(--vs-border)':'var(--vs-green)';
+    
+    // 更新本地資料
+    if(!progressData[ymis])progressData[ymis]={};
+    if(done){delete progressData[ymis][itemId]}else{progressData[ymis][itemId]=d}
+    
+    pendingChanges.push({ymis:ymis,itemId:itemId,date:d,uncomplete:done});
+    updateSaveBar();
+  }
 
-    // ===== 聯絡管理員 =====
-    function showContactModal() { document.getElementById('contactModal').classList.add('active'); }
-    function closeContactModal() { document.getElementById('contactModal').classList.remove('active'); }
-
-    async function submitRegistration() {
-      const troopId = document.getElementById('c_troopId').value.trim();
-      const troopName = document.getElementById('c_troopName').value.trim();
-      const scriptUrl = document.getElementById('c_scriptUrl').value.trim();
-      const apiKey = document.getElementById('c_apiKey').value.trim();
-      const note = document.getElementById('c_note').value.trim();
-      const btn = document.getElementById('btnSubmitContact');
-
-      if (!troopId || !scriptUrl || !apiKey) {
-        showToast('請填寫旅團編號、Script URL 和 API Key', 'error');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = '提交中...';
-
-      const payload = {
-        troopId: troopId,
-        troopName: troopName,
-        scriptUrl: scriptUrl,
-        apiKey: apiKey,
-        appType: 'vsbadge',
-        note: note
-      };
-
-      try {
-        await fetch(SCOUT_ADMIN_API, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+  // ===== 按項目查看（直式 - 檢視單個成員）=====
+  async function loadByItem(){
+    const c=document.getElementById('byitemTab');
+    try{
+      const r1=await fetch('data/items.json');
+      const items=await r1.json();
+      const r2=await fetch(currentBackend+'?action=load&apikey='+currentApikey);
+      const data=await r2.json();
+      const members=data.members||[];
+      const progress=data.progress||{};
+      
+      let h='';
+      items.badges.forEach(b=>{
+        h+='<div style="margin-bottom:20px"><h3 style="color:var(--vs-maroon);margin-bottom:12px">'+b.icon+' '+b.name+'</h3>';
+        b.segments.forEach(s=>{
+          h+='<div style="margin-bottom:16px"><h4 style="color:var(--vs-text);margin-bottom:8px">'+s.name+'</h4>';
+          s.items.forEach(it=>{
+            if(it.subItems&&it.subItems.length>0){
+              h+='<div style="margin-bottom:12px"><div style="font-weight:600;margin-bottom:6px">'+it.name+'</div>';
+              it.subItems.forEach(si=>{
+                const doneCount=members.filter(m=>progress[m.ymis]&&progress[m.ymis][si.id]).length;
+                const pct=members.length>0?Math.round(doneCount/members.length*100):0;
+                h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="flex:1;font-size:12px">'+si.name+'</div>';
+                h+='<div style="width:100px;height:6px;background:var(--vs-border);border-radius:3px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:var(--vs-green)"></div></div>';
+                h+='<div style="font-size:11px;color:var(--vs-text-light);min-width:50px;text-align:right">'+doneCount+'/'+members.length+' ('+pct+'%)</div></div>';
+              });
+              h+='</div>';
+            }else{
+              const doneCount=members.filter(m=>progress[m.ymis]&&progress[m.ymis][it.id]).length;
+              const pct=members.length>0?Math.round(doneCount/members.length*100):0;
+              h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="flex:1;font-size:12px">'+it.name+'</div>';
+              h+='<div style="width:100px;height:6px;background:var(--vs-border);border-radius:3px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:var(--vs-green)"></div></div>';
+              h+='<div style="font-size:11px;color:var(--vs-text-light);min-width:50px;text-align:right">'+doneCount+'/'+members.length+' ('+pct+'%)</div></div>';
+            }
+          });
+          h+='</div>';
         });
+        h+='</div>';
+      });
+      
+      c.innerHTML=h;
+    }catch(e){console.error(e);c.innerHTML='<div style="text-align:center;color:red">載入失敗</div>'}
+  }
 
-        showToast('✅ 申請已提交！請等待管理員處理。', 'success');
-        closeContactModal();
-        
-        document.getElementById('c_troopId').value = '';
-        document.getElementById('c_troopName').value = '';
-        document.getElementById('c_scriptUrl').value = '';
-        document.getElementById('c_apiKey').value = '';
-        document.getElementById('c_note').value = '';
+  async function loadUsers(){const c=document.getElementById('usersTab');c.innerHTML='<div style="text-align:center;padding:24px">載入中...</div>';try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAllUsers',token:currentToken})}),d=await r.json();if(d.success){let h='<h3 style="margin-bottom:12px;color:var(--vs-maroon)">用戶管理</h3>';d.users.forEach(u=>{const rc='role-'+u.role.split('_')[0];h+='<div class="user-item"><div class="user-item-info"><b>'+u.name+'</b>';if(u.ymis)h+=' ('+u.ymis+')';if(u.email)h+=' - '+u.email;h+='<span class="role-badge '+rc+'">'+getRoleName(u.role)+'</span></div><div class="user-item-actions">';if(['admin','group_leader','branch_leader'].indexOf(currentUser.role)>=0&&u.ymis!==currentUser.ymis){h+='<select onchange="updateUserRole(\''+u.ymis+'\',this.value)"><option value="member"'+(u.role==='member'?' selected':'')+'>團員</option><option value="exec_committee"'+(u.role==='exec_committee'?' selected':'')+'>執委</option><option value="branch_leader"'+(u.role==='branch_leader'?' selected':'')+'>支部領袖</option><option value="group_leader"'+(u.role==='group_leader'?' selected':'')+'>團長</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>管理員</option></select>';h+='<button class="btn btn-sm '+(u.can_tick?'btn-danger':'btn-success')+'" onclick="toggleCanTick(\''+u.ymis+'\','+(!u.can_tick)+')">'+(u.can_tick?'收回勾選':'授權勾選')+'</button>'}h+='</div></div>'});c.innerHTML=h}else{c.innerHTML='<div style="text-align:center;color:red">載入失敗</div>'}}catch(e){c.innerHTML='<div style="text-align:center;color:red">錯誤</div>'}}
 
-      } catch (error) {
-        showToast('❌ 提交失敗，請稍後再試。', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '提交申請';
-      }
-    }
+  async function updateUserRole(tid,nr){try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:nr,can_tick:true})}),d=await r.json();if(d.success){showToast('角色已更新','success');loadUsers()}else showToast(d.error,'error')}catch(e){showToast('錯誤','error')}}
+  async function toggleCanTick(tid,ct){try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:currentUser.role,can_tick:ct})}),d=await r.json();showToast(ct?'已授權勾選':'已收回權限',d.success?'success':'error');loadUsers()}catch(e){showToast('錯誤','error')}}
 
-    function showToast(msg, type) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = 'toast show ' + type;
-      setTimeout(() => { toast.className = 'toast'; }, 3000);
-    }
+  async function loadApplications(){const c=document.getElementById('appsTab');c.innerHTML='<div style="text-align:center;padding:24px">載入中...</div>';try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getApplications',token:currentToken})}),d=await r.json();if(d.success){let h='<h3 style="margin-bottom:12px;color:var(--vs-maroon)">待審批申請</h3>';if(d.applications.length===0)h+='<p style="color:var(--vs-text-light)">目前沒有待審批的申請</p>';else d.applications.forEach(a=>{h+='<div class="app-item"><div class="app-item-info"><b>'+a.name+'</b>';if(a.ymis)h+=' ('+a.ymis+')';if(a.email)h+=' - '+a.email;h+='<br><span style="font-size:11px;color:var(--vs-text-light)">申請角色：'+getRoleName(a.requested_role)+' | '+a.applied_at+'</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp(\''+a.app_id+'\',\'approved\')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp(\''+a.app_id+'\',\'rejected\')">拒絕</button></div></div>'});c.innerHTML=h}else c.innerHTML='<div style="text-align:center;color:red">載入失敗</div>'}catch(e){c.innerHTML='<div style="text-align:center;color:red">錯誤</div>'}}
+
+  async function reviewApp(id,dec){if(!confirm('確定要'+(dec==='approved'?'批准':'拒絕')+'嗎？'))return;try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewApplication',token:currentToken,app_id:id,decision:dec,review_note:''})}),d=await r.json();showToast(d.message,d.success?'success':'error');loadApplications()}catch(e){showToast('錯誤','error')}}
   </script>
 </body>
 </html>
