@@ -63,6 +63,20 @@
     .btn-blue:hover { background: #0D47A1; }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
     
+    /* Login Page */
+    .login-container { max-width: 420px; margin: 40px auto; padding: 30px; background: var(--vs-card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .login-container h2 { color: var(--vs-maroon); text-align: center; margin-bottom: 20px; font-size: 22px; }
+    .login-container .troop-info { text-align: center; padding: 12px; background: #FFF5F5; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: var(--vs-maroon); font-weight: 600; }
+    .login-type-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .login-type-tab { flex: 1; padding: 10px; border: 2px solid var(--vs-border); border-radius: 8px; background: var(--vs-bg); cursor: pointer; text-align: center; font-size: 13px; font-weight: 600; color: var(--vs-text-light); transition: 0.3s; }
+    .login-type-tab.active { border-color: var(--vs-maroon); background: #FFF5F5; color: var(--vs-maroon); }
+    .login-msg { padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; display: none; text-align: center; }
+    .login-msg.error { display: block; background: #FFF5F5; color: #DC3545; border: 1px solid #F5C6CB; }
+    .login-msg.success { display: block; background: #F5FFF5; color: #28A745; border: 1px solid #C3E6CB; }
+    .login-links { text-align: center; margin-top: 15px; }
+    .login-links a { color: var(--vs-maroon); font-size: 13px; text-decoration: none; margin: 0 10px; }
+    .login-links a:hover { text-decoration: underline; }
+    
     /* Toast Notification */
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -71,75 +85,114 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo-container">
-      <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
-      <div><h1>深資童軍進度追蹤系統</h1><p>Venture Scout Progress Tracking</p></div>
-    </div>
-    <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
-    <div class="welcome-nav">
-      <button class="active" onclick="showWelcomeTab('enter')">🎯 進入系統</button>
-      <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
-      <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
-    </div>
-  </div>
-
-  <div class="container">
-    <div id="welcome-enter" class="welcome-section active">
-      <div class="section-title"><h2>四級勾選架構</h2></div>
-      <div class="level-structure">
-        <div class="level-box"><div class="level-num">L1</div><div class="level-name">進度獎章</div><div class="level-desc">會員章/肩章/深資童軍獎章/榮譽童軍獎章</div></div>
-        <div class="level-box"><div class="level-num">L2</div><div class="level-name">段章 / 金帶</div><div class="level-desc">活動策劃/社會服務/多元技能/戶外探險</div></div>
-        <div class="level-box"><div class="level-num">L3</div><div class="level-name">大項</div><div class="level-desc">露營/繩結/遠足/急救/個人興趣...</div></div>
-        <div class="level-box"><div class="level-num">L4</div><div class="level-name">小項</div><div class="level-desc">第 1 次出席/第 2 次出席/具體要求...</div></div>
+  <!-- ===== 首頁 ===== -->
+  <div id="homePage">
+    <div class="header">
+      <div class="logo-container">
+        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
+        <div><h1>深資童軍進度追蹤系統</h1><p>Venture Scout Progress Tracking</p></div>
       </div>
-      <div class="info-grid">
-        <div class="info-card"><h3> 靈活勾選</h3><p>領袖可以在任何層級勾選：</p><ul><li>勾 L4 小項 = 完成一個具體要求</li><li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li><li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li><li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li></ul></div>
-        <div class="info-card"><h3>🔄 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
-        <div class="info-card"><h3>👥 權限管理</h3><p>根據角色提供不同功能：</p><ul><li>管理員：管理全旅團</li><li>團長/支部領袖：管理所屬支部</li><li>執委：可勾選進度（需授權）</li><li>團員：只能查看自己的進度</li></ul></div>
+      <p>基於 2026 年第 11 版《深資童軍訓練綱要》</p>
+      <div class="welcome-nav">
+        <button class="active" onclick="showWelcomeTab('enter')">🎯 進入系統</button>
+        <button onclick="showWelcomeTab('setup')">📋 新旅團部署</button>
+        <button onclick="showWelcomeTab('guide')">📖 使用教學</button>
       </div>
-      <div class="troop-section"><div class="section-title"><h2> 請選擇您的旅團</h2></div><div class="troop-grid" id="troopGrid"></div></div>
     </div>
 
-    <div id="welcome-setup" class="welcome-section">
-      <div class="section-title"><h2>📋 新旅團部署指南</h2></div>
-      <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;">
-        <h3>✨ 只需 10 分鐘，3 步完成</h3>
-        <p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p>
+    <div class="container">
+      <div id="welcome-enter" class="welcome-section active">
+        <div class="section-title"><h2>四級勾選架構</h2></div>
+        <div class="level-structure">
+          <div class="level-box"><div class="level-num">L1</div><div class="level-name">進度獎章</div><div class="level-desc">會員章/肩章/深資童軍獎章/榮譽童軍獎章</div></div>
+          <div class="level-box"><div class="level-num">L2</div><div class="level-name">段章 / 金帶</div><div class="level-desc">活動策劃/社會服務/多元技能/戶外探險</div></div>
+          <div class="level-box"><div class="level-num">L3</div><div class="level-name">大項</div><div class="level-desc">露營/繩結/遠足/急救/個人興趣...</div></div>
+          <div class="level-box"><div class="level-num">L4</div><div class="level-name">小項</div><div class="level-desc">第 1 次出席/第 2 次出席/具體要求...</div></div>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h3> 靈活勾選</h3><p>領袖可以在任何層級勾選：</p><ul><li>勾 L4 小項 = 完成一個具體要求</li><li>勾 L3 大項 = 完成大項（自動勾選所有 L4）</li><li>勾 L2 段章 = 完成段章（自動勾選所有下層）</li><li>勾 L1 獎章 = 完成獎章（自動勾選全部）</li></ul></div>
+          <div class="info-card"><h3>🔄 雙向級聯</h3><p>勾選會自動聯動：</p><ul><li>勾上層 → 自動完成所有下層</li><li>下層全完成 → 上層自動完成</li><li>一天只能完成幾項？勾 L4 即可</li><li>一次完成整個大項？直接勾 L3</li></ul></div>
+          <div class="info-card"><h3>👥 權限管理</h3><p>根據角色提供不同功能：</p><ul><li>管理員：管理全旅團</li><li>團長/支部領袖：管理所屬支部</li><li>執委：可勾選進度（需授權）</li><li>團員：只能查看自己的進度</li></ul></div>
+        </div>
+        <div class="troop-section"><div class="section-title"><h2> 請選擇您的旅團</h2></div><div class="troop-grid" id="troopGrid"></div></div>
       </div>
-      <div class="tutorial" style="margin-bottom: 20px;">
-        <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p>點擊下方按鈕下載 Code.gs 檔案：</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">⬇️ 下載 Code.gs</a></div></div>
-          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><strong>2.1</strong> 開啟 Google Sheets，建立新試算表（任何名稱都可以）<br><strong>2.2</strong> 點擊「擴充功能」→「Apps Script」<br><strong>2.3</strong> 刪除預設內容，貼上 Code.gs 的內容<br><strong>2.4</strong> 儲存後執行 <code>initializeSheets</code> 函數（系統會自動綁定此 Sheet）<br><strong>2.5</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br><strong>2.6</strong> 複製部署後的網址</p></div></div>
-          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>把以下資訊交給系統管理員：</p><ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);"><li>旅團編號（例：0082）</li><li>Apps Script 網址（以 /exec 結尾）</li><li>API Key（執行 initializeSheets 時顯示的隨機字串）</li></ul></div></div>
+
+      <div id="welcome-setup" class="welcome-section">
+        <div class="section-title"><h2> 新旅團部署指南</h2></div>
+        <div class="info-card" style="background: #FFF5F5; border-color: var(--vs-maroon); margin-bottom: 20px;">
+          <h3>✨ 只需 10 分鐘，3 步完成</h3>
+          <p>您的旅團會擁有獨立的 Google Sheet 後端，資料完全由您掌控。</p>
+        </div>
+        <div class="tutorial" style="margin-bottom: 20px;">
+          <div class="steps">
+            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載後端程式碼</h4><p>點擊下方按鈕下載 Code.gs 檔案：</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">⬇️ 下載 Code.gs</a></div></div>
+            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><strong>2.1</strong> 開啟 Google Sheets，建立新試算表（任何名稱都可以）<br><strong>2.2</strong> 點擊「擴充功能」→「Apps Script」<br><strong>2.3</strong> 刪除預設內容，貼上 Code.gs 的內容<br><strong>2.4</strong> 儲存後執行 <code>initializeSheets</code> 函數（系統會自動綁定此 Sheet）<br><strong>2.5</strong> 點擊「部署」→「新增部署」→「網頁應用程式」，存取權設為「任何人」<br><strong>2.6</strong> 複製部署後的網址</p></div></div>
+            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>把以下資訊交給系統管理員：</p><ul style="margin-top: 8px; padding-left: 20px; color: var(--vs-text-light);"><li>旅團編號（例：0082）</li><li>Apps Script 網址（以 /exec 結尾）</li><li>API Key（執行 initializeSheets 時顯示的隨機字串）</li></ul></div></div>
+          </div>
+        </div>
+
+        <div class="info-card" style="border-color: #1565C0; background: #E3F2FD;">
+          <h3 style="color: #1565C0;">📧 完成部署後，請通知管理員</h3>
+          <p style="margin-bottom: 15px;">請將您的 <strong>旅團編號</strong>、<strong>Script URL</strong> 和 <strong>API Key</strong> 發送給系統管理員進行登記。</p>
+          <button class="btn btn-blue" onclick="showContactModal()" style="width: 100%;">
+            📧 一鍵提交申請給管理員
+          </button>
+          <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 10px;">* 點擊後會直接提交申請，管理員收到後會為您開通系統。</p>
         </div>
       </div>
 
-      <!-- 一鍵通知管理員按鈕 -->
-      <div class="info-card" style="border-color: #1565C0; background: #E3F2FD;">
-        <h3 style="color: #1565C0;">📧 完成部署後，請通知管理員</h3>
-        <p style="margin-bottom: 15px;">請將您的 <strong>旅團編號</strong>、<strong>Script URL</strong> 和 <strong>API Key</strong> 發送給系統管理員進行登記。</p>
-        <button class="btn btn-blue" onclick="showContactModal()" style="width: 100%;">
-          📧 一鍵提交申請給管理員
-        </button>
-        <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 10px;">* 點擊後會直接提交申請，管理員收到後會為您開通系統。</p>
-      </div>
-    </div>
-
-    <div id="welcome-guide" class="welcome-section">
-      <div class="section-title"><h2>📖 使用教學</h2></div>
-      <div class="tutorial">
-        <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>選擇旅團</h4><p>從旅團列表中選擇您的旅團</p></div></div>
-          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入或申請帳號</h4><p>領袖：用 Email 登入<br>成員：用 YMIS 登入<br>沒有帳號：點擊「申請加入」</p></div></div>
-          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>等待審批（新用戶）</h4><p>管理員會審批您的申請，批准後即可登入</p></div></div>
-          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色顯示對應功能</p></div></div>
+      <div id="welcome-guide" class="welcome-section">
+        <div class="section-title"><h2>📖 使用教學</h2></div>
+        <div class="tutorial">
+          <div class="steps">
+            <div class="step"><div class="step-number">1</div><div class="step-content"><h4>選擇旅團</h4><p>從旅團列表中選擇您的旅團</p></div></div>
+            <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入系統</h4><p>領袖：用 Email 登入<br>成員：用 YMIS 登入</p></div></div>
+            <div class="step"><div class="step-number">3</div><div class="step-content"><h4>開始使用</h4><p>根據您的角色顯示對應功能</p></div></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 聯絡管理員 Modal (對接 Scout Admin Apps Script) -->
+  <!-- ===== 登入頁 ===== -->
+  <div id="loginPage" style="display:none;">
+    <div class="header">
+      <div class="logo-container">
+        <img src="assets/vs-logo-small.png" alt="深資童軍標誌" class="logo-img">
+        <div><h1>深資童軍進度追蹤</h1></div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="login-container">
+        <h2>登入系統</h2>
+        <div class="troop-info" id="loginTroopInfo">—</div>
+        
+        <div class="login-type-tabs">
+          <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')">👤 成員登入<br><small style="font-weight:normal;">用 YMIS</small></div>
+          <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')">👨‍💼 領袖登入<br><small style="font-weight:normal;">用 Email</small></div>
+        </div>
+        
+        <div id="loginMsg" class="login-msg"></div>
+        
+        <div class="form-group">
+          <label id="loginIdLabel">YMIS（10 位數字）</label>
+          <input type="text" id="loginId" placeholder="請輸入您的 YMIS" maxlength="10" onkeypress="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="form-group">
+          <label>密碼</label>
+          <input type="password" id="loginPassword" placeholder="請輸入密碼" onkeypress="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()" style="width:100%;" id="btnLogin">登入</button>
+        
+        <div class="login-links">
+          <a href="#" onclick="showContactModal(); return false;">新旅團登記</a>
+          <a href="#" onclick="backToHome(); return false;">← 返回旅團選擇</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 聯絡管理員 Modal ===== -->
   <div id="contactModal" class="modal">
     <div class="modal-content">
       <h3>📧 提交旅團接入申請</h3>
@@ -147,26 +200,30 @@
       <div class="form-group"><label>旅團名稱</label><input type="text" id="c_troopName" placeholder="第 82 旅"></div>
       <div class="form-group"><label>Apps Script URL <span style="color:red">*</span></label><input type="text" id="c_scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
       <div class="form-group"><label>API Key <span style="color:red">*</span></label><input type="text" id="c_apiKey" placeholder="vs_xxxxxxxxxxxx"></div>
-      <div class="form-group"><label>備注 / 聯絡方式 (選填)</label><textarea id="c_note" placeholder="請留下您的 Email 或聯絡方式，以便管理員通知您..."></textarea></div>
+      <div class="form-group"><label>備注 / 聯絡方式 (選填)</label><textarea id="c_note" placeholder="請留下您的 Email 或聯絡方式..."></textarea></div>
       
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeContactModal()" style="flex: 1;">取消</button>
         <button class="btn btn-primary" id="btnSubmitContact" onclick="submitRegistration()" style="flex: 1;">提交申請</button>
       </div>
-      <p style="font-size: 11px; color: var(--vs-text-light); margin-top: 15px; text-align: center;">* 資料將直接發送至管理員的 Google Sheet。</p>
     </div>
   </div>
 
   <div id="toast" class="toast"></div>
 
   <script>
-    // Scout Admin 的 Apps Script Web App URL (唯一接收端點)
     const SCOUT_ADMIN_API = 'https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
 
-    document.addEventListener('DOMContentLoaded', function() {
-      loadTroops();
-    });
+    // 全域狀態
+    let currentTroopId = '';
+    let currentTroopName = '';
+    let currentBackend = '';
+    let currentApikey = '';
+    let loginType = 'member';
 
+    document.addEventListener('DOMContentLoaded', function() { loadTroops(); checkSavedSession(); });
+
+    // ===== 首頁切換 =====
     function showWelcomeTab(tabName) {
       document.querySelectorAll('.welcome-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.welcome-nav button').forEach(b => b.classList.remove('active'));
@@ -174,6 +231,15 @@
       event.target.classList.add('active');
     }
 
+    function backToHome() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('homePage').style.display = 'block';
+      document.getElementById('loginMsg').className = 'login-msg';
+      document.getElementById('loginId').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    // ===== 旅團載入 =====
     async function loadTroops() {
       try {
         const res = await fetch('data/troops.json');
@@ -182,23 +248,154 @@
         const troops = data.troops || {};
         
         if (Object.keys(troops).length === 0) {
-          grid.innerHTML = '<p style="text-align: center; color: var(--vs-text-light); grid-column: 1/-1;">目前沒有可用的旅團，請聯絡管理員。</p>';
+          grid.innerHTML = '<p style="text-align:center;color:var(--vs-text-light);">目前沒有可用的旅團，請聯絡管理員。</p>';
           return;
         }
         
         grid.innerHTML = Object.entries(troops).map(([id, troop]) => 
-          `<div class="troop-card" onclick="alert('旅團: ${troop.name} (ID: ${id})\\n\\n請等待登入功能就緒！')">
+          `<div class="troop-card" onclick="selectTroop('${id}')">
             <div class="troop-id">${id}</div>
             <div class="troop-name">${troop.name}</div>
           </div>`
         ).join('');
       } catch (e) { 
         console.error(e); 
-        document.getElementById('troopGrid').innerHTML = '<p style="text-align: center; color: red;">無法載入旅團資料</p>';
+        document.getElementById('troopGrid').innerHTML = '<p style="text-align:center;color:red;">無法載入旅團資料</p>';
       }
     }
 
-    // Contact Modal Functions
+    // ===== 選擇旅團 → 跳登入頁 =====
+    async function selectTroop(id) {
+      try {
+        const res = await fetch('data/troops.json');
+        const data = await res.json();
+        const troop = data.troops[id];
+        
+        if (!troop || !troop.backend) {
+          alert('此旅團設定不完整');
+          return;
+        }
+        
+        currentTroopId = id;
+        currentTroopName = troop.name;
+        currentBackend = troop.backend;
+        currentApikey = troop.apikey || '';
+        
+        document.getElementById('loginTroopInfo').textContent = ' ' + currentTroopName + ' (ID: ' + currentTroopId + ')';
+        document.getElementById('homePage').style.display = 'none';
+        document.getElementById('loginPage').style.display = 'block';
+        document.getElementById('loginMsg').className = 'login-msg';
+        document.getElementById('loginId').value = '';
+        document.getElementById('loginPassword').value = '';
+        
+        switchLoginType('member');
+      } catch (e) {
+        console.error(e);
+        alert('無法取得旅團設定');
+      }
+    }
+
+    // ===== 登入類型切換 =====
+    function switchLoginType(type) {
+      loginType = type;
+      document.getElementById('tabMember').classList.toggle('active', type === 'member');
+      document.getElementById('tabLeader').classList.toggle('active', type === 'leader');
+      
+      const label = document.getElementById('loginIdLabel');
+      const input = document.getElementById('loginId');
+      
+      if (type === 'member') {
+        label.textContent = 'YMIS（10 位數字）';
+        input.placeholder = '請輸入您的 YMIS';
+        input.type = 'text';
+        input.maxLength = 10;
+      } else {
+        label.textContent = 'Email';
+        input.placeholder = '請輸入您的 Email';
+        input.type = 'email';
+        input.maxLength = 100;
+      }
+    }
+
+    // ===== 登入 =====
+    async function doLogin() {
+      const loginId = document.getElementById('loginId').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const msgEl = document.getElementById('loginMsg');
+      const btn = document.getElementById('btnLogin');
+      
+      msgEl.className = 'login-msg';
+      
+      if (!loginId || !password) {
+        msgEl.textContent = '請填寫帳號和密碼';
+        msgEl.className = 'login-msg error';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = '登入中...';
+      
+      try {
+        const response = await fetch(currentBackend, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'login', login_id: loginId, password: password })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          // 儲存 session
+          localStorage.setItem('vsbadge_session', JSON.stringify({
+            troopId: currentTroopId,
+            troopName: currentTroopName,
+            backend: currentBackend,
+            apikey: currentApikey,
+            token: data.token,
+            user: data.user,
+            savedAt: Date.now()
+          }));
+          
+          msgEl.textContent = '登入成功！即將進入系統...';
+          msgEl.className = 'login-msg success';
+          
+          setTimeout(() => {
+            alert('歡迎 ' + data.user.name + ' (' + data.user.role + ')！\n\n系統功能開發中，請稍候...');
+            backToHome();
+          }, 1000);
+          
+        } else {
+          msgEl.textContent = data.error || '登入失敗';
+          msgEl.className = 'login-msg error';
+        }
+      } catch (error) {
+        console.error(error);
+        msgEl.textContent = '無法連接伺服器，請確認網路';
+        msgEl.className = 'login-msg error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '登入';
+      }
+    }
+
+    // ===== Session 恢復 =====
+    function checkSavedSession() {
+      const saved = localStorage.getItem('vsbadge_session');
+      if (saved) {
+        try {
+          const session = JSON.parse(saved);
+          // 30 天內有效
+          if (Date.now() - session.savedAt < 30 * 24 * 60 * 60 * 1000) {
+            currentTroopId = session.troopId;
+            currentTroopName = session.troopName;
+            currentBackend = session.backend;
+            currentApikey = session.apikey;
+            // 可以自動跳登入頁
+          }
+        } catch(e) {}
+      }
+    }
+
+    // ===== 聯絡管理員 =====
     function showContactModal() { document.getElementById('contactModal').classList.add('active'); }
     function closeContactModal() { document.getElementById('contactModal').classList.remove('active'); }
 
@@ -218,18 +415,16 @@
       btn.disabled = true;
       btn.textContent = '提交中...';
 
-      // 準備 Payload (對應 Google Sheet 欄位)
       const payload = {
         troopId: troopId,
         troopName: troopName,
         scriptUrl: scriptUrl,
         apiKey: apiKey,
-        appType: 'vsbadge', // 固定標記來源
+        appType: 'vsbadge',
         note: note
       };
 
       try {
-        // 使用 no-cors 模式發送 (Scout Admin 要求)
         await fetch(SCOUT_ADMIN_API, {
           method: 'POST',
           mode: 'no-cors',
@@ -240,7 +435,6 @@
         showToast('✅ 申請已提交！請等待管理員處理。', 'success');
         closeContactModal();
         
-        // 清空表單
         document.getElementById('c_troopId').value = '';
         document.getElementById('c_troopName').value = '';
         document.getElementById('c_scriptUrl').value = '';
@@ -248,7 +442,6 @@
         document.getElementById('c_note').value = '';
 
       } catch (error) {
-        console.error(error);
         showToast('❌ 提交失敗，請稍後再試。', 'error');
       } finally {
         btn.disabled = false;
@@ -259,7 +452,7 @@
     function showToast(msg, type) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
-      toast.className = `toast show ${type}`;
+      toast.className = 'toast show ' + type;
       setTimeout(() => { toast.className = 'toast'; }, 3000);
     }
   </script>
