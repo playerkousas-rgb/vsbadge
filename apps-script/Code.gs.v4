@@ -192,9 +192,7 @@ function destroyToken(token){
 function doGet(e){
   const action=e.parameter.action;
   if(action==='load'){
-    // v4: allow load without apikey for backwards compatibility (troops.json may not have apikey), but if apikey provided, must validate
-    const reqKey=e.parameter.apikey;
-    if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
+    if(e.parameter.apikey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
     return handleLoad();
   }
   if(action==='getLoginMode') return jsonResponse({success:true,login_mode:'standalone'});
@@ -208,15 +206,9 @@ function doPost(e){
     if(action==='logout'){ destroyToken(body.token); return jsonResponse({success:true}); }
     if(action==='apply') return handleApply(body.ymis,body.name,body.email,body.requested_role,body.branch);
 
-    // save & addMember 需要 apikey (v4 向下兼容：若無 apikey 但有有效 token 也允許)
+    // save & addMember 需要 apikey
     if(action==='save' || action==='addMember' || action==='saveOtherBadge'){
-      const reqKey=body.apikey;
-      if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
-      // 若無 apikey，嘗試 token 驗證作為後備
-      if(!reqKey && body.token){
-        const tk=validateToken(body.token);
-        if(!tk && action!=='addMember') return jsonResponse({success:false,error:'未授權 - 需 API Key 或有效 Token'});
-      }
+      if(body.apikey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
       if(action==='save') return handleSave(body.changes, body.confirmer||'');
       if(action==='addMember') return handleAddMember(body.ymis,body.name);
       if(action==='saveOtherBadge') return handleSaveOtherBadge(body.records, body.apikey);
