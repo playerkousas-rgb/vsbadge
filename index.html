@@ -306,11 +306,14 @@ a:hover{text-decoration:underline}
       <div class="troop-section">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <h2 style="font-size:16px;color:var(--maroon);display:flex;align-items:center;gap:8px">📍 請選擇您的旅團</h2>
-          <button class="btn btn-sm btn-outline" onclick="loadTroops()">🔄 重新載入</button>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-outline" onclick="loadTroops()">🔄 重新載入</button>
+            <button class="btn btn-sm btn-warning" onclick="enterDemoMode()">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
+          </div>
         </div>
         <div class="troop-grid" id="troopGrid"><p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p></div>
         <div style="margin-top:12px;padding:10px;background:var(--blue-light);border-radius:8px;font-size:11px;color:var(--blue);line-height:1.6">
-          💡 提示：若您的旅團不在列表，請到「新旅團部署」查看10分鐘自助部署教學。
+          💡 提示：若您的旅團不在列表，請到「新旅團部署」查看10分鐘自助部署教學。<br>🎬 <b>未登入試用：</b>按「👀 試用 MOCK 效果」可免登入、免選旅團，直接用瀏覽器看 10個MOCK成員的進度、全團總覽、批量剔選、表格列印等效果，方便其他旅團了解系統。
         </div>
       </div>
     </div>
@@ -2411,6 +2414,50 @@ async function savePermissions(){
     }else throw new Error(d.error);
   }catch(e){
     showToast('儲存失敗：'+e.message,'error');
+  }
+}
+
+async function enterDemoMode(){
+  try{
+    const btn=document.querySelector('button[onclick="enterDemoMode()"]');
+    if(btn){ btn.disabled=true; btn.textContent='載入 MOCK 中...'; }
+    if(!itemsData){
+      const r1=await fetch('data/items.json');
+      itemsData=await r1.json();
+    }
+    const r=await fetch('data/mock_members.json?_='+Date.now());
+    const data=await r.json();
+    const mockMembers=data.members||[];
+    const mockProgress=data.progress_mock||{};
+    members=mockMembers.map(m=>({ymis:m.ymis, name:m.name}));
+    progressFlat={};
+    for(const ymis in mockProgress){
+      progressFlat[ymis]={};
+      for(const itemId in mockProgress[ymis]){
+        progressFlat[ymis][itemId]=mockProgress[ymis][itemId];
+      }
+    }
+    currentTroopId='DEMO';
+    currentTroopName='第82旅 DEMO (MOCK)';
+    currentBackend='';
+    currentUser={ymis:'DEMO_LEADER', name:'DEMO 團長 (免登入試用)', role:'group_leader', can_tick:true, allowed_badges:'*'};
+    currentToken='demo-token';
+    appConfig={allow_member_view_others:'true'};
+    document.getElementById('homePage').style.display='none';
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤 (DEMO免登入)`;
+    document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-group_leader">團長 DEMO</span> <span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">MOCK試用</span>`;
+    setupTabsByRole();
+    renderProgressTab();
+    renderInfoTab();
+    showToast('✅ 已進入 MOCK 試用模式，10個成員進度、批量剔、表格等皆可用，數據僅在瀏覽器', 'success');
+  }catch(e){
+    console.error(e);
+    showToast('MOCK試用載入失敗：'+e.message,'error');
+  }finally{
+    const btn=document.querySelector('button[onclick="enterDemoMode()"]');
+    if(btn){ btn.disabled=false; btn.textContent='👀 試用 MOCK 效果 (免登入瀏覽器看)'; }
   }
 }
 

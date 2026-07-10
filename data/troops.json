@@ -2,7 +2,11 @@
   "troops": {
     "0082": {
       "name": "第 82 旅",
-      "backend": "https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec"
+      "backend": "https://script.google.com/macros/s/AKfycbyMKg5r1edGzX9PaPRs88ZbxDHbnK_z2unZwlgVpCXTq3wJ7_pBHv0YCDx_BMA6E4GW/exec"
+    },
+    "0082R": {
+      "name": "第 82 旅 樂行測試 (新後端)",
+      "backend": "https://script.google.com/macros/s/AKfycbyMKg5r1edGzX9PaPRs88ZbxDHbnK_z2unZwlgVpCXTq3wJ7_pBHv0YCDx_BMA6E4GW/exec"
     }
   }
 }
