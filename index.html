@@ -1933,78 +1933,85 @@ function generatePrintableForm(type){
 }
 
 
-/* ================== Help Tab - 角色分開教學 ================== */
+/* ================== Help Tab - 角色分開教學 (內嵌版，不依賴外部MD，避免404) ================== */
+const EMBEDDED_GUIDES={
+  member: `<h2>👤 成員使用教學 (Member)</h2>
+  <blockquote>你只需關心自己的進度，其他功能由領袖處理</blockquote>
+  <h3>登入後你會見到</h3>
+  <ul>
+    <li><b>📊 我的進度</b>：預設只顯示你自己的完成度，綠色進度條=已完成，點擊獎章展開，右側ⓘ查看考驗說明，<b>不能直接剔</b>，只能按「📝申請完成」</li>
+    <li><b>⭐ 其他獎章</b>：已併入我的進度最底虛線卡片</li>
+    <li><b>📝 待批</b>：查看你提交的申請是否已批</li>
+    <li><b>🖨️ 表格列印</b>：自動填PT/19及PT/20日期，可編輯後列印官方格式</li>
+    <li><b>📚 資料庫</b>：保護兒童課程連結、訓練綱要</li>
+  </ul>
+  <h3>如何申請完成？</h3>
+  <ol><li>我的進度找到項目</li><li>按📝申請</li><li>選日期+證據</li><li>提交，領袖在待批看到</li><li>批准後進度更新</li></ol>
+  <h4>為何看不到其他成員？</h4>
+  <p>預設私隱，成員只看自己。團長可在用戶管理開啟「允許成員互相查看進度」。</p>`,
+
+  exec: `<h2>🎖️ 執委使用教學 (Exec)</h2>
+  <blockquote>你由成員晉升為執委，擁有部分領袖權限</blockquote>
+  <ul>
+    <li>成員功能全部</li>
+    <li><b>可勾選進度</b>（需授權），默認：會員章+活動段章(細項不用)+其他逐個勾</li>
+    <li>可在我的進度選其他成員看紀錄</li>
+    <li>可在全團總覽使用批量剔選</li>
+    <li>可在待批批准申請（若授權）</li>
+  </ul>
+  <h3>如何幫成員勾選？</h3>
+  <ol><li>我的進度選成員</li><li>找到項目直接勾選+改日期</li><li>底部確認寫入</li></ol>`,
+
+  leader: `<h2>👨‍💼 領袖使用教學 (Leader)</h2>
+  <blockquote>你擁有全部權限</blockquote>
+  <h3>1. 我的進度</h3><ul><li>選任何成員看所有紀錄</li><li>直接勾選+日期，離線暫存確認寫入</li></ul>
+  <h3>2. 全團總覽</h3><ul><li>卡片一眼睇會員章✓</li><li>表格矩陣最多30欄</li><li>🚀考驗營批量：選成員+選項目→一鍵標記→暫存→確認寫入</li><li>子切換：按成員/按項目</li></ul>
+  <h3>3. 審批中心</h3><ul><li>🏅獎章審批+👤用戶審批合併</li></ul>
+  <h3>4. 表格列印</h3><p>自動填入，官方PT/19/PT/20格式</p>
+  <h3>5. 用戶管理</h3><ul><li>成員改執委</li><li>⚙️權限：領袖默認全部，成員無，執委默認L1+活動段章+OTHER</li><li>可按個別成員設定可考核範圍</li></ul>
+  <h3>6. 系統設定</h3><p>允許成員互相查看進度：預設關，團長可開</p>`
+};
+
 async function renderHelpTab(){
   const c=document.getElementById('tab-help');
   if(!c) return;
   const role=currentUser?.role||'member';
   const roleName=getRoleName(role);
-  // 根據角色只顯示相關教學，成員不關心其他功能
-  let mdFile='docs/MEMBER_GUIDE.md';
-  if(role==='exec_committee') mdFile='docs/EXEC_GUIDE.md';
-  else if(['branch_leader','group_leader','admin','super_admin'].includes(role)) mdFile='docs/LEADER_GUIDE.md';
-
-  let mdContent='載入中...';
-  try{
-    const r=await fetch(mdFile+'?_='+Date.now());
-    if(r.ok) mdContent=await r.text();
-    else throw new Error('fetch failed');
-  }catch(e){
-    // 後備內建教學
-    if(role==='member'){
-      mdContent=`# 👤 成員教學\n只能看自己進度，按📝申請完成，待批查看，表格列印官方格式。`;
-    }else if(role==='exec_committee'){
-      mdContent=`# 執委教學\n成員功能+可勾選(需授權)，默認會員章+活動段章(細項不用)+其他逐個勾。`;
-    }else{
-      mdContent=`# 領袖教學\n全部功能，我的進度選人看紀錄，全團一眼睇+批量剔，待批批量，用戶管理改角色+⚙️權限。`;
-    }
-  }
-
-  // 簡單 MD 轉 HTML (只處理標題及列表)
-  function mdToHtml(md){
-    let html=md
-      .replace(/^### (.*)$/gm,'<h4 style="color:var(--maroon);margin:8px 0">$1</h4>')
-      .replace(/^## (.*)$/gm,'<h3 style="color:var(--maroon);margin:10px 0">$1</h3>')
-      .replace(/^# (.*)$/gm,'<h2 style="color:var(--maroon);margin:12px 0">$1</h2>')
-      .replace(/^\- (.*)$/gm,'<li style="font-size:13px;line-height:1.7">$1</li>')
-      .replace(/\n\n/g,'<br><br>');
-    // 包列表
-    html=html.replace(/(<li.*<\/li>)/g, (m)=>`<ul style="padding-left:18px">${m}</ul>`);
-    html=html.replace(/<\/ul><ul[^>]*>/g,'');
-    return html;
-  }
+  let key='member';
+  if(role==='exec_committee') key='exec';
+  else if(['branch_leader','group_leader','admin','super_admin'].includes(role)) key='leader';
 
   let html=`<div class="info-section" style="border-left-color:var(--orange);background:#FFFBEB">
     <h3>❓ 教學 - 按角色分開 (你當前：${roleName} ${role})</h3>
-    <p style="font-size:12px;color:var(--text-light)">此頁只顯示你關心的功能，成員不會看到領袖的複雜操作。登入後有問題可直接在此查閱，無需回去看完整MD。</p>
+    <p style="font-size:12px;color:var(--text-light)">此頁只顯示你關心的功能，成員不會看到領袖的複雜操作。已改為內嵌版，不會再出現 NOT_FOUND 或 404。</p>
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-sm ${role==='member'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('member')">👤 成員教學</button>
-      <button class="btn btn-sm ${role==='exec_committee'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('exec_committee')">🎖️ 執委教學</button>
-      <button class="btn btn-sm ${['branch_leader','group_leader','admin','super_admin'].includes(role)?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('leader')">👨‍💼 領袖教學</button>
+      <button class="btn btn-sm ${key==='member'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('member')">👤 成員教學</button>
+      <button class="btn btn-sm ${key==='exec'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('exec')">🎖️ 執委教學</button>
+      <button class="btn btn-sm ${key==='leader'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('leader')">👨‍💼 領袖教學</button>
     </div>
   </div>
-  <div class="info-section" id="helpContent"><div style="font-size:13px;line-height:1.8;white-space:pre-wrap">${mdContent}</div></div>
-  <div class="info-section" style="background:var(--bg)"><h4>📚 完整文件</h4><div style="font-size:11px"><a href="docs/MEMBER_GUIDE.md" target="_blank">成員教學MD</a> | <a href="docs/EXEC_GUIDE.md" target="_blank">執委教學MD</a> | <a href="docs/LEADER_GUIDE.md" target="_blank">領袖教學MD</a></div></div>`;
+  <div class="info-section" id="helpContent"><div style="font-size:14px;line-height:1.8">${EMBEDDED_GUIDES[key]||EMBEDDED_GUIDES.member}</div></div>
+  <div class="info-section" style="background:var(--bg)"><h4>📚 完整文件 (vercel.json已開放docs/，若仍404請重新部署)</h4><div style="font-size:11px"><a href="docs/MEMBER_GUIDE.md" target="_blank">成員MD</a> | <a href="docs/EXEC_GUIDE.md" target="_blank">執委MD</a> | <a href="docs/LEADER_GUIDE.md" target="_blank">領袖MD</a></div></div>`;
 
   c.innerHTML=html;
-  // 如果是MD文本，轉HTML
-  const helpDiv=document.getElementById('helpContent');
-  if(helpDiv && mdContent.startsWith('#')){
-    helpDiv.innerHTML=`<div style="font-size:13px;line-height:1.8">${mdToHtml(mdContent)}</div>`;
-  }
 }
 function switchHelpRole(r){
-  // 臨時切換教學角色顯示
-  const map={member:'docs/MEMBER_GUIDE.md', exec_committee:'docs/EXEC_GUIDE.md', leader:'docs/LEADER_GUIDE.md'};
-  const file=map[r]||map.member;
-  fetch(file+'?_='+Date.now()).then(res=>res.text()).then(md=>{
-    const el=document.getElementById('helpContent');
-    if(el){
-      let html=md.replace(/^### (.*)$/gm,'<h4>$1</h4>').replace(/^## (.*)$/gm,'<h3>$1</h3>').replace(/^# (.*)$/gm,'<h2>$1</h2>').replace(/^\- (.*)$/gm,'<li>$1</li>');
-      el.innerHTML=`<div style="font-size:13px;line-height:1.8">${html}</div>`;
-    }
+  const map={member:'member', exec_committee:'exec', exec:'exec', leader:'leader'};
+  const key=map[r]||'member';
+  const el=document.getElementById('helpContent');
+  if(el){
+    el.innerHTML=`<div style="font-size:14px;line-height:1.8">${EMBEDDED_GUIDES[key]||EMBEDDED_GUIDES.member}</div>`;
+  }
+  // 更新按鈕樣式
+  document.querySelectorAll('#tab-help .btn').forEach(b=>{
+    if(b.textContent.includes('成員') && key==='member') b.className='btn btn-sm btn-primary';
+    else if(b.textContent.includes('執委') && key==='exec') b.className='btn btn-sm btn-primary';
+    else if(b.textContent.includes('領袖') && key==='leader') b.className='btn btn-sm btn-primary';
+    else if(b.textContent.includes('教學')) b.className='btn btn-sm btn-secondary';
   });
 }
+
+
 
 /* ================== Info Tab ================== */
 function renderInfoTab(){
