@@ -278,28 +278,13 @@ a:hover{text-decoration:underline}
       <button class="active" data-tab="enter" onclick="showWelcomeTab('enter', this)">🏠 進入系統</button>
       <button data-tab="setup" onclick="showWelcomeTab('setup', this)">📋 新旅團部署</button>
       <button data-tab="guide" onclick="showWelcomeTab('guide', this)">📖 使用教學</button>
-      <button data-tab="changelog" onclick="showWelcomeTab('changelog', this)">✨ v4.0 更新</button>
+      <!-- changelog hidden for production -->
     </div>
   </div>
   <div class="container">
     <div id="welcome-enter" class="welcome-section active">
-      <div class="info-grid" style="margin-bottom:16px">
-        <div class="info-card"><h3>✅ 已修復問題</h3><ul>
-          <li>LOGO 改用內嵌 SVG，永不消失</li>
-          <li>百分比頁卡死：修正重複ID+巨型表格虛擬化</li>
-          <li>項目齊全：4.0全新306項考核細則</li>
-          <li>日期輸入：領袖可改日期或一鍵今日</li>
-          <li>本地暫存→確認→批量寫入+進度提示</li>
-        </ul></div>
-        <div class="info-card" style="border-color:var(--blue)"><h3 style="color:var(--blue)">🆕 v4.0 新增</h3><ul>
-          <li>成員申請完成→領袖批量審批</li>
-          <li>考驗介紹內建，不用再翻綱要</li>
-          <li>保護兒童一鍵直達 Safe from Harm</li>
-          <li>VS/DRAGON FORM 自動填寫+列印</li>
-          <li>其他獎章（急救/拯溺/AYP/航空海上）紀錄</li>
-          <li>訓練計劃及有用資訊合集</li>
-        </ul></div>
-      </div>
+      <!-- 已修復問題及V4.0新增已按要求移除，保留框架註解：未來多旅團用時可在此加新功能介紹 -->
+
 
       <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -361,19 +346,15 @@ a:hover{text-decoration:underline}
     </div>
 
     <div id="welcome-changelog" class="welcome-section">
-      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">✨ v4.0 更新日誌 - 回應你的11項需求</h2>
-      <div class="info-grid">
-        <div class="info-card"><h3>1. LOGO 顯示</h3><p>改用內嵌 SVG 火炬，無需外部圖片；同時保留 PNG 兼容嘗試，多重保障。</p></div>
-        <div class="info-card"><h3>2. 百分比卡死</h3><p>原因：nav 與 content 共用同一 ID + 巨型表格一次渲染 100+欄。已修正 ID：btn-tab-* vs tab-*，並改為分段篩選渲染、虛擬滾動。</p></div>
-        <div class="info-card"><h3>3. 項目不齊</h3><p>全新 items.json 4.0：會員章12+肩章23+深資獎章100+選項+榮譽獎章20+＋其他獎章17項，共306項，含詳細考驗說明。</p></div>
-        <div class="info-card"><h3>4. 領袖日期/剔</h3><p>每項附日期選擇器，勾選自動填今日，改日期自動勾選，離線可改，批量提交。</p></div>
-        <div class="info-card"><h3>5. 瀏覽器暫存+批量寫入</h3><p>所有勾選/申請先寫 localStorage，底部 SaveBar 顯示數量，按確認才 POST 至 Apps Script，寫入時顯示「正在寫入...」全屏遮罩+進度。</p></div>
-        <div class="info-card"><h3>6. 獎章考驗介紹</h3><p>點擊每項右側 ⓘ 按鈕彈出詳細說明、評核方法、提示、相關連結，不用再翻綱要。</p></div>
-        <div class="info-card"><h3>7. 保護兒童 LINK</h3><p>首頁及資料庫頁提供 Safe from Harm 課程、eLearning、政策、教學套包、求助熱線一鍵直達。</p></div>
-        <div class="info-card"><h3>8. VS/DRAGON FORM</h3><p>表格頁自動根據進度填寫 PT/19 及 PT/20 所需日期、段章完成狀態，成員可編輯後直接列印，支援雙面列印提示。</p></div>
-        <div class="info-card"><h3>9. 綱要有用資訊</h3><p>資料庫頁包含：支部目的方法預期成果、進度流程、評估原則、訓練班大綱、徽章佩戴指引、執行委員會制度。</p></div>
-        <div class="info-card"><h3>10. 非進度性獎章</h3><p>其他獎章頁可記錄急救章、拯溺、宗教章、社區參與、AYP銅銀金、環境章、航空/海上章、自定義獎章，支援證書編號及日期。</p></div>
-        <div class="info-card"><h3>11. 成員申請→領袖確認</h3><p>成員「申請完成」獨立流程，領袖在「待批」頁看到申請人、項目、日期、證據，可一鍵批准（自動寫入日期）或拒絕，支援批量操作。</p></div>
+      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 版本更新紀錄（未來用於新版本後端GS及功能改動）</h2>
+      <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
+        <h3 style="color:var(--blue)">框架保留，內容已精簡（依你要求移除舊修復資訊）</h3>
+        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v5.0 FINAL 已穩定，測試完成</p>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>最新：v5.0 FINAL</h3>
+        <p style="font-size:12px">PNG LOGO 256px、防卡死、批量、官方表格、細緻權限、MOCK測試、成員私隱開關、教學按角色分開</p>
       </div>
     </div>
   </div>
@@ -422,12 +403,13 @@ a:hover{text-decoration:underline}
   <div class="nav-tabs" id="mainNavTabs">
     <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)">📊 我的進度</button>
     <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)">👥 全團總覽</button>
-    <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)">📝 待批 <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
+    <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)">✅ 審批中心 <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
     <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)">🖨️ 表格列印</button>
+    <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)">❓ 教學</button>
     <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)">📚 資料庫</button>
     <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none">👥 用戶管理</button>
-    <button class="nav-tab" id="btn-tab-apps" onclick="switchTab('apps', this)" style="display:none">📋 審批申請</button>
-    <!-- 已整合：按項目已併入全團總覽，其他獎章已併入我的進度 -->
+    <!-- 已合併：審批申請已併入審批中心，按項目及按項目已併入全團總覽，其他獎章已併入我的進度，版本更新框架保留 -->
+    <button class="nav-tab" id="btn-tab-apps" onclick="switchTab('apps', this)" style="display:none">📋 審批申請(舊-已合併)</button>
     <button class="nav-tab" id="btn-tab-byitem" onclick="switchTab('byitem', this)" style="display:none">🔍 按項目(舊)</button>
     <button class="nav-tab" id="btn-tab-other" onclick="switchTab('other', this)" style="display:none">⭐ 其他獎章(舊)</button>
   </div>
@@ -438,6 +420,7 @@ a:hover{text-decoration:underline}
   <div id="tab-requests" class="tab-content"></div>
   <div id="tab-other" class="tab-content"></div>
   <div id="tab-forms" class="tab-content"></div>
+  <div id="tab-help" class="tab-content"></div>
   <div id="tab-info" class="tab-content"></div>
   <div id="tab-users" class="tab-content"></div>
   <div id="tab-apps" class="tab-content"></div>
@@ -694,7 +677,8 @@ function setupTabsByRole(){
   document.getElementById('btn-tab-byitem').style.display='none';
   document.getElementById('btn-tab-other').style.display='none';
   document.getElementById('btn-tab-users').style.display=isManage?'block':'none';
-  document.getElementById('btn-tab-apps').style.display=isManage?'block':'none';
+  // 審批申請已合併到審批中心，不再獨立顯示
+  document.getElementById('btn-tab-apps').style.display='none';
   // 成員的待批頁顯示自己申請，保留
   // 其他獎章頁合併進進度，但保留獨立頁供領袖編輯，成員只讀自己
   // restore pending from local
@@ -846,6 +830,7 @@ function switchTab(name, btn){
         else if(name==='overview') renderOverviewTab();
         else if(name==='requests') renderRequestsTab();
         else if(name==='forms') renderFormsTab();
+        else if(name==='help') renderHelpTab();
         else if(name==='info') renderInfoTab();
         else if(name==='users') loadUsers();
         else if(name==='apps') loadApplications();
@@ -1576,46 +1561,115 @@ function updateRequestsBadge(){
 }
 async function renderRequestsTab(){
   const c=document.getElementById('tab-requests');
-  c.innerHTML='<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 8px"></div>載入申請...</div>';
-  // try fetch backend requests if leader
+  c.innerHTML='<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 8px"></div>載入審批中心...</div>';
+  let badgeRequests=[];
+  let userApplications=[];
+  // 載入獎章申請 (待批完成)
   if(canUserTickRole(currentUser.role)){
     try{
       const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getPendingRequests',token:currentToken})});
       const d=await r.json();
-      if(d.success){ pendingRequestsQueue=d.requests.concat(pendingRequestsQueue.filter(x=>x.status==='local_draft')); }
+      if(d.success){ badgeRequests=d.requests||[]; }
     }catch(e){ console.warn(e); }
   }else{
-    // member own requests
     try{
       const key=LS.requests(currentTroopId, currentUser.ymis);
-      pendingRequestsQueue=JSON.parse(localStorage.getItem(key)||'[]');
+      badgeRequests=JSON.parse(localStorage.getItem(key)||'[]');
     }catch(e){}
   }
+  // 載入用戶申請 (僅管理層)
+  const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
+  if(isManage){
+    try{
+      const r2=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getApplications',token:currentToken})});
+      const d2=await r2.json();
+      if(d2.success) userApplications=d2.applications||[];
+    }catch(e){ console.warn(e); }
+  }
+  // 合併本地暫存
+  try{
+    const localKey=LS.requests(currentTroopId, currentUser.ymis);
+    const localQueue=JSON.parse(localStorage.getItem(localKey)||'[]');
+    if(Array.isArray(localQueue) && localQueue.length>0){
+      // 避免重複
+      const existingIds=new Set(badgeRequests.map(r=>r.request_id));
+      localQueue.forEach(l=>{ if(!existingIds.has(l.request_id)) badgeRequests.push(l); });
+    }
+  }catch(e){}
+
+  pendingRequestsQueue=badgeRequests;
   updateRequestsBadge();
-  if(pendingRequestsQueue.length===0){
-    c.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text-light)"><div style="font-size:36px">📭</div><p>目前沒有待批申請</p><p style="font-size:11px;margin-top:6px">成員提交的「申請完成」會在這裡顯示，領袖可批准或拒絕</p></div>`;
+
+  const totalBadge=badgeRequests.length;
+  const totalUser=userApplications.length;
+  const totalAll=totalBadge+totalUser;
+  // 更新紅點數字包含兩種
+  const badgeEl=document.getElementById('badgeRequestsCount');
+  if(badgeEl){ if(totalAll>0){ badgeEl.textContent=totalAll; badgeEl.style.display='inline-block'; } else badgeEl.style.display='none'; }
+
+  if(totalAll===0){
+    c.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text-light)"><div style="font-size:36px">📭</div><p>目前沒有待審批項目</p><p style="font-size:11px;margin-top:6px">成員的獎章申請及新用戶註冊申請都會在此顯示</p></div>`;
     return;
   }
-  let html=`<div class="filter-bar"><span style="font-size:12px;font-weight:600">${pendingRequestsQueue.length} 項待批</span><button class="btn btn-sm btn-secondary" onclick="renderRequestsTab()">🔄 刷新</button>${canUserTickRole(currentUser.role)?'<button class="btn btn-sm btn-success" onclick="batchApprove()">✅ 批量批准選中</button>':''}</div>`;
-  html+=pendingRequestsQueue.map(req=>{
-    const isLocal=req.status==='local_draft';
-    return `<div class="app-item" style="${isLocal?'border-left:3px solid var(--orange)':''}">
-      <div class="app-item-info">
-        <div style="font-weight:600">${req.name||req.ymis} <small style="color:var(--text-light)">(${req.ymis})</small> ${isLocal?'<span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">本地暫存</span>':''}</div>
-        <div style="font-size:12px;margin:4px 0">📋 ${req.item_name||req.item_id} <small style="color:var(--text-light)">(${req.item_id})</small></div>
-        <div style="font-size:11px;color:var(--text-light)">📅 申請日期：${req.requested_date||req.created_at} | 提交：${req.created_at||''}</div>
-        ${req.evidence?`<div style="font-size:11px;background:#FAFAFA;padding:6px;border-radius:6px;margin-top:4px;border-left:2px solid var(--border)">📎 ${req.evidence}</div>`:''}
-      </div>
-      <div class="app-item-actions" style="flex-direction:column">
-        ${canUserTickRole(currentUser.role)?`<label style="font-size:11px"><input type="checkbox" class="batch-check" data-req="${req.request_id}"> 選中</label>
-        <button class="btn btn-sm btn-success" onclick="reviewSingleRequest('${req.request_id}','approved')">✅ 批准</button>
-        <button class="btn btn-sm btn-danger" onclick="reviewSingleRequest('${req.request_id}','rejected')">❌ 拒絕</button>
-        <input type="date" id="confirmDate_${req.request_id}" value="${req.requested_date||todayISO()}" style="font-size:11px;padding:3px;border:1px solid var(--border);border-radius:4px;margin-top:4px">`:`<span style="font-size:11px;color:var(--text-light)">${req.status==='pending'?'⏳ 待領袖確認': req.status==='local_draft'?'💾 已暫存，連線後自動同步': req.status}</span>`}
-      </div>
-    </div>`;
-  }).join('');
+
+  let html=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn btn-sm btn-primary" onclick="showApprovalSubTab('badge')">🏅 獎章審批 (${totalBadge})</button>
+    ${isManage?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('user')">👤 用戶審批 (${totalUser})</button>`:''}
+    <button class="btn btn-sm btn-secondary" onclick="renderRequestsTab()">🔄 刷新</button>
+  </div>`;
+
+  // 獎章審批區
+  html+=`<div id="approvalBadgeView">`;
+  html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="font-size:14px;color:var(--maroon)">🏅 獎章審批 - 成員申請完成</h3>${canUserTickRole(currentUser.role)?`<button class="btn btn-sm btn-success" onclick="batchApprove()">✅ 批量批准選中</button>`:''}</div>`;
+  if(totalBadge===0){
+    html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">暫無獎章待批</p>`;
+  }else{
+    html+=badgeRequests.map(req=>{
+      const isLocal=req.status==='local_draft';
+      return `<div class="app-item" style="${isLocal?'border-left:3px solid var(--orange)':''}">
+        <div class="app-item-info">
+          <div style="font-weight:600">${req.name||req.ymis} <small style="color:var(--text-light)">(${req.ymis})</small> ${isLocal?'<span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">本地暫存</span>':''}</div>
+          <div style="font-size:12px;margin:4px 0">📋 ${req.item_name||req.item_id} <small style="color:var(--text-light)">(${req.item_id})</small></div>
+          <div style="font-size:11px;color:var(--text-light)">📅 申請日期：${req.requested_date||req.created_at} | 提交：${req.created_at||''}</div>
+          ${req.evidence?`<div style="font-size:11px;background:#FAFAFA;padding:6px;border-radius:6px;margin-top:4px;border-left:2px solid var(--border)">📎 ${req.evidence}</div>`:''}
+        </div>
+        <div class="app-item-actions" style="flex-direction:column">
+          ${canUserTickRole(currentUser.role)?`<label style="font-size:11px"><input type="checkbox" class="batch-check" data-req="${req.request_id}"> 選中</label>
+          <button class="btn btn-sm btn-success" onclick="reviewSingleRequest('${req.request_id}','approved')">✅ 批准</button>
+          <button class="btn btn-sm btn-danger" onclick="reviewSingleRequest('${req.request_id}','rejected')">❌ 拒絕</button>
+          <input type="date" id="confirmDate_${req.request_id}" value="${req.requested_date||todayISO()}" style="font-size:11px;padding:3px;border:1px solid var(--border);border-radius:4px;margin-top:4px">`:`<span style="font-size:11px;color:var(--text-light)">${req.status==='pending'?'⏳ 待領袖確認': req.status==='local_draft'?'💾 已暫存': req.status}</span>`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  html+=`</div>`;
+
+  // 用戶審批區 (僅管理層)
+  if(isManage){
+    html+=`<div id="approvalUserView" style="display:none;margin-top:16px">`;
+    html+=`<h3 style="font-size:14px;color:var(--blue);margin-bottom:8px">👤 用戶審批 - 新帳號註冊</h3>`;
+    if(totalUser===0){
+      html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">暫無用戶待批</p>`;
+    }else{
+      html+=userApplications.map(a=>`<div class="app-item"><div class="app-item-info"><b>${a.name}</b> ${a.ymis?`(${a.ymis})`:''} ${a.email?`- ${a.email}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${getRoleName(a.requested_role)} | ${a.applied_at}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${a.app_id}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${a.app_id}','rejected')">拒絕</button></div></div>`).join('');
+    }
+    html+=`</div>`;
+  }
+
   c.innerHTML=html;
 }
+function showApprovalSubTab(which){
+  const bv=document.getElementById('approvalBadgeView');
+  const uv=document.getElementById('approvalUserView');
+  if(which==='badge'){
+    if(bv) bv.style.display='block';
+    if(uv) uv.style.display='none';
+  }else{
+    if(bv) bv.style.display='none';
+    if(uv) uv.style.display='block';
+  }
+}
+
 async function reviewSingleRequest(reqId, decision){
   if(!confirm(`確定要${decision==='approved'?'批准':'拒絕'}此申請？`)) return;
   const dateInput=document.getElementById('confirmDate_'+reqId);
@@ -1980,6 +2034,10 @@ async function loadUsers(){
     const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAllUsers',token:currentToken})});
     const d=await r.json();
     if(d.success){
+      // 超管帳號僅超管可見：若非超管，過濾掉 super_admin
+      if(currentUser.role!=='super_admin'){
+        d.users=d.users.filter(u=>u.role!=='super_admin' && u.ymis!=='sheep');
+      }
       // 角色說明 + SHEEP 測試工具
       let roleExplain=`<div class="info-section" style="background:var(--blue-light);border-left-color:var(--blue)">
         <h3 style="color:var(--blue)">👥 角色說明：USER vs 成員</h3>
@@ -2012,7 +2070,22 @@ async function loadUsers(){
         </div>`;
       }
 
-      let h=roleExplain+mockTool+'<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
+      // 系統設定 - 私隱開關 (團長以上可見)
+      let systemSettingHtml='';
+      if(['group_leader','admin','super_admin'].includes(currentUser.role)){
+        const allowOthers = appConfig.allow_member_view_others==='true';
+        systemSettingHtml=`<div class="info-section" style="border-left-color:var(--green);background:#F0FFF4">
+          <h3>🔒 私隱設定 (僅團長/管理員可見)</h3>
+          <p style="font-size:11px;color:var(--text-light)">普通成員預設只看自己，能否看其他成員由團長開放。有些旅團重私隱，有些想互相鼓勵，執委要按進度策劃活動。</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <label style="font-size:13px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="allowMemberViewOthers" ${allowOthers?'checked':''} onchange="toggleAllowMemberViewOthers(this.checked)"> 允許成員互相查看進度 (鼓勵模式)</label>
+            <span style="font-size:11px;color:var(--text-light)">當前：${allowOthers?'已開啟 - 成員可看全團':'已關閉 - 成員只看自己 (私隱)'}</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-light);margin-top:6px">說明：關閉時成員「我的進度」不能選其他人，全團總覽隱藏；開啟時成員可看全團但不能編輯。</div>
+        </div>`;
+      }
+
+      let h=roleExplain+systemSettingHtml+mockTool+'<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
       h+=d.users.map(u=>`<div class="user-item" data-search="${(u.name+u.ymis+u.email).toLowerCase()}"><div class="user-item-info"><b>${u.name}</b> ${u.ymis?`(${u.ymis})`:''} ${u.email?` - ${u.email}`:''}<span class="role-badge role-${u.role}">${getRoleName(u.role)}</span> ${u.can_tick?'<span style="background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:999px;font-size:9px">可勾選</span>':''}<br><small style="font-size:10px;color:var(--text-light)">權限: ${u.allowed_badges|| (u.role==='member'?'無':(u.role==='exec_committee'?'L1,活動段章,其他部分':'全部(*)'))}</small></div><div class="user-item-actions">`+
         (['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role)&&u.ymis!==currentUser.ymis?`<select onchange="updateUserRole('${u.ymis}',this.value)"><option value="member" ${u.role==='member'?'selected':''}>團員</option><option value="exec_committee" ${u.role==='exec_committee'?'selected':''}>執委</option><option value="branch_leader" ${u.role==='branch_leader'?'selected':''}>支部領袖</option><option value="group_leader" ${u.role==='group_leader'?'selected':''}>團長</option><option value="admin" ${u.role==='admin'?'selected':''}>管理員</option></select><button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${u.ymis}',${!u.can_tick})">${u.can_tick?'收回勾選':'授權勾選'}</button><button class="btn btn-sm btn-warning" onclick="openPermissionModal('${u.ymis}','${u.name.replace(/'/g,"\'") }','${u.role}','${(u.allowed_badges||'').replace(/'/g,"")}')">⚙️ 權限</button>`:'' )+
         `</div></div>`).join('');
@@ -2026,6 +2099,20 @@ function filterUsers(){
   document.querySelectorAll('#userList .user-item').forEach(el=>{
     el.style.display=el.dataset.search.includes(q)?'flex':'none';
   });
+}
+async function toggleAllowMemberViewOthers(checked){
+  const val=checked?'true':'false';
+  try{
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateConfig',token:currentToken,key:'allow_member_view_others',value:val})});
+    const d=await r.json();
+    if(d.success){
+      appConfig.allow_member_view_others=val;
+      showToast(`已${checked?'開啟':'關閉'}成員互看進度 (鼓勵/私隱模式)`,'success');
+      setupTabsByRole();
+    }else throw new Error(d.error);
+  }catch(e){
+    showToast('設定失敗：'+e.message,'error');
+  }
 }
 let currentPermUser=null;
 function openPermissionModal(ymis, name, role, allowed){
