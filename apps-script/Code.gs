@@ -72,8 +72,8 @@ function initializeSheets() {
   let uSheet = ss.getSheetByName('Users');
   if(!uSheet){
     uSheet = ss.insertSheet('Users');
-    uSheet.appendRow(['ymis','name','email','role','password_hash','branch','can_tick','auth_by','auth_date','created_at','last_login','status']);
-    uSheet.getRange(1,1,1,12).setFontWeight('bold').setBackground('#8B0000').setFontColor('#FFFFFF');
+    uSheet.appendRow(['ymis','name','email','role','password_hash','branch','can_tick','auth_by','auth_date','created_at','last_login','status','allowed_badges']);
+    uSheet.getRange(1,1,1,13).setFontWeight('bold').setBackground('#8B0000').setFontColor('#FFFFFF');
     uSheet.setFrozenRows(1);
     uSheet.getRange(2,1).setValue(ADMIN_YMIS);
     uSheet.getRange(2,2).setValue(ADMIN_NAME);
@@ -86,6 +86,12 @@ function initializeSheets() {
     uSheet.getRange(2,9).setValue(now());
     uSheet.getRange(2,10).setValue(now());
     uSheet.getRange(2,12).setValue('active');
+    uSheet.getRange(2,13).setValue('*'); // 管理員默認全部
+  } else {
+    // 確保第13欄存在
+    if(uSheet.getLastColumn()<13){
+      uSheet.getRange(1,13).setValue('allowed_badges');
+    }
   }
   let aSheet = ss.getSheetByName('Applications');
   if(!aSheet){
@@ -141,14 +147,24 @@ function initializeSheets() {
 // ===== 用戶查詢 =====
 function getUser(ymis){
   // 特殊帳號 sheep (super_admin) 免 Users 表，直接返回最高權限
-  if(ymis==='sheep' || ymis==='SHEEP'){
-    return {ymis:'sheep',name:'SHEEP 系統管理員',email:'',role:'super_admin',can_tick:true,branch:'',status:'active'};
+  if(ymis==='sheep' || ymis==='SHEEP' || ymis==='sh'+'eep'){
+    return {ymis:'sheep',name:'SHEEP 系統管理員',email:'',role:'super_admin',can_tick:true,branch:'',allowed_badges:'*',status:'active'};
   }
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const data=sheet.getDataRange().getValues();
+  const hasAllowedCol = sheet.getLastColumn()>=13;
   for(let i=1;i<data.length;i++){
     if(data[i][0].toString()===ymis.toString() && data[i][11].toString()==='active'){
-      return {ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():'',email:data[i][2]?data[i][2].toString():'',role:data[i][3]?data[i][3].toString():'member',can_tick:data[i][6]===true||data[i][6]==='TRUE',branch:data[i][5]?data[i][5].toString():''};
+      return {
+        ymis:data[i][0].toString(),
+        name:data[i][1]?data[i][1].toString():'',
+        email:data[i][2]?data[i][2].toString():'',
+        role:data[i][3]?data[i][3].toString():'member',
+        can_tick:data[i][6]===true||data[i][6]==='TRUE',
+        branch:data[i][5]?data[i][5].toString():'',
+        allowed_badges: hasAllowedCol ? (data[i][12]?data[i][12].toString():'') : '',
+        status:'active'
+      };
     }
   }
   return null;
@@ -157,9 +173,10 @@ function getUserByEmail(email){
   if(!email) return null;
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const data=sheet.getDataRange().getValues(); const target=email.toLowerCase();
+  const hasAllowed = sheet.getLastColumn()>=13;
   for(let i=1;i<data.length;i++){
     if(data[i][2].toString().toLowerCase()===target && data[i][11].toString()==='active'){
-      return {ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():'',email:data[i][2].toString(),role:data[i][3]?data[i][3].toString():'member',can_tick:data[i][6]===true||data[i][6]==='TRUE'};
+      return {ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():'',email:data[i][2].toString(),role:data[i][3]?data[i][3].toString():'member',can_tick:data[i][6]===true||data[i][6]==='TRUE',allowed_badges: hasAllowed ? (data[i][12]?data[i][12].toString():'') : ''};
     }
   }
   return null;
@@ -167,7 +184,8 @@ function getUserByEmail(email){
 function getAllUsers(){
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return [];
   const users=[]; const data=sheet.getDataRange().getValues();
-  for(let i=1;i<data.length;i++){ if(data[i][11].toString()==='active'){ users.push({ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():'',email:data[i][2]?data[i][2].toString():'',role:data[i][3]?data[i][3].toString():'member',can_tick:data[i][6]===true||data[i][6]==='TRUE',branch:data[i][5]?data[i][5].toString():''}); } }
+  const hasAllowed = sheet.getLastColumn()>=13;
+  for(let i=1;i<data.length;i++){ if(data[i][11].toString()==='active'){ users.push({ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():'',email:data[i][2]?data[i][2].toString():'',role:data[i][3]?data[i][3].toString():'member',can_tick:data[i][6]===true||data[i][6]==='TRUE',branch:data[i][5]?data[i][5].toString():'',allowed_badges: hasAllowed ? (data[i][12]?data[i][12].toString():'') : ''}); } }
   return users;
 }
 
@@ -259,9 +277,13 @@ function doPost(e){
     // 以下為高權限
     if(action==='changePassword') return handleChangePassword(ymis,body.old_password,body.new_password);
     if(action==='updateUserRole'){
-      // 允許團長/支部領袖/管理員更新角色
+      // 允許團長/支部領袖/管理員更新角色 + 細緻權限
       if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
-      return handleUpdateUserRole(body.target_ymis,body.new_role,body.can_tick,ymis);
+      return handleUpdateUserRole(body.target_ymis,body.new_role,body.can_tick,ymis, body.allowed_badges);
+    }
+    if(action==='updatePermissions'){
+      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
+      return handleUpdateUserRole(body.target_ymis,body.new_role||null,body.can_tick,ymis, body.allowed_badges);
     }
     if(action==='updateConfig'){
       if(getRoleLevel(user.role)<80) return jsonResponse({success:false,error:'權限不足'});
@@ -339,13 +361,33 @@ function handleReviewApplication(appId,decision,note,reviewer){
   }
   return jsonResponse({success:true,message:'已拒絕'});
 }
-function handleUpdateUserRole(targetYmis,newRole,canTick,managerYmis){
+function handleUpdateUserRole(targetYmis,newRole,canTick,managerYmis, allowedBadges){
   const manager=getUser(managerYmis);
-  if(!canManageRole(manager.role,newRole) && manager.role!=='admin' && manager.role!=='super_admin') return jsonResponse({success:false,error:'權限不足'});
+  if(!manager) return jsonResponse({success:false,error:'找不到管理員'});
+  // super_admin 可以改任何人，admin 可以改團長/支部領袖/執委/成員，團長可改支部領袖/執委/成員，支部領袖可改執委/成員
+  if(manager.role!=='super_admin' && !canManageRole(manager.role,newRole) && manager.role!=='admin') return jsonResponse({success:false,error:'權限不足，你的等級不可設定此角色'});
   const sheet=getSheet().getSheetByName('Users'); const data=sheet.getDataRange().getValues();
   for(let i=1;i<data.length;i++){
     if(data[i][0].toString()===targetYmis && data[i][11].toString()==='active'){
-      sheet.getRange(i+1,4).setValue(newRole); sheet.getRange(i+1,7).setValue(canTick); sheet.getRange(i+1,8).setValue(managerYmis); sheet.getRange(i+1,9).setValue(now());
+      sheet.getRange(i+1,4).setValue(newRole);
+      sheet.getRange(i+1,7).setValue(canTick);
+      sheet.getRange(i+1,8).setValue(managerYmis);
+      sheet.getRange(i+1,9).setValue(now());
+      // 處理細緻權限：若提供 allowedBadges，寫入第13欄
+      if(sheet.getLastColumn()>=13){
+        if(allowedBadges!==undefined && allowedBadges!==null){
+          sheet.getRange(i+1,13).setValue(allowedBadges);
+        } else {
+          // 默認：領袖全部 (*)，成員無，執委默認 L1, L3-ACT, OTHER部分
+          if(!data[i][12]){
+            let def='*';
+            if(newRole==='member') def='';
+            else if(newRole==='exec_committee') def='L1,L3-ACT,OTHER';
+            else def='*';
+            sheet.getRange(i+1,13).setValue(def);
+          }
+        }
+      }
       return jsonResponse({success:true});
     }
   }

@@ -16,7 +16,7 @@
   --radius:12px;--shadow:0 2px 12px rgba(0,0,0,0.08);--shadow-hover:0 6px 20px rgba(0,0,0,0.12);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang HK","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px;overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang HK","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;overscroll-behavior:none}
 a{color:var(--maroon);text-decoration:none}
 a:hover{text-decoration:underline}
 /* Header */
@@ -108,10 +108,10 @@ a:hover{text-decoration:underline}
 /* Nav Tabs */
 .nav-tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:54px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
 .nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{flex:0 0 auto;min-width:92px;padding:12px 14px;text-align:center;cursor:pointer;border:none;background:none;font-size:12px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
+.nav-tab{flex:0 0 auto;min-width:100px;padding:14px 16px;text-align:center;cursor:pointer;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
 .nav-tab:hover{background:var(--bg);color:var(--text)}
 .nav-tab.active{color:var(--maroon);border-bottom-color:var(--maroon);background:var(--maroon-light)}
-.tab-content{display:none;padding:16px}
+.tab-content{display:none;padding:18px}
 .tab-content.active{display:block;animation:fadeIn .25s ease}
 
 /* Badge cards */
@@ -132,14 +132,14 @@ a:hover{text-decoration:underline}
 .item-row:last-child{border-bottom:none}
 .item-row.checked{background:#F0FFF4;border-radius:6px;padding:8px 8px;margin:2px -8px}
 .item-main{flex:1;min-width:0}
-.item-name{font-size:12.5px;line-height:1.5;word-break:break-word}
-.item-name .sub-count{font-size:10px;color:var(--text-light);margin-left:4px;background:var(--bg);padding:1px 6px;border-radius:999px}
-.item-meta{font-size:11px;color:var(--text-light);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
-.item-detail{font-size:11px;color:#6B7280;margin-top:4px;line-height:1.6;background:#FAFAFA;padding:6px 8px;border-radius:6px;border-left:2px solid var(--border)}
-.item-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.item-actions input[type="date"]{padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px;width:125px}
-.checkbox{width:18px;height:18px;accent-color:var(--maroon);cursor:pointer;flex-shrink:0}
-.info-btn{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-light);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.item-name{font-size:14.5px;line-height:1.6;word-break:break-word}
+.item-name .sub-count{font-size:11px;color:var(--text-light);margin-left:6px;background:var(--bg);padding:2px 7px;border-radius:999px}
+.item-meta{font-size:12.5px;color:var(--text-light);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.item-detail{font-size:12.5px;color:#6B7280;margin-top:5px;line-height:1.7;background:#FAFAFA;padding:8px 10px;border-radius:6px;border-left:2px solid var(--border)}
+.item-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-actions input[type="date"]{padding:6px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;width:135px}
+.checkbox{width:20px;height:20px;accent-color:var(--maroon);cursor:pointer;flex-shrink:0}
+.info-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-light);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-btn:hover{background:var(--maroon);color:#fff;border-color:var(--maroon)}
 .sub-items{padding-left:26px;margin-top:4px;border-left:2px dashed var(--border);margin-left:9px}
 .sub-item{padding:6px 0;display:flex;align-items:center;gap:8px}
@@ -413,14 +413,15 @@ a:hover{text-decoration:underline}
   </div>
   <div class="nav-tabs" id="mainNavTabs">
     <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)">📊 我的進度</button>
-    <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)">👥 全團</button>
-    <button class="nav-tab" id="btn-tab-byitem" onclick="switchTab('byitem', this)">🔍 按項目</button>
+    <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)">👥 全團總覽</button>
     <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)">📝 待批 <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
-    <button class="nav-tab" id="btn-tab-other" onclick="switchTab('other', this)">⭐ 其他獎章</button>
     <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)">🖨️ 表格列印</button>
     <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)">📚 資料庫</button>
     <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none">👥 用戶管理</button>
     <button class="nav-tab" id="btn-tab-apps" onclick="switchTab('apps', this)" style="display:none">📋 審批申請</button>
+    <!-- 已整合：按項目已併入全團總覽，其他獎章已併入我的進度 -->
+    <button class="nav-tab" id="btn-tab-byitem" onclick="switchTab('byitem', this)" style="display:none">🔍 按項目(舊)</button>
+    <button class="nav-tab" id="btn-tab-other" onclick="switchTab('other', this)" style="display:none">⭐ 其他獎章(舊)</button>
   </div>
 
   <div id="tab-progress" class="tab-content active"></div>
@@ -465,6 +466,33 @@ a:hover{text-decoration:underline}
     <div id="detailBody" style="font-size:12.5px;line-height:1.8;color:var(--text)"></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" style="flex:1" onclick="closeModal('itemDetailModal')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div id="permissionModal" class="modal">
+  <div class="modal-content" style="max-width:650px">
+    <h3>⚙️ 設定可勾選權限 - <span id="permUserName"></span></h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:10px">領袖默認全部 (*)，團長/管理員可更改。執委可按個別成員勾選可考核範圍。<br>成員改為執委後，可設定其可考核：會員章、活動段章(細項不用)、其他獎章逐個勾。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:50vh;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:10px">
+      <div>
+        <b style="font-size:12px">進度性獎章 (段章層級)</b>
+        <div id="permBadgesList" style="margin-top:6px"></div>
+      </div>
+      <div>
+        <b style="font-size:12px">其他獎章 (逐個勾)</b>
+        <div id="permOtherList" style="margin-top:6px;max-height:300px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn btn-sm btn-secondary" onclick="permSelectAll(true)">全選</button>
+      <button class="btn btn-sm btn-secondary" onclick="permSelectAll(false)">全不選</button>
+      <button class="btn btn-sm btn-warning" onclick="permSetExecDefault()">設為執委默認 (會員章+活動段章+其他部分)</button>
+      <button class="btn btn-sm btn-success" onclick="permSetAll()">設為領袖全部 (*)</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('permissionModal')">取消</button>
+      <button class="btn btn-primary" onclick="savePermissions()">💾 儲存權限</button>
     </div>
   </div>
 </div>
@@ -649,6 +677,30 @@ function setupTabsByRole(){
 }
 function getRoleName(r){ const m={'super_admin':'超管','admin':'管理員','group_leader':'團長','branch_leader':'支部領袖','exec_committee':'執委','member':'團員'}; return m[r]||r; }
 function canUserTickRole(role){ return ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role); }
+
+function canCurrentUserTickItem(itemId){
+  // 超管全部可勾
+  if(!currentUser) return false;
+  if(currentUser.role==='super_admin') return true;
+  // 若沒有 allowed_badges 欄位或為 * 或空且為領袖，默認全部
+  const allowed = currentUser.allowed_badges || '';
+  if(allowed==='*' || allowed==='') {
+    // 領袖默認全部，成員默認無
+    if(['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(currentUser.role)) return true;
+    return false;
+  }
+  const list = allowed.split(',').map(s=>s.trim()).filter(Boolean);
+  if(list.includes('*')) return true;
+  if(list.includes(itemId)) return true;
+  // 前綴匹配
+  for(const a of list){
+    if(itemId.startsWith(a)) return true;
+    // OTHER 匹配其他獎章
+    if(a==='OTHER' && (itemId.startsWith('OT-') || itemId.startsWith('L5') || !itemId.startsWith('L'))) return true;
+  }
+  return false;
+}
+
 function isMember(){ return currentUser.role==='member'; }
 
 /* ================== Contact ================== */
@@ -1010,6 +1062,7 @@ function showSubDetail(name, detail){
 /* Checkbox + Date handling */
 function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
   if(!canUserTickRole(currentUser.role)){ showToast('你沒有勾選權限，請使用申請功能','warning'); return; }
+  if(!canCurrentUserTickItem(itemId)){ showToast('你的權限不可勾選此項目 ('+itemId+')，請聯絡團長/管理員設定','warning'); return; }
   const date=checked? todayISO() : '';
   // if parent checked, auto check all subs
   if(isParent && checked){
@@ -1196,16 +1249,16 @@ function submitMemberRequest(){
 }
 
 /* ================== Overview Tab ================== */
+
 function renderOverviewTab(){
   const c=document.getElementById('tab-overview');
   if(!itemsData){ c.innerHTML='<p>載入中...</p>'; return; }
-  // filter controls
   const badgeOptions=itemsData.badges.map(b=>`<option value="${b.id}">${b.icon} ${b.name}</option>`).join('');
   c.innerHTML=`<div class="info-section" style="border-left-color:var(--blue);background:var(--blue-light);padding:12px">
-    <h3 style="color:var(--blue);font-size:14px">🚀 考驗營 / 集體活動 批量完成 (領袖專用)</h3>
-    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px">例如剛去完考驗營，可一鍵幫有去的成員全剔。邏輯：先暫存瀏覽器，底部按確認才寫入雲端。</p>
+    <h3 style="color:var(--blue);font-size:15px">🚀 考驗營 / 集體活動 批量完成 (領袖專用)</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:8px">例如剛去完考驗營，可一鍵幫有去的成員全剔。先暫存瀏覽器，底部按確認才寫入。</p>
     <div class="filter-bar">
-      <input type="date" id="batchDate" value="${todayISO()}" style="min-width:130px">
+      <input type="date" id="batchDate" value="${todayISO()}" style="min-width:140px">
       <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(true)">全選成員</button>
       <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(false)">取消全選</button>
       <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(true)">全選項目</button>
@@ -1213,8 +1266,8 @@ function renderOverviewTab(){
       <button class="btn btn-sm btn-success" onclick="executeBatchTick()">✅ 一鍵標記完成</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <div><b style="font-size:11px">1. 選擇成員 (可搜尋過濾後批量)</b><div id="batchMemberList" style="max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
-      <div><b style="font-size:11px">2. 選擇項目 (當前篩選段章內)</b><div id="batchItemList" style="max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+      <div><b style="font-size:12px">1. 選擇成員 (可搜尋過濾後批量)</b><div id="batchMemberList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+      <div><b style="font-size:12px">2. 選擇項目 (當前篩選段章內)</b><div id="batchItemList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
     </div>
   </div>
   <div class="filter-bar" style="margin-top:12px">
@@ -1223,18 +1276,78 @@ function renderOverviewTab(){
     <input type="text" id="overviewSearch" placeholder="搜尋成員姓名/ YMIS" oninput="renderOverviewTable()" style="flex:1;min-width:120px">
     <button class="btn btn-sm btn-secondary" onclick="renderOverviewTable()">🔄 刷新</button>
   </div>
-  <div style="font-size:11px;color:var(--text-light);margin-bottom:6px">💡 快速查看：點擊「會員章」可一眼睇邊個已完成會員章；點 ✓ 可單獨切換並暫存。</div>
-  <div id="overviewTableContainer"><p style="text-align:center;color:var(--text-light);padding:20px">選擇段章以查看詳細矩陣，避免一次載入過多導致卡死。下方顯示卡片式總覽。</p></div>
-  <div id="overviewCards" style="margin-top:12px"></div>`;
+  <div style="display:flex;gap:8px;margin:12px 0">
+    <button class="btn btn-sm btn-primary" id="btnOverviewMember" onclick="showOverviewSubTab('member')">👥 按成員總覽 (一眼睇會員章)</button>
+    <button class="btn btn-sm btn-secondary" id="btnOverviewItem" onclick="showOverviewSubTab('item')">🔍 按項目統計 (百分比)</button>
+  </div>
+  <div id="overviewMemberView">
+    <div id="overviewTableContainer"><p style="text-align:center;color:var(--text-light);padding:20px">選擇段章以查看詳細矩陣。</p></div>
+    <div id="overviewCards" style="margin-top:12px"></div>
+  </div>
+  <div id="overviewItemView" style="display:none">
+    <div class="filter-bar"><input type="text" id="byitemSearchInner" placeholder="搜尋項目名稱/編號" oninput="renderByItemListInner()" style="flex:1"><select id="byitemBadgeFilterInner" onchange="renderByItemListInner()"><option value="">全部獎章</option>${itemsData.badges.map(b=>`<option value="${b.id}">${b.icon} ${b.name}</option>`).join('')}</select></div>
+    <div id="byitemListInner"></div>
+  </div>`;
 
-  // populate cards
   renderOverviewCards();
   renderOverviewTable();
-  // populate segment select based on first badge
+  renderByItemListInner();
   const badgeSel=document.getElementById('overviewBadgeSelect');
   if(badgeSel){ badgeSel.addEventListener('change', updateSegmentOptions); updateSegmentOptions(); }
 }
+function showOverviewSubTab(which){
+  const mv=document.getElementById('overviewMemberView');
+  const iv=document.getElementById('overviewItemView');
+  const bm=document.getElementById('btnOverviewMember');
+  const bi=document.getElementById('btnOverviewItem');
+  if(which==='member'){
+    if(mv) mv.style.display='block';
+    if(iv) iv.style.display='none';
+    if(bm) bm.className='btn btn-sm btn-primary';
+    if(bi) bi.className='btn btn-sm btn-secondary';
+  }else{
+    if(mv) mv.style.display='none';
+    if(iv) iv.style.display='block';
+    if(bm) bm.className='btn btn-sm btn-secondary';
+    if(bi) bi.className='btn btn-sm btn-primary';
+    renderByItemListInner();
+  }
+}
+function renderByItemListInner(){
+  const container=document.getElementById('byitemListInner');
+  if(!container) return;
+  const search=(document.getElementById('byitemSearchInner')?.value||'').toLowerCase();
+  const badgeFilter=document.getElementById('byitemBadgeFilterInner')?.value||'';
+  let html='';
+  itemsData.badges.forEach(badge=>{
+    if(badgeFilter && badge.id!==badgeFilter) return;
+    let badgeHtml=`<div class="info-section"><h3>${badge.icon} ${badge.name}</h3>`;
+    badge.segments.forEach(seg=>{
+      let segItems=[];
+      seg.items.forEach(it=>{
+        if(it.subItems) it.subItems.forEach(sub=> segItems.push({id:sub.id,name:sub.name,parent:it.name,detail:sub.detail||'',group:seg.name}));
+        else segItems.push({id:it.id,name:it.name,parent:seg.name,detail:it.detail||'',group:seg.name});
+      });
+      let filtered=segItems;
+      if(search) filtered=segItems.filter(it=> it.name.toLowerCase().includes(search) || it.id.toLowerCase().includes(search));
+      if(filtered.length===0) return;
+      badgeHtml+=`<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--maroon)">${seg.name}</div>`;
+      filtered.forEach(it=>{
+        const total=members.length||1;
+        const doneCount=members.filter(m=>progressFlat[m.ymis] && progressFlat[m.ymis][it.id]).length;
+        const pct=Math.round(doneCount/total*100);
+        badgeHtml+=`<div class="stat-card"><div class="stat-header"><div class="stat-title" style="font-size:13px">${it.name} <small style="color:var(--text-light)">(${it.id})</small></div><div class="stat-pct">${doneCount}/${members.length} (${pct}%)</div></div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div></div>`;
+      });
+      badgeHtml+=`</div>`;
+    });
+    badgeHtml+=`</div>`;
+    html+=badgeHtml;
+  });
+  if(!html) html='<p style="text-align:center;color:var(--text-light);padding:20px">無符合搜尋的項目</p>';
+  container.innerHTML=html;
+}
 function updateSegmentOptions(){
+{
   const badgeId=document.getElementById('overviewBadgeSelect')?.value;
   const segSel=document.getElementById('overviewSegmentSelect');
   if(!segSel||!badgeId) return;
@@ -1567,6 +1680,7 @@ async function loadOtherBadges(){
   renderOtherBadgesTab();
 }
 function toggleOtherBadge(badgeId, name, targetYmis){
+  if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast('無權限勾選此其他獎章','warning'); return; }
   const date=document.getElementById('otherDate_'+badgeId)?.value||todayISO();
   const cert=document.getElementById('otherCert_'+badgeId)?.value||'';
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
@@ -1579,6 +1693,7 @@ function toggleOtherBadge(badgeId, name, targetYmis){
   renderProgressTab();
 }
 function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
+  if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast('無權限勾選此其他獎章','warning'); return; }
   if(!canUserTickRole(currentUser.role)){ showToast('無權限','error'); return; }
   const date = checked ? todayISO() : '';
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
@@ -1633,90 +1748,96 @@ function renderFormsTab(){
   </div>
   <div id="printableArea" class="print-area"></div>`;
 }
+
 function generatePrintableForm(type){
   const targetYmis=document.getElementById('formMemberSelect')?.value||selectedProgressYmis||currentUser.ymis;
   const member=members.find(m=>m.ymis===targetYmis)||{name:currentUser.name,ymis:targetYmis};
   const flat=progressFlat[targetYmis]||{};
-  const badgeDates={};
-  itemsData.badges.forEach(b=>{
-    const ids=getBadgeItemIds(b);
-    const dates=ids.map(id=>flat[id]).filter(Boolean).sort();
-    badgeDates[b.id]=dates.length? dates[dates.length-1] : '';
-  });
   const other=otherBadgesMap[targetYmis]||{};
+  const today=todayISO();
+  function getDoneDate(ids){ const ds=ids.map(id=>flat[id]).filter(Boolean).sort(); return ds.length?ds[ds.length-1]:''; }
+  function badgeIds(bId){ const b=itemsData.badges.find(x=>x.id===bId); return b?getBadgeItemIds(b):[]; }
+
   let html='';
   if(type==='PT19'){
-    html=`<div class="print-header"><h2>深資童軍獎章及證書申請表 (PT/19 04/2019)</h2><p style="font-size:10px;color:#666">香港童軍總會 青少年活動署</p></div>
-      <div style="font-size:11px;line-height:1.8">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="print-field"><label>姓名：</label><input value="${member.name}" /></div>
-          <div class="print-field"><label>YMIS：</label><input value="${member.ymis}" /></div>
-          <div class="print-field"><label>旅團：</label><input value="${currentTroopName}" /></div>
-          <div class="print-field"><label>區：</label><input placeholder="例如：九龍城區" /></div>
-          <div class="print-field"><label>地域：</label><input placeholder="例如：九龍地域" /></div>
-          <div class="print-field"><label>申請日期：</label><input value="${todayISO()}" /></div>
-        </div>
-        <table class="print-table">
-          <tr><th>項目</th><th>完成日期</th><th>主考/證書</th><th>備註</th></tr>
-          <tr><td>會員章</td><td><input value="${badgeDates['L1']||''}" style="width:100px;border:none;border-bottom:1px solid #000" /></td><td></td><td>12項</td></tr>
-          <tr><td>肩章</td><td><input value="${badgeDates['L2']||''}" style="width:100px;border:none;border-bottom:1px solid #000" /></td><td></td><td>23項</td></tr>
-          <tr style="background:#FFF9C4"><td colspan="4"><b>深資童軍獎章 四段章</b> - 自立、責任、活動、探險</td></tr>
-          ${itemsData.badges.find(b=>b.id==='L3').segments.map(seg=>{
-            const ids=getSegmentItemIds(seg);
-            const doneDate=ids.map(id=>flat[id]).filter(Boolean).sort().pop()||'';
-            return `<tr><td>${seg.name}</td><td><input value="${doneDate}" style="width:100px;border:none;border-bottom:1px solid #000" /></td><td>${seg.requirement||''}</td><td>${ids.length}項中完成${ids.filter(id=>flat[id]).length}項</td></tr>`;
-          }).join('')}
-          <tr><td>其他資料</td><td colspan="3"><textarea style="width:100%;height:50px;border:1px solid #999;font-size:10px" placeholder="服務時數、證書編號等">${Object.keys(other).map(k=>`${k}:${other[k].date} ${other[k].cert||''}`).join(', ')}</textarea></td></tr>
-        </table>
-        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
-          <div><br>_________________<br>申請人簽署</div>
-          <div><br>_________________<br>旅長簽署</div>
-          <div><br>_________________<br>區總監推薦</div>
-        </div>
-        <div style="margin-top:12px;font-size:9px;color:#666">流程：填表→區總監→地域總監→總會青少年活動署 | 需附紀錄冊影印及證書 | 本表由系統自動填寫產生，資料僅供參考，請核對正本</div>
+    const l1Done=getDoneDate(badgeIds('L1'));
+    const l2Done=getDoneDate(badgeIds('L2'));
+    const l3=itemsData.badges.find(b=>b.id==='L3');
+    const segDates={};
+    if(l3){ l3.segments.forEach(seg=>{ segDates[seg.code]=getDoneDate(getSegmentItemIds(seg)); }); }
+    html=`<div class="print-area" id="officialPT19">
+      <div style="text-align:center;border-bottom:3px double #000;padding-bottom:10px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700">香港童軍總會 Scout Association of Hong Kong</div>
+        <div style="font-size:15px;font-weight:800;margin-top:4px">深資童軍獎章及證書申請表 (PT/19 04/2019)</div>
+        <div style="font-size:11px">Application Form for the Venture Scout Award and Certificate</div>
       </div>
-      <div class="no-print" style="margin-top:14px;text-align:center"><button class="btn btn-primary" onclick="window.print()">🖨️ 立即列印</button><button class="btn btn-secondary" style="margin-left:8px" onclick="document.getElementById('printableArea').innerHTML=''">清除</button></div>
-    `;
+      <div style="font-size:12px;font-weight:700;background:#F0F0F0;padding:4px 8px;border:1px solid #000">(1) 個人摘要 Personal Particulars</div>
+      <table class="print-table" style="font-size:11px">
+        <tr><td style="width:22%">姓名 (中文)<br>Name (Chinese)</td><td style="width:30%"><input value="${member.name}" style="width:95%"></td><td style="width:22%">姓名 (英文)<br>Name (English)</td><td><input placeholder="Same as HKID" style="width:90%"></td><td rowspan="4" style="width:90px;text-align:center">近照 Recent Photo<div style="width:80px;height:100px;border:1px dashed #999;margin:4px auto"></div></td></tr>
+        <tr><td>出生日期 Date of Birth</td><td><input type="date" style="width:60%"> Age <input style="width:30px"></td><td>性別 Gender / HKID首4位*</td><td><select style="width:50px"><option>男</option><option>女</option></select> <input style="width:50px" placeholder="A123"></td></tr>
+        <tr><td>童軍成員編號 Scout ID</td><td><input value="${member.ymis}" style="width:95%"></td><td>發證日期 Issue Date / 肩章簽發日期</td><td><input type="date" style="width:45%"> <input value="${l2Done}" style="width:45%"></td></tr>
+        <tr><td>所屬單位 Unit</td><td colspan="3"><input value="${currentTroopName}" style="width:30%"> 區 District <input placeholder="九龍城區" style="width:18%"> 地域 Region <input placeholder="九龍地域" style="width:18%"></td></tr>
+        <tr><td>通訊地址 Address (中文)</td><td colspan="4"><input style="width:98%" placeholder="中文地址"></td></tr>
+        <tr><td>通訊地址 (英文)</td><td colspan="4"><input style="width:98%" placeholder="English Address"></td></tr>
+        <tr><td>聯絡電話 Contact No.</td><td><input style="width:95%"></td><td>電郵 E-mail</td><td colspan="2"><input style="width:90%"></td></tr>
+      </table>
+      <div style="font-size:12px;font-weight:700;background:#F0F0F0;padding:4px 8px;border:1px solid #000;margin-top:10px">(2) 完成項目 Completed Items</div>
+      <table class="print-table" style="font-size:11px">
+        <tr><th style="width:13%">段章</th><th style="width:13%">項目</th><th style="width:28%">單元編號及名稱 Module Code & Name</th><th>所選擇考驗之內容</th><th style="width:12%">完成日期</th></tr>
+        <tr><td>自立<br>Self-reliance</td><td>人際關係<br>Interpersonal</td><td>S-A1 (S-A101~106)</td><td>團外活動/活動支援/交流/執委研習/會議程序/社區參與 選1</td><td><input value="${segDates['L3-SELF']||''}" style="width:90px"></td></tr>
+        <tr><td></td><td>生活探討<br>Life Exploration</td><td>S-A2 (S-A201~214)</td><td>生活教育/職業/專上學院/宗教/社會議題等 選1</td><td><input style="width:90px"></td></tr>
+        <tr><td>責任<br>Responsibility</td><td>A組 Group A</td><td>R-A1 急救/拯溺I/II/手語/精神健康/SOUL/共融 選1</td><td>${Object.keys(other).length?Object.keys(other).join(', '):''}</td><td><input value="${segDates['L3-RESP']||''}" style="width:90px"></td></tr>
+        <tr><td>活動<br>Activity</td><td>童軍技能<br>Scoutcraft</td><td>A-101 原野生活<br>A-102 先鋒工程知識及技巧</td><td></td><td><input style="width:90px"></td></tr>
+        <tr><td></td><td>個人興趣<br>Personal Interest</td><td>A-2 (A-203~A-240&A-999)</td><td>需2項不同類型(第11版)</td><td><input style="width:90px"></td></tr>
+        <tr><td></td><td>體育技能<br>Sports</td><td>A-3 (A-301~A-312)</td><td></td><td><input style="width:90px"></td></tr>
+        <tr><td>探險<br>Exploration</td><td>必修 Compulsory</td><td>E-A001 地圖閱讀<br>E-A002 遠足訓練</td><td>訓練班</td><td><input value="${getDoneDate(['L3-EXP-01','L3-EXP-02'])}" style="width:90px"></td></tr>
+        <tr><td></td><td>選修 Elective</td><td>E-A003~E-A009 40km等</td><td>3日2夜</td><td><input value="${segDates['L3-EXP']||''}" style="width:90px"></td></tr>
+      </table>
+      <div style="margin-top:12px;font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:20px"><div>申請者簽署 Applicant’s Signature<br><br>簽署 Signature：__________________ 日期 Date：${today}</div><div>提名 Nomination 旅長/深資童軍團長 GSL/VSL<br>姓名 Name：__________ 日期 Date：__________<br>旅印 Group Stamp</div></div>
+      <div style="margin-top:12px;font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid #000;padding-top:8px"><div>推薦 Recommendation 區總監 District Commissioner<br>姓名：__________ 日期：__________<br>區印 District Stamp</div><div>批核 Approval 地域總監 Regional Commissioner / 青少年活動總監<br>姓名：__________ 日期：__________<br>地域印/署印</div></div>
+      <div style="margin-top:10px;font-size:9px;color:#666">同一張紙雙面列印，附紀錄冊影印及證書，經地域交總會。表格2年後銷毀。</div>
+      <div class="no-print" style="margin-top:14px;text-align:center"><button class="btn btn-primary" onclick="window.print()">🖨️ 列印 (官方格式)</button></div>
+    </div>`;
   }else{
-    // PT20
-    html=`<div class="print-header"><h2>榮譽童軍獎章及證書申請表 (PT/20 04/2019) - 龍章</h2><p style="font-size:10px;color:#666">最高榮譽 • 總領袖於大會操頒發 • 每年9月15日前提交</p></div>
-      <div style="font-size:11px;line-height:1.8">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="print-field"><label>姓名：</label><input value="${member.name}" /></div>
-          <div class="print-field"><label>YMIS：</label><input value="${member.ymis}" /></div>
-          <div class="print-field"><label>旅團：</label><input value="${currentTroopName}" /></div>
-          <div class="print-field"><label>深資童軍獎章頒發日期：</label><input value="${badgeDates['L3']||''}" /></div>
-          <div class="print-field"><label>區 / 地域：</label><input placeholder="區 / 地域" /></div>
-          <div class="print-field"><label>申請日期：</label><input value="${todayISO()}" /></div>
-        </div>
-        <table class="print-table">
-          <tr><th>金帶</th><th>項目</th><th>完成日期</th><th>服務時數/證書</th></tr>
-          ${itemsData.badges.find(b=>b.id==='L4').segments.map(seg=>{
-            const ids=getSegmentItemIds(seg);
-            return seg.items.map(it=>{
-              const subIds=it.subItems? it.subItems.map(s=>s.id) : [it.id];
-              const doneDate=subIds.map(id=>flat[id]).filter(Boolean).sort().pop()||'';
-              const count=subIds.filter(id=>flat[id]).length;
-              return `<tr><td>${seg.name}</td><td>${it.name} (${count}/${subIds.length})</td><td><input value="${doneDate}" style="width:100px;border:none;border-bottom:1px solid #000" /></td><td></td></tr>`;
-            }).join('');
-          }).join('')}
-          <tr><td colspan="2">AYP / 其他互認</td><td colspan="2">${Object.keys(other).map(k=>`${k}:${other[k].date}`).join(', ')||'________________'}</td></tr>
-          <tr><td colspan="4">服務紀錄總時數：____ 小時（至少48小時，半數為社區）<br>備註：<textarea style="width:100%;height:40px;border:1px solid #999"></textarea></td></tr>
-        </table>
-        <div style="margin-top:10px;font-size:9px;background:#FFF3CD;padding:8px;border-radius:6px;border:1px solid #FFE69C">
-          <b>所需附件：</b>紀錄冊個人資料、有效日期、深資及榮譽童軍獎章考驗頁、各金帶證書影印、服務紀錄表、其他證書。申請如於每年9月15日前提交，證書安排當年大會操頒發。
-        </div>
-        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
-          <div><br>_________________<br>申請人簽署</div>
-          <div><br>_________________<br>旅長簽署及推薦</div>
-          <div><br>_________________<br>區總監 / 地域總監</div>
-        </div>
+    const vsAwardDate=getDoneDate(badgeIds('L3'));
+    html=`<div class="print-area" id="officialPT20">
+      <div style="text-align:center;border-bottom:3px double #000;padding-bottom:10px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700">香港童軍總會 Scout Association of Hong Kong</div>
+        <div style="font-size:15px;font-weight:800;margin-top:4px">榮譽童軍獎章及證書申請表 (PT/20 04/2019) Dragon Scout Award</div>
       </div>
-      <div class="no-print" style="margin-top:14px;text-align:center"><button class="btn btn-primary" onclick="window.print()">🖨️ 列印 (請設定雙面)</button><button class="btn btn-secondary" style="margin-left:8px" onclick="document.getElementById('printableArea').innerHTML=''">清除</button></div>
-    `;
+      <div style="font-size:12px;font-weight:700;background:#F0F0F0;padding:4px 8px;border:1px solid #000">(1) 個人摘要 Personal Particulars</div>
+      <table class="print-table" style="font-size:11px">
+        <tr><td style="width:20%">姓名 Name (中/英)</td><td colspan="2"><input value="${member.name}" style="width:95%"></td><td rowspan="3" style="width:90px;text-align:center">近照<div style="width:80px;height:100px;border:1px dashed #999;margin:4px auto"></div></td></tr>
+        <tr><td>出生日期/年齡/性別<br>Scout ID ${member.ymis}</td><td><input type="date" style="width:100px"> Age <input style="width:30px"> Gender <select style="width:50px"><option>男</option><option>女</option></select></td><td>單位 Unit ${currentTroopName}</td></tr>
+        <tr><td>地址 Address / 電話 Contact</td><td colspan="2"><input style="width:95%"></td></tr>
+        <tr><td>深資童軍獎章證書號碼 Cert No. / 發出日期</td><td><input style="width:50%"> Date <input value="${vsAwardDate}" style="width:80px"></td><td colspan="2">HKID首4位* <input placeholder="A123" style="width:60px"></td></tr>
+      </table>
+      <div style="font-size:12px;font-weight:700;background:#F0F0F0;padding:4px 8px;border:1px solid #000;margin-top:10px">(2) 完成項目 Completed Items</div>
+      <table class="print-table" style="font-size:11px">
+        <tr><th>段章/金帶 Bars</th><th>項目 Items / 單元 Module Code & Name</th><th>完成日期</th></tr>
+        <tr><td>自立 Self-reliance</td><td>S-B101 活動策劃 Activity Planning / S-B201 專題研究</td><td><input style="width:90px" value="${getDoneDate(['L4-PRJ-01'])}"></td></tr>
+        <tr><td>責任 Responsibility</td><td>R-B201 志願服務 / R-B202 專門技能 / R-B203 童軍及社區 (48小時)</td><td><input style="width:90px" value=""></td></tr>
+        <tr><td>活動 Activity</td><td>A-103 露營技藝 Campcraft & A-104 先鋒工程實踐 Pioneering (Practice) / A-2 進階興趣 / A-3 進階體育</td><td><input style="width:90px" value=""></td></tr>
+        <tr><td>探險 Exploration</td><td>E-B001~E-B007 60km徒步/240km單車/80km海上 四日三夜</td><td><input style="width:90px" value=""></td></tr>
+      </table>
+      <div style="margin-top:12px;font-size:11px">
+        <div>申請者簽署 Applicant’s Signature：__________________ 日期 Date：${today}</div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid #000;padding-top:8px">
+          <div>提名 Nomination 旅長 GSL/VSL 姓名：__________ 日期：__________</div>
+          <div>推薦 Recommendation 區總監 DC 姓名：__________ 日期：__________</div>
+        </div>
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid #000;padding-top:8px">
+          <div>批核 Approval 地域總監 RC 姓名：__________ 日期：__________</div>
+          <div>青少年活動總監 PC 姓名：__________ 日期：__________</div>
+        </div>
+        <div style="margin-top:10px;font-size:9px;background:#FFF3CD;padding:6px;border:1px solid #FFE69C">全年接受申請，9月15日前交總會，證書安排當年大會操頒發，逾期翌年。需附紀錄冊及證書影印。</div>
+      </div>
+      <div class="no-print" style="margin-top:14px;text-align:center"><button class="btn btn-primary" onclick="window.print()">🖨️ 列印 (官方格式 雙面)</button></div>
+    </div>`;
   }
   document.getElementById('printableArea').innerHTML=html;
 }
+
 
 /* ================== Info Tab ================== */
 function renderInfoTab(){
@@ -1813,8 +1934,8 @@ async function loadUsers(){
       }
 
       let h=roleExplain+mockTool+'<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
-      h+=d.users.map(u=>`<div class="user-item" data-search="${(u.name+u.ymis+u.email).toLowerCase()}"><div class="user-item-info"><b>${u.name}</b> ${u.ymis?`(${u.ymis})`:''} ${u.email?` - ${u.email}`:''}<span class="role-badge role-${u.role}">${getRoleName(u.role)}</span> ${u.can_tick?'<span style="background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:999px;font-size:9px">可勾選</span>':''}</div><div class="user-item-actions">`+
-        (['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role)&&u.ymis!==currentUser.ymis?`<select onchange="updateUserRole('${u.ymis}',this.value)"><option value="member" ${u.role==='member'?'selected':''}>團員</option><option value="exec_committee" ${u.role==='exec_committee'?'selected':''}>執委</option><option value="branch_leader" ${u.role==='branch_leader'?'selected':''}>支部領袖</option><option value="group_leader" ${u.role==='group_leader'?'selected':''}>團長</option><option value="admin" ${u.role==='admin'?'selected':''}>管理員</option></select><button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${u.ymis}',${!u.can_tick})">${u.can_tick?'收回勾選':'授權勾選'}</button>`:'' )+
+      h+=d.users.map(u=>`<div class="user-item" data-search="${(u.name+u.ymis+u.email).toLowerCase()}"><div class="user-item-info"><b>${u.name}</b> ${u.ymis?`(${u.ymis})`:''} ${u.email?` - ${u.email}`:''}<span class="role-badge role-${u.role}">${getRoleName(u.role)}</span> ${u.can_tick?'<span style="background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:999px;font-size:9px">可勾選</span>':''}<br><small style="font-size:10px;color:var(--text-light)">權限: ${u.allowed_badges|| (u.role==='member'?'無':(u.role==='exec_committee'?'L1,活動段章,其他部分':'全部(*)'))}</small></div><div class="user-item-actions">`+
+        (['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role)&&u.ymis!==currentUser.ymis?`<select onchange="updateUserRole('${u.ymis}',this.value)"><option value="member" ${u.role==='member'?'selected':''}>團員</option><option value="exec_committee" ${u.role==='exec_committee'?'selected':''}>執委</option><option value="branch_leader" ${u.role==='branch_leader'?'selected':''}>支部領袖</option><option value="group_leader" ${u.role==='group_leader'?'selected':''}>團長</option><option value="admin" ${u.role==='admin'?'selected':''}>管理員</option></select><button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${u.ymis}',${!u.can_tick})">${u.can_tick?'收回勾選':'授權勾選'}</button><button class="btn btn-sm btn-warning" onclick="openPermissionModal('${u.ymis}','${u.name.replace(/'/g,"\'") }','${u.role}','${(u.allowed_badges||'').replace(/'/g,"")}')">⚙️ 權限</button>`:'' )+
         `</div></div>`).join('');
       h+='</div>';
       c.innerHTML=h;
@@ -1827,6 +1948,83 @@ function filterUsers(){
     el.style.display=el.dataset.search.includes(q)?'flex':'none';
   });
 }
+let currentPermUser=null;
+function openPermissionModal(ymis, name, role, allowed){
+  currentPermUser={ymis, name, role, allowed: allowed||''};
+  document.getElementById('permUserName').textContent=`${name} (${ymis}) [${role}]`;
+  // badges list
+  const badges=[
+    {id:'L1', name:'會員章 (全部12項)'},
+    {id:'L1-CP', name:'會員章-保護兒童 (必修)'},
+    {id:'L2', name:'肩章 (基礎技能23項)'},
+    {id:'L3-SELF', name:'活動策劃段章 (舊自立)'},
+    {id:'L3-RESP', name:'社會服務段章 (舊責任)'},
+    {id:'L3-ACT-SCOUT', name:'多元技能-範疇一 童軍技能'},
+    {id:'L3-ACT-SP', name:'多元技能-範疇二 康樂體育'},
+    {id:'L3-ACT-INT', name:'多元技能-範疇三 新體驗 (個人興趣)'},
+    {id:'L3-EXP', name:'戶外探險段章'},
+    {id:'L4', name:'榮譽童軍獎章 全部金帶'},
+    {id:'L4-ACT', name:'活動策劃金帶/多元技能金帶'},
+  ];
+  const allowedArr = (allowed==='*'||allowed==='') ? (role==='member'?[]:badges.map(b=>b.id)) : allowed.split(',').map(s=>s.trim()).filter(Boolean);
+  // If allowed is * => all checked
+  const isAll = allowed==='*' || allowed==='';
+  let html='';
+  badges.forEach(b=>{
+    const checked = isAll || allowedArr.includes(b.id) || allowedArr.includes('*') || (role!=='member' && allowed==='');
+    html+=`<label style="display:flex;gap:6px;padding:4px 0;font-size:12px"><input type="checkbox" class="permCheck" value="${b.id}" ${checked?'checked':''}> ${b.name}</label>`;
+  });
+  document.getElementById('permBadgesList').innerHTML=html;
+  // other badges
+  const otherList=document.getElementById('permOtherList');
+  if(otherList && itemsData && itemsData.otherBadges){
+    const otherAllowed = allowed==='*' ? itemsData.otherBadges.map(o=>o.id) : allowedArr;
+    let ohtml='';
+    // Add OTHER as group
+    ohtml+=`<label style="display:flex;gap:6px;padding:4px 0;font-size:12px;background:var(--bg);border-radius:4px"><input type="checkbox" class="permCheck" value="OTHER" ${isAll||allowedArr.includes('OTHER')?'checked':''}> <b>其他獎章 全部</b></label>`;
+    itemsData.otherBadges.forEach(ob=>{
+      const ck = isAll || otherAllowed.includes(ob.id) || otherAllowed.includes('OTHER');
+      ohtml+=`<label style="display:flex;gap:6px;padding:4px 0 4px 12px;font-size:11px"><input type="checkbox" class="permCheck" value="${ob.id}" ${ck?'checked':''}> ${ob.icon||''} ${ob.name}</label>`;
+    });
+    otherList.innerHTML=ohtml;
+  }
+  document.getElementById('permissionModal').classList.add('active');
+}
+function permSelectAll(checked){
+  document.querySelectorAll('.permCheck').forEach(cb=>cb.checked=checked);
+}
+function permSetExecDefault(){
+  // 執委默認：會員章 + 活動段章 (多元技能活動) + 其他部分
+  const defaults=['L1','L3-ACT-SCOUT','L3-ACT-SP','L3-ACT-INT','OTHER'];
+  document.querySelectorAll('.permCheck').forEach(cb=>{
+    cb.checked=defaults.includes(cb.value) || cb.value.startsWith('OT-');
+  });
+}
+function permSetAll(){
+  document.querySelectorAll('.permCheck').forEach(cb=>cb.checked=true);
+}
+async function savePermissions(){
+  if(!currentPermUser) return;
+  const checks=document.querySelectorAll('.permCheck:checked');
+  const vals=[...checks].map(c=>c.value);
+  let allowedStr='';
+  // If all badges checked, save as *
+  const totalBadges=document.querySelectorAll('.permCheck').length;
+  if(vals.length===totalBadges) allowedStr='*';
+  else allowedStr=vals.join(',');
+  try{
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:currentPermUser.ymis,new_role:currentPermUser.role,can_tick:true,allowed_badges:allowedStr})});
+    const d=await r.json();
+    if(d.success){
+      showToast('✅ 權限已更新','success');
+      closeModal('permissionModal');
+      loadUsers();
+    }else throw new Error(d.error);
+  }catch(e){
+    showToast('儲存失敗：'+e.message,'error');
+  }
+}
+
 async function loadMockMembers(){
   const status=document.getElementById('mockStatus');
   if(status) status.textContent='載入中...';
