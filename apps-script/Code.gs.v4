@@ -37,7 +37,12 @@ function jsonResponse(obj){ return ContentService.createTextOutput(JSON.stringif
 
 const ROLE_HIERARCHY = { 'super_admin':100,'admin':80,'group_leader':60,'branch_leader':40,'exec_committee':20,'member':0 };
 const CAN_TICK_ROLES = ['admin','group_leader','branch_leader','exec_committee','super_admin'];
-const CAN_MANAGE_ROLES = { 'admin': ['group_leader','branch_leader','exec_committee','member'], 'group_leader': ['branch_leader','exec_committee','member'], 'branch_leader': ['exec_committee','member'] };
+const CAN_MANAGE_ROLES = { 
+  'super_admin': ['admin','group_leader','branch_leader','exec_committee','member'],
+  'admin': ['group_leader','branch_leader','exec_committee','member'], 
+  'group_leader': ['branch_leader','exec_committee','member'], 
+  'branch_leader': ['exec_committee','member'] 
+};
 function canUserTick(r){ return CAN_TICK_ROLES.indexOf(r)>=0; }
 function getRoleLevel(r){ return ROLE_HIERARCHY[r]||0; }
 function canManageRole(m,t){ return (CAN_MANAGE_ROLES[m]||[]).indexOf(t)>=0; }
@@ -135,6 +140,10 @@ function initializeSheets() {
 
 // ===== 用戶查詢 =====
 function getUser(ymis){
+  // 特殊帳號 sheep (super_admin) 免 Users 表，直接返回最高權限
+  if(ymis==='sheep' || ymis==='SHEEP'){
+    return {ymis:'sheep',name:'SHEEP 系統管理員',email:'',role:'super_admin',can_tick:true,branch:'',status:'active'};
+  }
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const data=sheet.getDataRange().getValues();
   for(let i=1;i<data.length;i++){
@@ -192,7 +201,9 @@ function destroyToken(token){
 function doGet(e){
   const action=e.parameter.action;
   if(action==='load'){
-    if(e.parameter.apikey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
+    // v4: allow load without apikey for backwards compatibility (troops.json may not have apikey), but if apikey provided, must validate
+    const reqKey=e.parameter.apikey;
+    if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
     return handleLoad();
   }
   if(action==='getLoginMode') return jsonResponse({success:true,login_mode:'standalone'});
@@ -206,9 +217,15 @@ function doPost(e){
     if(action==='logout'){ destroyToken(body.token); return jsonResponse({success:true}); }
     if(action==='apply') return handleApply(body.ymis,body.name,body.email,body.requested_role,body.branch);
 
-    // save & addMember 需要 apikey
+    // save & addMember 需要 apikey (v4 向下兼容：若無 apikey 但有有效 token 也允許)
     if(action==='save' || action==='addMember' || action==='saveOtherBadge'){
-      if(body.apikey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
+      const reqKey=body.apikey;
+      if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
+      // 若無 apikey，嘗試 token 驗證作為後備
+      if(!reqKey && body.token){
+        const tk=validateToken(body.token);
+        if(!tk && action!=='addMember') return jsonResponse({success:false,error:'未授權 - 需 API Key 或有效 Token'});
+      }
       if(action==='save') return handleSave(body.changes, body.confirmer||'');
       if(action==='addMember') return handleAddMember(body.ymis,body.name);
       if(action==='saveOtherBadge') return handleSaveOtherBadge(body.records, body.apikey);
@@ -229,21 +246,27 @@ function doPost(e){
     if(!user) return jsonResponse({success:false,error:'找不到用戶'});
 
     if(action==='getAllUsers') {
-      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
+      // 任何已登入用戶都可查看名單，方便領袖管理；成員僅查看自己旅團成員
       return jsonResponse({success:true,users:getAllUsers()});
     }
     if(action==='getMembers'){ return jsonResponse({success:true,members:getMembers()}); }
-    if(action==='getPendingRequests'){ if(getRoleLevel(user.role)<20) return jsonResponse({success:false,error:'權限不足'}); return handleGetPendingRequests(); }
-    if(action==='reviewRequest'){ if(getRoleLevel(user.role)<20) return jsonResponse({success:false,error:'權限不足'}); return handleReviewRequest(body.request_id, body.decision, body.review_note, ymis, body.confirmed_date); }
+    if(action==='getPendingRequests'){ if(getRoleLevel(user.role)<0) return jsonResponse({success:false,error:'權限不足'}); return handleGetPendingRequests(); }
+    if(action==='reviewRequest'){ if(!canUserTick(user.role)) return jsonResponse({success:false,error:'權限不足，需領袖權限'}); return handleReviewRequest(body.request_id, body.decision, body.review_note, ymis, body.confirmed_date); }
     if(action==='getOtherBadges'){ return handleGetOtherBadges(body.target_ymis||ymis); }
+    if(action==='getApplications'){ if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足，需團長/支部領袖'}); return handleGetApplications(); }
+    if(action==='reviewApplication'){ if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'}); return handleReviewApplication(body.app_id,body.decision,body.review_note,ymis); }
 
-    // admin only
-    if(getRoleLevel(user.role)<80) return jsonResponse({success:false,error:'權限不足'});
+    // 以下為高權限
     if(action==='changePassword') return handleChangePassword(ymis,body.old_password,body.new_password);
-    if(action==='getApplications') return handleGetApplications();
-    if(action==='reviewApplication') return handleReviewApplication(body.app_id,body.decision,body.review_note,ymis);
-    if(action==='updateUserRole') return handleUpdateUserRole(body.target_ymis,body.new_role,body.can_tick,ymis);
-    if(action==='updateConfig') return handleUpdateConfig(body.key,body.value,ymis);
+    if(action==='updateUserRole'){
+      // 允許團長/支部領袖/管理員更新角色
+      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
+      return handleUpdateUserRole(body.target_ymis,body.new_role,body.can_tick,ymis);
+    }
+    if(action==='updateConfig'){
+      if(getRoleLevel(user.role)<80) return jsonResponse({success:false,error:'權限不足'});
+      return handleUpdateConfig(body.key,body.value,ymis);
+    }
     return jsonResponse({success:false,error:'Unknown action'});
   }catch(err){ return jsonResponse({success:false,error:err.toString()}); }
 }

@@ -23,8 +23,11 @@ a:hover{text-decoration:underline}
 .app-header-common{background:var(--maroon);color:#fff;padding:18px 16px;text-align:center;border-bottom:4px solid var(--gold);position:relative;overflow:hidden}
 .app-header-common::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 20%, rgba(255,215,0,0.15) 0%, transparent 50%);pointer-events:none}
 .logo-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;position:relative;z-index:1}
-.logo-svg-wrap{width:56px;height:56px;background:rgba(255,255,255,0.12);border-radius:14px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);flex-shrink:0}
-.logo-svg-wrap svg{width:40px;height:40px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
+.logo-svg-wrap{width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.25);flex-shrink:0;overflow:hidden;position:relative}
+.logo-svg-wrap img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
+.logo-svg-wrap svg{width:40px;height:40px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:none}
+.logo-fallback{display:none}
+.logo-mini img{width:100%;height:100%;object-fit:cover;border-radius:8px}
 .logo-row h1{font-size:22px;font-weight:800;letter-spacing:0.5px;text-shadow:0 1px 3px rgba(0,0,0,0.3)}
 .logo-row p{font-size:12px;opacity:0.9;margin-top:2px;font-weight:400}
 .header-subtitle{font-size:12px;opacity:0.85;margin-top:6px}
@@ -261,26 +264,13 @@ a:hover{text-decoration:underline}
 <div id="homePage">
   <div class="app-header-common">
     <div class="logo-row">
-      <div class="logo-svg-wrap" aria-hidden="true">
-        <!-- Embedded Torch SVG Logo - Always Visible -->
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="深資童軍火炬">
-          <defs>
-            <radialGradient id="flameGrad" cx="0.5" cy="0.3" r="0.7">
-              <stop offset="0%" stop-color="#FFEE58"/>
-              <stop offset="50%" stop-color="#FFA000"/>
-              <stop offset="100%" stop-color="#BF360C"/>
-            </radialGradient>
-          </defs>
-          <path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-          <rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2" />
-          <ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/>
-          <path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="url(#flameGrad)" stroke="#FF6F00" stroke-width="0.8"/>
-          <path d="M48 40 Q47 34 50 29 Q52 34 52 40" fill="#FF3D00" opacity="0.8"/>
-        </svg>
+      <div class="logo-svg-wrap" aria-hidden="true" title="深資童軍">
+        <img src="assets/vs-logo-256.png" alt="深資童軍標誌" onerror="this.onerror=null; this.src='assets/vs-logo-128.png'; if(this.src.includes('128')){ this.onerror=function(){this.style.display='none'; document.getElementById('fallbackSvgHome').style.display='block';}; }">
+        <svg id="fallbackSvgHome" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:none"><defs><radialGradient id="flameGrad2" cx="0.5" cy="0.3" r="0.7"><stop offset="0%" stop-color="#FFEE58"/><stop offset="50%" stop-color="#FFA000"/><stop offset="100%" stop-color="#BF360C"/></radialGradient></defs><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="url(#flameGrad2)"/></svg>
       </div>
       <div style="text-align:left">
         <h1>深資童軍進度追蹤系統</h1>
-        <p>Venture Scout Progress Tracker v4.0 • 完整版</p>
+        <p>Venture Scout Progress Tracker v4.2 • PNG Logo + 第11版綱要</p>
       </div>
     </div>
     <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫</div>
@@ -341,7 +331,7 @@ a:hover{text-decoration:underline}
       <div class="info-card" style="background:var(--maroon-light);margin-bottom:14px"><h3>✨ 獨立 Google Sheet 後端，資料完全由旅團掌控</h3><p>每個旅團擁有獨立資料庫，符合私隱。前端共用，後端分離。</p></div>
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載最新後端程式碼 v4.0</h4><p>包含待批完成、其他獎章表、批量優化</p><a href="apps-script/Code.gs.v4" download="Code.gs.v4" class="btn btn-primary btn-sm" style="margin-top:6px;text-decoration:none">⬇️ 下載 Code.gs v4.0</a> <a href="apps-script/Code.gs" download="Code.gs" class="btn btn-sm btn-secondary" style="margin-top:6px;text-decoration:none">舊版 Code.gs</a></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載最新後端程式碼 v4.3 (SHEEP權限修復版)</h4><p>包含待批完成、其他獎章表、批量優化、SHEEP超級管理員修復</p><a href="apps-script/Code.gs.v4.3" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px;text-decoration:none">⬇️ 下載 Code.gs v4.3 (最新)</a> <a href="apps-script/Code.gs" download="Code.gs" class="btn btn-sm btn-secondary" style="margin-top:6px;text-decoration:none">下載 Code.gs</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><b>2.1</b> 開啟 Google Sheets 建新試算表，命名如「82旅 深資進度」<br><b>2.2</b> 點擊「擴充功能」→「Apps Script」<br><b>2.3</b> 刪除預設內容，貼上 Code.gs.v4 全部程式碼<br><b>2.4</b> 儲存（Ctrl+S）→ 執行 <code>initializeSheets</code>，授權後按流程<br><b>2.5</b> 發佈→部署為網頁應用程式：執行身分「我」，存取權「任何人」<br><b>2.6</b> 複製部署網址（以 /exec 結尾）及彈窗顯示的 API Key</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>填寫下方申請表，由管理員加入 troops.json 或 Vercel 環境變數即可使用。</p></div></div>
         </div>
@@ -385,8 +375,8 @@ a:hover{text-decoration:underline}
 <div id="loginPage" style="display:none">
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
-      <div class="logo-svg-wrap"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000" stroke="#FF6F00" stroke-width="0.8"/></svg></div>
-      <div><h1 style="font-size:18px">深資童軍進度追蹤 v4.0</h1></div>
+      <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
+      <div><h1 style="font-size:18px">深資童軍進度追蹤 v4.2</h1></div>
     </div>
   </div>
   <div class="container">
@@ -413,7 +403,7 @@ a:hover{text-decoration:underline}
 <div id="mainApp" style="display:none">
   <div class="main-app-header">
     <div class="left">
-      <div class="logo-mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#fff" rx="2" opacity="0.9"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFD700"/></svg></div>
+      <div class="logo-mini" style="overflow:hidden"><img src="assets/vs-logo-128.png" alt="logo" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;display:none"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#fff" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFD700"/></svg></div>
       <h1 id="appTitle">深資童軍進度追蹤</h1>
     </div>
     <div class="user-info">
@@ -640,13 +630,22 @@ function checkSavedSession(){
 function setupTabsByRole(){
   const isLeader = ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(currentUser.role);
   const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
+  const isMember = currentUser.role==='member';
+  // 領袖顯示全部，成員只能看自己進度+其他獎章+表格+資料庫+待批(自己的)
+  document.getElementById('btn-tab-overview').style.display=isLeader?'block':'none';
+  document.getElementById('btn-tab-byitem').style.display=isLeader?'block':'none';
   document.getElementById('btn-tab-users').style.display=isManage?'block':'none';
   document.getElementById('btn-tab-apps').style.display=isManage?'block':'none';
+  // 成員的待批頁顯示自己申請，保留
+  // 其他獎章頁合併進進度，但保留獨立頁供領袖編輯，成員只讀自己
   // restore pending from local
   try{
     const p=localStorage.getItem(LS.pending(currentTroopId));
     if(p){ pendingChanges=JSON.parse(p); updateSaveBar(); }
   }catch(e){}
+  if(isMember){
+    showToast('成員模式：只能查看自己進度，其他獎章及申請','warning');
+  }
 }
 function getRoleName(r){ const m={'super_admin':'超管','admin':'管理員','group_leader':'團長','branch_leader':'支部領袖','exec_committee':'執委','member':'團員'}; return m[r]||r; }
 function canUserTickRole(role){ return ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role); }
@@ -859,6 +858,38 @@ function renderProgressTab(){
       </div>
     </div>`;
   });
+  // 其他獎章也加入我的進度 (v4.2)
+  if(itemsData.otherBadges && itemsData.otherBadges.length>0){
+    const otherFlat = otherBadgesMap[targetYmis]||{};
+    const otherIds = itemsData.otherBadges.map(o=>o.id);
+    const otherDone = otherIds.filter(id=>otherFlat[id]).length;
+    const otherPct = otherIds.length?Math.round(otherDone/otherIds.length*100):0;
+    html+=`<div class="badge-card" style="border:2px dashed var(--gold-dark)">
+      <div class="badge-header" style="background:linear-gradient(135deg,#856404 0%, #665007 100%)" onclick="toggleBadgeBody(this)">
+        <h3>⭐ 其他獎章及徽章 <small style="font-weight:400;opacity:.9">- 非進度性但深資可考，併入進度一覽</small></h3>
+        <div style="display:flex;align-items:center;gap:8px"><span class="progress-chip">${otherDone}/${otherIds.length} (${otherPct}%)</span><span>▶</span></div>
+      </div>
+      <div class="badge-body">
+        <div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:#FFFBEB;border-bottom:1px solid var(--border)">💡 此區包含急救章、拯溺、AYP、航空/海上等，數據與「⭐其他獎章」頁同步，領袖可在此直接剔，成員只讀。</div>
+        <div style="padding:8px 16px">
+          ${itemsData.otherBadges.map(ob=>{
+            const rec = otherFlat[ob.id];
+            const checked = !!rec;
+            const dateVal = rec?.date||'';
+            const editable = isLeader && canUserTickRole(currentUser.role);
+            return `<div class="item-row ${checked?'checked':''}" data-item-id="${ob.id}">
+              <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleOtherBadgeToggle('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.checked)">
+              <div class="item-main"><div class="item-name">${ob.icon||''} ${ob.name}</div><div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${rec?.cert?`📜 ${rec.cert}`:''} - ${ob.desc||''}</div></div>
+              <div class="item-actions">
+                ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleOtherBadgeDate('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)"><input type="text" placeholder="證書編號" value="${rec?.cert||''}" style="width:90px;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" onchange="handleOtherBadgeCert('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)">`:''}
+                <button class="info-btn" onclick="showSubDetail('${escapeAttr(ob.name)}','${escapeAttr(ob.desc+'\\n'+(ob.detail||''))}')">ⓘ</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
   container.innerHTML=html;
   // auto expand first badge if not too many
   const firstBody=container.querySelector('.badge-body');
@@ -1170,12 +1201,29 @@ function renderOverviewTab(){
   if(!itemsData){ c.innerHTML='<p>載入中...</p>'; return; }
   // filter controls
   const badgeOptions=itemsData.badges.map(b=>`<option value="${b.id}">${b.icon} ${b.name}</option>`).join('');
-  c.innerHTML=`<div class="filter-bar">
+  c.innerHTML=`<div class="info-section" style="border-left-color:var(--blue);background:var(--blue-light);padding:12px">
+    <h3 style="color:var(--blue);font-size:14px">🚀 考驗營 / 集體活動 批量完成 (領袖專用)</h3>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px">例如剛去完考驗營，可一鍵幫有去的成員全剔。邏輯：先暫存瀏覽器，底部按確認才寫入雲端。</p>
+    <div class="filter-bar">
+      <input type="date" id="batchDate" value="${todayISO()}" style="min-width:130px">
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(true)">全選成員</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(false)">取消全選</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(true)">全選項目</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(false)">取消全選</button>
+      <button class="btn btn-sm btn-success" onclick="executeBatchTick()">✅ 一鍵標記完成</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <div><b style="font-size:11px">1. 選擇成員 (可搜尋過濾後批量)</b><div id="batchMemberList" style="max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+      <div><b style="font-size:11px">2. 選擇項目 (當前篩選段章內)</b><div id="batchItemList" style="max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+    </div>
+  </div>
+  <div class="filter-bar" style="margin-top:12px">
     <select id="overviewBadgeSelect" onchange="renderOverviewTable()">${badgeOptions}</select>
     <select id="overviewSegmentSelect" onchange="renderOverviewTable()"><option value="">全部段章</option></select>
     <input type="text" id="overviewSearch" placeholder="搜尋成員姓名/ YMIS" oninput="renderOverviewTable()" style="flex:1;min-width:120px">
     <button class="btn btn-sm btn-secondary" onclick="renderOverviewTable()">🔄 刷新</button>
   </div>
+  <div style="font-size:11px;color:var(--text-light);margin-bottom:6px">💡 快速查看：點擊「會員章」可一眼睇邊個已完成會員章；點 ✓ 可單獨切換並暫存。</div>
   <div id="overviewTableContainer"><p style="text-align:center;color:var(--text-light);padding:20px">選擇段章以查看詳細矩陣，避免一次載入過多導致卡死。下方顯示卡片式總覽。</p></div>
   <div id="overviewCards" style="margin-top:12px"></div>`;
 
@@ -1201,6 +1249,18 @@ function renderOverviewCards(){
   const search=(document.getElementById('overviewSearch')?.value||'').toLowerCase();
   let filtered=members;
   if(search) filtered=members.filter(m=> (m.name&&m.name.toLowerCase().includes(search)) || m.ymis.includes(search));
+  // 同步更新批量成員列表
+  const batchMemberContainer=document.getElementById('batchMemberList');
+  if(batchMemberContainer){
+    let bmHtml='';
+    filtered.forEach(m=>{
+      const flat=progressFlat[m.ymis]||{};
+      const memBadgeDone = itemsData.badges[0] ? getBadgeItemIds(itemsData.badges[0]).filter(id=>flat[id]).length : 0;
+      const memTotal = itemsData.badges[0] ? getBadgeItemIds(itemsData.badges[0]).length : 0;
+      bmHtml+=`<label style="display:flex;align-items:center;gap:6px;padding:4px 2px;border-bottom:1px solid #F5F5F5;font-size:11px"><input type="checkbox" class="batchMemberCheck" value="${m.ymis}" checked> <span style="flex:1">${m.name} (${m.ymis}) ${memBadgeDone===memTotal&&memTotal>0?'<span style="background:var(--green);color:#fff;padding:1px 4px;border-radius:999px;font-size:9px">會員章✓</span>':''}</span></label>`;
+    });
+    batchMemberContainer.innerHTML=bmHtml||'<p style="font-size:11px;color:var(--text-light)">無成員</p>';
+  }
   if(filtered.length===0){ container.innerHTML='<p style="text-align:center;color:var(--text-light)">無成員</p>'; return; }
   let html='<div class="other-grid">';
   filtered.forEach(m=>{
@@ -1223,6 +1283,34 @@ function renderOverviewCards(){
   html+='</div>';
   container.innerHTML=html;
 }
+function batchSelectAllMembers(checked){
+  document.querySelectorAll('.batchMemberCheck').forEach(cb=>cb.checked=checked);
+}
+function batchSelectAllItems(checked){
+  document.querySelectorAll('.batchItemCheck').forEach(cb=>cb.checked=checked);
+}
+function executeBatchTick(){
+  const date=document.getElementById('batchDate')?.value||todayISO();
+  const memberChecks=document.querySelectorAll('.batchMemberCheck:checked');
+  const itemChecks=document.querySelectorAll('.batchItemCheck:checked');
+  if(memberChecks.length===0){ showToast('請先選擇至少一位成員','warning'); return; }
+  if(itemChecks.length===0){ showToast('請先選擇至少一個項目','warning'); return; }
+  if(!confirm(`確定將 ${itemChecks.length} 個項目標記為完成，套用到 ${memberChecks.length} 位成員？\n日期：${date}\n將先暫存瀏覽器，需按底部確認寫入`)) return;
+  let count=0;
+  memberChecks.forEach(mcb=>{
+    const ymis=mcb.value;
+    if(!progressFlat[ymis]) progressFlat[ymis]={};
+    itemChecks.forEach(icb=>{
+      const itemId=icb.value;
+      progressFlat[ymis][itemId]=date;
+      addOrUpdatePending(ymis, itemId, date, false);
+      count++;
+    });
+  });
+  showToast(`✅ 已批量加入 ${count} 項至待寫入 (${memberChecks.length}人 x ${itemChecks.length}項)`, 'success');
+  renderOverviewTable();
+  updateSaveBar();
+}
 function renderOverviewTable(){
   const container=document.getElementById('overviewTableContainer');
   if(!container||!itemsData) return;
@@ -1243,6 +1331,16 @@ function renderOverviewTable(){
       else itemList.push({id:it.id,name:it.name,group:seg.name});
     });
   });
+  // 同步更新批量項目列表
+  const batchItemContainer=document.getElementById('batchItemList');
+  if(batchItemContainer){
+    let biHtml='';
+    itemList.slice(0,50).forEach(it=>{
+      biHtml+=`<label style="display:flex;align-items:center;gap:6px;padding:4px 2px;border-bottom:1px solid #F5F5F5;font-size:11px"><input type="checkbox" class="batchItemCheck" value="${it.id}" checked> <span style="flex:1">${it.id} - ${it.name.substring(0,22)}</span><small style="color:var(--text-light)">${it.group.substring(0,8)}</small></label>`;
+    });
+    if(itemList.length>50) biHtml+=`<div style="font-size:10px;color:var(--text-light);padding:4px">僅顯示前50項，更多請分段章篩選</div>`;
+    batchItemContainer.innerHTML=biHtml||'<p style="font-size:11px;color:var(--text-light)">無項目</p>';
+  }
   // limit to 30 columns to avoid卡死
   if(itemList.length>30){
     container.innerHTML=`<div style="padding:12px;background:var(--gold-dark);background:#FFF3CD;border-radius:8px;font-size:11px;margin-bottom:8px">⚠️ 該段章共有 ${itemList.length} 項，為避免卡死，僅顯示前 30 項。請選擇更細分段章或使用卡片總覽。<br><button class="btn btn-sm btn-secondary" style="margin-top:6px" onclick="document.getElementById('overviewTableContainer').dataset.showAll='1';renderOverviewTable()">仍要顯示全部 (${itemList.length})</button></div>`+ (container.dataset.showAll==='1' ? '' : '');
@@ -1473,14 +1571,41 @@ function toggleOtherBadge(badgeId, name, targetYmis){
   const cert=document.getElementById('otherCert_'+badgeId)?.value||'';
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
   otherBadgesMap[targetYmis][badgeId]={name,date,cert};
-  // push to pending other? we use separate save via backend saveOtherBadge
   pendingChanges.push({ymis:targetYmis, itemId: badgeId, date, isOther:true, name, cert});
-  // for simplicity, treat as other badge pending
-  // save via API
   fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert}]})})
     .then(r=>r.json()).then(d=>{ if(d.success) showToast('✅ 其他獎章已更新','success'); else throw new Error(d.error); })
     .catch(e=>{ showToast('已暫存，寫入失敗：'+e.message,'warning'); });
   renderOtherBadgesTab();
+  renderProgressTab();
+}
+function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
+  if(!canUserTickRole(currentUser.role)){ showToast('無權限','error'); return; }
+  const date = checked ? todayISO() : '';
+  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
+  if(checked){
+    otherBadgesMap[targetYmis][badgeId]={name,date,cert: otherBadgesMap[targetYmis][badgeId]?.cert||''};
+    addOrUpdatePending(targetYmis, badgeId, date, false);
+  }else{
+    delete otherBadgesMap[targetYmis][badgeId];
+    addOrUpdatePending(targetYmis, badgeId, '', true);
+  }
+  // 同步到後端 other badge sheet
+  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert: otherBadgesMap[targetYmis]?.[badgeId]?.cert||''}]})}).catch(()=>{});
+  updateRowUI(badgeId, checked, date);
+  updateSaveBar();
+}
+function handleOtherBadgeDate(badgeId, name, targetYmis, dateVal){
+  if(!dateVal) return;
+  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
+  if(!otherBadgesMap[targetYmis][badgeId]) otherBadgesMap[targetYmis][badgeId]={name,date:dateVal,cert:''};
+  else otherBadgesMap[targetYmis][badgeId].date=dateVal;
+  addOrUpdatePending(targetYmis, badgeId, dateVal, false);
+  updateSaveBar();
+}
+function handleOtherBadgeCert(badgeId, name, targetYmis, certVal){
+  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
+  if(!otherBadgesMap[targetYmis][badgeId]) otherBadgesMap[targetYmis][badgeId]={name,date:todayISO(),cert:certVal};
+  else otherBadgesMap[targetYmis][badgeId].cert=certVal;
 }
 
 /* ================== Forms Tab ================== */
