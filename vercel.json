@@ -3,6 +3,8 @@
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "data/**", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" },
+    { "src": "docs/**", "use": "@vercel/static" },
     { "src": "apps-script/**", "use": "@vercel/static" },
     { "src": "api/**", "use": "@vercel/node" }
   ],
@@ -10,6 +12,8 @@
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/apps-script/(.*)", "dest": "/apps-script/$1" },
     { "src": "/data/(.*)", "dest": "/data/$1" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/docs/(.*)", "dest": "/docs/$1" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
