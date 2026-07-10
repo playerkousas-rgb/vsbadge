@@ -284,6 +284,10 @@ a:hover{text-decoration:underline}
   <div class="container">
     <div id="welcome-enter" class="welcome-section active">
       <!-- 已修復問題及V4.0新增已按要求移除，保留框架註解：未來多旅團用時可在此加新功能介紹 -->
+      <div id="home-future-framework" style="display:none">
+        <!-- 未來版本更新資訊框架 - 請在此加入新功能介紹，不要亂加到其他地方 -->
+        <!-- 範例：<div class="info-card"><h3>🆕 v5.1 新增</h3><ul><li>...</li></ul></div> -->
+      </div>
 
 
       <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)">
@@ -1929,6 +1933,79 @@ function generatePrintableForm(type){
 }
 
 
+/* ================== Help Tab - 角色分開教學 ================== */
+async function renderHelpTab(){
+  const c=document.getElementById('tab-help');
+  if(!c) return;
+  const role=currentUser?.role||'member';
+  const roleName=getRoleName(role);
+  // 根據角色只顯示相關教學，成員不關心其他功能
+  let mdFile='docs/MEMBER_GUIDE.md';
+  if(role==='exec_committee') mdFile='docs/EXEC_GUIDE.md';
+  else if(['branch_leader','group_leader','admin','super_admin'].includes(role)) mdFile='docs/LEADER_GUIDE.md';
+
+  let mdContent='載入中...';
+  try{
+    const r=await fetch(mdFile+'?_='+Date.now());
+    if(r.ok) mdContent=await r.text();
+    else throw new Error('fetch failed');
+  }catch(e){
+    // 後備內建教學
+    if(role==='member'){
+      mdContent=`# 👤 成員教學\n只能看自己進度，按📝申請完成，待批查看，表格列印官方格式。`;
+    }else if(role==='exec_committee'){
+      mdContent=`# 執委教學\n成員功能+可勾選(需授權)，默認會員章+活動段章(細項不用)+其他逐個勾。`;
+    }else{
+      mdContent=`# 領袖教學\n全部功能，我的進度選人看紀錄，全團一眼睇+批量剔，待批批量，用戶管理改角色+⚙️權限。`;
+    }
+  }
+
+  // 簡單 MD 轉 HTML (只處理標題及列表)
+  function mdToHtml(md){
+    let html=md
+      .replace(/^### (.*)$/gm,'<h4 style="color:var(--maroon);margin:8px 0">$1</h4>')
+      .replace(/^## (.*)$/gm,'<h3 style="color:var(--maroon);margin:10px 0">$1</h3>')
+      .replace(/^# (.*)$/gm,'<h2 style="color:var(--maroon);margin:12px 0">$1</h2>')
+      .replace(/^\- (.*)$/gm,'<li style="font-size:13px;line-height:1.7">$1</li>')
+      .replace(/\n\n/g,'<br><br>');
+    // 包列表
+    html=html.replace(/(<li.*<\/li>)/g, (m)=>`<ul style="padding-left:18px">${m}</ul>`);
+    html=html.replace(/<\/ul><ul[^>]*>/g,'');
+    return html;
+  }
+
+  let html=`<div class="info-section" style="border-left-color:var(--orange);background:#FFFBEB">
+    <h3>❓ 教學 - 按角色分開 (你當前：${roleName} ${role})</h3>
+    <p style="font-size:12px;color:var(--text-light)">此頁只顯示你關心的功能，成員不會看到領袖的複雜操作。登入後有問題可直接在此查閱，無需回去看完整MD。</p>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm ${role==='member'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('member')">👤 成員教學</button>
+      <button class="btn btn-sm ${role==='exec_committee'?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('exec_committee')">🎖️ 執委教學</button>
+      <button class="btn btn-sm ${['branch_leader','group_leader','admin','super_admin'].includes(role)?'btn-primary':'btn-secondary'}" onclick="switchHelpRole('leader')">👨‍💼 領袖教學</button>
+    </div>
+  </div>
+  <div class="info-section" id="helpContent"><div style="font-size:13px;line-height:1.8;white-space:pre-wrap">${mdContent}</div></div>
+  <div class="info-section" style="background:var(--bg)"><h4>📚 完整文件</h4><div style="font-size:11px"><a href="docs/MEMBER_GUIDE.md" target="_blank">成員教學MD</a> | <a href="docs/EXEC_GUIDE.md" target="_blank">執委教學MD</a> | <a href="docs/LEADER_GUIDE.md" target="_blank">領袖教學MD</a></div></div>`;
+
+  c.innerHTML=html;
+  // 如果是MD文本，轉HTML
+  const helpDiv=document.getElementById('helpContent');
+  if(helpDiv && mdContent.startsWith('#')){
+    helpDiv.innerHTML=`<div style="font-size:13px;line-height:1.8">${mdToHtml(mdContent)}</div>`;
+  }
+}
+function switchHelpRole(r){
+  // 臨時切換教學角色顯示
+  const map={member:'docs/MEMBER_GUIDE.md', exec_committee:'docs/EXEC_GUIDE.md', leader:'docs/LEADER_GUIDE.md'};
+  const file=map[r]||map.member;
+  fetch(file+'?_='+Date.now()).then(res=>res.text()).then(md=>{
+    const el=document.getElementById('helpContent');
+    if(el){
+      let html=md.replace(/^### (.*)$/gm,'<h4>$1</h4>').replace(/^## (.*)$/gm,'<h3>$1</h3>').replace(/^# (.*)$/gm,'<h2>$1</h2>').replace(/^\- (.*)$/gm,'<li>$1</li>');
+      el.innerHTML=`<div style="font-size:13px;line-height:1.8">${html}</div>`;
+    }
+  });
+}
+
 /* ================== Info Tab ================== */
 function renderInfoTab(){
   const c=document.getElementById('tab-info');
@@ -2038,7 +2115,8 @@ async function loadUsers(){
       if(currentUser.role!=='super_admin'){
         d.users=d.users.filter(u=>u.role!=='super_admin' && u.ymis!=='sheep');
       }
-      // 角色說明 + SHEEP 測試工具
+      // 角色說明 + SHEEP 測試工具 - 超管相關僅超管可見
+      const isSuper = currentUser && currentUser.role==='super_admin';
       let roleExplain=`<div class="info-section" style="background:var(--blue-light);border-left-color:var(--blue)">
         <h3 style="color:var(--blue)">👥 角色說明：USER vs 成員</h3>
         <div style="font-size:12px;line-height:1.8">
@@ -2048,9 +2126,9 @@ async function loadUsers(){
           • <span class="role-badge role-branch_leader">支部領袖 branch_leader</span> = 領袖<br>
           • <span class="role-badge role-group_leader">團長 group_leader</span> = 領袖<br>
           • <span class="role-badge role-admin">管理員 admin</span> = 領袖<br>
-          • <span class="role-badge role-super_admin">超管 super_admin (SHEEP)</span> = 系統管理員<br><br>
+          ${isSuper?`• <span class="role-badge role-super_admin">超管 super_admin (SHEEP)</span> = 系統管理員<br><br>`:''}
           <b>成員</b> = role=member 的人，不包括領袖。<br>
-          <b>領袖</b> = 團長/支部領袖/執委/管理員/超管，可勾選及管理。<br>
+          <b>領袖</b> = 團長/支部領袖/執委/管理員${isSuper?'/超管':''}，可勾選及管理。<br>
           <b>USER 總數</b> = 成員 + 領袖 全部。
         </div>
       </div>`;
