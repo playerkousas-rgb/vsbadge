@@ -519,6 +519,12 @@ a:hover{text-decoration:underline}
 
 <div id="toast" class="toast"></div>
 
+<footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
+  <div>COPYRIGHT 2026 Scout System • 深資童軍進度追蹤系統 v4.8</div>
+  <div style="margin-top:4px;font-size:11px">基於 2026年第11版《深資童軍訓練綱要》 | 支援離線暫存 • 批量寫入 • 保護兒童 Safe from Harm</div>
+  <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank">香港童軍總會</a></div>
+</footer>
+
 <script>
 /* ================== 全局狀態 ================== */
 const SCOUT_ADMIN_API='https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
@@ -659,9 +665,10 @@ function setupTabsByRole(){
   const isLeader = ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(currentUser.role);
   const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
   const isMember = currentUser.role==='member';
-  // 領袖顯示全部，成員只能看自己進度+其他獎章+表格+資料庫+待批(自己的)
+  // 領袖顯示全部，成員只能看自己進度；其他獎章已併入進度，按項目已併入全團總覽，故隱藏
   document.getElementById('btn-tab-overview').style.display=isLeader?'block':'none';
-  document.getElementById('btn-tab-byitem').style.display=isLeader?'block':'none';
+  document.getElementById('btn-tab-byitem').style.display='none';
+  document.getElementById('btn-tab-other').style.display='none';
   document.getElementById('btn-tab-users').style.display=isManage?'block':'none';
   document.getElementById('btn-tab-apps').style.display=isManage?'block':'none';
   // 成員的待批頁顯示自己申請，保留
@@ -782,10 +789,9 @@ async function loadItemsAndProgress(){
 /* ================== Tab Switching - 防止卡死版 ================== */
 let _switching = false;
 function switchTab(name, btn){
-  if(_switching) return; // 防止連點造成重疊渲染
+  if(_switching) return;
   _switching = true;
   try{
-    // 立即切換，保證可以退出
     document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
     if(btn) btn.classList.add('active');
@@ -793,19 +799,15 @@ function switchTab(name, btn){
     const target=document.getElementById('tab-'+name);
     if(target){
       target.classList.add('active');
-      // 先顯示載入中，確保UI不卡
       if(name!=='progress' && target.innerHTML.trim()===''){
         target.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-light)"><div class="spinner" style="margin:0 auto 10px"></div>載入中... <br><button class="btn btn-sm btn-secondary" style="margin-top:10px" onclick="switchTab(\'progress\')">🏠 緊急返回</button></div>';
       }
     }
-    // 非同步渲染，避免主線程阻塞導致不能退出
     setTimeout(()=>{
       try{
         if(name==='progress') renderProgressTab();
         else if(name==='overview') renderOverviewTab();
-        else if(name==='byitem') renderByItemTab();
         else if(name==='requests') renderRequestsTab();
-        else if(name==='other') renderOtherBadgesTab();
         else if(name==='forms') renderFormsTab();
         else if(name==='info') renderInfoTab();
         else if(name==='users') loadUsers();
@@ -813,16 +815,14 @@ function switchTab(name, btn){
       }catch(e){
         console.error('render error',e);
         const t=document.getElementById('tab-'+name);
-        if(t) t.innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>⚠️ 載入此頁時出錯：${e.message}</p><p style="font-size:11px;color:var(--text-light);margin-top:6px">已自動攔截，不會卡死。請點擊下方返回。</p><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="switchTab('progress')">🏠 返回我的進度</button> <button class="btn btn-sm btn-secondary" onclick="location.reload()">🔄 重新整理</button></div>`;
+        if(t) t.innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>⚠️ 載入此頁時出錯：${e.message}</p></div>`;
         showToast('此頁載入出錯，已防止卡死','error');
       }finally{
         _switching=false;
       }
     }, 50);
   }catch(e){
-    console.error(e);
     _switching=false;
-    // 強制回到進度頁
     document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
     document.getElementById('tab-progress')?.classList.add('active');
     document.getElementById('btn-tab-progress')?.classList.add('active');
@@ -1347,7 +1347,6 @@ function renderByItemListInner(){
   container.innerHTML=html;
 }
 function updateSegmentOptions(){
-{
   const badgeId=document.getElementById('overviewBadgeSelect')?.value;
   const segSel=document.getElementById('overviewSegmentSelect');
   if(!segSel||!badgeId) return;
@@ -1844,7 +1843,50 @@ function renderInfoTab(){
   const c=document.getElementById('tab-info');
   if(!itemsData){ c.innerHTML='載入中...'; return; }
   const tp=itemsData.trainingPlan; const sfh=itemsData.safeFromHarm;
-  let html=`<div class="info-section"><h3>🎯 ${tp.title}</h3><p style="font-size:12px;line-height:1.8;margin-bottom:8px">${tp.purpose}</p>
+  let html=`<div class="info-section" style="border-left-color:var(--blue);background:var(--blue-light)">
+    <h3>👥 登入後各功能教學 - 成員 / 執委 / 領袖</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:8px">
+      <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border)">
+        <h4 style="color:var(--green);font-size:14px">👤 成員 (member) 可以做什麼</h4>
+        <ul style="font-size:12px;line-height:1.8;padding-left:16px;color:var(--text-light);margin-top:6px">
+          <li>只能看自己的進度，不能看全團</li>
+          <li>不能直接剔，只能按「📝申請完成」提交日期+證據</li>
+          <li>可在「📝待批」查看自己申請是否已批</li>
+          <li>可查看「⭐其他獎章」中自己的其他獎章</li>
+          <li>可使用「🖨️表格列印」自動填PT/19/PT/20後列印</li>
+          <li>可查看「📚資料庫」內綱要、保護兒童、安全指引</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border)">
+        <h4 style="color:#D63384;font-size:14px">🎖️ 執委 (exec_committee) 可以做什麼</h4>
+        <ul style="font-size:12px;line-height:1.8;padding-left:16px;color:var(--text-light);margin-top:6px">
+          <li>成員的所有功能</li>
+          <li>可勾選進度（需領袖授權可勾選範圍）</li>
+          <li>默認可考核：會員章、活動段章(細項不用打勾，勾段章即可)、其他獎章逐個勾</li>
+          <li>可在「我的進度」選其他成員查看其紀錄</li>
+          <li>可在「👥全團總覽」使用批量剔選（若被授權）</li>
+          <li>可在「📝待批」批准成員的申請（若被授權）</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border)">
+        <h4 style="color:var(--maroon);font-size:14px">👨‍💼 領袖 (branch_leader / group_leader / admin / SHEEP) 可以做什麼</h4>
+        <ul style="font-size:12px;line-height:1.8;padding-left:16px;color:var(--text-light);margin-top:6px">
+          <li>所有成員及執委功能</li>
+          <li>可在「我的進度」選任何成員看其所有紀錄</li>
+          <li>可在「👥全團總覽」一眼睇邊個已完成會員章/肩章等（卡片百分比+會員章✓標籤）</li>
+          <li>可使用「🚀考驗營批量完成」：選成員+選項目+日期，一鍵幫全團剔，不用逐個跳轉</li>
+          <li>可直接勾選+輸入日期，離線暫存按確認批量寫入，過程有提示</li>
+          <li>可在「📝待批」批量批准/拒絕成員申請</li>
+          <li>可在「👥用戶管理」將成員改為執委，並按個別成員設定可考核什麼（會員章/活動段章/其他獎章逐個勾）</li>
+          <li>領袖默認全部權限，團長/管理員可更改低層級可勾選範圍</li>
+          <li>團長/管理員可在「👥用戶管理」授權/收回勾選權限，設定細緻權限</li>
+          <li>團長/管理員可在「📋審批申請」審批新帳號</li>
+        </ul>
+      </div>
+    </div>
+  </div>`;
+
+  html+=`<div class="info-section"><h3>🎯 ${tp.title}</h3><p style="font-size:12px;line-height:1.8;margin-bottom:8px">${tp.purpose}</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><b style="font-size:12px">訓練方法：</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${tp.method.map(m=>`<li>${m}</li>`).join('')}</ul></div>
       <div><b style="font-size:12px">預期成果：</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${tp.expected.map(e=>`<li>${e}</li>`).join('')}</ul></div>
