@@ -1780,7 +1780,39 @@ async function loadUsers(){
     const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAllUsers',token:currentToken})});
     const d=await r.json();
     if(d.success){
-      let h='<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
+      // 角色說明 + SHEEP 測試工具
+      let roleExplain=`<div class="info-section" style="background:var(--blue-light);border-left-color:var(--blue)">
+        <h3 style="color:var(--blue)">👥 角色說明：USER vs 成員</h3>
+        <div style="font-size:12px;line-height:1.8">
+          <b>USER (系統使用者)</b> = 所有在 Users 表的人，包括：<br>
+          • <span class="role-badge role-member">團員 member</span> = 純成員，不包括領袖<br>
+          • <span class="role-badge role-exec_committee">執委 exec_committee</span> = 屬領袖，可勾選 (需授權)<br>
+          • <span class="role-badge role-branch_leader">支部領袖 branch_leader</span> = 領袖<br>
+          • <span class="role-badge role-group_leader">團長 group_leader</span> = 領袖<br>
+          • <span class="role-badge role-admin">管理員 admin</span> = 領袖<br>
+          • <span class="role-badge role-super_admin">超管 super_admin (SHEEP)</span> = 系統管理員<br><br>
+          <b>成員</b> = role=member 的人，不包括領袖。<br>
+          <b>領袖</b> = 團長/支部領袖/執委/管理員/超管，可勾選及管理。<br>
+          <b>USER 總數</b> = 成員 + 領袖 全部。
+        </div>
+      </div>`;
+
+      let mockTool='';
+      if(currentUser && currentUser.role==='super_admin'){
+        mockTool=`<div class="info-section" style="border-left-color:var(--orange);background:#FFF7ED">
+          <h3>🧪 測試工具 (僅 SHEEP 可見)</h3>
+          <p style="font-size:11px;color:var(--text-light);margin-bottom:8px">一鍵載入 10個 MOCK 成員到前端快取，方便測試全團批量剔、會員章一眼睇等。MOCK數據只存瀏覽器快取，不會寫入正式 Google Sheet，除非你按確認寫入。</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-warning" onclick="loadMockMembers()">🧪 載入10個MOCK成員到全團</button>
+            <button class="btn btn-sm btn-secondary" onclick="clearMockMembers()">🗑️ 清除MOCK快取</button>
+            <a href="data/mock_members.json" target="_blank" class="btn btn-sm btn-outline">📄 查看 MOCK JSON</a>
+            <a href="data/mock_import.csv" target="_blank" class="btn btn-sm btn-outline">📄 下載 CSV 匯入 Sheet</a>
+          </div>
+          <div id="mockStatus" style="font-size:11px;margin-top:8px;color:var(--text-light)"></div>
+        </div>`;
+      }
+
+      let h=roleExplain+mockTool+'<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
       h+=d.users.map(u=>`<div class="user-item" data-search="${(u.name+u.ymis+u.email).toLowerCase()}"><div class="user-item-info"><b>${u.name}</b> ${u.ymis?`(${u.ymis})`:''} ${u.email?` - ${u.email}`:''}<span class="role-badge role-${u.role}">${getRoleName(u.role)}</span> ${u.can_tick?'<span style="background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:999px;font-size:9px">可勾選</span>':''}</div><div class="user-item-actions">`+
         (['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role)&&u.ymis!==currentUser.ymis?`<select onchange="updateUserRole('${u.ymis}',this.value)"><option value="member" ${u.role==='member'?'selected':''}>團員</option><option value="exec_committee" ${u.role==='exec_committee'?'selected':''}>執委</option><option value="branch_leader" ${u.role==='branch_leader'?'selected':''}>支部領袖</option><option value="group_leader" ${u.role==='group_leader'?'selected':''}>團長</option><option value="admin" ${u.role==='admin'?'selected':''}>管理員</option></select><button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${u.ymis}',${!u.can_tick})">${u.can_tick?'收回勾選':'授權勾選'}</button>`:'' )+
         `</div></div>`).join('');
@@ -1794,6 +1826,54 @@ function filterUsers(){
   document.querySelectorAll('#userList .user-item').forEach(el=>{
     el.style.display=el.dataset.search.includes(q)?'flex':'none';
   });
+}
+async function loadMockMembers(){
+  const status=document.getElementById('mockStatus');
+  if(status) status.textContent='載入中...';
+  try{
+    const r=await fetch('data/mock_members.json');
+    const data=await r.json();
+    const mockMembers=data.members||[];
+    const mockProgress=data.progress_mock||{};
+    // 合併到現有 members (去重)
+    const existingIds=new Set(members.map(m=>m.ymis));
+    let added=0;
+    mockMembers.forEach(m=>{
+      if(!existingIds.has(m.ymis)){
+        members.push({ymis:m.ymis, name:m.name});
+        existingIds.add(m.ymis);
+        added++;
+      }
+    });
+    // 合併進度 (僅 MOCK，不覆蓋已有真實進度除非為空)
+    for(const ymis in mockProgress){
+      if(!progressFlat[ymis]) progressFlat[ymis]={};
+      for(const itemId in mockProgress[ymis]){
+        if(!progressFlat[ymis][itemId]){
+          progressFlat[ymis][itemId]=mockProgress[ymis][itemId];
+        }
+      }
+    }
+    // 保存到快取
+    localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, members, savedAt:Date.now(), isMock:true}));
+    if(status) status.innerHTML=`✅ 已載入 ${added} 個新成員，總數 ${members.length} 人。<br>已合併 MOCK 進度 (會員章部分完成，方便測試全團一眼睇)。請到「👥全團」及「📊我的進度」測試批量剔選。<br>提示：MOCK只在瀏覽器快取，重新整理後若無再次載入會按真實後端資料還原。`;
+    showToast(`已載入 ${added}個 MOCK成員`, 'success');
+    renderOverviewTab();
+    renderProgressTab();
+  }catch(e){
+    console.error(e);
+    if(status) status.textContent='❌ 載入失敗：'+e.message;
+    showToast('MOCK載入失敗','error');
+  }
+}
+function clearMockMembers(){
+  // 清除快取中的 MOCK，重新從後端載入真實資料
+  localStorage.removeItem(LS.cacheProgress(currentTroopId));
+  // 重新載入真實資料
+  loadItemsAndProgress();
+  const status=document.getElementById('mockStatus');
+  if(status) status.textContent='已清除MOCK快取，正在重新載入真實資料...';
+  showToast('已清除MOCK','warning');
 }
 async function updateUserRole(tid,nr){
   try{
