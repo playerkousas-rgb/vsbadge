@@ -347,7 +347,15 @@ a:hover{text-decoration:underline}
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>登入</h4><p>成員：YMIS 10位數字 + 密碼；領袖：Email + 密碼。首次登入預設密碼請洽管理員。</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>成員操作：申請完成</h4><p>成員不可直接勾選，點擊「📝 申請完成」→選擇日期→填寫證據→提交。領袖會在「待批」頁看到。</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>領袖操作：勾選+日期</h4><p>領袖可直接勾選，系統自動填今日日期，亦可手動改日期。所有勾選先存瀏覽器，底部顯示未保存數量，按「確認寫入」才批量寫入雲端，寫入時有進度提示。</p></div></div>
-          <div class="step"><div class="step-number">5</div><div class="step-content"><h4>其他功能</h4><p>全團總覽：按段章篩選，避免卡死；按項目統計：百分比+人數；其他獎章：記錄急救/拯溺/AYP等；表格列印：VS/DRAGON FORM自動填入進度後列印。</p></div></div>
+          <div class="step"><div class="step-number">5</div><div class="step-content"><h4>其他功能</h4><p>全團總覽：按段章篩選，避免卡死；按項目統計：百分比+人數；其他獎章已併入我的進度；表格列印：VS/DRAGON FORM官方格式自動填入後列印。</p></div></div>
+        </div>
+      </div>
+      <div class="info-section" style="margin-top:16px">
+        <h3>👥 角色功能教學（登入後）</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:8px">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid var(--green)"><b>👤 成員 member</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>只能看自己進度</li><li>不能直接剔，按📝申請</li><li>待批查看自己申請</li><li>其他獎章只讀自己</li><li>表格列印官方格式</li><li>資料庫看綱要及安全指引</li></ul></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid #D63384"><b>🎖️ 執委 exec</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>成員全部功能</li><li>可勾選（需授權範圍）</li><li>默認：會員章+活動段章(細項不用)+其他逐個勾</li><li>可選成員查看紀錄</li><li>全團批量剔（若授權）</li><li>待批批准（若授權）</li></ul></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid var(--maroon)"><b>👨‍💼 領袖 leader</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>全部功能</li><li>我的進度選任何成員看紀錄</li><li>全團一眼睇會員章+百分比</li><li>考驗營批量一鍵幫全團剔</li><li>離線暫存確認寫入</li><li>待批批量批准</li><li>用戶管理改成員為執委+⚙️權限設定</li><li>領袖默認全部，團長/管理員可改低層級</li><li>審批新帳號</li></ul></div>
         </div>
       </div>
     </div>
@@ -532,6 +540,7 @@ let currentTroopId='',currentTroopName='',currentBackend='',currentApikey='';
 let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
 let selectedProgressYmis=null; // 領袖查看他人進度
+let appConfig={allow_member_view_others:'false'}; // 系統設定
 
 const LS = {
   session: 'vsbadge_session_v4',
@@ -570,21 +579,35 @@ function backToHome(){
 async function loadTroops(){
   const grid=document.getElementById('troopGrid');
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p>';
+  // 硬編碼後備，確保 Vercel 即使 data/troops.json 404 都有 0082
+  const fallbackTroops={
+    "0082": { name:"第 82 旅", backend:"https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec" }
+  };
   try{
-    // try api first then local
     let data=null;
-    try{ const r=await fetch('data/troops.json'); data=await r.json(); }catch(e){ data={troops:{}}; }
-    // also try vercel api
-    try{ const r2=await fetch('/api/troops'); if(r2.ok){ const d2=await r2.json(); if(d2.troops){ data.troops={...data.troops,...d2.troops}; } } }catch(e){}
-    const troops=data.troops||{};
+    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok) data=await r.json(); else throw new Error('data 404'); }catch(e){ console.warn('data/troops.json failed',e); data={troops:{}}; }
+    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops && Object.keys(d2.troops).length>0){ data.troops={...data.troops,...d2.troops}; } } }catch(e){ console.warn('api/troops failed',e); }
+    let troops=data.troops||{};
+    // 若仍為空，使用硬編碼後備
     if(Object.keys(troops).length===0){
-      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-light)"><p>暫無旅團資料</p><p style="font-size:11px;margin-top:6px">請到「新旅團部署」建立你的旅團後端</p></div>';
+      console.warn('使用硬編碼後備 0082');
+      troops=fallbackTroops;
+    }
+    // 合併後備，確保0082一定存在
+    troops={...fallbackTroops, ...troops};
+    if(Object.keys(troops).length===0){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-light)"><p>暫無旅團資料</p><p style="font-size:11px;margin-top:6px">已嘗試載入 data/troops.json 及 /api/troops 均失敗，顯示後備資料</p></div>';
       return;
     }
     grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${t.name||'第'+id+'旅'}</div><div style="font-size:9px;color:var(--text-light);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.backend||'').substring(0,28)}...</div></div>`).join('');
+    // 若只有後備，提示
+    if(Object.keys(data.troops||{}).length===0){
+      grid.innerHTML+=`<div style="grid-column:1/-1;text-align:center;padding:8px;background:#FFF3CD;border-radius:8px;font-size:11px;margin-top:8px">⚠️ 正使用後備資料顯示 0082，若 Vercel 上 data/troops.json 未部署，請檢查 GitHub 是否已推送 data/troops.json</div>`;
+    }
   }catch(e){
     console.error(e);
-    grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--red)">載入失敗，請重新整理</p>';
+    // 即使出錯也顯示後備
+    grid.innerHTML=Object.entries(fallbackTroops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${t.name}</div></div>`).join('') + `<p style="grid-column:1/-1;text-align:center;color:var(--red);font-size:11px">載入出錯，已顯示後備 0082：${e.message}</p>`;
   }
 }
 async function selectTroop(id){
@@ -665,8 +688,9 @@ function setupTabsByRole(){
   const isLeader = ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(currentUser.role);
   const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
   const isMember = currentUser.role==='member';
-  // 領袖顯示全部，成員只能看自己進度；其他獎章已併入進度，按項目已併入全團總覽，故隱藏
-  document.getElementById('btn-tab-overview').style.display=isLeader?'block':'none';
+  const canMemberViewOthers = appConfig.allow_member_view_others==='true';
+  // 領袖顯示全部，成員預設只看自己，能否看其他成員由團長開放
+  document.getElementById('btn-tab-overview').style.display= (isLeader || (isMember && canMemberViewOthers)) ? 'block' : 'none';
   document.getElementById('btn-tab-byitem').style.display='none';
   document.getElementById('btn-tab-other').style.display='none';
   document.getElementById('btn-tab-users').style.display=isManage?'block':'none';
@@ -732,10 +756,23 @@ function showToast(m,t=''){
 }
 
 /* ================== Load Data ================== */
+async function loadAppConfig(){
+  try{
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getConfig',token:currentToken})});
+    const d=await r.json();
+    if(d.success && d.config){
+      appConfig=d.config;
+      if(!appConfig.allow_member_view_others) appConfig.allow_member_view_others='false';
+    }
+  }catch(e){ console.warn('load config failed',e); }
+}
+
 async function loadItemsAndProgress(){
   const progTab=document.getElementById('tab-progress');
   progTab.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light)"><div class="spinner" style="margin:0 auto 12px"></div>載入訓練綱要及進度...</div>';
   try{
+    // 先載入系統設定（私隱開關）
+    await loadAppConfig();
     const r1=await fetch('data/items.json'); itemsData=await r1.json();
     // backend load
     let backendData=null;

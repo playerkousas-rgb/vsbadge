@@ -132,6 +132,16 @@ function initializeSheets() {
     oSheet.getRange(1,1,1,7).setFontWeight('bold').setBackground('#8B0000').setFontColor('#FFFFFF');
     oSheet.setFrozenRows(1);
   }
+  // 確保系統設定有 allow_member_view_others
+  let cfgSheet = ss.getSheetByName('SystemConfig');
+  if(cfgSheet){
+    const cfgData=cfgSheet.getDataRange().getValues();
+    let hasAllow=false;
+    for(let i=1;i<cfgData.length;i++){ if(cfgData[i][0]==='allow_member_view_others'){ hasAllow=true; break; } }
+    if(!hasAllow){
+      cfgSheet.appendRow(['allow_member_view_others','false',now(),'system']);
+    }
+  }
 
   const apiKey = getApiKey();
   let scriptUrl=''; try{ scriptUrl=ScriptApp.getService().getUrl(); }catch(e){ scriptUrl='請部署為網頁應用程式後查看';}
@@ -273,6 +283,10 @@ function doPost(e){
     if(action==='getOtherBadges'){ return handleGetOtherBadges(body.target_ymis||ymis); }
     if(action==='getApplications'){ if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足，需團長/支部領袖'}); return handleGetApplications(); }
     if(action==='reviewApplication'){ if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'}); return handleReviewApplication(body.app_id,body.decision,body.review_note,ymis); }
+    if(action==='getConfig'){
+      // 任何已登入用戶都可讀取公開設定
+      return handleGetConfig();
+    }
 
     // 以下為高權限
     if(action==='changePassword') return handleChangePassword(ymis,body.old_password,body.new_password);
@@ -286,7 +300,13 @@ function doPost(e){
       return handleUpdateUserRole(body.target_ymis,body.new_role||null,body.can_tick,ymis, body.allowed_badges);
     }
     if(action==='updateConfig'){
-      if(getRoleLevel(user.role)<80) return jsonResponse({success:false,error:'權限不足'});
+      // allow_member_view_others 可由團長以上設定，其他設定需管理員
+      const key=body.key;
+      if(key==='allow_member_view_others'){
+        if(getRoleLevel(user.role)<60) return jsonResponse({success:false,error:'需團長以上權限'});
+      }else{
+        if(getRoleLevel(user.role)<80) return jsonResponse({success:false,error:'需管理員權限'});
+      }
       return handleUpdateConfig(body.key,body.value,ymis);
     }
     return jsonResponse({success:false,error:'Unknown action'});
@@ -397,6 +417,19 @@ function handleUpdateConfig(key,value,ymis){
   const sheet=getSheet().getSheetByName('SystemConfig'); const data=sheet.getDataRange().getValues();
   for(let i=1;i<data.length;i++){ if(data[i][0]===key){ sheet.getRange(i+1,2).setValue(value); sheet.getRange(i+1,3).setValue(now()); sheet.getRange(i+1,4).setValue(ymis); return jsonResponse({success:true}); } }
   sheet.appendRow([key,value,now(),ymis]); return jsonResponse({success:true});
+}
+function handleGetConfig(){
+  const sheet=getSheet().getSheetByName('SystemConfig');
+  const cfg={};
+  if(sheet){
+    const data=sheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      if(data[i][0]) cfg[data[i][0].toString()]=data[i][1]?data[i][1].toString():'';
+    }
+  }
+  // 默認值
+  if(!cfg['allow_member_view_others']) cfg['allow_member_view_others']='false';
+  return jsonResponse({success:true,config:cfg});
 }
 function getMembers(){
   const mSheet=getSheet().getSheetByName('成員名單'); const members=[];
