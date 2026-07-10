@@ -316,19 +316,36 @@ a:hover{text-decoration:underline}
     </div>
 
     <div id="welcome-setup" class="welcome-section">
-      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 新旅團部署指南（10分鐘完成）</h2>
-      <div class="info-card" style="background:var(--maroon-light);margin-bottom:14px"><h3>✨ 獨立 Google Sheet 後端，資料完全由旅團掌控</h3><p>每個旅團擁有獨立資料庫，符合私隱。前端共用，後端分離。</p></div>
+      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 新旅團部署指南 - 有主系統 / 無主系統 兩條路 (10分鐘)</h2>
+      
+      <div class="info-card" style="background:var(--blue-light);border-color:var(--blue);margin-bottom:12px">
+        <h3 style="color:var(--blue)">🌟 先了解一下：主系統平台是什麼？</h3>
+        <p style="font-size:12px">你而家用緊嘅 <b>深資童軍進度追蹤</b> 係一個 Tier 3 元件，可以獨立用，但其實屬於更龐大的 <b>scoutsystem-2.0 主系統平台</b>：</p>
+        <ul style="font-size:11px;margin:6px 0 0 16px">
+          <li>📊 Dashboard 儀表板：全旅團人數、活動、財政一目了然</li>
+          <li>👥 成員管理、✅集會考勤 QR Code、💰財務、📅活動報名</li>
+          <li>🧩 插件市場：本系統是其中一個插件，可一鍵加入卡片</li>
+          <li>🔐 單一登入：點卡片自動帶入身份，唔使再輸 YMIS/密碼</li>
+        </ul>
+        <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>重點：有主系統 ≠ 一定要接上本系統</b>，可自由選擇獨立用或接上，兩條路並存不衝突。藉此告訴用家有更大平台可用。</p>
+      </div>
+
+      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員 + 額外交主系統管理員填入旅團設定→元件設定 backend+apikey → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&embed=1 → 直接用</p></div>
+
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>下載最新後端程式碼 v4.5 (單一檔案版)</h4><p>包含待批完成、其他獎章表、批量優化、SHEEP超級管理員修復、PNG支援</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px;text-decoration:none">⬇️ 下載 Code.gs (最新唯一版本)</a></div></div>
-          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>建立 Google Sheet 並部署</h4><p><b>2.1</b> 開啟 Google Sheets 建新試算表，命名如「82旅 深資進度」<br><b>2.2</b> 點擊「擴充功能」→「Apps Script」<br><b>2.3</b> 刪除預設內容，貼上 Code.gs 全部程式碼<br><b>2.4</b> 儲存（Ctrl+S）→ 執行 <code>initializeSheets</code>，授權後按流程<br><b>2.5</b> 發佈→部署為網頁應用程式：執行身分「我」，存取權「任何人」<br><b>2.6</b> 複製部署網址（以 /exec 結尾）及彈窗顯示的 API Key</p></div></div>
-          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給系統管理員</h4><p>填寫下方申請表，由管理員加入 troops.json 或 Vercel 環境變數即可使用。</p></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、SHEEP修復、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
+          <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 troops.json，Vercel自動部署後獨立可用</p></div></div>
+          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 額外提交給主系統管理員</h4><p>將同一組 URL+Key 交主系統管理員，填入旅團設定→元件設定 vsbadge 卡片 backend+apikey。之後成員點 Dashboard 卡片自動帶入 ?u=0082&role=&ymis=&from=portal&embed=1，無需密碼</p></div></div>
+          <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>有主系統不等於一定要接，可自由選擇獨立用。若旅團重私隱，成員預設只看自己；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
         </div>
       </div>
-      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 部署完成後提交申請</h3><p style="margin-bottom:10px">請準備：旅團編號、Script URL、API Key、聯絡 Email</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請</button></div>
+      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 完成後提交</h3><p style="font-size:11px">獨立用：交 vsbadge 管理員<br>接入主系統：同時交主系統管理員（填 backend+apikey）<br>兩條路可同時用，領袖從主系統入，成員 bookmark 獨立連結</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請給 vsbadge 管理員</button></div>
     </div>
 
     <div id="welcome-guide" class="welcome-section">
+
       <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 使用教學</h2>
       <div class="tutorial">
         <div class="steps">
@@ -540,14 +557,135 @@ const LS = {
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 
 /* ================== 初始化 ================== */
+function getUrlParams(){ try{ return new URLSearchParams(window.location.search); }catch(e){ return new URLSearchParams(); } }
+function isEmbedMode(){ return getUrlParams().get('embed')==='1'; }
+
 document.addEventListener('DOMContentLoaded',()=>{
-  // Fix welcome tab active handling
+  // 嵌入模式樣式
+  if(isEmbedMode()){
+    document.body.classList.add('embed-mode');
+    // 隱藏首頁大Header，簡化
+    const style=document.createElement('style');
+    style.textContent=`.embed-mode .app-header-common{padding:10px 12px}.embed-mode .app-header-common .header-subtitle, .embed-mode .app-header-common .welcome-nav{display:none}.embed-mode .container{padding:8px}.embed-mode footer{display:none}`;
+    document.head.appendChild(style);
+  }
+  // 檢查是否由主系統 Portal 帶入身份
+  const params=getUrlParams();
+  const hasPortal = params.get('from')==='portal' || params.get('u') || params.get('role') || params.get('ymis');
+  if(hasPortal){
+    handlePortalParams();
+  }else{
+    loadTroops();
+    checkSavedSession();
+  }
+  // Login enter key
+  const loginIdEl=document.getElementById('loginId');
+  const loginPwEl=document.getElementById('loginPassword');
+  if(loginIdEl) loginIdEl.addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+  if(loginPwEl) loginPwEl.addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+async function handlePortalParams(){
+  const params=getUrlParams();
+  const u=params.get('u');
+  const role=params.get('role');
+  const ymis=params.get('ymis');
+  const nameParam=params.get('name') || params.get('displayName') || ymis || 'Portal User';
+  const backendParam=params.get('backend');
+  const apikeyParam=params.get('apikey');
+  const troopNameParam=params.get('troopName') || (u?`第${u}旅`:'Portal Troop');
+  const from=params.get('from');
+
+  console.log('Portal params detected', {u, role, ymis, from, hasBackend: !!backendParam});
+
+  // 若有 u，嘗試載入旅團設定
+  if(u){
+    currentTroopId=u;
+    currentTroopName=troopNameParam;
+    if(backendParam){
+      currentBackend=backendParam;
+      currentApikey=apikeyParam||'';
+    }else{
+      // 從 troops.json 查找
+      try{
+        const r=await fetch('data/troops.json?_='+Date.now());
+        if(r.ok){
+          const d=await r.json();
+          const t=d.troops[u];
+          if(t){
+            currentBackend=t.backend;
+            currentApikey=t.apikey||'';
+            currentTroopName=t.name||troopNameParam;
+          }
+        }
+      }catch(e){ console.warn('portal troops.json lookup failed',e); }
+      // 再試 api/troops
+      if(!currentBackend){
+        try{
+          const r2=await fetch('/api/troops?_='+Date.now());
+          if(r2.ok){
+            const d2=await r2.json();
+            const t2=d2.troops[u];
+            if(t2){ currentBackend=t2.backend; currentApikey=t2.apikey||''; currentTroopName=t2.name||troopNameParam; }
+          }
+        }catch(e){}
+      }
+    }
+  }
+
+  // 若由 Portal 帶入身份，直接免登入進入
+  if(from==='portal' && ymis && role){
+    currentUser={
+      ymis: ymis,
+      name: nameParam,
+      role: role,
+      can_tick: ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role),
+      allowed_badges: '*',
+      email: params.get('email')||'',
+      isPortal: true
+    };
+    currentToken='portal-'+Date.now(); // 虛擬 token，主系統信任模式
+    // 顯示主App，跳過登入
+    document.getElementById('homePage').style.display='none';
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤 (Portal)`;
+    document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span> <span style="background:var(--blue);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">Portal</span>`;
+    setupTabsByRole();
+    // 若有 backend，載入進度
+    if(currentBackend){
+      loadItemsAndProgress();
+    }else{
+      document.getElementById('tab-progress').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>⚠️ Portal 模式：未找到旅團後端設定</p><p style="font-size:11px">u=${u} 但未在 troops.json 找到，且未傳入 backend 參數</p><p style="font-size:11px">請在主系統卡片設定中填入 backend URL 及 apikey，或將旅團加入 troops.json</p></div>`;
+    }
+    return;
+  }
+
+  // 若只有 u 參數，無完整 Portal 身份，則自動選旅團並顯示登入頁（獨立使用軌道 A）
+  if(u){
+    // 嘗試自動選旅團
+    try{
+      // 若 backend 已有，直接顯示登入
+      if(currentBackend){
+        document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId}) - Portal預選`;
+        document.getElementById('homePage').style.display='none';
+        document.getElementById('loginPage').style.display='block';
+        if(ymis) document.getElementById('loginId').value=ymis;
+        if(role) switchLoginType(role==='member'?'member':'leader');
+      }else{
+        // 無 backend，仍顯示旅團列表，但高亮該旅團
+        loadTroops();
+        setTimeout(()=>{ try{ selectTroop(u); }catch(e){} }, 500);
+      }
+    }catch(e){ loadTroops(); }
+    checkSavedSession();
+    return;
+  }
+
+  // 預設獨立使用
   loadTroops();
   checkSavedSession();
-  // Login enter key
-  document.getElementById('loginId').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
-  document.getElementById('loginPassword').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
-});
+}
 
 /* ================== Welcome ================== */
 function showWelcomeTab(name, btn){
