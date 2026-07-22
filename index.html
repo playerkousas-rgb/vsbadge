@@ -709,7 +709,7 @@ async function loadTroops(){
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p>';
   // 硬編碼後備，確保 Vercel 即使 data/troops.json 404 都有 0082
   const fallbackTroops={
-    "0082": { name:"第 82 旅", backend:"https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec" }
+    "0082": { name:"第 82 旅", backend:"https://script.google.com/macros/s/AKfycbw81wLR5NZtRk4m1ptSAoFBueoqwIZ5hcM_apHJa2xMmlVfUvZsS8R45nTIKTOIuBB2KQ/exec" }
   };
   try{
     let data=null;
