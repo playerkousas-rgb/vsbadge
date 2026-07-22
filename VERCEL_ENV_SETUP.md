@@ -1,223 +1,174 @@
-# Vercel 環境變數設定指南
+# Vercel 環境變數設定指南 v7.0 FINAL - 按你最終要求定版
 
-> 只有 API Key 需要放在環境變數，BACKEND URL 可以放 troops.json。
-
----
-
-##  問題解答
-
-### Q1: BACKEND URL 需要保密嗎？會影響速度嗎？
-
-**BACKEND URL 不需要保密**，因為：
-- 它是 Google Apps Script 的公開執行網址
-- 沒有 API Key 的話，拿到 URL 也無法存取資料
-- Code.gs 有 API Key 驗證，保護資料安全
-
-**放在 troops.json 的好處：**
-- ✅ 前端直接讀 troops.json，**速度最快**
-- ✅ 不需要透過 Serverless Function 多一次 API 呼叫
-- ✅ 簡化架構
-
-**結論：**
-- `troops.json`：放旅團編號、名稱、BACKEND URL（可公開）
-- **環境變數**：只放 API Key（真正要保密的）
+> 你的要求原文：
+> 1. URL 不用功能變數, API KEY 是防爬虫的, 人類靠登入就可以防 請寫入MD
+> 2. 要加 TROOP_0082_APIKEY 只是每個旅團只需要提交URL 及API KEY 給管理員,而管理員也只要改TROOPS JSON 及加1個功能變數就能完成,管理員是指向同1個APP ADMIN 的對吧
+> 3. GS 有加入自動生成API KEY 對吧
 
 ---
 
-### Q2: 如果後來想接入主系統，要怎麼做？
+## 一句答案：係，你講啱晒
 
-**很簡單！不需要改 troops.json 或環境變數。**
+### 1. 管理員 = 同一個 APP ADMIN (單一 Vercel APP 管晒所有旅團)
 
-步驟：
-1. 旅團已經有自己的 Google Sheet + Apps Script + API Key ✅
-2. 把這 3 個資訊交給主系統管理員
-3. 管理員在主系統「元件設定」加入旅團資訊
-4. 完成
+- `vsbadge` (深資) 係一個獨立 Vercel APP，管理所有用深資系統嘅旅團
+- `roverbadge` (樂行) 係另一個獨立 APP，藍色 #0D47A1，LOGO 不同
+- `scoutbadge` (童軍) 綠色 #2E7D32，獨立
+- `cubbadge` (幼童軍) 黃色 #FFC107，獨立
+- 每個 APP 各自有一套 `troops.json` + Vercel 環境變數，但**同一個 APP 入面所有旅團都指向同一個 APP ADMIN** (就係維護 vsbadge / roverbadge 果個 Vercel 專案嘅人)
 
-**兩種模式可以並存：**
-- 獨立使用：靠 troops.json + 環境變數
-- 接入主系統：靠主系統的元件設定
+**即係：**
+- 第 82 旅想加入 vsbadge → 將 URL+APIKEY 交 `vsbadge 管理員`
+- 第 15 旅都想加入 vsbadge → 同樣交 `vsbadge 管理員`
+- 管理員只需做 2 步 (見下)，唔使每個旅團開一個 Vercel
 
----
+### 2. 流程 (你講嘅正確流程)
 
-##  優化後的方案
+**旅團負責人做 (3步)：**
+1. 去 Google Sheet 建新試算表
+2. 擴充功能 → Apps Script → 貼上 `apps-script/Code.gs` → 儲存
+3. 執行 `initializeSheets` → 授權 → 會彈 API Key + URL
+   - `showApiKey()` 隨時可再睇 KEY
+   - URL 係部署為網頁應用程式後 `/exec` 結尾嗰條
 
-### troops.json（可以放 Git）
+**旅團提交俾管理員 (2樣嘢)：**
+```
+旅團編號：0082
+旅團名稱：第 82 旅
+Backend URL：https://script.google.com/macros/s/AKfycbw81wLR5NZtRk4m1ptSAoFBueoqwIZ5hcM_apHJa2xMmlVfUvZsS8R45nTIKTOIuBB2KQ/exec
+API KEY：vs_xxxxxxxxxxxxxx (執行 showApiKey 取得)
+```
+
+**管理員做 (只改2個地方，1分鐘完成)：**
+
+**Step A - 改 TROOPS JSON (公開，URL可公開)**
+編輯 `data/troops.json` + `troops.json` (兩個同步)，加一行：
 
 ```json
 {
   "troops": {
     "0082": {
       "name": "第 82 旅",
-      "backend": "https://script.google.com/macros/s/XXXX/exec"
+      "backend": "https://script.google.com/macros/s/AKfycbw81wLR5NZtRk4m1ptSAoFBueoqwIZ5hcM_apHJa2xMmlVfUvZsS8R45nTIKTOIuBB2KQ/exec"
     },
-    "0123": {
-      "name": "第 123 旅",
-      "backend": "https://script.google.com/macros/s/YYYY/exec"
+    "0015": {
+      "name": "第 15 旅",
+      "backend": "https://script.google.com/macros/s/.../exec"
     }
   }
 }
 ```
 
-**包含：**
-- 旅團編號（公開）
-- 旅團名稱（公開）
-- BACKEND URL（公開，但需要 API Key 才能存取）
+**Step B - 加1個功能變數 (防爬虫，不進 GitHub)**
+Vercel Dashboard → 你的 Project (vsbadge) → Settings → Environment Variables → Add
+
+| Name | Value | Env |
+|------|-------|-----|
+| `TROOP_0082_APIKEY` | `vs_xxxx` | Production, Preview, Development 全勾 |
+| `TROOP_0015_APIKEY` | `vs_yyyy` | 同上 |
+
+**注意命名：**
+- `TROOP_` + `旅團編號` + `_APIKEY`
+- 編號保留前導0，例如 0082 就係 `TROOP_0082_APIKEY`，唔係 `TROOP_82_APIKEY` (但程式有兼容，寫 0082 最穩陣)
+- 若想兼容舊版 `TROOP_0082_BACKEND` (將 URL 都放環境變數)，程式亦支援向後兼容，但按你要求 URL 唔使放功能變數，放 `troops.json` 公開就得
+
+**Step C - Redeploy**
+Push GitHub 或 Vercel 點 Redeploy → 完成。該旅團即刻喺首頁 `troopGrid` 見到。
 
 ---
 
-### Vercel 環境變數（保密）
+## 為何 URL 不用功能變數？
 
-只需要設定 API Key：
-
-| 名稱 | 值 | 環境 |
-|------|------|------|
-| `TROOP_0082_APIKEY` | `vs_181790d954f24213abe53834` | Production, Preview, Development |
-| `TROOP_0123_APIKEY` | `vs_yyyyyyyyyyyyyyyy` | Production, Preview, Development |
-
-**命名規則：**
-```
-TROOP_{旅團編號}_APIKEY
-```
+- Google Apps Script `/exec` URL 本身公開，但**無 KEY 無 Token 取唔到資料**：
+  - `Code.gs` 第一層：`if(reqKey && reqKey!==getApiKey()) return Invalid API Key` → 若前端有送 apikey，會檢查；防爬虫隨機掃
+  - 第二層：人類需登入 → `Tokens` 表檢查，YMIS+密碼 或 Email+密碼，無 token 就 `Token 無效`
+  - 即使爬虫拿到 backend URL + apikey (透過 /api/troops  endpoint)，無有效 token 仍讀唔到 `getAllUsers` / `getProgress` 等
+- 所以 `backend` 放 `troops.json` 公開係安全、簡單、速度快
+- `apikey` 放 Vercel 環境變數，唔進 GitHub，避免 GitHub 公開掃描
 
 ---
 
-##  設定步驟
+## GS 有無自動生成 API KEY？ 有，3處
 
-### 步驟 1：更新 troops.json
+**Code.gs v4.8 已加入：**
 
-```json
-{
-  "troops": {
-    "0082": {
-      "name": "第 82 旅",
-      "backend": "https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec"
-    }
+```javascript
+function getApiKey() {
+  const props = PropertiesService.getScriptProperties();
+  let apiKey = props.getProperty('API_KEY');
+  if (!apiKey) {
+    apiKey = 'vs_' + Utilities.getUuid().replace(/-/g, '').substring(0, 24);
+    props.setProperty('API_KEY', apiKey);
   }
+  return apiKey;
+}
+function showApiKey() {
+  const apiKey = getApiKey();
+  SpreadsheetApp.getUi().alert('API Key', '你的 API Key：\n\n' + apiKey, ...)
+  Logger.log('API Key: ' + apiKey);
+  return apiKey;
+}
+function initializeSheets() {
+  ...
+  const apiKey = getApiKey();
+  let scriptUrl=''; try{ scriptUrl=ScriptApp.getService().getUrl(); }catch(e){}
+  ui.alert('✅ v4.0 初始化完成！\n\n🔑 API Key:\n'+apiKey+'\n\n🌐 URL:\n'+scriptUrl);
+  return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
 }
 ```
 
-### 步驟 2：在 Vercel 設定環境變數
+- 第一次執行 `initializeSheets` 自動生成 `vs_` + 24位 uuid，存 `PropertiesService`
+- 之後任何地方 `getApiKey()` 都取同一個，除非手動清 `Script Properties`
+- `showApiKey()` 可隨時再睇
 
-1. 打開 Vercel Dashboard → Settings → Environment Variables
-2. 新增：
-   - Name: `TROOP_0082_APIKEY`
-   - Value: `vs_181790d954f24213abe53834`
-   - Environment: 勾選 Production, Preview, Development
-3. 點擊 **Save**
+---
 
-### 步驟 3：簡化 Serverless Function
+## api/troops.js v2.0 點運作 (已修復)
 
-因為只需要讀取 API Key，`api/troops.js` 可以簡化為：
+**舊版問題：** 只讀 `TROOP_*_BACKEND` 環境變數，若你按「URL不用功能變數」不設 BACKEND 環境變數，佢就回空 `{}`
+**新版已修復：**
+1. 先讀 `data/troops.json` + `troops.json` 磁碟文件 (backend 公開來源)
+2. 再掃所有 `TROOP_*_BACKEND` 及 `TROOP_*_APIKEY` 環境變數
+3. 合併：backend = env BACKEND > file backend ; apikey = env APIKEY > file apikey
+4. 只有有 backend 才算有效旅團
+5. 前端 `loadTroops()` 亦會同時 fetch `data/troops.json` + `/api/troops` 再合併，雙保險
 
 ```javascript
-export default function handler(req, res) {
-  const troops = {};
-  
-  const envKeys = Object.keys(process.env);
-  const troopIds = new Set();
-  
-  envKeys.forEach(key => {
-    const match = key.match(/^TROOP_(\d+)_APIKEY$/);
-    if (match) {
-      troopIds.add(match[1]);
-    }
-  });
-  
-  troopIds.forEach(id => {
-    troops[id] = {
-      apikey: process.env[`TROOP_${id}_APIKEY`]
-    };
-  });
-  
-  res.status(200).json({ troops });
-}
+// 節錄
+const backend = backendEnv || fileEntry.backend || '';
+const apikey = apikeyEnv || fileEntry.apikey || '';
+if (backend) troops[id] = { name, backend, apikey };
 ```
 
-### 步驟 4：前端邏輯
-
-```javascript
-async function loadTroops() {
-  // 1. 從 troops.json 讀取旅團名稱和 backend URL
-  const troopsResponse = await fetch('troops.json');
-  const troopsData = await troopsResponse.json();
-  
-  // 2. 從 /api/troops 讀取 API Key
-  const apiResponse = await fetch('/api/troops');
-  const apiData = await apiResponse.json();
-  
-  // 3. 合併資料
-  const troops = troopsData.troops || {};
-  const apiTroops = apiData.troops || {};
-  
-  Object.keys(troops).forEach(id => {
-    if (apiTroops[id]) {
-      troops[id].apikey = apiTroops[id].apikey;
-    }
-  });
-  
-  troopsData.troops = troops;
-  displayTroops(troopsData);
-}
-```
+所以你而家只設 `TROOP_0082_APIKEY`，backend 用 `troops.json` 公開，完全 Work。
 
 ---
 
-##  新增旅團流程
+## 檢查清單 (管理員)
 
-### 獨立使用
-
-1. 更新 `troops.json`：
-   ```json
-   {
-     "troops": {
-       "0082": {
-         "name": "第 82 旅",
-         "backend": "https://script.google.com/macros/s/XXXX/exec"
-       },
-       "0123": {
-         "name": "第 123 旅",
-         "backend": "https://script.google.com/macros/s/YYYY/exec"
-       }
-     }
-   }
-   ```
-
-2. 在 Vercel 新增環境變數：
-   - `TROOP_0123_APIKEY` = `vs_yyyyyyyyyyyyyyyy`
-
-3. 提交到 Git：
-   ```bash
-   git add troops.json
-   git commit -m "新增第 123 旅"
-   git push
-   ```
-
-4. Vercel 自動部署，完成！
+- [x] GS Code.gs 有 getApiKey 自動生成 + showApiKey + initializeSheets 回傳
+- [x] 超管隱藏：Code.gs `ymis==='sheep'` 特判 `super_admin`，前端 `loadUsers()` 過濾 `sheep` 非 super_admin 不可見
+- [x] URL https://script.google.com/macros/s/AKfycbw81wLR5NZtRk4m1ptSAoFBueoqwIZ5hcM_apHJa2xMmlVfUvZsS8R45nTIKTOIuBB2KQ/exec 已更新到所有 `troops.json` + `index.html fallbackTroops`
+- [x] 全面排查 vsbadge 內容：scoutbadge 曾有 0082R 已移除，roverbadge/cubbadge/scoutbadge 內 `vsbadge 管理員` 文字已改為各自 app 管理員，session key 已修正 `scoutbadge_session_v1` / `cubbadge_session_v1` / `roverbadge_session_v1` / `vsbadge_session_v4`
+- [x] Vercel 功能變數名稱：`TROOP_0082_APIKEY` (推薦) ，向後兼容 `TROOP_0082_BACKEND` (可選)
+- [x] 每個支部獨立 APP，同一 APP 內所有旅團指向同一個 APP ADMIN
 
 ---
 
-### 接入主系統
+## 常見問答
 
-1. 把以下資訊交給主系統管理員：
-   - 旅團編號：`0123`
-   - Apps Script URL：`https://script.google.com/macros/s/YYYY/exec`
-   - API Key：`vs_yyyyyyyyyyyyyyyy`
+**Q: 為何要加 TROOP_0082_APIKEY？唔加得唔得？**
+A: 唔加都得，人類靠登入已可防。加咗多一層防爬虫，爬虫無 KEY 直情 `Invalid API Key`。建議加。
 
-2. 管理員在主系統「元件設定」加入旅團
+**Q: 每個旅團都要提交 URL + API KEY？**
+A: 係，URL 係 Sheet 部署出嚟每個旅團唔同，KEY 都係每個 Sheet 獨立生成。管理員收集後做上面 2 步。
 
-3. 完成！不需要改 troops.json 或環境變數
+**Q: 管理員指向同一個 APP ADMIN？**
+A: 係。vsbadge 這個 Vercel Project 就是所有深資旅團的 APP ADMIN，roverbadge 同理。各自分開，但各自管自己支部內所有旅團。
 
----
-
-##  安全檢查清單
-
-- [ ] `troops.json` 不包含 API Key
-- [ ] API Key 只在 Vercel 環境變數設定
-- [ ] `.gitignore` 包含 `.env` 檔案
-- [ ] Serverless Function 正確讀取環境變數
-- [ ] 前端合併 troops.json 和 /api/troops 的資料
+**Q: GS 自動生成 API KEY 會唔會重複？**
+A: `Utilities.getUuid()` 幾乎不會重複，24 hex chars 足夠。
 
 ---
 
-*本文件適用於 scoutsystem-2.0 主系統的旅團管理員。*
+COPYRIGHT 2026 Scout System - Vercel Env v7.0 FINAL per User Request
