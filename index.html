@@ -270,7 +270,7 @@ a:hover{text-decoration:underline}
       </div>
       <div style="text-align:left">
         <h1>深資童軍進度追蹤系統</h1>
-        <p>Venture Scout Progress Tracker v4.2 • PNG Logo + 第11版綱要</p>
+        <p>Venture Scout Progress Tracker v7.0 • 第11版綱要修正</p>
       </div>
     </div>
     <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫</div>
@@ -296,7 +296,7 @@ a:hover{text-decoration:underline}
           <h2 style="font-size:16px;color:var(--maroon)">四級勾選架構 + 級聯自動完成</h2>
         </div>
         <div class="level-structure">
-          <div class="level-box"><div class="level-num">L1</div><div class="level-name">會員章</div><div class="level-desc">12項 • 含保護兒童</div></div>
+          <div class="level-box"><div class="level-num">L1</div><div class="level-name">會員章</div><div class="level-desc">13項 • 含保護兒童</div></div>
           <div class="level-box"><div class="level-num">L2</div><div class="level-name">肩章</div><div class="level-desc">23項基礎技能</div></div>
           <div class="level-box"><div class="level-num">L3</div><div class="level-name">深資童軍獎章</div><div class="level-desc">4段章 100+選項</div></div>
           <div class="level-box"><div class="level-num">L4</div><div class="level-name">榮譽童軍獎章</div><div class="level-desc">4金帶 • 最高榮譽</div></div>
@@ -535,7 +535,7 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div>COPYRIGHT 2026 Scout System • 深資童軍進度追蹤系統 v4.8</div>
+  <div>COPYRIGHT 2026 Scout System • 深資童軍進度追蹤系統 v7.0 FIXES</div>
   <div style="margin-top:4px;font-size:11px">基於 2026年第11版《深資童軍訓練綱要》 | 支援離線暫存 • 批量寫入 • 保護兒童 Safe from Harm</div>
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank">香港童軍總會</a></div>
 </footer>
@@ -1118,7 +1118,12 @@ function renderProgressTab(){
 function getAllItemIds(){
   const ids=[];
   itemsData.badges.forEach(b=>b.segments.forEach(s=>s.items.forEach(it=>{
-    if(it.subItems&&it.subItems.length){ it.subItems.forEach(sub=>ids.push(sub.id)); }
+    if(it.subItems&&it.subItems.length){
+      it.subItems.forEach(sub=>{
+        if(sub.subItems&&sub.subItems.length){ sub.subItems.forEach(sub2=>ids.push(sub2.id)); }
+        else ids.push(sub.id);
+      });
+    }
     else ids.push(it.id);
   })));
   return ids;
@@ -1126,7 +1131,10 @@ function getAllItemIds(){
 function getBadgeItemIds(badge){
   const ids=[];
   badge.segments.forEach(s=>s.items.forEach(it=>{
-    if(it.subItems) it.subItems.forEach(sub=>ids.push(sub.id));
+    if(it.subItems) it.subItems.forEach(sub=>{
+      if(sub.subItems) sub.subItems.forEach(sub2=>ids.push(sub2.id));
+      else ids.push(sub.id);
+    });
     else ids.push(it.id);
   }));
   return ids;
@@ -1134,20 +1142,34 @@ function getBadgeItemIds(badge){
 function getSegmentItemIds(seg){
   const ids=[];
   seg.items.forEach(it=>{
-    if(it.subItems) it.subItems.forEach(sub=>ids.push(sub.id));
+    if(it.subItems) it.subItems.forEach(sub=>{
+      if(sub.subItems) sub.subItems.forEach(sub2=>ids.push(sub2.id));
+      else ids.push(sub.id);
+    });
     else ids.push(it.id);
   });
+  return ids;
+}
+function getLeafItemIds(){
+  const ids=[];
+  itemsData.badges.forEach(b=>b.segments.forEach(s=>s.items.forEach(it=>{
+    if(it.subItems&&it.subItems.length){
+      it.subItems.forEach(sub=>{
+        if(sub.subItems&&sub.subItems.length){ sub.subItems.forEach(sub2=>ids.push(sub2.id)); }
+        else ids.push(sub.id);
+      });
+    }
+    else ids.push(it.id);
+  })));
   return ids;
 }
 function renderItemRow(item, flat, targetYmis, isLeaderView){
   const isParent=item.subItems && item.subItems.length>0;
   const checked=flat[item.id]?true:false;
   const dateVal=flat[item.id]||'';
-  const canEdit=isLeaderView && targetYmis!==currentUser.ymis || isLeaderView && members.length>0 ? canUserTickRole(currentUser.role) : false; // leader can edit selected member
-  const actuallyCanEdit = canUserTickRole(currentUser.role) && (isLeaderView); // simplify: if current user can tick, allow edit of selected member
-  // For member viewing self: cannot edit
+  const canEdit=isLeaderView && targetYmis!==currentUser.ymis || isLeaderView && members.length>0 ? canUserTickRole(currentUser.role) : false;
+  const actuallyCanEdit = canUserTickRole(currentUser.role) && (isLeaderView);
   const editable = actuallyCanEdit && !isMember();
-  // For non-parent item row
   if(!isParent){
     return `<div class="item-row ${checked?'checked':''}" data-item-id="${item.id}">
       <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${item.id}', this.checked, '${targetYmis}')">
@@ -1163,12 +1185,20 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
       </div>
     </div>`;
   }else{
-    // parent with subitems
+    // parent with subitems - check if sub-items themselves have subItems (nested categories)
+    const hasNestedCategories = item.subItems.some(si => si.subItems && si.subItems.length>0);
+    // Count leaf-level completed items for progress
+    let leafCount=0, leafDone=0;
+    item.subItems.forEach(si=>{
+      if(si.subItems&&si.subItems.length>0){
+        si.subItems.forEach(si2=>{ leafCount++; if(flat[si2.id]) leafDone++; });
+      }else{ leafCount++; if(flat[si.id]) leafDone++; }
+    });
     const subDone=item.subItems.filter(si=>flat[si.id]).length;
     return `<div class="item-row ${checked?'checked':''}" data-item-id="${item.id}" style="background:#FAFAFA;border-radius:8px;padding:8px;margin:4px 0">
       <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${item.id}', this.checked, '${targetYmis}', true)">
       <div class="item-main">
-        <div class="item-name"><b>${item.name}</b> <span class="sub-count">${subDone}/${item.subItems.length}</span></div>
+        <div class="item-name"><b>${item.name}</b> <span class="sub-count">${leafDone}/${leafCount}</span>${item.desc?` <small style="color:var(--text-light)">${item.desc}</small>`:''}</div>
         ${item.detail?`<div class="item-detail" style="display:none" id="detail-${item.id}">${item.detail}</div>`:''}
         <div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${item.requirement||''}</div>
       </div>
@@ -1179,17 +1209,41 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
       </div>
       <div class="sub-items" style="display:none;flex-basis:100%;margin-top:8px;width:100%">
         ${item.subItems.map(sub=>{
-          const sc=flat[sub.id]?true:false;
-          const sd=flat[sub.id]||'';
-          return `<div class="sub-item ${sc?'checked':''}" data-item-id="${sub.id}">
-            <input type="checkbox" class="checkbox" ${sc?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub.id}', this.checked, '${targetYmis}')">
-            <div class="item-main"><div class="item-name" style="font-size:12px">${sub.name}</div><div class="item-meta">${sd?`📅 ${sd}`:''}${sub.detail?` - ${sub.detail.substring(0,60)}`:''}</div></div>
-            <div class="item-actions">
-              ${editable?`<input type="date" value="${sd}" max="${todayISO()}" onchange="handleDateChange('${sub.id}', this.value, '${targetYmis}')">`:''}
-              <button class="info-btn" onclick="showSubDetail('${escapeAttr(sub.name)}','${escapeAttr(sub.detail||'')}')">ⓘ</button>
-              ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${sub.id}', '${escapeAttr(sub.name)}')">${sc?'✅':'📝'}</button>`:''}
-            </div>
-          </div>`;
+          // Check if this sub-item has its own subItems (nested category)
+          if(sub.subItems && sub.subItems.length>0){
+            const catDone=sub.subItems.filter(si2=>flat[si2.id]).length;
+            return `<div class="sub-item" data-item-id="${sub.id}" style="background:#F5F5F5;border-radius:6px;padding:6px;margin:4px 0;border-left:3px solid var(--gold-dark)">
+              <div class="item-name" style="font-size:13px;font-weight:700">${sub.name} <span class="sub-count">${catDone}/${sub.subItems.length}</span>${sub.detail?` <small style="color:var(--text-light)">${sub.detail}</small>`:''}</div>
+              <div class="sub-items" style="margin-top:4px;padding-left:16px;border-left:2px dashed var(--border)">
+                ${sub.subItems.map(sub2=>{
+                  const sc2=flat[sub2.id]?true:false;
+                  const sd2=flat[sub2.id]||'';
+                  return `<div class="sub-item ${sc2?'checked':''}" data-item-id="${sub2.id}">
+                    <input type="checkbox" class="checkbox" ${sc2?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub2.id}', this.checked, '${targetYmis}')">
+                    <div class="item-main"><div class="item-name" style="font-size:11px">${sub2.name}</div><div class="item-meta">${sd2?`📅 ${sd2}`:''}${sub2.detail?` - ${sub2.detail.substring(0,50)}`:''}</div></div>
+                    <div class="item-actions">
+                      ${editable?`<input type="date" value="${sd2}" max="${todayISO()}" onchange="handleDateChange('${sub2.id}', this.value, '${targetYmis}')">`:''}
+                      <button class="info-btn" style="width:22px;height:22px;font-size:10px" onclick="showSubDetail('${escapeAttr(sub2.name)}','${escapeAttr(sub2.detail||'')}')">ⓘ</button>
+                      ${!editable?`<button class="btn btn-sm btn-outline" style="font-size:9px;padding:2px 6px" onclick="openRequestModal('${sub2.id}', '${escapeAttr(sub2.name)}')">${sc2?'✅':'📝'}</button>`:''}
+                    </div>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>`;
+          }else{
+            // Simple sub-item (no further nesting)
+            const sc=flat[sub.id]?true:false;
+            const sd=flat[sub.id]||'';
+            return `<div class="sub-item ${sc?'checked':''}" data-item-id="${sub.id}">
+              <input type="checkbox" class="checkbox" ${sc?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub.id}', this.checked, '${targetYmis}')">
+              <div class="item-main"><div class="item-name" style="font-size:12px">${sub.name}</div><div class="item-meta">${sd?`📅 ${sd}`:''}${sub.detail?` - ${sub.detail.substring(0,60)}`:''}</div></div>
+              <div class="item-actions">
+                ${editable?`<input type="date" value="${sd}" max="${todayISO()}" onchange="handleDateChange('${sub.id}', this.value, '${targetYmis}')">`:''}
+                <button class="info-btn" onclick="showSubDetail('${escapeAttr(sub.name)}','${escapeAttr(sub.detail||'')}')">ⓘ</button>
+                ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${sub.id}', '${escapeAttr(sub.name)}')">${sc?'✅':'📝'}</button>`:''}
+              </div>
+            </div>`;
+          }
         }).join('')}
       </div>
     </div>`;
@@ -1238,6 +1292,9 @@ function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
       badge.subItems.forEach(sub=>{
         if(!progressFlat[targetYmis]||!progressFlat[targetYmis][sub.id]){
           addOrUpdatePending(targetYmis, sub.id, date, false);
+          if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
+          progressFlat[targetYmis][sub.id]=date;
+          updateRowUI(sub.id, true, date);
         }
       });
     }
@@ -1247,11 +1304,13 @@ function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
   if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
   if(checked) progressFlat[targetYmis][itemId]=date;
   else delete progressFlat[targetYmis][itemId];
-  // partial UI update rather than full rerender to avoid 卡死
+  // partial UI update
   updateRowUI(itemId, checked, date);
   updateSaveBar();
   // auto cascading: check if all subs done then parent done
   checkCascading(targetYmis);
+  // Update progress percentages in the UI without full re-render
+  updateProgressDisplay(targetYmis);
 }
 function handleDateChange(itemId, dateValue, targetYmis){
   if(!dateValue) return;
@@ -1291,6 +1350,62 @@ function checkCascading(targetYmis){
     });
   });
 }
+function updateProgressDisplay(targetYmis){
+  // Update overall stats at top of progress tab
+  const flat=progressFlat[targetYmis]||{};
+  const allItemIds=getAllItemIds();
+  const completedCount=allItemIds.filter(id=>flat[id]).length;
+  const totalCount=allItemIds.length;
+  const pct=totalCount?Math.round(completedCount/totalCount*100):0;
+  // Find and update the overall progress section
+  const progTab=document.getElementById('tab-progress');
+  if(!progTab) return;
+  // Update overall percentage text and bar
+  const pctSpan=progTab.querySelector('.info-section .progress-bar-outer');
+  if(pctSpan){
+    const inner=pctSpan.querySelector('.progress-bar-inner');
+    if(inner) inner.style.width=pct+'%';
+  }
+  // Update completed/total text (find the div containing the count)
+  const countDivs=progTab.querySelectorAll('.info-section div');
+  for(const d of countDivs){
+    if(d.textContent && d.textContent.includes('完成度')){
+      d.innerHTML=d.innerHTML.replace(/完成度 <b>\d+\/\d+</b> \(\d+%\)/, `完成度 <b>${completedCount}/${totalCount}</b> (${pct}%)`);
+      break;
+    }
+  }
+  // Update each badge header progress chip
+  itemsData.badges.forEach(badge=>{
+    const badgeIds=getBadgeItemIds(badge);
+    const badgeDone=badgeIds.filter(id=>flat[id]).length;
+    const badgePct=badgeIds.length?Math.round(badgeDone/badgeIds.length*100):0;
+    // Find the badge card by looking at headers
+    const headers=progTab.querySelectorAll('.badge-header');
+    for(const h of headers){
+      if(h.textContent.includes(badge.name)){
+        const chip=h.querySelector('.progress-chip');
+        if(chip) chip.textContent=`${badgeDone}/${badgeIds.length} (${badgePct}%)`;
+        break;
+      }
+    }
+    // Update segment counts
+    badge.segments.forEach(seg=>{
+      const segIds=getSegmentItemIds(seg);
+      const segDone=segIds.filter(id=>flat[id]).length;
+      const segHeaders=progTab.querySelectorAll('.segment-header');
+      for(const sh of segHeaders){
+        if(sh.textContent.includes(seg.name)){
+          const h4=sh.querySelector('h4');
+          if(h4){
+            const span=h4.querySelector('span');
+            if(span) span.textContent=`(${segDone}/${segIds.length})`;
+          }
+          break;
+        }
+      }
+    });
+  });
+}
 function addOrUpdatePending(ymis, itemId, date, isUncomplete){
   // remove existing pending for same ymis+itemId
   pendingChanges=pendingChanges.filter(pc=>!(pc.ymis===ymis && pc.itemId===itemId));
@@ -1318,20 +1433,24 @@ function discardChanges(){
   pendingChanges=[];
   localStorage.removeItem(LS.pending(currentTroopId));
   updateSaveBar();
-  // reload progress from cache
-  const cached=localStorage.getItem(LS.cacheProgress(currentTroopId));
-  if(cached){ const c=JSON.parse(cached); progressFlat=c.flat; }
+  // reload progress from cache or re-render
+  try{
+    const cached=localStorage.getItem(LS.cacheProgress(currentTroopId));
+    if(cached){ const c=JSON.parse(cached); progressFlat=c.flat; }
+  }catch(e){ console.warn('discard cache restore failed',e); }
   renderProgressTab();
   showToast('已捨棄未保存變更','warning');
 }
 async function saveChanges(){
   if(pendingChanges.length===0){ showToast('沒有需要保存的變更','warning'); return; }
+  if(!currentBackend){ showToast('DEMO模式：數據僅在瀏覽器，無後端可寫入','warning'); return; }
   const overlay=document.getElementById('savingOverlay');
   overlay.classList.add('active');
   const progBar=document.getElementById('savingProgress');
   const txt=document.getElementById('savingText');
   const sub=document.getElementById('savingSub');
   progBar.style.width='10%';
+  progBar.style.background='var(--maroon)';
   txt.textContent='正在寫入雲端...';
   sub.textContent=`準備寫入 ${pendingChanges.length} 項`;
   try{
@@ -1341,7 +1460,14 @@ async function saveChanges(){
     const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',apikey:currentApikey,changes:pendingChanges,confirmer:currentUser.name})});
     clearInterval(interval);
     progBar.style.width='100%';
-    const d=await r.json();
+    // Handle non-JSON responses (e.g. HTML error pages) gracefully
+    let d;
+    try{
+      const text=await r.text();
+      d=JSON.parse(text);
+    }catch(jsonErr){
+      throw new Error('伺服器回應非JSON格式（unexpected end of JSON input）。可能後端URL不正確或伺服器暫時離線。請檢查後端URL或稍後重試。原始回應: '+(r.status||'未知狀態'));
+    }
     if(d.success){
       txt.textContent='✅ 寫入成功！';
       sub.textContent=`已處理 ${d.processed||pendingChanges.length} 項`;
