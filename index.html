@@ -1370,7 +1370,7 @@ function updateProgressDisplay(targetYmis){
   const countDivs=progTab.querySelectorAll('.info-section div');
   for(const d of countDivs){
     if(d.textContent && d.textContent.includes('完成度')){
-      d.innerHTML=d.innerHTML.replace(/完成度 <b>\d+\/\d+</b> \(\d+%\)/, `完成度 <b>${completedCount}/${totalCount}</b> (${pct}%)`);
+      d.innerHTML=完成度 <b> completedCount/completedCount/{totalCount}</b> (${pct}%);;
       break;
     }
   }
