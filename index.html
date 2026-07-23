@@ -337,7 +337,7 @@ a:hover{text-decoration:underline}
 
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、SHEEP修復、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 troops.json，Vercel自動部署後獨立可用</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 額外提交給主系統管理員</h4><p>將同一組 URL+Key 交主系統管理員，填入旅團設定→元件設定 vsbadge 卡片 backend+apikey。之後成員點 Dashboard 卡片自動帶入 ?u=0082&role=&ymis=&from=portal&embed=1，無需密碼</p></div></div>
@@ -2311,7 +2311,7 @@ function renderInfoTab(){
         </ul>
       </div>
       <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border)">
-        <h4 style="color:var(--maroon);font-size:14px">👨‍💼 領袖 (branch_leader / group_leader / admin / SHEEP) 可以做什麼</h4>
+        <h4 style="color:var(--maroon);font-size:14px">👨‍💼 領袖 (branch_leader / group_leader / admin) 可以做什麼</h4>
         <ul style="font-size:12px;line-height:1.8;padding-left:16px;color:var(--text-light);margin-top:6px">
           <li>所有成員及執委功能</li>
           <li>可在「我的進度」選任何成員看其所有紀錄</li>
@@ -2387,9 +2387,9 @@ async function loadUsers(){
     if(d.success){
       // 超管帳號僅超管可見：若非超管，過濾掉 super_admin
       if(currentUser.role!=='super_admin'){
-        d.users=d.users.filter(u=>u.role!=='super_admin' && u.ymis!=='sheep');
+        d.users=d.users.filter(u=>u.role!=='super_admin');
       }
-      // 角色說明 + SHEEP 測試工具 - 超管相關僅超管可見
+      // 角色說明 + 測試工具 - 超管相關僅超管可見
       const isSuper = currentUser && currentUser.role==='super_admin';
       let roleExplain=`<div class="info-section" style="background:var(--blue-light);border-left-color:var(--blue)">
         <h3 style="color:var(--blue)">👥 角色說明：USER vs 成員</h3>
@@ -2400,7 +2400,7 @@ async function loadUsers(){
           • <span class="role-badge role-branch_leader">支部領袖 branch_leader</span> = 領袖<br>
           • <span class="role-badge role-group_leader">團長 group_leader</span> = 領袖<br>
           • <span class="role-badge role-admin">管理員 admin</span> = 領袖<br>
-          ${isSuper?`• <span class="role-badge role-super_admin">超管 super_admin (SHEEP)</span> = 系統管理員<br><br>`:''}
+          ${isSuper?`• <span class="role-badge role-super_admin">超管 super_admin</span> = 系統管理員<br><br>`:''}
           <b>成員</b> = role=member 的人，不包括領袖。<br>
           <b>領袖</b> = 團長/支部領袖/執委/管理員${isSuper?'/超管':''}，可勾選及管理。<br>
           <b>USER 總數</b> = 成員 + 領袖 全部。
@@ -2410,7 +2410,7 @@ async function loadUsers(){
       let mockTool='';
       if(currentUser && currentUser.role==='super_admin'){
         mockTool=`<div class="info-section" style="border-left-color:var(--orange);background:#FFF7ED">
-          <h3>🧪 測試工具 (僅 SHEEP 可見)</h3>
+          <h3>🧪 測試工具 (僅超管可見)</h3>
           <p style="font-size:11px;color:var(--text-light);margin-bottom:8px">一鍵載入 10個 MOCK 成員到前端快取，方便測試全團批量剔、會員章一眼睇等。MOCK數據只存瀏覽器快取，不會寫入正式 Google Sheet，除非你按確認寫入。</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-sm btn-warning" onclick="loadMockMembers()">🧪 載入10個MOCK成員到全團</button>
