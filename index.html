@@ -308,12 +308,14 @@ a:hover{text-decoration:underline}
           <h2 style="font-size:16px;color:var(--maroon);display:flex;align-items:center;gap:8px">📍 請選擇您的旅團</h2>
           <div style="display:flex;gap:6px">
             <button class="btn btn-sm btn-outline" onclick="loadTroops()">🔄 重新載入</button>
-            <button class="btn btn-sm btn-warning" onclick="enterDemoMode()">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
+            <button class="btn btn-sm btn-warning" onclick="enterDemoMode()">👀 試用 MOCK 效果</button>
           </div>
         </div>
         <div class="troop-grid" id="troopGrid"><p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p></div>
-        <div style="margin-top:12px;padding:10px;background:var(--blue-light);border-radius:8px;font-size:11px;color:var(--blue);line-height:1.6">
-          💡 提示：若您的旅團不在列表，請到「新旅團部署」查看10分鐘自助部署教學。<br>🎬 <b>未登入試用：</b>按「👀 試用 MOCK 效果」可免登入、免選旅團，直接用瀏覽器看 10個MOCK成員的進度、全團總覽、批量剔選、表格列印等效果，方便其他旅團了解系統。
+        <div style="margin-top:12px;padding:14px;background:linear-gradient(135deg,#FFF7ED 0%,#FFF3E0 100%);border-radius:10px;border:2px dashed var(--orange);text-align:center">
+          <div style="font-size:14px;font-weight:700;color:var(--orange);margin-bottom:6px">🎬 免部署、免登入、免選旅團</div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:10px">點擊上方「👀 試用 MOCK 效果」即刻體驗 10 個 MOCK 成員的完整進度、全團總覽卡片、批量剔選、表格列印等所有功能</div>
+          <button class="btn btn-warning" onclick="enterDemoMode()" style="font-size:13px;padding:10px 20px">👀 立即試用 MOCK 效果</button>
         </div>
       </div>
     </div>
@@ -396,6 +398,11 @@ a:hover{text-decoration:underline}
     <div class="login-container">
       <h2>🔐 登入系統</h2>
       <div class="troop-info-box" id="loginTroopInfo">—</div>
+      <div style="text-align:center;margin-bottom:16px;padding:12px;background:#FFF7ED;border-radius:8px;border:1px dashed var(--orange)">
+        <div style="font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px">🎬 快速體驗</div>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:8px">無需部署、無需登入，即刻用 10 個 MOCK 成員試用所有功能</div>
+        <button class="btn btn-warning btn-sm" onclick="enterDemoMode()" style="width:100%">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
+      </div>
       <div class="login-type-tabs">
         <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')">👤 成員<br><small style="font-weight:normal">YMIS 10位</small></div>
         <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')">👨‍💼 領袖<br><small style="font-weight:normal">Email</small></div>
