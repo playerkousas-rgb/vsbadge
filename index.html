@@ -2,8 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>深資童軍進度追蹤系統 v4.0 - 完整版</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>深資童軍進度及行政平台 v8.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 :root{
@@ -251,12 +251,62 @@ a:hover{text-decoration:underline}
 .step-content h4{color:var(--text);font-size:13px;margin-bottom:4px}
 .step-content p{color:var(--text-light);font-size:11.5px;line-height:1.6}
 
+.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+.admin-toolbar .search-grow{flex:1;min-width:200px}
+.status-chip{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;margin-left:5px}
+.status-active{background:var(--green-light);color:var(--green)}
+.status-inactive{background:#E9ECEF;color:#6C757D}
+.bulk-preview-wrap{overflow:auto;max-height:38vh;border:1px solid var(--border);border-radius:8px;margin-top:10px;-webkit-overflow-scrolling:touch}
+.bulk-preview{width:100%;border-collapse:collapse;font-size:11px;min-width:680px;background:#fff}
+.bulk-preview th,.bulk-preview td{padding:7px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.bulk-preview th{position:sticky;top:0;background:var(--maroon);color:#fff;z-index:1}
+.bulk-error{color:var(--red);font-weight:600}.bulk-ok{color:var(--green);font-weight:600}
+.input-action-row{display:flex;gap:6px}.form-group .input-action-row input{width:auto;min-width:0;flex:1}.input-action-row .btn{flex:0 0 auto}
+.mobile-only{display:none}
+
 @media(max-width:768px){
-  .level-structure{grid-template-columns:repeat(2,1fr)}
-  .info-grid{grid-template-columns:1fr}
-  .troop-grid{grid-template-columns:repeat(2,1fr)}
-  .other-grid{grid-template-columns:1fr}
+  body{font-size:15px;line-height:1.65;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .container{padding:12px}
+  .level-structure{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .info-grid,.other-grid{grid-template-columns:1fr}
+  .troop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .logo-row{gap:10px}.logo-svg-wrap{width:48px;height:48px;border-radius:12px}
+  .logo-row h1{font-size:18px;line-height:1.25}.logo-row p,.header-subtitle{font-size:11px}
+  .welcome-nav{gap:6px;margin:12px 0}.welcome-nav button{flex:1 1 calc(50% - 6px);min-height:44px;padding:9px 10px}
+  .login-container{margin:12px auto;padding:18px;border-radius:14px}
+  .main-app-header{position:static;padding:9px 12px;align-items:flex-start}
+  .main-app-header .left{min-width:0;flex:1}.main-app-header h1{font-size:14px;line-height:1.35;white-space:normal}
+  .user-info{width:100%;justify-content:space-between}.user-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .user-info .btn{min-height:40px}
+  .nav-tabs{top:0;z-index:120;scroll-snap-type:x proximity}.nav-tab{min-width:96px;min-height:46px;padding:11px 10px;font-size:12px;scroll-snap-align:start}
+  .tab-content{padding:12px}
+  .badge-header{padding:12px;align-items:flex-start;gap:8px}.badge-header h3{font-size:14px;line-height:1.45;display:block}
+  .segment-header{padding:10px 12px;align-items:flex-start;gap:8px}.items-container{padding:6px 10px}
+  .item-row,.sub-item{align-items:flex-start;flex-wrap:wrap;gap:8px;padding:10px 0}.item-row.checked{padding:10px 8px;margin:2px 0}
+  .checkbox{width:24px;height:24px;margin-top:2px}.item-main{flex:1 1 calc(100% - 42px)}
+  .item-name{font-size:14px;line-height:1.55}.item-meta{font-size:12px}
+  .item-actions{width:100%;margin-left:32px;gap:6px}.item-actions .btn{min-height:40px;flex:1 1 auto}.info-btn{width:40px;height:40px;font-size:14px}
+  .item-actions input[type="date"],.item-actions input[type="text"],.progress-note{width:100%!important;min-height:42px;font-size:16px!important}
+  .item-detail{font-size:12.5px;line-height:1.65;margin-top:8px;padding:8px}.sub-items{padding-left:10px!important;margin-left:2px}
+  .filter-bar,.admin-toolbar{gap:7px}.filter-bar input,.filter-bar select,.filter-bar .btn,.admin-toolbar>*{flex:1 1 100%;min-height:42px}
+  .admin-toolbar .btn,.admin-toolbar label.btn{min-height:42px}.admin-toolbar .search-grow{min-width:0}
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  .form-row{flex-direction:column;gap:0}.form-group input,.form-group select,.form-group textarea{min-height:44px;font-size:16px}
+  .modal{align-items:flex-end;padding:0}.modal-content{max-height:90dvh;border-radius:16px 16px 0 0;padding:18px 14px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+  .modal-actions{position:sticky;bottom:0;background:var(--card);padding:10px 0 calc(10px + env(safe-area-inset-bottom));z-index:2}
+  .modal-actions .btn{min-height:44px}
+  .save-bar{padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-direction:column;align-items:stretch;gap:8px}.save-bar>div:last-child{width:100%}.save-bar .btn{flex:1;min-height:42px}
+  .print-field{flex-direction:column;align-items:stretch}.print-field label{min-width:0}.link-card{align-items:flex-start}
+  .user-item,.app-item{align-items:stretch;flex-direction:column}.user-item-info{min-width:0;overflow-wrap:anywhere}
+  .user-item-actions,.app-item-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.user-item-actions>*{min-width:0;min-height:40px}.user-item-actions select{width:100%}
+  .bulk-preview-wrap{max-height:42vh}.mobile-only{display:initial}
+  .toast{bottom:calc(16px + env(safe-area-inset-bottom));border-radius:10px;width:calc(100% - 24px);max-width:520px}
 }
+@media(max-width:420px){
+  .troop-grid{grid-template-columns:1fr}.welcome-nav button{flex-basis:100%}.level-box{padding:10px 6px}.level-box .level-num{font-size:18px}.tab-content{padding:10px}.badge-header h3 small{display:block;margin-top:2px}
+  .user-item-actions,.app-item-actions{grid-template-columns:1fr}.modal-actions{flex-direction:column}
+}
+@media(hover:none) and (pointer:coarse){.btn,.nav-tab,.info-btn,button,input[type="checkbox"]{touch-action:manipulation}}
 </style>
 </head>
 <body>
@@ -270,7 +320,7 @@ a:hover{text-decoration:underline}
       </div>
       <div style="text-align:left">
         <h1>深資童軍進度追蹤系統</h1>
-        <p>Venture Scout Progress Tracker v7.0 • 第11版綱要修正</p>
+        <p>Venture Scout Progress &amp; Admin Platform v8.0 • 第11版綱要</p>
       </div>
     </div>
     <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫</div>
@@ -375,12 +425,12 @@ a:hover{text-decoration:underline}
       <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 版本更新紀錄（未來用於新版本後端GS及功能改動）</h2>
       <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
         <h3 style="color:var(--blue)">框架保留，內容已精簡（依你要求移除舊修復資訊）</h3>
-        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v5.0 FINAL 已穩定，測試完成</p>
+        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.0 已加入全前端管理、批量開戶及手機版</p>
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：v5.0 FINAL</h3>
-        <p style="font-size:12px">PNG LOGO 256px、防卡死、批量、官方表格、細緻權限、MOCK測試、成員私隱開關、教學按角色分開</p>
+        <h3>最新：v8.0 FRONTEND ADMIN</h3>
+        <p style="font-size:12px">全前端帳戶管理、CSV／JSON 批量開戶、首次登入改密碼、操作紀錄及手機友善介面</p>
       </div>
     </div>
   </div>
@@ -391,7 +441,7 @@ a:hover{text-decoration:underline}
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
-      <div><h1 style="font-size:18px">深資童軍進度追蹤 v4.2</h1></div>
+      <div><h1 style="font-size:18px">深資童軍進度及行政平台 v8.0</h1></div>
     </div>
   </div>
   <div class="container">
@@ -411,9 +461,10 @@ a:hover{text-decoration:underline}
       <div class="form-group"><label id="loginIdLabel">YMIS（10位數字）</label><input type="text" id="loginId" placeholder="例如 1234567890" maxlength="10"></div>
       <div class="form-group"><label>密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼"></div>
       <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin">登入</button>
-      <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px">
-        <a href="#" onclick="showContactModal();return false" style="font-size:11px">🆕 新旅團登記</a>
-        <a href="#" onclick="backToHome();return false" style="font-size:11px">← 返回首頁</a>
+      <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px">🆕 申請成員帳戶</a>
+        <a href="#" onclick="showContactModal();return false" style="font-size:12px">新旅團登記</a>
+        <a href="#" onclick="backToHome();return false" style="font-size:12px">← 返回首頁</a>
       </div>
     </div>
   </div>
@@ -428,6 +479,7 @@ a:hover{text-decoration:underline}
     </div>
     <div class="user-info">
       <span class="user-chip" id="userInfo">—</span>
+      <button class="btn btn-sm btn-secondary" onclick="showChangePasswordModal(false)">🔑 改密碼</button>
       <button class="btn btn-sm btn-secondary" onclick="doLogout()">登出</button>
     </div>
   </div>
@@ -532,6 +584,88 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
+<div id="accountApplyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountApplyTitle">
+  <div class="modal-content">
+    <h3 id="accountApplyTitle">📝 申請深資童軍成員帳戶</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:12px">提交後由所屬旅團領袖在「審批中心」批准，毋須直接修改 Google Sheet。</p>
+    <div class="form-group"><label>YMIS（10 位數字）*</label><input id="applyYmis" inputmode="numeric" maxlength="10" autocomplete="username"></div>
+    <div class="form-group"><label>姓名 *</label><input id="applyName" autocomplete="name"></div>
+    <div class="form-group"><label>支部／單位</label><input id="applyBranch" placeholder="例如：深資童軍支部"></div>
+    <div class="form-group"><label>聯絡電郵</label><input id="applyEmail" type="email" autocomplete="email"></div>
+    <div id="applyMsg" class="login-msg" aria-live="polite"></div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('accountApplyModal')">取消</button><button class="btn btn-primary" id="btnAccountApply" onclick="submitAccountApply()">提交申請</button></div>
+  </div>
+</div>
+
+<div id="changePasswordModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle">
+  <div class="modal-content" style="max-width:460px">
+    <h3 id="changePasswordTitle">🔑 更改密碼</h3>
+    <p id="changePasswordHint" style="font-size:12px;color:var(--text-light);margin-bottom:12px">新密碼至少 8 位。</p>
+    <div class="form-group"><label>現有／臨時密碼 *</label><input type="password" id="oldPassword" autocomplete="current-password"></div>
+    <div class="form-group"><label>新密碼 *</label><input type="password" id="newPassword" minlength="8" autocomplete="new-password"></div>
+    <div class="form-group"><label>再次輸入新密碼 *</label><input type="password" id="confirmNewPassword" minlength="8" autocomplete="new-password"></div>
+    <div class="modal-actions"><button class="btn btn-secondary" id="changePasswordCancel" onclick="closeModal('changePasswordModal')">取消</button><button class="btn btn-primary" id="btnChangePassword" onclick="submitChangePassword()">儲存新密碼</button></div>
+  </div>
+</div>
+
+<div id="createUserModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="createUserTitle">
+  <div class="modal-content" style="max-width:600px">
+    <h3 id="createUserTitle">➕ 前端開立帳戶</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:12px">帳戶建立後可立即登入；首次登入會強制更改臨時密碼。</p>
+    <div class="form-row"><div class="form-group"><label>YMIS（10 位）*</label><input id="cuYmis" inputmode="numeric" maxlength="10"></div><div class="form-group"><label>姓名 *</label><input id="cuName"></div></div>
+    <div class="form-row"><div class="form-group"><label>Email</label><input id="cuEmail" type="email"></div><div class="form-group"><label>支部／單位</label><input id="cuBranch"></div></div>
+    <div class="form-row"><div class="form-group"><label>角色 *</label><select id="cuRole" onchange="syncCreateUserRole()"><option value="member">團員</option><option value="exec_committee">執委</option><option value="branch_leader">支部領袖</option><option value="group_leader">團長</option><option value="admin">管理員</option></select></div><div class="form-group"><label>臨時密碼 *</label><div class="input-action-row"><input id="cuPassword" type="text" minlength="8" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('cuPassword').value=generateTempPassword()">產生</button></div></div></div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-top:4px"><input id="cuCanTick" type="checkbox"> 允許勾選進度（只適用於領袖／執委）</label>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('createUserModal')">取消</button><button class="btn btn-primary" id="btnCreateUser" onclick="submitCreateUser()">建立帳戶</button></div>
+  </div>
+</div>
+
+<div id="editUserModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editUserTitle">
+  <div class="modal-content" style="max-width:520px">
+    <h3 id="editUserTitle">✏️ 編輯用戶資料</h3><input type="hidden" id="euYmis">
+    <div class="form-group"><label>YMIS</label><input id="euYmisDisplay" disabled></div>
+    <div class="form-group"><label>姓名 *</label><input id="euName"></div>
+    <div class="form-group"><label>Email</label><input id="euEmail" type="email"></div>
+    <div class="form-group"><label>支部／單位</label><input id="euBranch"></div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('editUserModal')">取消</button><button class="btn btn-primary" onclick="submitEditUser()">儲存</button></div>
+  </div>
+</div>
+
+<div id="resetPasswordModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="resetPasswordTitle">
+  <div class="modal-content" style="max-width:460px">
+    <h3 id="resetPasswordTitle">🔑 重設臨時密碼</h3><input type="hidden" id="rpYmis">
+    <p id="rpUserLabel" style="font-size:12px;margin-bottom:10px"></p>
+    <div class="form-group"><label>新臨時密碼（至少 8 位）*</label><div class="input-action-row"><input id="rpPassword" type="text" minlength="8" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('rpPassword').value=generateTempPassword()">產生</button></div></div>
+    <p style="font-size:11px;color:var(--text-light)">重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。</p>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('resetPasswordModal')">取消</button><button class="btn btn-primary" onclick="submitResetPassword()">確認重設</button></div>
+  </div>
+</div>
+
+<div id="bulkOnboardModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkOnboardTitle">
+  <div class="modal-content" style="max-width:820px">
+    <h3 id="bulkOnboardTitle">📥 批量開戶</h3>
+    <div class="info-section" style="font-size:12px;line-height:1.7;padding:12px">
+      <b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。<a href="docs/BULK_ONBOARD.md" target="_blank" rel="noopener">查看完整說明</a>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn btn-primary" onclick="downloadMembersTemplate()">⬇️ 下載 CSV 範本</button>
+      <label class="btn btn-secondary">📂 選擇 CSV<input id="bulkFile" type="file" accept=".csv,text/csv" onchange="importMembersFile(this.files[0])" style="display:none"></label>
+      <button class="btn btn-outline" onclick="showBulkJsonInput()">{} 貼上 JSON</button>
+    </div>
+    <textarea id="bulkJsonInput" style="display:none;width:100%;min-height:110px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:monospace;font-size:12px" placeholder='[{"ymis":"1234567890","name":"陳大文","role":"member"}]'></textarea>
+    <button id="bulkJsonParseBtn" class="btn btn-sm btn-secondary" style="display:none;margin-top:6px" onclick="parseBulkJsonInput()">預覽 JSON</button>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0"><input id="bulkAutoPassword" type="checkbox" checked onchange="renderBulkPreview()"> 空白密碼自動產生安全臨時密碼</label>
+    <div id="bulkSummary" style="font-size:12px;color:var(--text-light)" aria-live="polite">尚未選擇檔案</div>
+    <div id="bulkPreviewContainer"></div>
+    <div id="bulkResult" style="display:none;margin-top:10px"></div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('bulkOnboardModal')">關閉</button><button class="btn btn-primary" id="btnExecuteBulk" onclick="executeBulkOnboard()" disabled>🚀 確認批量開戶</button></div>
+  </div>
+</div>
+
+<div id="historyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+  <div class="modal-content" style="max-width:760px"><h3 id="historyTitle">🧾 操作紀錄</h3><div id="historyBody"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('historyModal')">關閉</button></div></div>
+</div>
+
 <div id="savingOverlay" class="saving-overlay">
   <div class="spinner"></div>
   <h3 id="savingText" style="color:var(--maroon);font-size:16px">正在寫入雲端...</h3>
@@ -542,8 +676,8 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div>COPYRIGHT 2026 Scout System • 深資童軍進度追蹤系統 v7.0 FIXES</div>
-  <div style="margin-top:4px;font-size:11px">基於 2026年第11版《深資童軍訓練綱要》 | 支援離線暫存 • 批量寫入 • 保護兒童 Safe from Harm</div>
+  <div>COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.0</div>
+  <div style="margin-top:4px;font-size:11px">全前端帳戶管理 • 批量開戶 • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank">香港童軍總會</a></div>
 </footer>
 
@@ -555,6 +689,7 @@ let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
 let selectedProgressYmis=null; // 領袖查看他人進度
 let appConfig={allow_member_view_others:'false'}; // 系統設定
+let adminUsersCache=[],bulkDraft=[],bulkResults=[];
 
 const LS = {
   session: 'vsbadge_session_v4',
@@ -781,8 +916,8 @@ async function doLogin(){
     const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'login',login_id:lid,password:pw})});
     const d=await r.json();
     if(d.success){
-      currentUser=d.user; currentToken=d.token;
-      localStorage.setItem(LS.session, JSON.stringify({troopId:currentTroopId,troopName:currentTroopName,backend:currentBackend,apikey:currentApikey,token:currentToken,user:currentUser,savedAt:Date.now()}));
+      currentUser=d.user; currentUser.force_change_password=!!d.force_change_password; currentToken=d.token;
+      saveCurrentSession();
       msg.textContent='登入成功！載入資料...'; msg.className='login-msg success';
       setTimeout(()=>{
         document.getElementById('loginPage').style.display='none';
@@ -791,18 +926,21 @@ async function doLogin(){
         document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span>`;
         setupTabsByRole();
         loadItemsAndProgress();
+        if(currentUser.force_change_password) setTimeout(()=>showChangePasswordModal(true),250);
       },600);
     }else{ msg.textContent=d.error||'登入失敗'; msg.className='login-msg error'; }
   }catch(e){ console.error(e); msg.textContent='無法連接伺服器，請檢查網絡或後端 URL'; msg.className='login-msg error'; }
   finally{ btn.disabled=false; btn.textContent='登入'; }
 }
 function doLogout(){
+  if(currentBackend&&currentToken) fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'logout',token:currentToken})}).catch(()=>{});
   localStorage.removeItem(LS.session);
-  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName='';
+  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName=''; currentBackend=''; currentApikey='';
+  document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
   document.getElementById('mainApp').style.display='none';
   document.getElementById('homePage').style.display='block';
   document.getElementById('saveBar').classList.remove('visible');
-  pendingChanges=[];
+  pendingChanges=[]; setupTabsByRole._memberToastShown=false;
 }
 function checkSavedSession(){
   const s=localStorage.getItem(LS.session);
@@ -817,6 +955,7 @@ function checkSavedSession(){
     document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span>`;
     setupTabsByRole();
     loadItemsAndProgress();
+    if(currentUser.force_change_password) setTimeout(()=>showChangePasswordModal(true),250);
   }catch(e){ console.error(e); }
 }
 function setupTabsByRole(){
@@ -838,12 +977,16 @@ function setupTabsByRole(){
     const p=localStorage.getItem(LS.pending(currentTroopId));
     if(p){ pendingChanges=JSON.parse(p); updateSaveBar(); }
   }catch(e){}
-  if(isMember){
+  if(isMember && !setupTabsByRole._memberToastShown){
+    setupTabsByRole._memberToastShown=true;
     showToast('成員模式：只能查看自己進度，其他獎章及申請','warning');
   }
 }
 function getRoleName(r){ const m={'super_admin':'超管','admin':'管理員','group_leader':'團長','branch_leader':'支部領袖','exec_committee':'執委','member':'團員'}; return m[r]||r; }
-function canUserTickRole(role){ return ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role); }
+function canUserTickRole(role){
+  const roleCanTick=['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role);
+  return roleCanTick && (!currentUser || currentUser.role!==role || currentUser.can_tick!==false);
+}
 
 function canCurrentUserTickItem(itemId){
   // 超管全部可勾
@@ -874,6 +1017,53 @@ function isMember(){ return currentUser.role==='member'; }
 function showContactModal(){ document.getElementById('contactModal').classList.add('active'); }
 function closeContactModal(){ document.getElementById('contactModal').classList.remove('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function showAccountApplyModal(){
+  if(!currentBackend){ showToast('請先選擇旅團','warning'); return; }
+  ['applyYmis','applyName','applyBranch','applyEmail'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const msg=document.getElementById('applyMsg'); msg.className='login-msg'; msg.textContent='';
+  document.getElementById('accountApplyModal').classList.add('active');
+}
+async function submitAccountApply(){
+  const ymis=document.getElementById('applyYmis').value.trim();
+  const name=document.getElementById('applyName').value.trim();
+  const branch=document.getElementById('applyBranch').value.trim();
+  const email=document.getElementById('applyEmail').value.trim();
+  const msg=document.getElementById('applyMsg'),btn=document.getElementById('btnAccountApply');
+  if(!/^\d{10}$/.test(ymis)||!name){ msg.textContent='請填寫姓名及 10 位數字 YMIS'; msg.className='login-msg error'; return; }
+  btn.disabled=true; btn.textContent='提交中...';
+  try{
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'apply',ymis,name,email,branch,requested_role:'member'})});
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'提交失敗');
+    msg.textContent=d.message||'申請已提交'; msg.className='login-msg success';
+    setTimeout(()=>closeModal('accountApplyModal'),1200);
+  }catch(e){ msg.textContent=e.message; msg.className='login-msg error'; }
+  finally{ btn.disabled=false; btn.textContent='提交申請'; }
+}
+function showChangePasswordModal(required=false){
+  if(!currentUser||!currentToken){ showToast('請先登入','warning'); return; }
+  document.getElementById('oldPassword').value=''; document.getElementById('newPassword').value=''; document.getElementById('confirmNewPassword').value='';
+  document.getElementById('changePasswordCancel').style.display=required?'none':'';
+  document.getElementById('changePasswordHint').innerHTML=required?'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 8 位。':'新密碼至少 8 位。';
+  document.getElementById('changePasswordModal').dataset.required=required?'1':'0';
+  document.getElementById('changePasswordModal').classList.add('active');
+  setTimeout(()=>document.getElementById('oldPassword').focus(),100);
+}
+async function submitChangePassword(){
+  const oldP=document.getElementById('oldPassword').value,newP=document.getElementById('newPassword').value,confirmP=document.getElementById('confirmNewPassword').value;
+  if(newP.length<8){ showToast('新密碼至少 8 位','error'); return; }
+  if(newP!==confirmP){ showToast('兩次輸入的新密碼不一致','error'); return; }
+  const btn=document.getElementById('btnChangePassword'); btn.disabled=true; btn.textContent='儲存中...';
+  try{
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'changePassword',token:currentToken,old_password:oldP,new_password:newP})});
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'更改失敗');
+    currentUser.force_change_password=false; saveCurrentSession(); closeModal('changePasswordModal'); showToast('密碼已更新','success');
+  }catch(e){ showToast('更改密碼失敗：'+e.message,'error'); }
+  finally{ btn.disabled=false; btn.textContent='儲存新密碼'; }
+}
+function saveCurrentSession(){
+  if(!currentUser||!currentToken) return;
+  localStorage.setItem(LS.session,JSON.stringify({troopId:currentTroopId,troopName:currentTroopName,backend:currentBackend,apikey:currentApikey,token:currentToken,user:currentUser,savedAt:Date.now()}));
+}
 async function submitRegistration(){
   const ti=document.getElementById('c_troopId').value.trim(), tn=document.getElementById('c_troopName').value.trim(), su=document.getElementById('c_scriptUrl').value.trim(), ak=document.getElementById('c_apiKey').value.trim(), nt=document.getElementById('c_note').value.trim();
   const btn=document.getElementById('btnSubmitContact');
@@ -913,7 +1103,7 @@ async function loadItemsAndProgress(){
     // backend load
     let backendData=null;
     try{
-      const r2=await fetch(currentBackend+'?action=load&apikey='+currentApikey);
+      const r2=await fetch(currentBackend+'?action=load&apikey='+encodeURIComponent(currentApikey)+'&token='+encodeURIComponent(currentToken));
       backendData=await r2.json();
     }catch(e){ console.warn('backend load fail',e); backendData={success:false}; }
     if(backendData.success){
@@ -1464,7 +1654,7 @@ async function saveChanges(){
     // simulate progress
     let p=10;
     const interval=setInterval(()=>{ p=Math.min(p+15,90); progBar.style.width=p+'%'; },300);
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',apikey:currentApikey,changes:pendingChanges,confirmer:currentUser.name})});
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',token:currentToken,apikey:currentApikey,changes:pendingChanges,confirmer:currentUser.name})});
     clearInterval(interval);
     progBar.style.width='100%';
     // Handle non-JSON responses (e.g. HTML error pages) gracefully
@@ -1929,7 +2119,7 @@ async function renderRequestsTab(){
     if(totalUser===0){
       html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">暫無用戶待批</p>`;
     }else{
-      html+=userApplications.map(a=>`<div class="app-item"><div class="app-item-info"><b>${a.name}</b> ${a.ymis?`(${a.ymis})`:''} ${a.email?`- ${a.email}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${getRoleName(a.requested_role)} | ${a.applied_at}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${a.app_id}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${a.app_id}','rejected')">拒絕</button></div></div>`).join('');
+      html+=userApplications.map(a=>`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${escapeHtmlText(getRoleName(a.requested_role))} | ${escapeHtmlText(a.applied_at)}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`).join('');
     }
     html+=`</div>`;
   }
@@ -2054,7 +2244,7 @@ function toggleOtherBadge(badgeId, name, targetYmis){
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
   otherBadgesMap[targetYmis][badgeId]={name,date,cert};
   pendingChanges.push({ymis:targetYmis, itemId: badgeId, date, isOther:true, name, cert});
-  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert}]})})
+  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',token:currentToken,apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert}]})})
     .then(r=>r.json()).then(d=>{ if(d.success) showToast('✅ 其他獎章已更新','success'); else throw new Error(d.error); })
     .catch(e=>{ showToast('已暫存，寫入失敗：'+e.message,'warning'); });
   renderOtherBadgesTab();
@@ -2073,7 +2263,7 @@ function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
     addOrUpdatePending(targetYmis, badgeId, '', true);
   }
   // 同步到後端 other badge sheet
-  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert: otherBadgesMap[targetYmis]?.[badgeId]?.cert||''}]})}).catch(()=>{});
+  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',token:currentToken,apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert: otherBadgesMap[targetYmis]?.[badgeId]?.cert||''}]})}).catch(()=>{});
   updateRowUI(badgeId, checked, date);
   updateSaveBar();
 }
@@ -2390,75 +2580,129 @@ async function loadUsers(){
   c.innerHTML='<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 8px"></div>載入用戶...</div>';
   try{
     const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAllUsers',token:currentToken})});
-    const d=await r.json();
-    if(d.success){
-      // 超管帳號僅超管可見：若非超管，過濾掉 super_admin
-      if(currentUser.role!=='super_admin'){
-        d.users=d.users.filter(u=>u.role!=='super_admin');
-      }
-      // 角色說明 + 測試工具 - 超管相關僅超管可見
-      const isSuper = currentUser && currentUser.role==='super_admin';
-      let roleExplain=`<div class="info-section" style="background:var(--blue-light);border-left-color:var(--blue)">
-        <h3 style="color:var(--blue)">👥 角色說明：USER vs 成員</h3>
-        <div style="font-size:12px;line-height:1.8">
-          <b>USER (系統使用者)</b> = 所有在 Users 表的人，包括：<br>
-          • <span class="role-badge role-member">團員 member</span> = 純成員，不包括領袖<br>
-          • <span class="role-badge role-exec_committee">執委 exec_committee</span> = 屬領袖，可勾選 (需授權)<br>
-          • <span class="role-badge role-branch_leader">支部領袖 branch_leader</span> = 領袖<br>
-          • <span class="role-badge role-group_leader">團長 group_leader</span> = 領袖<br>
-          • <span class="role-badge role-admin">管理員 admin</span> = 領袖<br>
-          ${isSuper?`• <span class="role-badge role-super_admin">超管 super_admin</span> = 系統管理員<br><br>`:''}
-          <b>成員</b> = role=member 的人，不包括領袖。<br>
-          <b>領袖</b> = 團長/支部領袖/執委/管理員${isSuper?'/超管':''}，可勾選及管理。<br>
-          <b>USER 總數</b> = 成員 + 領袖 全部。
-        </div>
-      </div>`;
-
-      let mockTool='';
-      if(currentUser && currentUser.role==='super_admin'){
-        mockTool=`<div class="info-section" style="border-left-color:var(--orange);background:#FFF7ED">
-          <h3>🧪 測試工具 (僅超管可見)</h3>
-          <p style="font-size:11px;color:var(--text-light);margin-bottom:8px">一鍵載入 10個 MOCK 成員到前端快取，方便測試全團批量剔、會員章一眼睇等。MOCK數據只存瀏覽器快取，不會寫入正式 Google Sheet，除非你按確認寫入。</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-sm btn-warning" onclick="loadMockMembers()">🧪 載入10個MOCK成員到全團</button>
-            <button class="btn btn-sm btn-secondary" onclick="clearMockMembers()">🗑️ 清除MOCK快取</button>
-            <a href="data/mock_members.json" target="_blank" class="btn btn-sm btn-outline">📄 查看 MOCK JSON</a>
-            <a href="data/mock_import.csv" target="_blank" class="btn btn-sm btn-outline">📄 下載 CSV 匯入 Sheet</a>
-          </div>
-          <div id="mockStatus" style="font-size:11px;margin-top:8px;color:var(--text-light)"></div>
-        </div>`;
-      }
-
-      // 系統設定 - 私隱開關 (團長以上可見)
-      let systemSettingHtml='';
-      if(['group_leader','admin','super_admin'].includes(currentUser.role)){
-        const allowOthers = appConfig.allow_member_view_others==='true';
-        systemSettingHtml=`<div class="info-section" style="border-left-color:var(--green);background:#F0FFF4">
-          <h3>🔒 私隱設定 (僅團長/管理員可見)</h3>
-          <p style="font-size:11px;color:var(--text-light)">普通成員預設只看自己，能否看其他成員由團長開放。有些旅團重私隱，有些想互相鼓勵，執委要按進度策劃活動。</p>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-            <label style="font-size:13px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="allowMemberViewOthers" ${allowOthers?'checked':''} onchange="toggleAllowMemberViewOthers(this.checked)"> 允許成員互相查看進度 (鼓勵模式)</label>
-            <span style="font-size:11px;color:var(--text-light)">當前：${allowOthers?'已開啟 - 成員可看全團':'已關閉 - 成員只看自己 (私隱)'}</span>
-          </div>
-          <div style="font-size:10px;color:var(--text-light);margin-top:6px">說明：關閉時成員「我的進度」不能選其他人，全團總覽隱藏；開啟時成員可看全團但不能編輯。</div>
-        </div>`;
-      }
-
-      let h=roleExplain+systemSettingHtml+mockTool+'<div class="filter-bar"><input type="text" id="userSearch" placeholder="搜尋姓名/ YMIS/ Email" oninput="filterUsers()" style="flex:1"></div><div id="userList">';
-      h+=d.users.map(u=>`<div class="user-item" data-search="${(u.name+u.ymis+u.email).toLowerCase()}"><div class="user-item-info"><b>${u.name}</b> ${u.ymis?`(${u.ymis})`:''} ${u.email?` - ${u.email}`:''}<span class="role-badge role-${u.role}">${getRoleName(u.role)}</span> ${u.can_tick?'<span style="background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:999px;font-size:9px">可勾選</span>':''}<br><small style="font-size:10px;color:var(--text-light)">權限: ${u.allowed_badges|| (u.role==='member'?'無':(u.role==='exec_committee'?'L1,活動段章,其他部分':'全部(*)'))}</small></div><div class="user-item-actions">`+
-        (['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role)&&u.ymis!==currentUser.ymis?`<select onchange="updateUserRole('${u.ymis}',this.value)"><option value="member" ${u.role==='member'?'selected':''}>團員</option><option value="exec_committee" ${u.role==='exec_committee'?'selected':''}>執委</option><option value="branch_leader" ${u.role==='branch_leader'?'selected':''}>支部領袖</option><option value="group_leader" ${u.role==='group_leader'?'selected':''}>團長</option><option value="admin" ${u.role==='admin'?'selected':''}>管理員</option></select><button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${u.ymis}',${!u.can_tick})">${u.can_tick?'收回勾選':'授權勾選'}</button><button class="btn btn-sm btn-warning" onclick="openPermissionModal('${u.ymis}','${u.name.replace(/'/g,"\'") }','${u.role}','${(u.allowed_badges||'').replace(/'/g,"")}')">⚙️ 權限</button>`:'' )+
-        `</div></div>`).join('');
-      h+='</div>';
-      c.innerHTML=h;
-    }else c.innerHTML=`<p style="color:var(--red)">載入失敗：${d.error}</p>`;
-  }catch(e){ c.innerHTML=`<p style="color:var(--red)">錯誤：${e.message}</p>`; }
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'載入失敗');
+    adminUsersCache=(d.users||[]).filter(u=>currentUser.role==='super_admin'||u.role!=='super_admin');
+    const allowOthers=appConfig.allow_member_view_others==='true';
+    const settings=['group_leader','admin','super_admin'].includes(currentUser.role)?`<div class="info-section" style="border-left:4px solid var(--green);background:#F0FFF4">
+      <h3>🔒 前端系統設定</h3><p style="font-size:12px;color:var(--text-light)">日常帳戶、角色、權限、私隱及停用操作全部在本頁完成，不需開啟 Google Sheet。</p>
+      <label style="font-size:13px;display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" ${allowOthers?'checked':''} onchange="toggleAllowMemberViewOthers(this.checked)"> 允許成員互相查看進度（鼓勵模式）</label>
+    </div>`:'';
+    let html=`${settings}<div class="info-section" style="border-left:4px solid var(--blue);background:var(--blue-light)"><h3>👥 用戶管理中心</h3><p style="font-size:12px">可在前端新增／批量開戶、編輯資料、設定角色與考核權限、重設密碼、停用及重新啟用帳號。停用只停止登入，既有進度仍會保留。</p></div>
+      <div class="admin-toolbar">
+        <button class="btn btn-primary" onclick="openCreateUserModal()">➕ 開立帳戶</button>
+        <button class="btn btn-warning" onclick="openBulkOnboardModal()">📥 批量開戶</button>
+        <button class="btn btn-outline" onclick="loadAuditHistory()">🧾 操作紀錄</button>
+        <input class="search-grow" type="search" id="userSearch" placeholder="搜尋姓名／YMIS／Email" oninput="filterUsers()">
+        <select id="userStatusFilter" onchange="filterUsers()"><option value="active">使用中</option><option value="all">全部狀態</option><option value="inactive">已停用</option></select>
+      </div><div id="userList">`;
+    html+=adminUsersCache.map(u=>renderUserAdminCard(u)).join('')||'<p style="padding:20px;text-align:center;color:var(--text-light)">沒有用戶</p>';
+    html+='</div>'; c.innerHTML=html;
+  }catch(e){ c.innerHTML=`<div class="info-section" style="color:var(--red)">載入失敗：${escapeHtmlText(e.message)}<br><button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="loadUsers()">重試</button></div>`; }
+}
+function escapeHtmlText(value){ return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function canManageRoleFrontend(role){
+  const levels={super_admin:100,admin:80,group_leader:60,branch_leader:40,exec_committee:20,member:0};
+  return currentUser?.role==='super_admin' || (levels[currentUser?.role]||0)>(levels[role]??999);
+}
+function canCreateRoleFrontend(role){ return canManageRoleFrontend(role)||(currentUser?.role==='admin'&&role==='admin'); }
+function renderUserAdminCard(u){
+  const active=(u.status||'active')==='active',self=u.ymis===currentUser.ymis,manageable=!self&&canManageRoleFrontend(u.role);
+  const encoded=encodeURIComponent(JSON.stringify({ymis:u.ymis,name:u.name||'',email:u.email||'',branch:u.branch||'',role:u.role||'member'}));
+  const roleNames={member:'團員',exec_committee:'執委',branch_leader:'支部領袖',group_leader:'團長',admin:'管理員'};
+  const roleOptions=Object.keys(roleNames).filter(role=>role===u.role||canManageRoleFrontend(role)).map(role=>`<option value="${role}" ${u.role===role?'selected':''}>${roleNames[role]}</option>`).join('');
+  const roleSelect=`<select aria-label="更改 ${escapeHtmlText(u.name)} 的角色" onchange="updateUserRole('${escapeAttr(u.ymis)}',this.value)">${roleOptions}</select>`;
+  const tickButton=u.role==='member'?'':`<button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${escapeAttr(u.ymis)}',${!u.can_tick},'${escapeAttr(u.role)}')">${u.can_tick?'收回勾選':'授權勾選'}</button>`;
+  const permissionButton=u.role==='member'?'':`<button class="btn btn-sm btn-warning" onclick="openPermissionModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}','${escapeAttr(u.role)}','${escapeAttr(u.allowed_badges||'')}')">⚙️ 權限</button>`;
+  let actions='';
+  if(manageable&&active) actions=`${roleSelect}<button class="btn btn-sm btn-outline" onclick="openEditUserModal('${encoded}')">✏️ 編輯</button>${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">🔑 重設密碼</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">⛔ 停用</button>`;
+  if(manageable&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">♻️ 重新啟用</button>`;
+  return `<div class="user-item" data-status="${active?'active':'inactive'}" data-search="${escapeHtmlText(((u.name||'')+(u.ymis||'')+(u.email||'')+(u.branch||'')).toLowerCase())}" style="${active?'':'opacity:.72'}"><div class="user-item-info"><b>${escapeHtmlText(u.name)}</b> <span>${escapeHtmlText(u.ymis)}</span>${u.email?`<br class="mobile-only"><span style="color:var(--text-light)"> · ${escapeHtmlText(u.email)}</span>`:''}<span class="role-badge role-${escapeHtmlText(u.role)}">${escapeHtmlText(getRoleName(u.role))}</span><span class="status-chip status-${active?'active':'inactive'}">${active?'使用中':'已停用'}</span><br><small style="color:var(--text-light)">支部：${escapeHtmlText(u.branch||'未設定')} · 權限：${escapeHtmlText(u.allowed_badges||(u.role==='member'?'無':'全部 (*)'))}${u.force_change_password?' · 下次登入須改密碼':''}</small></div><div class="user-item-actions">${actions}</div></div>`;
 }
 function filterUsers(){
-  const q=document.getElementById('userSearch').value.toLowerCase();
-  document.querySelectorAll('#userList .user-item').forEach(el=>{
-    el.style.display=el.dataset.search.includes(q)?'flex':'none';
-  });
+  const q=(document.getElementById('userSearch')?.value||'').toLowerCase(),status=document.getElementById('userStatusFilter')?.value||'active';
+  document.querySelectorAll('#userList .user-item').forEach(el=>{ el.style.display=(el.dataset.search.includes(q)&&(status==='all'||el.dataset.status===status))?'flex':'none'; });
 }
+function generateTempPassword(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  const bytes=new Uint32Array(9); if(window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes); else for(let i=0;i<bytes.length;i++) bytes[i]=Math.floor(Math.random()*0xffffffff);
+  return 'Vs!'+[...bytes].map(n=>chars[n%chars.length]).join('');
+}
+function openCreateUserModal(){
+  ['cuYmis','cuName','cuEmail','cuBranch'].forEach(id=>document.getElementById(id).value='');
+  const role=document.getElementById('cuRole'); role.value='member'; [...role.options].forEach(o=>o.hidden=!canCreateRoleFrontend(o.value));
+  document.getElementById('cuPassword').value=generateTempPassword(); document.getElementById('cuCanTick').checked=false; syncCreateUserRole();
+  document.getElementById('createUserModal').classList.add('active');
+}
+function syncCreateUserRole(){
+  const role=document.getElementById('cuRole').value,cb=document.getElementById('cuCanTick'); cb.disabled=role==='member'; if(role==='member') cb.checked=false; else cb.checked=true;
+}
+function showTemporaryPasswordResult(title,ymis,name,password){
+  document.getElementById('historyTitle').textContent=title;
+  document.getElementById('historyBody').innerHTML=`<div class="info-section"><p><b>${escapeHtmlText(name)}</b>（${escapeHtmlText(ymis)}）的臨時密碼：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(password)}</div><p style="font-size:11px;color:var(--text-light);margin-top:8px">請立即以安全方式轉交；用戶首次登入必須更改密碼。</p></div>`;
+  document.getElementById('historyModal').classList.add('active');
+}
+async function submitCreateUser(){
+  const payload={action:'addUser',token:currentToken,ymis:document.getElementById('cuYmis').value.trim(),name:document.getElementById('cuName').value.trim(),email:document.getElementById('cuEmail').value.trim(),branch:document.getElementById('cuBranch').value.trim(),role:document.getElementById('cuRole').value,can_tick:document.getElementById('cuCanTick').checked,password:document.getElementById('cuPassword').value};
+  if(!/^\d{10}$/.test(payload.ymis)||!payload.name||payload.password.length<8){showToast('請填寫姓名、10 位 YMIS 及至少 8 位臨時密碼','error');return;}
+  const btn=document.getElementById('btnCreateUser');btn.disabled=true;btn.textContent='建立中...';
+  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});const d=await r.json();if(!d.success)throw new Error(d.error);closeModal('createUserModal');showTemporaryPasswordResult('✅ 帳戶已建立',payload.ymis,payload.name,payload.password);showToast('帳戶已建立，請安全轉交臨時密碼','success');await loadUsers();await loadItemsAndProgress();}catch(e){showToast('建立失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='建立帳戶';}
+}
+function openEditUserModal(encoded){
+  const u=JSON.parse(decodeURIComponent(encoded)); document.getElementById('euYmis').value=u.ymis;document.getElementById('euYmisDisplay').value=u.ymis;document.getElementById('euName').value=u.name;document.getElementById('euEmail').value=u.email;document.getElementById('euBranch').value=u.branch;document.getElementById('editUserModal').classList.add('active');
+}
+async function submitEditUser(){
+  const payload={action:'updateUserProfile',token:currentToken,target_ymis:document.getElementById('euYmis').value,name:document.getElementById('euName').value.trim(),email:document.getElementById('euEmail').value.trim(),branch:document.getElementById('euBranch').value.trim()};
+  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});const d=await r.json();if(!d.success)throw new Error(d.error);closeModal('editUserModal');showToast('資料已更新','success');loadUsers();}catch(e){showToast('更新失敗：'+e.message,'error');}
+}
+function openResetPasswordModal(ymis,name){document.getElementById('rpYmis').value=ymis;document.getElementById('rpUserLabel').textContent=`${name}（${ymis}）`;document.getElementById('rpPassword').value=generateTempPassword();document.getElementById('resetPasswordModal').classList.add('active');}
+async function submitResetPassword(){
+  const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;if(password.length<8){showToast('臨時密碼至少 8 位','error');return;}
+  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'resetPassword',token:currentToken,target_ymis:ymis,new_password:password})});const d=await r.json();if(!d.success)throw new Error(d.error);const name=document.getElementById('rpUserLabel').textContent.split('（')[0];closeModal('resetPasswordModal');showTemporaryPasswordResult('🔑 密碼已重設',ymis,name,password);showToast('密碼已重設；請立即安全轉交臨時密碼','success');loadUsers();}catch(e){showToast('重設失敗：'+e.message,'error');}
+}
+async function setUserStatus(ymis,status){
+  if(!confirm(status==='active'?'確定重新啟用此帳號？':'確定停用此帳號？進度資料會保留。'))return;
+  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'setUserStatus',token:currentToken,target_ymis:ymis,status})});const d=await r.json();if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast('操作失敗：'+e.message,'error');}
+}
+async function loadAuditHistory(){
+  document.getElementById('historyTitle').textContent='🧾 操作紀錄';
+  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAuditLog',token:currentToken})});const d=await r.json();if(!d.success)throw new Error(d.error);const rows=(d.records||[]).slice().reverse();document.getElementById('historyBody').innerHTML=rows.length?`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>時間</th><th>操作者</th><th>操作</th><th>對象</th><th>詳情</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtmlText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p style="text-align:center;color:var(--text-light)">沒有操作紀錄</p>';document.getElementById('historyModal').classList.add('active');}catch(e){showToast('讀取紀錄失敗：'+e.message,'error');}
+}
+function downloadMembersTemplate(){
+  const csv='ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,TempPass!82,執委\r\n';
+  downloadTextFile('vsbadge-members-template.csv','\ufeff'+csv,'text/csv;charset=utf-8');
+}
+function downloadTextFile(name,text,type){const url=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function openBulkOnboardModal(){bulkDraft=[];bulkResults=[];document.getElementById('bulkSummary').textContent='尚未選擇檔案';document.getElementById('bulkPreviewContainer').innerHTML='';document.getElementById('bulkResult').style.display='none';document.getElementById('bulkJsonInput').style.display='none';document.getElementById('bulkJsonParseBtn').style.display='none';document.getElementById('bulkJsonInput').value='';document.getElementById('bulkFile').value='';document.getElementById('btnExecuteBulk').disabled=true;document.getElementById('bulkOnboardModal').classList.add('active');}
+function parseCSV(text){
+  const rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(ch==='"')quoted=false;else cell+=ch;}else if(ch==='"')quoted=true;else if(ch===','){row.push(cell);cell='';}else if(ch==='\n'){row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';}else if(ch!=='\r')cell+=ch;}
+  row.push(cell);if(row.some(v=>v.trim()))rows.push(row);if(!rows.length)return[];
+  const headers=rows.shift().map((h,i)=>(i===0?h.replace(/^\ufeff/,''):h).trim().toLowerCase());
+  return rows.map(cols=>{const o={};headers.forEach((h,i)=>o[h]=(cols[i]||'').trim());return o;});
+}
+function normalizeBulkRows(rows){return rows.map(o=>({ymis:String(o.ymis||'').trim(),name:String(o.name||'').trim(),email:String(o.email||'').trim(),branch:String(o.branch||o.squad||'').trim(),role:String(o.role||'member').trim(),can_tick:['true','1','yes','y','是'].includes(String(o.can_tick||'').toLowerCase()),password:String(o.password||''),note:String(o.note||'')}));}
+async function importMembersFile(file){if(!file)return;try{bulkDraft=normalizeBulkRows(parseCSV(await file.text()));renderBulkPreview();}catch(e){showToast('CSV 讀取失敗：'+e.message,'error');}}
+function showBulkJsonInput(){const t=document.getElementById('bulkJsonInput'),b=document.getElementById('bulkJsonParseBtn');t.style.display='block';b.style.display='inline-flex';t.focus();}
+function parseBulkJsonInput(){try{let rows=JSON.parse(document.getElementById('bulkJsonInput').value);if(!Array.isArray(rows))rows=[rows];bulkDraft=normalizeBulkRows(rows);renderBulkPreview();}catch(e){showToast('JSON 格式錯誤：'+e.message,'error');}}
+function validateBulkRow(u,index){
+  const errors=[],auto=document.getElementById('bulkAutoPassword').checked;
+  if(!/^\d{10}$/.test(u.ymis))errors.push('YMIS 不是 10 位數字');if(!u.name)errors.push('欠姓名');if(!['member','exec_committee','branch_leader','group_leader','admin'].includes(u.role))errors.push('角色無效');else if(!canCreateRoleFrontend(u.role))errors.push('不可建立此角色');if(u.role!=='member'&&!u.email)errors.push('領袖／執委欠 Email');if(u.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email))errors.push('Email 格式錯誤');if(!u.password&&!auto)errors.push('欠臨時密碼');if(u.password&&u.password.length<8)errors.push('密碼少於 8 位');if(adminUsersCache.some(x=>x.ymis===u.ymis))errors.push('YMIS 已存在');if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis))errors.push('檔內 YMIS 重複');return errors;
+}
+function renderBulkPreview(){
+  const summary=document.getElementById('bulkSummary'),container=document.getElementById('bulkPreviewContainer'),btn=document.getElementById('btnExecuteBulk');if(!bulkDraft.length){summary.textContent='沒有可預覽資料';container.innerHTML='';btn.disabled=true;return;}
+  let valid=0;const rows=bulkDraft.map((u,i)=>{const errors=validateBulkRow(u,i);u._errors=errors;if(!errors.length)valid++;return `<tr><td>${i+1}</td><td>${escapeHtmlText(u.ymis)}</td><td>${escapeHtmlText(u.name)}</td><td>${escapeHtmlText(u.email)}</td><td>${escapeHtmlText(getRoleName(u.role))}</td><td>${u.password?'已提供':'自動產生'}</td><td class="${errors.length?'bulk-error':'bulk-ok'}">${errors.length?escapeHtmlText(errors.join('、')):'✓ 可開戶'}</td></tr>`;}).join('');
+  summary.innerHTML=`共 ${bulkDraft.length} 筆；<b style="color:var(--green)">${valid} 筆可開戶</b>；<b style="color:var(--red)">${bulkDraft.length-valid} 筆會略過</b>`;container.innerHTML=`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>#</th><th>YMIS</th><th>姓名</th><th>Email</th><th>角色</th><th>密碼</th><th>檢查</th></tr></thead><tbody>${rows}</tbody></table></div>`;btn.disabled=valid===0;
+}
+async function executeBulkOnboard(){
+  const valid=bulkDraft.filter(u=>!u._errors?.length).map(u=>({...u,password:u.password||generateTempPassword()}));if(!valid.length)return;if(!confirm(`確定建立 ${valid.length} 個帳戶？`))return;
+  const btn=document.getElementById('btnExecuteBulk');btn.disabled=true;btn.textContent='開戶中...';bulkResults=[];
+  try{for(let i=0;i<valid.length;i+=100){const chunk=valid.slice(i,i+100);btn.textContent=`開戶中 ${i+1}-${Math.min(i+100,valid.length)} / ${valid.length}`;const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'bulkAddUsers',token:currentToken,users:chunk})});const d=await r.json();if(!d.success)throw new Error(d.error||'批量寫入失敗');(d.results||[]).forEach((result,j)=>bulkResults.push({...result,password:chunk[j]?.password||''}));}
+    const ok=bulkResults.filter(x=>x.success),fail=bulkResults.filter(x=>!x.success);const result=document.getElementById('bulkResult');result.style.display='block';result.innerHTML=`<div class="info-section" style="border-left:4px solid ${fail.length?'var(--orange)':'var(--green)'}"><b>完成：成功 ${ok.length}，失敗 ${fail.length}</b><p style="font-size:11px;color:var(--text-light);margin-top:5px">臨時密碼只在本次畫面保留，請立即下載並以安全方式分別交給用戶。</p><button class="btn btn-sm btn-success" style="margin-top:8px" onclick="downloadBulkCredentials()">⬇️ 下載成功帳戶及臨時密碼</button>${fail.length?`<div class="bulk-error" style="margin-top:8px">${fail.map(x=>`${escapeHtmlText(x.ymis)}：${escapeHtmlText(x.error)}`).join('<br>')}</div>`:''}</div>`;showToast(`批量開戶完成：成功 ${ok.length} 筆`,'success');await loadUsers();await loadItemsAndProgress();
+  }catch(e){showToast('批量開戶失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='🚀 確認批量開戶';}
+}
+function csvCell(v){let value=String(v??'');if(/^[=+\-@]/.test(value))value="'"+value;return '"'+value.replace(/"/g,'""')+'"';}
+function downloadBulkCredentials(){const ok=bulkResults.filter(x=>x.success);const lines=['ymis,name,temp_password',...ok.map(x=>[x.ymis,x.name,x.password].map(csvCell).join(','))];downloadTextFile(`vsbadge-temp-passwords-${todayISO()}.csv`,'\ufeff'+lines.join('\r\n'),'text/csv;charset=utf-8');}
+
 async function toggleAllowMemberViewOthers(checked){
   const val=checked?'true':'false';
   try{
@@ -2644,15 +2888,15 @@ function clearMockMembers(){
 }
 async function updateUserRole(tid,nr){
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:nr,can_tick:true})});
-    const d=await r.json(); if(d.success){ showToast('角色已更新','success'); loadUsers(); } else showToast(d.error,'error');
-  }catch(e){ showToast('錯誤','error'); }
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:nr,can_tick:nr!=='member'})});
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'更新失敗'); showToast('角色已更新','success'); loadUsers();
+  }catch(e){ showToast('角色更新失敗：'+e.message,'error'); loadUsers(); }
 }
-async function toggleCanTick(tid,ct){
+async function toggleCanTick(tid,ct,role){
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:'member',can_tick:ct})});
-    const d=await r.json(); showToast(ct?'已授權勾選':'已收回權限',d.success?'success':'error'); loadUsers();
-  }catch(e){ showToast('錯誤','error'); }
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:role,can_tick:ct})});
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'更新失敗'); showToast(ct?'已授權勾選':'已收回權限','success'); loadUsers();
+  }catch(e){ showToast('權限更新失敗：'+e.message,'error'); loadUsers(); }
 }
 async function loadApplications(){
   const c=document.getElementById('tab-apps');
@@ -2664,18 +2908,26 @@ async function loadApplications(){
       let h='<h3 style="margin-bottom:12px;color:var(--maroon)">待審批帳號申請</h3>';
       if(d.applications.length===0) h+='<p style="color:var(--text-light)">目前沒有待審批的申請</p>';
       else d.applications.forEach(a=>{
-        h+=`<div class="app-item"><div class="app-item-info"><b>${a.name}</b> ${a.ymis?`(${a.ymis})`:''} ${a.email?`- ${a.email}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${getRoleName(a.requested_role)} | ${a.applied_at}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${a.app_id}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${a.app_id}','rejected')">拒絕</button></div></div>`;
+        h+=`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${escapeHtmlText(getRoleName(a.requested_role))} | ${escapeHtmlText(a.applied_at)}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`;
       });
       c.innerHTML=h;
     }else c.innerHTML='<p style="color:var(--red)">載入失敗</p>';
   }catch(e){ c.innerHTML='<p style="color:var(--red)">錯誤</p>'; }
 }
 async function reviewApp(id,dec){
-  if(!confirm(`確定要${dec==='approved'?'批准':'拒絕'}嗎？`)) return;
+  if(!confirm(`確定要${dec==='approved'?'批准並開立帳戶':'拒絕'}嗎？`)) return;
+  const tempPassword=dec==='approved'?generateTempPassword():'';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewApplication',token:currentToken,app_id:id,decision:dec,review_note:''})});
-    const d=await r.json(); showToast(d.message,d.success?'success':'error'); loadApplications();
-  }catch(e){ showToast('錯誤','error'); }
+    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewApplication',token:currentToken,app_id:id,decision:dec,review_note:'',temp_password:tempPassword})});
+    const d=await r.json(); if(!d.success) throw new Error(d.error||'審批失敗');
+    showToast(d.message,'success');
+    if(dec==='approved'){
+      document.getElementById('historyTitle').textContent='✅ 帳戶已建立';
+      document.getElementById('historyBody').innerHTML=`<div class="info-section"><p>臨時密碼只在本次顯示，請安全地個別交給申請人：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
+      document.getElementById('historyModal').classList.add('active');
+    }
+    renderRequestsTab();
+  }catch(e){ showToast('審批失敗：'+e.message,'error'); }
 }
 </script>
 </body>
