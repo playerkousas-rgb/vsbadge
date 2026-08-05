@@ -40,10 +40,11 @@
   → 優點：簡單，唔使搞主系統
 
 軌道 B：有主系統並想接上 (進階)
-  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json)
-  → 額外：將 URL + API Key 交給主系統管理員，填入主系統「旅團設定 → 元件設定」vsbadge 卡片的 backend + apikey 欄位
+  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json / env Registry)
+  → v3.0 起：主系統卡片只需帶 u=旅團編號，**不需要**再填/傳 backend + apikey
   → 用法：主系統 Dashboard 點「深資童軍進度追蹤」卡片 → 自動帶入身份 (from=portal&embed=1) → 直接用
   → 優點：單一登入、自動帶身份、介面嵌入、成員唔使記多個密碼
+  → 注意：領袖經 Portal 免登入**寫入**時，旅團 API Key 必須已登記在 vsbadge Registry（troops.json 的 apikey 或 TROOP_{ID}_APIKEY env），由伺服器端注入
 
 兩條路可同時用：領袖從主系統卡片入(自動身份)，成員 bookmark 獨立連結
 ```
@@ -121,27 +122,25 @@
 
 ### 第 6 步 (僅軌道 B)：提交給主系統管理員
 
-將 **同一組** URL + API Key 交給你旅團的主系統管理員 (scoutsystem-2.0 管理員)：
+> **v3.0 變更**：vsbadge 已改用同源 Proxy 架構，URL 參數中的 `backend` / `apikey` 一律被忽略
+> （防止任意後端注入）。你**不需要**再把 Apps Script URL / API Key 填入主系統卡片，
+> 只需確保旅團已登記在 vsbadge Registry（第 5 步交給 vsbadge 管理員）。
 
-- 旅團主系統後台 → 旅團設定 → 元件設定 → 找到 `vs_badge_tracker` 卡片
-- 填入：
-  - `backend`: 你的 Apps Script URL
-  - `apikey`: 你的 API Key
-- 保存
+主系統卡片設定只需保證點卡時 URL 帶有你的旅團編號 `u` 參數即可。
 
 ### 第 7 步 (僅軌道 B)：主系統自動帶入身份
 
 之後成員/領袖在主系統 Dashboard 點「深資童軍進度追蹤」卡片，URL 會自動變成：
 
 ```
-https://vsbadge.vercel.app/?u=0082&role=leader&ymis=1234567890&name=陳大文&from=portal&embed=1&backend=...&apikey=...
+https://vsbadge.vercel.app/?u=0082&role=leader&ymis=1234567890&name=陳大文&from=portal&embed=1
 ```
 
-- `u` 旅團編號
+- `u` 旅團編號（vsbadge 用它從伺服器端 Registry 查找你旅團的 GAS，前端接觸不到 URL）
 - `role` / `ymis` / `name` 自動帶入，無需再登入
 - `from=portal` 標記主系統信任模式，免密碼
 - `embed=1` 精簡介面，隱藏大Header，適合 iframe 600-750px 高
-- `backend` / `apikey` 若主系統有填，會直接使用，否則自動查 `troops.json`
+- （舊連結附带的 `backend` / `apikey` 參數會被安全忽略）
 
 **結果**：點卡片即入，身份已帶入，進度、批量、審批、表格功能完全一致。
 
@@ -191,8 +190,8 @@ A: 不用。有主系統不等於一定要接。你可以繼續獨立用 vsbadge
 **Q: 接上後獨立用還能用嗎？**
 A: 能，雙軌並存。領袖從主系統卡片入(自動身份)，成員直接開 vsbadge.vercel.app。
 
-**Q: 顯示「無法連接後端」？**
-A: 確認 Apps Script 部署存取權為「任何人」，且 `troops.json` 已包含你旅團或主系統卡片已填 backend/apikey。
+**Q: 顯示「無法連接旅團後端／找不到此旅團」？**
+A: 確認 Apps Script 部署存取權為「任何人」（執行身分：我；存取權：任何人），且旅團已加入 vsbadge Registry（troops.json 或 Vercel env）。v3.0 起主系統卡片的 backend/apikey 欄位不再是後端來源。
 
 **Q: 忘記 API Key？**
 A: Apps Script 編輯器選 `showApiKey` 函數執行，會再次顯示。

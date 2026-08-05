@@ -385,18 +385,18 @@ a:hover{text-decoration:underline}
         <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>重點：有主系統 ≠ 一定要接上本系統</b>，可自由選擇獨立用或接上，兩條路並存不衝突。藉此告訴用家有更大平台可用。</p>
       </div>
 
-      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員 + 額外交主系統管理員填入旅團設定→元件設定 backend+apikey → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&embed=1 → 直接用</p></div>
+      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&embed=1 → 直接用</p></div>
 
       <div class="tutorial">
         <div class="steps">
           <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 troops.json，Vercel自動部署後獨立可用</p></div></div>
-          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 額外提交給主系統管理員</h4><p>將同一組 URL+Key 交主系統管理員，填入旅團設定→元件設定 vsbadge 卡片 backend+apikey。之後成員點 Dashboard 卡片自動帶入 ?u=0082&role=&ymis=&from=portal&embed=1，無需密碼</p></div></div>
+          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 主系統卡片只需帶旅團編號</h4><p>v3.0 起採用同源 Proxy：主系統卡片點擊時 URL 只需帶 ?u=0082&role=&ymis=&from=portal&embed=1，無需密碼；旅團 GAS URL 由 vsbadge 伺服器端 Registry 安全解析，不經瀏覽器</p></div></div>
           <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>有主系統不等於一定要接，可自由選擇獨立用。若旅團重私隱，成員預設只看自己；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
         </div>
       </div>
-      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 完成後提交</h3><p style="font-size:11px">獨立用：交 vsbadge 管理員<br>接入主系統：同時交主系統管理員（填 backend+apikey）<br>兩條路可同時用，領袖從主系統入，成員 bookmark 獨立連結</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請給 vsbadge 管理員</button></div>
+      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 完成後提交</h3><p style="font-size:11px">獨立用：交 vsbadge 管理員<br>接入主系統：同樣交 vsbadge 管理員登記 Registry 即可（主系統卡片只需帶 u 參數）<br>兩條路可同時用，領袖從主系統入，成員 bookmark 獨立連結</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請給 vsbadge 管理員</button></div>
     </div>
 
     <div id="welcome-guide" class="welcome-section">
@@ -579,7 +579,7 @@ a:hover{text-decoration:underline}
     <p style="font-size:11px;color:var(--text-light);background:var(--bg);padding:8px;border-radius:6px">💡 提交後領袖會在「待批」頁看到，可批准即自動寫入進度。先暫存於瀏覽器，按確認才送出（支援離線）。</p>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('requestModal')">取消</button>
-      <button class="btn btn-primary" onclick="submitMemberRequest()">提交申請</button>
+      <button class="btn btn-primary" id="btnSubmitRequest" onclick="submitMemberRequest()">提交申請</button>
     </div>
   </div>
 </div>
@@ -683,8 +683,10 @@ a:hover{text-decoration:underline}
 
 <script>
 /* ================== 全局狀態 ================== */
-const SCOUT_ADMIN_API='https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
-let currentTroopId='',currentTroopName='',currentBackend='',currentApikey='';
+/* v3.0 同源 Proxy 架構：前端只持有 troopId，永不接觸 GAS URL。
+   所有後端請求經 apiRequest() → /api/proxy → 伺服器端 Registry → 旅團 GAS。 */
+const API_ENDPOINT='/api/proxy';
+let currentTroopId='',currentTroopName='';
 let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
 let selectedProgressYmis=null; // 領袖查看他人進度
@@ -700,6 +702,37 @@ const LS = {
 };
 
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
+
+/* ================== 統一後端請求封裝（唯一出口：同源 /api/proxy） ==================
+   - 所有 GAS 通訊必须经过這裡，禁止各自直接 fetch GAS URL
+   - 網絡／逾時／非 JSON 回應一律 throw 友善錯誤
+   - Proxy 業務錯誤（404/502/504...）統一化成 {success:false,error} 交呼叫端處理 */
+async function apiRequest(action, data={}, opts={}){
+  const timeoutMs=opts.timeout||45000;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(), timeoutMs);
+  let res;
+  try{
+    res=await fetch(API_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        troopId:(opts.troopId!==undefined?opts.troopId:currentTroopId),
+        action:action,
+        data:data
+      }),
+      signal:controller.signal
+    });
+  }catch(e){
+    if(e && e.name==='AbortError') throw new Error('連線逾時，伺服器沒有回應，請稍後重試');
+    throw new Error('無法連接伺服器，請檢查網絡連線');
+  }finally{ clearTimeout(timer); }
+  let payload;
+  try{ payload=await res.json(); }catch(e){ throw new Error('伺服器回應格式異常 (HTTP '+res.status+')，請稍後重試'); }
+  if(!payload || typeof payload!=='object') throw new Error('伺服器回應異常 (HTTP '+res.status+')，請稍後重試');
+  if(!res.ok && payload.success!==false) payload.success=false;
+  return payload;
+}
 
 /* ================== 初始化 ================== */
 function getUrlParams(){ try{ return new URLSearchParams(window.location.search); }catch(e){ return new URLSearchParams(); } }
@@ -736,45 +769,39 @@ async function handlePortalParams(){
   const role=params.get('role');
   const ymis=params.get('ymis');
   const nameParam=params.get('name') || params.get('displayName') || ymis || 'Portal User';
-  const backendParam=params.get('backend');
-  const apikeyParam=params.get('apikey');
   const troopNameParam=params.get('troopName') || (u?`第${u}旅`:'Portal Troop');
   const from=params.get('from');
 
-  console.log('Portal params detected', {u, role, ymis, from, hasBackend: !!backendParam});
+  // 安全（v3.0）：URL 參數中的 backend/apikey 一律忽略，杜絕任意後端注入（SSRF/Open Proxy 風險）。
+  // 旅團的 GAS URL 只由伺服器端可信 Registry（troops.json + env）解析。
+  if(params.get('backend')||params.get('apikey')){
+    console.warn('已忽略 URL 中的 backend/apikey 參數：v3.0 起由伺服器端 Registry 解析旅團後端');
+  }
 
-  // 若有 u，嘗試載入旅團設定
+  console.log('Portal params detected', {u, role, ymis, from});
+
+  // 若有 u，驗證旅團已在 Registry 登記（不取 URL）
+  let troopRegistered=false;
   if(u){
     currentTroopId=u;
     currentTroopName=troopNameParam;
-    if(backendParam){
-      currentBackend=backendParam;
-      currentApikey=apikeyParam||'';
-    }else{
-      // 從 troops.json 查找
+    try{
+      const r2=await fetch('/api/troops?_='+Date.now());
+      if(r2.ok){
+        const d2=await r2.json();
+        const t2=d2.troops[u];
+        if(t2){ troopRegistered=true; currentTroopName=t2.name||troopNameParam; }
+      }
+    }catch(e){ console.warn('api/troops lookup failed',e); }
+    if(!troopRegistered){
       try{
         const r=await fetch('data/troops.json?_='+Date.now());
         if(r.ok){
           const d=await r.json();
           const t=d.troops[u];
-          if(t){
-            currentBackend=t.backend;
-            currentApikey=t.apikey||'';
-            currentTroopName=t.name||troopNameParam;
-          }
+          if(t && t.name){ troopRegistered=true; currentTroopName=t.name; }
         }
       }catch(e){ console.warn('portal troops.json lookup failed',e); }
-      // 再試 api/troops
-      if(!currentBackend){
-        try{
-          const r2=await fetch('/api/troops?_='+Date.now());
-          if(r2.ok){
-            const d2=await r2.json();
-            const t2=d2.troops[u];
-            if(t2){ currentBackend=t2.backend; currentApikey=t2.apikey||''; currentTroopName=t2.name||troopNameParam; }
-          }
-        }catch(e){}
-      }
     }
   }
 
@@ -797,11 +824,11 @@ async function handlePortalParams(){
     document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤 (Portal)`;
     document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span> <span style="background:var(--blue);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">Portal</span>`;
     setupTabsByRole();
-    // 若有 backend，載入進度
-    if(currentBackend){
+    // 旅團已登記才載入進度
+    if(troopRegistered){
       loadItemsAndProgress();
     }else{
-      document.getElementById('tab-progress').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>⚠️ Portal 模式：未找到旅團後端設定</p><p style="font-size:11px">u=${u} 但未在 troops.json 找到，且未傳入 backend 參數</p><p style="font-size:11px">請在主系統卡片設定中填入 backend URL 及 apikey，或將旅團加入 troops.json</p></div>`;
+      document.getElementById('tab-progress').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>⚠️ Portal 模式：旅團未在 Registry 登記</p><p style="font-size:11px">u=${u} 未在伺服器端 troops.json / env 找到</p><p style="font-size:11px">請聯絡 vsbadge 管理員將旅團 GAS URL 加入 Registry（主系統卡片只需傳 u 參數，不需再傳 backend/apikey）</p></div>`;
     }
     return;
   }
@@ -810,8 +837,8 @@ async function handlePortalParams(){
   if(u){
     // 嘗試自動選旅團
     try{
-      // 若 backend 已有，直接顯示登入
-      if(currentBackend){
+      // 若旅團已登記，直接顯示登入
+      if(troopRegistered){
         document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId}) - Portal預選`;
         document.getElementById('homePage').style.display='none';
         document.getElementById('loginPage').style.display='block';
@@ -849,29 +876,18 @@ function backToHome(){
 async function loadTroops(){
   const grid=document.getElementById('troopGrid');
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p>';
-  // 硬編碼後備，確保 Vercel 即使 data/troops.json 404 都有 0082
-  const fallbackTroops={
-    "0082": { name:"第 82 旅", backend:"https://script.google.com/macros/s/AKfycbw81wLR5NZtRk4m1ptSAoFBueoqwIZ5hcM_apHJa2xMmlVfUvZsS8R45nTIKTOIuBB2KQ/exec" }
-  };
+  // 後備（不含任何後端 URL）：確保即使資料源 404 都顯示 0082；真正後端由伺服器端 Registry 解析
+  const fallbackTroops={ "0082": { name:"第 82 旅" } };
   try{
-    let data=null;
-    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok) data=await r.json(); else throw new Error('data 404'); }catch(e){ console.warn('data/troops.json failed',e); data={troops:{}}; }
-    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops && Object.keys(d2.troops).length>0){ data.troops={...data.troops,...d2.troops}; } } }catch(e){ console.warn('api/troops failed',e); }
-    let troops=data.troops||{};
-    // 若仍為空，使用硬編碼後備
-    if(Object.keys(troops).length===0){
-      console.warn('使用硬編碼後備 0082');
-      troops=fallbackTroops;
-    }
-    // 合併後備，確保0082一定存在
+    let troops={};
+    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅')}; } } }catch(e){ console.warn('api/troops failed',e); }
+    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok){ const d=await r.json(); if(d.troops){ for(const [id,t] of Object.entries(d.troops)){ if(!troops[id]) troops[id]={name:t.name||('第'+id+'旅')}; } } } }catch(e){ console.warn('data/troops.json failed',e); }
+    const fromSource=Object.keys(troops).length>0;
+    // 合併後備，確保0082一定可見
     troops={...fallbackTroops, ...troops};
-    if(Object.keys(troops).length===0){
-      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-light)"><p>暫無旅團資料</p><p style="font-size:11px;margin-top:6px">已嘗試載入 data/troops.json 及 /api/troops 均失敗，顯示後備資料</p></div>';
-      return;
-    }
-    grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${t.name||'第'+id+'旅'}</div><div style="font-size:9px;color:var(--text-light);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.backend||'').substring(0,28)}...</div></div>`).join('');
+    grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${t.name||'第'+id+'旅'}</div></div>`).join('');
     // 若只有後備，提示
-    if(Object.keys(data.troops||{}).length===0){
+    if(!fromSource){
       grid.innerHTML+=`<div style="grid-column:1/-1;text-align:center;padding:8px;background:#FFF3CD;border-radius:8px;font-size:11px;margin-top:8px">⚠️ 正使用後備資料顯示 0082，若 Vercel 上 data/troops.json 未部署，請檢查 GitHub 是否已推送 data/troops.json</div>`;
     }
   }catch(e){
@@ -882,13 +898,13 @@ async function loadTroops(){
 }
 async function selectTroop(id){
   try{
-    const r=await fetch('data/troops.json'); const d=await r.json(); let t=d.troops[id];
-    // try api fallback
+    let t=null;
+    try{ const r2=await fetch('/api/troops'); const d2=await r2.json(); t=(d2.troops||{})[id]; }catch(e){}
     if(!t){
-      try{ const r2=await fetch('/api/troops'); const d2=await r2.json(); t=d2.troops[id]; }catch(e){}
+      try{ const r=await fetch('data/troops.json'); const d=await r.json(); const f=(d.troops||{})[id]; if(f) t={name:f.name}; }catch(e){}
     }
-    if(!t||!t.backend){ showToast('此旅團設定不完整，請聯絡管理員','error'); return; }
-    currentTroopId=id; currentTroopName=t.name||('第'+id+'旅'); currentBackend=t.backend; currentApikey=t.apikey||'';
+    if(!t){ showToast('此旅團未在系統登記，請聯絡管理員','error'); return; }
+    currentTroopId=id; currentTroopName=t.name||('第'+id+'旅');
     document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='block';
@@ -913,8 +929,7 @@ async function doLogin(){
   if(!lid||!pw){ msg.textContent='請填寫帳號和密碼'; msg.className='login-msg error'; return; }
   btn.disabled=true; btn.textContent='登入中...';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'login',login_id:lid,password:pw})});
-    const d=await r.json();
+    const d=await apiRequest('login',{login_id:lid,password:pw});
     if(d.success){
       currentUser=d.user; currentUser.force_change_password=!!d.force_change_password; currentToken=d.token;
       saveCurrentSession();
@@ -933,9 +948,10 @@ async function doLogin(){
   finally{ btn.disabled=false; btn.textContent='登入'; }
 }
 function doLogout(){
-  if(currentBackend&&currentToken) fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'logout',token:currentToken})}).catch(()=>{});
+  // 通知後端註銷 token（best-effort）：失敗只在 console 提示，不阻塞本機登出，亦不靜默
+  if(currentTroopId&&currentTroopId!=='DEMO'&&currentToken) apiRequest('logout',{token:currentToken}).then(d=>{ if(!d.success) console.warn('[logout] 後端 token 註銷失敗:',d.error); }).catch(e=>console.warn('[logout] 後端 token 註銷失敗（已在本機登出）:',e.message||e));
   localStorage.removeItem(LS.session);
-  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName=''; currentBackend=''; currentApikey='';
+  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName='';
   document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
   document.getElementById('mainApp').style.display='none';
   document.getElementById('homePage').style.display='block';
@@ -948,7 +964,8 @@ function checkSavedSession(){
   try{
     const ss=JSON.parse(s);
     if(Date.now()-ss.savedAt>30*24*3600000) return;
-    currentTroopId=ss.troopId; currentTroopName=ss.troopName; currentBackend=ss.backend; currentApikey=ss.apikey; currentToken=ss.token; currentUser=ss.user;
+    // v3.0：session 只用 troopId + token；舊版存的 backend/apikey 欄位一律忽略
+    currentTroopId=ss.troopId; currentTroopName=ss.troopName; currentToken=ss.token; currentUser=ss.user;
     document.getElementById('homePage').style.display='none';
     document.getElementById('mainApp').style.display='block';
     document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤`;
@@ -1018,7 +1035,7 @@ function showContactModal(){ document.getElementById('contactModal').classList.a
 function closeContactModal(){ document.getElementById('contactModal').classList.remove('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 function showAccountApplyModal(){
-  if(!currentBackend){ showToast('請先選擇旅團','warning'); return; }
+  if(!currentTroopId){ showToast('請先選擇旅團','warning'); return; }
   ['applyYmis','applyName','applyBranch','applyEmail'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   const msg=document.getElementById('applyMsg'); msg.className='login-msg'; msg.textContent='';
   document.getElementById('accountApplyModal').classList.add('active');
@@ -1032,8 +1049,8 @@ async function submitAccountApply(){
   if(!/^\d{10}$/.test(ymis)||!name){ msg.textContent='請填寫姓名及 10 位數字 YMIS'; msg.className='login-msg error'; return; }
   btn.disabled=true; btn.textContent='提交中...';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'apply',ymis,name,email,branch,requested_role:'member'})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'提交失敗');
+    const d=await apiRequest('apply',{ymis,name,email,branch,requested_role:'member'});
+    if(!d.success) throw new Error(d.error||'提交失敗');
     msg.textContent=d.message||'申請已提交'; msg.className='login-msg success';
     setTimeout(()=>closeModal('accountApplyModal'),1200);
   }catch(e){ msg.textContent=e.message; msg.className='login-msg error'; }
@@ -1054,15 +1071,16 @@ async function submitChangePassword(){
   if(newP!==confirmP){ showToast('兩次輸入的新密碼不一致','error'); return; }
   const btn=document.getElementById('btnChangePassword'); btn.disabled=true; btn.textContent='儲存中...';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'changePassword',token:currentToken,old_password:oldP,new_password:newP})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'更改失敗');
+    const d=await apiRequest('changePassword',{token:currentToken,old_password:oldP,new_password:newP});
+    if(!d.success) throw new Error(d.error||'更改失敗');
     currentUser.force_change_password=false; saveCurrentSession(); closeModal('changePasswordModal'); showToast('密碼已更新','success');
   }catch(e){ showToast('更改密碼失敗：'+e.message,'error'); }
   finally{ btn.disabled=false; btn.textContent='儲存新密碼'; }
 }
 function saveCurrentSession(){
   if(!currentUser||!currentToken) return;
-  localStorage.setItem(LS.session,JSON.stringify({troopId:currentTroopId,troopName:currentTroopName,backend:currentBackend,apikey:currentApikey,token:currentToken,user:currentUser,savedAt:Date.now()}));
+  // v3.0：不再儲存 backend/apikey，session 只保留 troopId + token
+  localStorage.setItem(LS.session,JSON.stringify({troopId:currentTroopId,troopName:currentTroopName,token:currentToken,user:currentUser,savedAt:Date.now()}));
 }
 async function submitRegistration(){
   const ti=document.getElementById('c_troopId').value.trim(), tn=document.getElementById('c_troopName').value.trim(), su=document.getElementById('c_scriptUrl').value.trim(), ak=document.getElementById('c_apiKey').value.trim(), nt=document.getElementById('c_note').value.trim();
@@ -1070,11 +1088,13 @@ async function submitRegistration(){
   if(!ti||!su||!ak){ showToast('請填寫旅團編號、Script URL 和 API Key','error'); return; }
   btn.disabled=true; btn.textContent='提交中...';
   try{
-    await fetch(SCOUT_ADMIN_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({troopId:ti,troopName:tn,scriptUrl:su,apiKey:ak,appType:'vsbadge',note:nt})});
+    // v3.0：經同源 Proxy 轉發到中央管理員收件匣，能拿到真實成功/失敗回應
+    const d=await apiRequest('submitRegistration',{troopId:ti,troopName:tn,scriptUrl:su,apiKey:ak,note:nt});
+    if(!d.success) throw new Error(d.error||'提交失敗');
     showToast('✅ 申請已提交！管理員會盡快處理','success');
     closeContactModal();
     ['c_troopId','c_troopName','c_scriptUrl','c_apiKey','c_note'].forEach(id=>document.getElementById(id).value='');
-  }catch(e){ showToast('❌ 提交失敗，請檢查網絡','error'); }
+  }catch(e){ showToast('❌ 提交失敗：'+e.message,'error'); }
   finally{ btn.disabled=false; btn.textContent='提交申請'; }
 }
 function showToast(m,t=''){
@@ -1084,8 +1104,7 @@ function showToast(m,t=''){
 /* ================== Load Data ================== */
 async function loadAppConfig(){
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getConfig',token:currentToken})});
-    const d=await r.json();
+    const d=await apiRequest('getConfig',{token:currentToken});
     if(d.success && d.config){
       appConfig=d.config;
       if(!appConfig.allow_member_view_others) appConfig.allow_member_view_others='false';
@@ -1100,11 +1119,10 @@ async function loadItemsAndProgress(){
     // 先載入系統設定（私隱開關）
     await loadAppConfig();
     const r1=await fetch('data/items.json'); itemsData=await r1.json();
-    // backend load
+    // 經同源 Proxy 載入雲端資料（GAS 的 doGet?action=load 由 Proxy 在伺服器端代為發出）
     let backendData=null;
     try{
-      const r2=await fetch(currentBackend+'?action=load&apikey='+encodeURIComponent(currentApikey)+'&token='+encodeURIComponent(currentToken));
-      backendData=await r2.json();
+      backendData=await apiRequest('load',{token:currentToken});
     }catch(e){ console.warn('backend load fail',e); backendData={success:false}; }
     if(backendData.success){
       members=backendData.members||[];
@@ -1640,7 +1658,9 @@ function discardChanges(){
 }
 async function saveChanges(){
   if(pendingChanges.length===0){ showToast('沒有需要保存的變更','warning'); return; }
-  if(!currentBackend){ showToast('DEMO模式：數據僅在瀏覽器，無後端可寫入','warning'); return; }
+  if(!currentTroopId||currentTroopId==='DEMO'){ showToast('DEMO模式：數據僅在瀏覽器，無後端可寫入','warning'); return; }
+  if(saveChanges._busy){ showToast('正在寫入雲端，請稍候','warning'); return; } // 防止重複提交
+  saveChanges._busy=true;
   const overlay=document.getElementById('savingOverlay');
   overlay.classList.add('active');
   const progBar=document.getElementById('savingProgress');
@@ -1654,17 +1674,10 @@ async function saveChanges(){
     // simulate progress
     let p=10;
     const interval=setInterval(()=>{ p=Math.min(p+15,90); progBar.style.width=p+'%'; },300);
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',token:currentToken,apikey:currentApikey,changes:pendingChanges,confirmer:currentUser.name})});
+    // await 真實後端回應：成功才顯示「已儲存」；失敗/非 JSON/逾時一律落入 catch
+    const d=await apiRequest('save',{token:currentToken,changes:pendingChanges,confirmer:currentUser.name});
     clearInterval(interval);
     progBar.style.width='100%';
-    // Handle non-JSON responses (e.g. HTML error pages) gracefully
-    let d;
-    try{
-      const text=await r.text();
-      d=JSON.parse(text);
-    }catch(jsonErr){
-      throw new Error('伺服器回應非JSON格式（unexpected end of JSON input）。可能後端URL不正確或伺服器暫時離線。請檢查後端URL或稍後重試。原始回應: '+(r.status||'未知狀態'));
-    }
     if(d.success){
       txt.textContent='✅ 寫入成功！';
       sub.textContent=`已處理 ${d.processed||pendingChanges.length} 項`;
@@ -1682,7 +1695,7 @@ async function saveChanges(){
     progBar.style.width='100%';
     progBar.style.background='var(--red)';
     setTimeout(()=>{ overlay.classList.remove('active'); progBar.style.background='var(--maroon)'; showToast('寫入失敗：'+e.message+'，已保留於瀏覽器可重試','error'); },1800);
-  }
+  }finally{ saveChanges._busy=false; }
 }
 function onProgressMemberChange(ymis){
   selectedProgressYmis=ymis;
@@ -1698,10 +1711,12 @@ function openRequestModal(itemId, itemName){
   document.getElementById('reqEvidence').value='';
   document.getElementById('requestModal').classList.add('active');
 }
-function submitMemberRequest(){
+async function submitMemberRequest(){
   const date=document.getElementById('reqDate').value;
   const evidence=document.getElementById('reqEvidence').value.trim();
   if(!date){ showToast('請選擇完成日期','error'); return; }
+  const btn=document.getElementById('btnSubmitRequest');
+  if(btn && btn.disabled) return; // 防止重複提交
   const itemId=currentRequestItem.id;
   const itemName=currentRequestItem.name;
   const requestObj={
@@ -1715,27 +1730,32 @@ function submitMemberRequest(){
     status: 'local_draft',
     created_at: todayISO()
   };
-  // save to local
+  // 先存本地暫存（離線韌性），但必須等後端真實回應才可報成功
   let localKey=LS.requests(currentTroopId, currentUser.ymis);
   let arr=JSON.parse(localStorage.getItem(localKey)||'[]');
   arr.push(requestObj);
   localStorage.setItem(localKey, JSON.stringify(arr));
-  // try to push to backend immediately
-  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'requestComplete',token:currentToken,apikey:currentApikey,ymis:currentUser.ymis,name:currentUser.name,itemId,itemName: itemName, requested_date: date, evidence})})
-    .then(r=>r.json()).then(d=>{
-      if(d.success){
-        // remove local draft and add real one?
-        arr=arr.filter(x=>x.request_id!==requestObj.request_id);
-        localStorage.setItem(localKey, JSON.stringify(arr));
-        showToast('✅ 申請已送出，待領袖確認','success');
-      }else{
-        showToast('已暫存於瀏覽器，連線後會自動同步','warning');
-      }
-    }).catch(()=>{ showToast('已暫存於瀏覽器（離線模式）','warning'); });
-  closeModal('requestModal');
-  // also push to pendingRequestsQueue for immediate UI if leader view? not needed
   pendingRequestsQueue.push(requestObj);
   updateRequestsBadge();
+  closeModal('requestModal');
+  if(btn){ btn.disabled=true; btn.textContent='提交中...'; }
+  try{
+    const d=await apiRequest('requestComplete',{token:currentToken,ymis:currentUser.ymis,name:currentUser.name,itemId,itemName:itemName,requested_date:date,evidence});
+    if(d.success){
+      // 後端確認收到：移除本地暫存，佇列標記為真實待批
+      arr=arr.filter(x=>x.request_id!==requestObj.request_id);
+      localStorage.setItem(localKey, JSON.stringify(arr));
+      pendingRequestsQueue=pendingRequestsQueue.filter(x=>x.request_id!==requestObj.request_id);
+      pendingRequestsQueue.push({...requestObj, request_id:d.request_id||requestObj.request_id, status:'pending'});
+      updateRequestsBadge();
+      showToast('✅ 申請已送出，待領袖確認','success');
+    }else{
+      // 明確失敗：不扮成功，暫存保留
+      showToast('⚠️ 申請未能送出：'+(d.error||'後端拒絕')+'。已暫存於瀏覽器，請稍後重新整理確認或通知領袖','warning');
+    }
+  }catch(e){
+    showToast('⚠️ 申請未能送出：'+e.message+'。已暫存於瀏覽器，請稍後重新整理確認或通知領袖','warning');
+  }finally{ if(btn){ btn.disabled=false; btn.textContent='提交申請'; } }
 }
 
 /* ================== Overview Tab ================== */
@@ -2035,8 +2055,7 @@ async function renderRequestsTab(){
   // 載入獎章申請 (待批完成)
   if(canUserTickRole(currentUser.role)){
     try{
-      const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getPendingRequests',token:currentToken})});
-      const d=await r.json();
+      const d=await apiRequest('getPendingRequests',{token:currentToken});
       if(d.success){ badgeRequests=d.requests||[]; }
     }catch(e){ console.warn(e); }
   }else{
@@ -2049,8 +2068,7 @@ async function renderRequestsTab(){
   const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
   if(isManage){
     try{
-      const r2=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getApplications',token:currentToken})});
-      const d2=await r2.json();
+      const d2=await apiRequest('getApplications',{token:currentToken});
       if(d2.success) userApplications=d2.applications||[];
     }catch(e){ console.warn(e); }
   }
@@ -2160,24 +2178,15 @@ async function reviewSingleRequest(reqId, decision){
     updateSaveBar();
     return;
   }
-  // backend review
+  // backend review（await 真實回應，成功才移除項目）
   try{
     document.getElementById('savingOverlay').classList.add('active');
     document.getElementById('savingText').textContent=decision==='approved'?'正在批准並寫入...':'正在拒絕...';
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewRequest',token:currentToken,request_id:reqId,decision,review_note:'',confirmed_date:confirmedDate})});
-    const d=await r.json();
+    const d=await apiRequest('reviewRequest',{token:currentToken,request_id:reqId,decision,review_note:'',confirmed_date:confirmedDate});
     document.getElementById('savingOverlay').classList.remove('active');
     if(d.success){
       showToast('✅ '+d.message,'success');
       pendingRequestsQueue=pendingRequestsQueue.filter(r=>r.request_id!==reqId);
-      // if approved, also update local flat
-      if(decision==='approved'){
-        const req=pendingRequestsQueue.find(x=>x.request_id===reqId); // already removed, need original
-        // need to find in previous list? we already have data, use confirmedDate
-        // Update flat
-        const mReq=pendingRequestsQueue.find(()=>false); // placeholder
-      }
-      // reload progress?
       renderRequestsTab();
     }else throw new Error(d.error);
   }catch(e){
@@ -2185,26 +2194,55 @@ async function reviewSingleRequest(reqId, decision){
     showToast('操作失敗：'+e.message,'error');
   }
 }
-function batchApprove(){
-  const checks=document.querySelectorAll('.batch-check:checked');
+async function batchApprove(){
+  const checks=[...document.querySelectorAll('.batch-check:checked')];
   if(checks.length===0){ showToast('請先選中要批准的項目','warning'); return; }
+  if(batchApprove._busy){ showToast('批核進行中，請稍候','warning'); return; } // 防止重複提交
   if(!confirm(`確定批量批准 ${checks.length} 項？`)) return;
-  checks.forEach(ch=>{
-    const reqId=ch.dataset.req;
-    const dateInput=document.getElementById('confirmDate_'+reqId);
-    const confirmedDate=dateInput?dateInput.value:todayISO();
-    const req=pendingRequestsQueue.find(r=>r.request_id===reqId);
-    if(req){
-      addOrUpdatePending(req.ymis, req.item_id, confirmedDate, false);
+  batchApprove._busy=true;
+  document.getElementById('savingOverlay').classList.add('active');
+  document.getElementById('savingText').textContent='正在批量批核...';
+  const okIds=[],failItems=[];
+  try{
+    for(let i=0;i<checks.length;i++){
+      const reqId=checks[i].dataset.req;
+      document.getElementById('savingSub').textContent=`批核中 ${i+1} / ${checks.length}`;
+      const dateInput=document.getElementById('confirmDate_'+reqId);
+      const confirmedDate=dateInput?dateInput.value:todayISO();
+      const req=pendingRequestsQueue.find(r=>r.request_id===reqId);
+      // 本地暫存草稿：無後端記錄可批，直接轉入待寫入（同單筆批核邏輯）
+      if(req && req.status==='local_draft'){
+        const key=LS.requests(currentTroopId, req.ymis);
+        let arr=JSON.parse(localStorage.getItem(key)||'[]');
+        arr=arr.filter(x=>x.request_id!==reqId);
+        localStorage.setItem(key, JSON.stringify(arr));
+        okIds.push(reqId);
+        addOrUpdatePending(req.ymis, req.item_id, confirmedDate, false);
+        continue;
+      }
+      // await 每筆後端真實回應；失敗記錄、保留在列表
+      try{
+        const d=await apiRequest('reviewRequest',{token:currentToken,request_id:reqId,decision:'approved',review_note:'',confirmed_date:confirmedDate});
+        if(!d.success) throw new Error(d.error||'批核失敗');
+        okIds.push(reqId);
+        if(req) addOrUpdatePending(req.ymis, req.item_id, confirmedDate, false);
+      }catch(e){
+        failItems.push({reqId,error:e.message});
+      }
     }
-    // if backend pending, we should call review but for batch we just add to pendingChanges and later backend will be updated via save? Actually need to approve via API.
-    // For simplicity, call review API for each but with local fallback
-    fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewRequest',token:currentToken,request_id:reqId,decision:'approved',confirmed_date:confirmedDate})}).catch(()=>{});
-  });
-  pendingRequestsQueue=pendingRequestsQueue.filter(r=> ![...checks].some(c=>c.dataset.req===r.request_id));
+  }finally{
+    batchApprove._busy=false;
+    document.getElementById('savingOverlay').classList.remove('active');
+  }
+  // 只移除成功項目；失敗保留待重試
+  pendingRequestsQueue=pendingRequestsQueue.filter(r=>!okIds.includes(r.request_id));
   renderRequestsTab();
   updateSaveBar();
-  showToast(`已加入 ${checks.length} 項至待寫入，請按確認寫入雲端`,'success');
+  if(failItems.length===0){
+    showToast(`✅ 已批准 ${okIds.length} 項並加入待寫入，請按底部確認寫入雲端`,'success');
+  }else{
+    showToast(`已批准 ${okIds.length} 項；${failItems.length} 項失敗（${failItems[0].error}），已保留在列表可重試`,'error');
+  }
 }
 
 /* ================== Other Badges ================== */
@@ -2237,35 +2275,53 @@ async function loadOtherBadges(){
   // already loaded in handleLoad, but can refresh
   renderOtherBadgesTab();
 }
-function toggleOtherBadge(badgeId, name, targetYmis){
+async function toggleOtherBadge(badgeId, name, targetYmis){
   if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast('無權限勾選此其他獎章','warning'); return; }
+  if(toggleOtherBadge._busy){ showToast('寫入中，請稍候','warning'); return; }
   const date=document.getElementById('otherDate_'+badgeId)?.value||todayISO();
   const cert=document.getElementById('otherCert_'+badgeId)?.value||'';
+  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null; // rollback 快照
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
   otherBadgesMap[targetYmis][badgeId]={name,date,cert};
   pendingChanges.push({ymis:targetYmis, itemId: badgeId, date, isOther:true, name, cert});
-  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',token:currentToken,apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert}]})})
-    .then(r=>r.json()).then(d=>{ if(d.success) showToast('✅ 其他獎章已更新','success'); else throw new Error(d.error); })
-    .catch(e=>{ showToast('已暫存，寫入失敗：'+e.message,'warning'); });
   renderOtherBadgesTab();
   renderProgressTab();
+  toggleOtherBadge._busy=true;
+  try{
+    const d=await apiRequest('saveOtherBadge',{token:currentToken,records:[{ymis:targetYmis,badgeId,name,date,cert}]});
+    if(!d.success) throw new Error(d.error||'寫入失敗');
+    showToast('✅ 其他獎章已更新','success');
+  }catch(e){
+    // optimistic UI rollback + 明確錯誤（記錄仍保留在待寫入清單可重試）
+    if(prev) otherBadgesMap[targetYmis][badgeId]=prev; else delete otherBadgesMap[targetYmis][badgeId];
+    renderOtherBadgesTab();
+    renderProgressTab();
+    showToast('⚠️ 即時寫入失敗：'+e.message+'。變更已保留在下方待寫入清單，可按「確認寫入」重試','warning');
+  }finally{ toggleOtherBadge._busy=false; }
 }
-function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
+async function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
   if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast('無權限勾選此其他獎章','warning'); return; }
   if(!canUserTickRole(currentUser.role)){ showToast('無權限','error'); return; }
   const date = checked ? todayISO() : '';
+  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null; // rollback 快照
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
   if(checked){
-    otherBadgesMap[targetYmis][badgeId]={name,date,cert: otherBadgesMap[targetYmis][badgeId]?.cert||''};
+    otherBadgesMap[targetYmis][badgeId]={name,date,cert: prev?.cert||''};
     addOrUpdatePending(targetYmis, badgeId, date, false);
   }else{
     delete otherBadgesMap[targetYmis][badgeId];
     addOrUpdatePending(targetYmis, badgeId, '', true);
   }
-  // 同步到後端 other badge sheet
-  fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveOtherBadge',token:currentToken,apikey:currentApikey,records:[{ymis:targetYmis,badgeId,name,date,cert: otherBadgesMap[targetYmis]?.[badgeId]?.cert||''}]})}).catch(()=>{});
   updateRowUI(badgeId, checked, date);
   updateSaveBar();
+  try{
+    const d=await apiRequest('saveOtherBadge',{token:currentToken,records:[{ymis:targetYmis,badgeId,name,date,cert: prev?.cert||''}]});
+    if(!d.success) throw new Error(d.error||'寫入失敗');
+  }catch(e){
+    // rollback + 明確提示，不靜默
+    if(prev) otherBadgesMap[targetYmis][badgeId]=prev; else delete otherBadgesMap[targetYmis][badgeId];
+    showToast('⚠️ 其他獎章同步失敗：'+e.message+'。已暫存於待寫入清單，可按「確認寫入」重試','warning');
+  }
 }
 function handleOtherBadgeDate(badgeId, name, targetYmis, dateVal){
   if(!dateVal) return;
@@ -2579,8 +2635,8 @@ async function loadUsers(){
   const c=document.getElementById('tab-users');
   c.innerHTML='<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 8px"></div>載入用戶...</div>';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAllUsers',token:currentToken})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'載入失敗');
+    const d=await apiRequest('getAllUsers',{token:currentToken});
+    if(!d.success) throw new Error(d.error||'載入失敗');
     adminUsersCache=(d.users||[]).filter(u=>currentUser.role==='super_admin'||u.role!=='super_admin');
     const allowOthers=appConfig.allow_member_view_others==='true';
     const settings=['group_leader','admin','super_admin'].includes(currentUser.role)?`<div class="info-section" style="border-left:4px solid var(--green);background:#F0FFF4">
@@ -2645,27 +2701,27 @@ async function submitCreateUser(){
   const payload={action:'addUser',token:currentToken,ymis:document.getElementById('cuYmis').value.trim(),name:document.getElementById('cuName').value.trim(),email:document.getElementById('cuEmail').value.trim(),branch:document.getElementById('cuBranch').value.trim(),role:document.getElementById('cuRole').value,can_tick:document.getElementById('cuCanTick').checked,password:document.getElementById('cuPassword').value};
   if(!/^\d{10}$/.test(payload.ymis)||!payload.name||payload.password.length<8){showToast('請填寫姓名、10 位 YMIS 及至少 8 位臨時密碼','error');return;}
   const btn=document.getElementById('btnCreateUser');btn.disabled=true;btn.textContent='建立中...';
-  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});const d=await r.json();if(!d.success)throw new Error(d.error);closeModal('createUserModal');showTemporaryPasswordResult('✅ 帳戶已建立',payload.ymis,payload.name,payload.password);showToast('帳戶已建立，請安全轉交臨時密碼','success');await loadUsers();await loadItemsAndProgress();}catch(e){showToast('建立失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='建立帳戶';}
+  try{const d=await apiRequest('addUser',payload);if(!d.success)throw new Error(d.error);closeModal('createUserModal');showTemporaryPasswordResult('✅ 帳戶已建立',payload.ymis,payload.name,payload.password);showToast('帳戶已建立，請安全轉交臨時密碼','success');await loadUsers();await loadItemsAndProgress();}catch(e){showToast('建立失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='建立帳戶';}
 }
 function openEditUserModal(encoded){
   const u=JSON.parse(decodeURIComponent(encoded)); document.getElementById('euYmis').value=u.ymis;document.getElementById('euYmisDisplay').value=u.ymis;document.getElementById('euName').value=u.name;document.getElementById('euEmail').value=u.email;document.getElementById('euBranch').value=u.branch;document.getElementById('editUserModal').classList.add('active');
 }
 async function submitEditUser(){
   const payload={action:'updateUserProfile',token:currentToken,target_ymis:document.getElementById('euYmis').value,name:document.getElementById('euName').value.trim(),email:document.getElementById('euEmail').value.trim(),branch:document.getElementById('euBranch').value.trim()};
-  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});const d=await r.json();if(!d.success)throw new Error(d.error);closeModal('editUserModal');showToast('資料已更新','success');loadUsers();}catch(e){showToast('更新失敗：'+e.message,'error');}
+  try{const d=await apiRequest('updateUserProfile',payload);if(!d.success)throw new Error(d.error);closeModal('editUserModal');showToast('資料已更新','success');loadUsers();}catch(e){showToast('更新失敗：'+e.message,'error');}
 }
 function openResetPasswordModal(ymis,name){document.getElementById('rpYmis').value=ymis;document.getElementById('rpUserLabel').textContent=`${name}（${ymis}）`;document.getElementById('rpPassword').value=generateTempPassword();document.getElementById('resetPasswordModal').classList.add('active');}
 async function submitResetPassword(){
   const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;if(password.length<8){showToast('臨時密碼至少 8 位','error');return;}
-  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'resetPassword',token:currentToken,target_ymis:ymis,new_password:password})});const d=await r.json();if(!d.success)throw new Error(d.error);const name=document.getElementById('rpUserLabel').textContent.split('（')[0];closeModal('resetPasswordModal');showTemporaryPasswordResult('🔑 密碼已重設',ymis,name,password);showToast('密碼已重設；請立即安全轉交臨時密碼','success');loadUsers();}catch(e){showToast('重設失敗：'+e.message,'error');}
+  try{const d=await apiRequest('resetPassword',{token:currentToken,target_ymis:ymis,new_password:password});if(!d.success)throw new Error(d.error);const name=document.getElementById('rpUserLabel').textContent.split('（')[0];closeModal('resetPasswordModal');showTemporaryPasswordResult('🔑 密碼已重設',ymis,name,password);showToast('密碼已重設；請立即安全轉交臨時密碼','success');loadUsers();}catch(e){showToast('重設失敗：'+e.message,'error');}
 }
 async function setUserStatus(ymis,status){
   if(!confirm(status==='active'?'確定重新啟用此帳號？':'確定停用此帳號？進度資料會保留。'))return;
-  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'setUserStatus',token:currentToken,target_ymis:ymis,status})});const d=await r.json();if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast('操作失敗：'+e.message,'error');}
+  try{const d=await apiRequest('setUserStatus',{token:currentToken,target_ymis:ymis,status});if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast('操作失敗：'+e.message,'error');}
 }
 async function loadAuditHistory(){
   document.getElementById('historyTitle').textContent='🧾 操作紀錄';
-  try{const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getAuditLog',token:currentToken})});const d=await r.json();if(!d.success)throw new Error(d.error);const rows=(d.records||[]).slice().reverse();document.getElementById('historyBody').innerHTML=rows.length?`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>時間</th><th>操作者</th><th>操作</th><th>對象</th><th>詳情</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtmlText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p style="text-align:center;color:var(--text-light)">沒有操作紀錄</p>';document.getElementById('historyModal').classList.add('active');}catch(e){showToast('讀取紀錄失敗：'+e.message,'error');}
+  try{const d=await apiRequest('getAuditLog',{token:currentToken});if(!d.success)throw new Error(d.error);const rows=(d.records||[]).slice().reverse();document.getElementById('historyBody').innerHTML=rows.length?`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>時間</th><th>操作者</th><th>操作</th><th>對象</th><th>詳情</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtmlText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p style="text-align:center;color:var(--text-light)">沒有操作紀錄</p>';document.getElementById('historyModal').classList.add('active');}catch(e){showToast('讀取紀錄失敗：'+e.message,'error');}
 }
 function downloadMembersTemplate(){
   const csv='ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,TempPass!82,執委\r\n';
@@ -2696,7 +2752,7 @@ function renderBulkPreview(){
 async function executeBulkOnboard(){
   const valid=bulkDraft.filter(u=>!u._errors?.length).map(u=>({...u,password:u.password||generateTempPassword()}));if(!valid.length)return;if(!confirm(`確定建立 ${valid.length} 個帳戶？`))return;
   const btn=document.getElementById('btnExecuteBulk');btn.disabled=true;btn.textContent='開戶中...';bulkResults=[];
-  try{for(let i=0;i<valid.length;i+=100){const chunk=valid.slice(i,i+100);btn.textContent=`開戶中 ${i+1}-${Math.min(i+100,valid.length)} / ${valid.length}`;const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'bulkAddUsers',token:currentToken,users:chunk})});const d=await r.json();if(!d.success)throw new Error(d.error||'批量寫入失敗');(d.results||[]).forEach((result,j)=>bulkResults.push({...result,password:chunk[j]?.password||''}));}
+  try{for(let i=0;i<valid.length;i+=100){const chunk=valid.slice(i,i+100);btn.textContent=`開戶中 ${i+1}-${Math.min(i+100,valid.length)} / ${valid.length}`;const d=await apiRequest('bulkAddUsers',{token:currentToken,users:chunk});if(!d.success)throw new Error(d.error||'批量寫入失敗');(d.results||[]).forEach((result,j)=>bulkResults.push({...result,password:chunk[j]?.password||''}));}
     const ok=bulkResults.filter(x=>x.success),fail=bulkResults.filter(x=>!x.success);const result=document.getElementById('bulkResult');result.style.display='block';result.innerHTML=`<div class="info-section" style="border-left:4px solid ${fail.length?'var(--orange)':'var(--green)'}"><b>完成：成功 ${ok.length}，失敗 ${fail.length}</b><p style="font-size:11px;color:var(--text-light);margin-top:5px">臨時密碼只在本次畫面保留，請立即下載並以安全方式分別交給用戶。</p><button class="btn btn-sm btn-success" style="margin-top:8px" onclick="downloadBulkCredentials()">⬇️ 下載成功帳戶及臨時密碼</button>${fail.length?`<div class="bulk-error" style="margin-top:8px">${fail.map(x=>`${escapeHtmlText(x.ymis)}：${escapeHtmlText(x.error)}`).join('<br>')}</div>`:''}</div>`;showToast(`批量開戶完成：成功 ${ok.length} 筆`,'success');await loadUsers();await loadItemsAndProgress();
   }catch(e){showToast('批量開戶失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='🚀 確認批量開戶';}
 }
@@ -2706,8 +2762,7 @@ function downloadBulkCredentials(){const ok=bulkResults.filter(x=>x.success);con
 async function toggleAllowMemberViewOthers(checked){
   const val=checked?'true':'false';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateConfig',token:currentToken,key:'allow_member_view_others',value:val})});
-    const d=await r.json();
+    const d=await apiRequest('updateConfig',{token:currentToken,key:'allow_member_view_others',value:val});
     if(d.success){
       appConfig.allow_member_view_others=val;
       showToast(`已${checked?'開啟':'關閉'}成員互看進度 (鼓勵/私隱模式)`,'success');
@@ -2782,8 +2837,7 @@ async function savePermissions(){
   if(vals.length===totalBadges) allowedStr='*';
   else allowedStr=vals.join(',');
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:currentPermUser.ymis,new_role:currentPermUser.role,can_tick:true,allowed_badges:allowedStr})});
-    const d=await r.json();
+    const d=await apiRequest('updateUserRole',{token:currentToken,target_ymis:currentPermUser.ymis,new_role:currentPermUser.role,can_tick:true,allowed_badges:allowedStr});
     if(d.success){
       showToast('✅ 權限已更新','success');
       closeModal('permissionModal');
@@ -2816,7 +2870,6 @@ async function enterDemoMode(){
     }
     currentTroopId='DEMO';
     currentTroopName='第82旅 DEMO (MOCK)';
-    currentBackend='';
     currentUser={ymis:'DEMO_LEADER', name:'DEMO 團長 (免登入試用)', role:'group_leader', can_tick:true, allowed_badges:'*'};
     currentToken='demo-token';
     appConfig={allow_member_view_others:'true'};
@@ -2888,22 +2941,21 @@ function clearMockMembers(){
 }
 async function updateUserRole(tid,nr){
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:nr,can_tick:nr!=='member'})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'更新失敗'); showToast('角色已更新','success'); loadUsers();
+    const d=await apiRequest('updateUserRole',{token:currentToken,target_ymis:tid,new_role:nr,can_tick:nr!=='member'});
+    if(!d.success) throw new Error(d.error||'更新失敗'); showToast('角色已更新','success'); loadUsers();
   }catch(e){ showToast('角色更新失敗：'+e.message,'error'); loadUsers(); }
 }
 async function toggleCanTick(tid,ct,role){
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateUserRole',token:currentToken,target_ymis:tid,new_role:role,can_tick:ct})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'更新失敗'); showToast(ct?'已授權勾選':'已收回權限','success'); loadUsers();
+    const d=await apiRequest('updateUserRole',{token:currentToken,target_ymis:tid,new_role:role,can_tick:ct});
+    if(!d.success) throw new Error(d.error||'更新失敗'); showToast(ct?'已授權勾選':'已收回權限','success'); loadUsers();
   }catch(e){ showToast('權限更新失敗：'+e.message,'error'); loadUsers(); }
 }
 async function loadApplications(){
   const c=document.getElementById('tab-apps');
   c.innerHTML='<div style="text-align:center;padding:20px">載入中...</div>';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'getApplications',token:currentToken})});
-    const d=await r.json();
+    const d=await apiRequest('getApplications',{token:currentToken});
     if(d.success){
       let h='<h3 style="margin-bottom:12px;color:var(--maroon)">待審批帳號申請</h3>';
       if(d.applications.length===0) h+='<p style="color:var(--text-light)">目前沒有待審批的申請</p>';
@@ -2918,8 +2970,8 @@ async function reviewApp(id,dec){
   if(!confirm(`確定要${dec==='approved'?'批准並開立帳戶':'拒絕'}嗎？`)) return;
   const tempPassword=dec==='approved'?generateTempPassword():'';
   try{
-    const r=await fetch(currentBackend,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'reviewApplication',token:currentToken,app_id:id,decision:dec,review_note:'',temp_password:tempPassword})});
-    const d=await r.json(); if(!d.success) throw new Error(d.error||'審批失敗');
+    const d=await apiRequest('reviewApplication',{token:currentToken,app_id:id,decision:dec,review_note:'',temp_password:tempPassword});
+    if(!d.success) throw new Error(d.error||'審批失敗');
     showToast(d.message,'success');
     if(dec==='approved'){
       document.getElementById('historyTitle').textContent='✅ 帳戶已建立';
