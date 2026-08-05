@@ -7,18 +7,33 @@
 ## 快速結構
 
 ```
-index.html              — 前端所有邏輯（單一 HTML）
+index.html              — 前端所有邏輯（單一 HTML，統一 apiRequest() → /api/proxy）
 data/items.json         — 考核項目定義（第11版修正版）
 data/mock_members.json  — 10 MOCK 成員測試數據
 data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
-data/troops.json        — 旅團對照表
+data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
-apps-script/Code.gs     — Google Sheet後端（單一檔案版）
-api/troops.js           — Vercel API
+apps-script/Code.gs     — Google Sheet後端（單一檔案版，v3.0 無需改動）
+api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
+api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
+api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
+tests/                  — e2e 測試（雙 mock GAS 旅團）+ 本機 dev server
 vercel.json             — 部署設定
-docs/                   — 成員/執委/領袖教學 MD
+docs/                   — 成員/執委/領袖教學 MD + PROXY_ARCHITECTURE.md
 ```
+
+## 🔐 v3.0 同源 Proxy 架構（重要）
+
+瀏覽器**不再直接 fetch 各旅團 GAS URL**（解決 Failed to fetch / CORS / GAS 302 redirect /
+寫入成功但前端收不到回應等問題）。全部請求改經：
+
+```
+瀏覽器 → 同源 /api/proxy → 伺服器端 Registry 查找旅團 GAS → Google Sheet
+```
+
+多旅團完整保留；前端只提交 troopId，GAS URL 永不離開伺服器（防 SSRF / Open Proxy）。
+詳見 [`docs/PROXY_ARCHITECTURE.md`](docs/PROXY_ARCHITECTURE.md)。
 
 ## 部署
 
