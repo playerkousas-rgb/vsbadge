@@ -1,4 +1,4 @@
-# 🗺️ 旅團部署指南 v8.0 - 有主系統 / 無主系統 兩條路
+# 🗺️ 旅團部署指南 v8.1 - 有主系統 / 無主系統 兩條路
 
 > 10分鐘完成。支援 **獨立使用** 及 **接入主系統 (scoutsystem-2.0)**，有主系統不等於一定要接上，可自由選擇
 
@@ -40,10 +40,11 @@
   → 優點：簡單，唔使搞主系統
 
 軌道 B：有主系統並想接上 (進階)
-  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json)
-  → 額外：將 URL + API Key 交給主系統管理員，填入主系統「旅團設定 → 元件設定」vsbadge 卡片的 backend + apikey 欄位
+  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json / env Registry)
+  → v3.0 起：主系統卡片只需帶 u=旅團編號，**不需要**再填/傳 backend + apikey
   → 用法：主系統 Dashboard 點「深資童軍進度追蹤」卡片 → 自動帶入身份 (from=portal&embed=1) → 直接用
   → 優點：單一登入、自動帶身份、介面嵌入、成員唔使記多個密碼
+  → 注意：領袖經 Portal 免登入**寫入**時，旅團 API Key 必須已登記在 vsbadge Registry（troops.json 的 apikey 或 TROOP_{ID}_APIKEY env），由伺服器端注入
 
 兩條路可同時用：領袖從主系統卡片入(自動身份)，成員 bookmark 獨立連結
 ```
@@ -121,27 +122,25 @@
 
 ### 第 6 步 (僅軌道 B)：提交給主系統管理員
 
-將 **同一組** URL + API Key 交給你旅團的主系統管理員 (scoutsystem-2.0 管理員)：
+> **v3.0 變更**：vsbadge 已改用同源 Proxy 架構，URL 參數中的 `backend` / `apikey` 一律被忽略
+> （防止任意後端注入）。你**不需要**再把 Apps Script URL / API Key 填入主系統卡片，
+> 只需確保旅團已登記在 vsbadge Registry（第 5 步交給 vsbadge 管理員）。
 
-- 旅團主系統後台 → 旅團設定 → 元件設定 → 找到 `vs_badge_tracker` 卡片
-- 填入：
-  - `backend`: 你的 Apps Script URL
-  - `apikey`: 你的 API Key
-- 保存
+主系統卡片設定只需保證點卡時 URL 帶有你的旅團編號 `u` 參數即可。
 
 ### 第 7 步 (僅軌道 B)：主系統自動帶入身份
 
 之後成員/領袖在主系統 Dashboard 點「深資童軍進度追蹤」卡片，URL 會自動變成：
 
 ```
-https://vsbadge.vercel.app/?u=0082&role=leader&ymis=1234567890&name=陳大文&from=portal&embed=1&backend=...&apikey=...
+https://vsbadge.vercel.app/?u=0082&role=leader&ymis=1234567890&name=陳大文&from=portal&embed=1
 ```
 
-- `u` 旅團編號
+- `u` 旅團編號（vsbadge 用它從伺服器端 Registry 查找你旅團的 GAS，前端接觸不到 URL）
 - `role` / `ymis` / `name` 自動帶入，無需再登入
 - `from=portal` 標記主系統信任模式，免密碼
 - `embed=1` 精簡介面，隱藏大Header，適合 iframe 600-750px 高
-- `backend` / `apikey` 若主系統有填，會直接使用，否則自動查 `troops.json`
+- （舊連結附带的 `backend` / `apikey` 參數會被安全忽略）
 
 **結果**：點卡片即入，身份已帶入，進度、批量、審批、表格功能完全一致。
 
@@ -191,8 +190,8 @@ A: 不用。有主系統不等於一定要接。你可以繼續獨立用 vsbadge
 **Q: 接上後獨立用還能用嗎？**
 A: 能，雙軌並存。領袖從主系統卡片入(自動身份)，成員直接開 vsbadge.vercel.app。
 
-**Q: 顯示「無法連接後端」？**
-A: 確認 Apps Script 部署存取權為「任何人」，且 `troops.json` 已包含你旅團或主系統卡片已填 backend/apikey。
+**Q: 顯示「無法連接旅團後端／找不到此旅團」？**
+A: 確認 Apps Script 部署存取權為「任何人」（執行身分：我；存取權：任何人），且旅團已加入 vsbadge Registry（troops.json 或 Vercel env）。v3.0 起主系統卡片的 backend/apikey 欄位不再是後端來源。
 
 **Q: 忘記 API Key？**
 A: Apps Script 編輯器選 `showApiKey` 函數執行，會再次顯示。
@@ -210,6 +209,17 @@ A: 可以。用戶管理的「停用」只會停止登入及撤銷舊登入狀�
 - 新功能和改動說明
 
 目前 v8.0 包含全前端用戶行政、CSV／JSON 批量開戶、首次登入強制改密碼、操作紀錄、手機友善介面、官方表格、細緻權限、MOCK 及私隱開關。升級既有後端後請再執行一次 `initializeSheets()`，系統只會補欄位及工作表，不會清除舊資料。
+
+### 🆕 v8.1 升級（活動履歷：服務／活動／訓練班紀錄）
+
+v8.1 新增「活動履歷」功能，**需要每個欲使用的旅團各自重新部署 Apps Script**（後端 Sheet 新增了「活動履歷」工作表及 3 個新 action，前端無法憑空建立 Sheet）：
+
+1. Google Sheet → 擴充功能 → Apps Script → **用最新 `Code.gs` 全檔覆蓋**現有內容 → 儲存
+2. 執行 `initializeSheets()` → 自動補建「活動履歷」工作表（**不會刪除或改動任何既有資料**）
+3. 部署 → 管理部署 → ✏️ 編輯 → 版本選「**新版本**」→ 部署（**/exec URL 保持不變**，vsbadge Registry 不用改）
+4. 驗證：登入 vsbadge →「📅 活動履歷」→ 領袖新增一筆紀錄 → Sheet 內「活動履歷」應見到
+
+**未升級的旅團**：進度、審批、用戶管理等所有現有功能照舊運作，「活動履歷」頁只會顯示升級提示，**不影響任何資料**。分階段升級完全冇問題。
 
 ---
 
