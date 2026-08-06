@@ -1,0 +1,11 @@
+{
+  "name": "vsbadge",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "深資童軍進度及行政平台（多旅團，同源 Proxy 架構）",
+  "scripts": {
+    "dev": "node tests/dev-server.mjs 3000",
+    "test": "node tests/run-e2e.mjs"
+  }
+}
