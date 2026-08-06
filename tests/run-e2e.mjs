@@ -11,15 +11,18 @@ import { fileURLToPath } from 'url';
 import { startMockGas } from './mock-gas.mjs';
 
 // ---- 必須在 import api 模組前設定 env（proxy 於 import 時讀 timeout） ----
+// 埠可用 E2E_PORT_A / E2E_PORT_B / E2E_PORT_APP 覆寫（避免與本機 dev server 衝突）
+const PORT_A = parseInt(process.env.E2E_PORT_A || '3901', 10);
+const PORT_B = parseInt(process.env.E2E_PORT_B || '3902', 10);
 process.env.VSBADGE_PROXY_TEST = '1';            // 允許 localhost mock（只限測試）
 process.env.VSBADGE_PROXY_TIMEOUT_MS = '3000';   // 測試用短 timeout
-process.env.TROOP_0082_BACKEND = 'http://127.0.0.1:3901/exec';
+process.env.TROOP_0082_BACKEND = `http://127.0.0.1:${PORT_A}/exec`;
 process.env.TROOP_0082_APIKEY = 'KEY_A';
-process.env.TROOP_1001_BACKEND = 'http://127.0.0.1:3902/exec';
+process.env.TROOP_1001_BACKEND = `http://127.0.0.1:${PORT_B}/exec`;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const APP_PORT = 8899;
+const APP_PORT = parseInt(process.env.E2E_PORT_APP || '8899', 10);
 const APP_BASE = `http://127.0.0.1:${APP_PORT}`;
 
 let passed = 0, failed = 0;
@@ -42,14 +45,14 @@ async function postProxy(body, rawHeaders = {}) {
 // ================== 1. 起 mock GAS ==================
 console.log('\n【1】起兩個 mock GAS 旅團後端（含 GAS 式 302 redirect）');
 const mockA = await startMockGas({
-  port: 3901, name: '旅團A(0082)', apikey: 'KEY_A',
+  port: PORT_A, name: '旅團A(0082)', apikey: 'KEY_A',
   users: [
     { ymis: '1234567890', name: '陳大文', role: 'group_leader', pass: 'PassA!234567', can_tick: true, email: 'a@example.org' },
     { ymis: '1234560001', name: '成員甲', role: 'member', pass: 'MemberA!234', can_tick: false }
   ]
 });
 const mockB = await startMockGas({
-  port: 3902, name: '旅團B(1001)',
+  port: PORT_B, name: '旅團B(1001)',
   users: [
     { ymis: '9876543210', name: '李小明', role: 'group_leader', pass: 'PassB!234567', can_tick: true, email: 'b@example.org' }
   ]
