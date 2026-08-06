@@ -201,6 +201,49 @@ console.log('\n【10】後端各種失敗模式：proxy 一律 success:false（�
   check('故障復原後可正常使用', d4.success === true);
 }
 
+// ---- v8.1 活動履歷（服務／活動／訓練班紀錄）----
+console.log('\n【10b】活動履歷：單筆/批量寫入、讀取、成員被拒、刪除、旅團隔離');
+{
+  // 領袖單筆寫入（服務）
+  const s1 = await apiA('saveLogRecord', { token: tokenA, records: [{ type: 'service', ymis: '1234560001', name: '成員甲', date: '2026-08-01', title: '暑期賣旗籌款', role: '服務員', hours: '4', cert_no: '', detail: '港島區' }], recorder_name: '陳大文' });
+  check('領袖單筆服務紀錄成功 + 回傳 record_id', s1.success === true && (s1.results?.[0]?.record_id || '').startsWith('LOG_'));
+  const rid1 = s1.results[0].record_id;
+  // 批量寫入（活動 + 訓練班）
+  const s2 = await apiA('saveLogRecord', { token: tokenA, records: [
+    { type: 'activity', ymis: '1234560001', name: '成員甲', date: '2026-07-15', title: '全團露營', role: '參加者', hours: '', cert_no: '', detail: '' },
+    { type: 'activity', ymis: '1234567890', name: '陳大文', date: '2026-07-15', title: '全團露營', role: '領隊', hours: '', cert_no: '', detail: '' },
+    { type: 'training', ymis: '1234560001', name: '成員甲', date: '2026-06-01', title: '急救證書班', role: '學員', hours: '18', cert_no: 'FA-2026-001', detail: '' }
+  ], recorder_name: '陳大文' });
+  check('批量 3 筆寫入 processed=3', s2.success === true && s2.processed === 3);
+  // 讀取
+  const g = await apiA('getLogRecords', { token: tokenA });
+  check('getLogRecords 返回 4 筆', g.success === true && (g.logs || []).length === 4);
+  check('load 回應包含 logs + logsSupported', (await apiA('load', { token: tokenA })).logsSupported === true && (await apiA('load', { token: tokenA })).logs.length === 4);
+  // 編輯（record_id 更新）
+  const up = await apiA('saveLogRecord', { token: tokenA, records: [{ record_id: rid1, type: 'service', ymis: '1234560001', name: '成員甲', date: '2026-08-01', title: '暑期賣旗籌款（修改）', role: '統籌', hours: '6', cert_no: '', detail: '' }], recorder_name: '陳大文' });
+  const afterEdit = await apiA('getLogRecords', { token: tokenA });
+  const edited = (afterEdit.logs || []).find(x => x.record_id === rid1);
+  check('編輯成功（標題/崗位/時數已更新，仍 4 筆）', up.success === true && edited?.title.includes('修改') && edited?.role === '統籌' && afterEdit.logs.length === 4);
+  // 旅團隔離
+  const stB = await stateOf(mockB);
+  check('mock B 無任何履歷紀錄（隔離）', (stB.logs || []).length === 0);
+  // 成員（無勾選權）寫入被拒
+  const loginMember = await apiA('login', { login_id: '1234560001', password: 'MemberA!234' });
+  check('成員登入成功（讀取用）', loginMember.success === true);
+  const memberSave = await apiA('saveLogRecord', { token: loginMember.token, records: [{ type: 'activity', ymis: '1234560001', name: '成員甲', date: '2026-08-02', title: '自填活動', role: '', hours: '', cert_no: '', detail: '' }] });
+  check('成員（can_tick=false）寫入被拒', memberSave.success === false && /權限/.test(memberSave.error || ''));
+  const memberRead = await apiA('getLogRecords', { token: loginMember.token });
+  check('成員可讀取（前端只顯示自己）', memberRead.success === true);
+  // 刪除
+  const del = await apiA('deleteLogRecord', { token: tokenA, record_id: rid1 });
+  check('刪除成功', del.success === true);
+  const afterDel = await apiA('getLogRecords', { token: tokenA });
+  check('刪除後剩 3 筆', (afterDel.logs || []).length === 3 && !(afterDel.logs || []).some(x => x.record_id === rid1));
+  // 必填驗證
+  const bad = await apiA('saveLogRecord', { token: tokenA, records: [{ type: 'activity', ymis: '1234560001', name: '成員甲', date: '', title: '', role: '', hours: '', cert_no: '', detail: '' }] });
+  check('欠日期/名稱 → success:false', bad.success === false);
+}
+
 // ---- 多旅團隔離 ----
 console.log('\n【11】多旅團隔離：旅團 B 獨立寫入、token 不串用');
 {
@@ -265,9 +308,11 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   const badFetch = fetches.filter(f => !/^['"]?(API_ENDPOINT|'\/api\/troops|'data\/)/.test(f) && !/^'data\//.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
-  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
+  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
   const missing = need.filter(a => !apiCalls.includes(a));
-  check('23 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
+  check('26 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
+  check('活動履歷 tab 已註冊', html.includes("id=\"tab-logs\"") && html.includes('renderLogsTab'));
+  check('舊後端升級提示存在', html.includes('v8.1') && html.includes('logRecordsSupported'));
 }
 
 // ---- 清理 ----

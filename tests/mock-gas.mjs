@@ -15,6 +15,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     otherBadges: {},              // ymis -> {badgeId:{name,date,cert}}
     requests: [],                 // {request_id,ymis,name,item_id,item_name,requested_date,evidence,status}
     applications: [],
+    logs: [],                      // v8.1 活動履歷
     config: { allow_member_view_others: 'false' },
     apikey,
     mode: 'normal',               // normal | html-error | http500 | slow
@@ -60,7 +61,9 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           members: Object.values(state.users).map(u => ({ ymis: u.ymis, name: u.name })),
           flatProgress: flat,
           pendingRequests: state.requests.filter(r => r.status === 'pending'),
-          otherBadges: state.otherBadges
+          otherBadges: state.otherBadges,
+          logs: state.logs,
+          logsSupported: true
         };
       }
       case 'save':
@@ -123,6 +126,44 @@ export function startMockGas({ port, name, users, apikey = '' }) {
       case 'getApplications':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         return { success: true, applications: state.applications.filter(a => a.status === 'pending') };
+      case 'getLogRecords':
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        return { success: true, logs: state.logs };
+      case 'saveLogRecord': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const writer = state.users[tokenYmis];
+        if (!writer || !['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(writer.role) || writer.can_tick !== true)
+          return { success: false, error: '權限不足，需已獲勾選權限的領袖' };
+        const results = [];
+        let processed = 0;
+        for (const r of (body.records || [])) {
+          if (!r.ymis || !r.title || !r.date) { results.push({ success: false, ymis: r.ymis, error: 'YMIS、名稱及日期必填' }); continue; }
+          if (r.record_id) {
+            const idx = state.logs.findIndex(x => x.record_id === r.record_id);
+            if (idx < 0) { results.push({ success: false, record_id: r.record_id, error: '找不到紀錄' }); continue; }
+            state.logs[idx] = { ...state.logs[idx], ...r, recorder: body.recorder_name || String(tokenYmis) };
+            results.push({ success: true, record_id: r.record_id });
+            processed++;
+            continue;
+          }
+          const nid = 'LOG_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+          state.logs.push({ ...r, record_id: nid, recorder: body.recorder_name || String(tokenYmis), recorded_at: '2026-08-06' });
+          results.push({ success: true, record_id: nid });
+          processed++;
+        }
+        const failed = results.filter(x => !x.success).length;
+        return { success: results.length > 0 && failed === 0, processed, results, message: processed + ' 筆已儲存' + (failed ? '，' + failed + ' 筆失敗' : '') };
+      }
+      case 'deleteLogRecord': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const writer = state.users[tokenYmis];
+        if (!writer || !['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(writer.role) || writer.can_tick !== true)
+          return { success: false, error: '權限不足，需已獲勾選權限的領袖' };
+        const idx = state.logs.findIndex(x => x.record_id === body.record_id);
+        if (idx < 0) return { success: false, error: '找不到紀錄' };
+        state.logs.splice(idx, 1);
+        return { success: true, message: '已刪除紀錄' };
+      }
       case 'getAuditLog':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         return { success: true, records: [] };
@@ -158,6 +199,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         progress: state.progress,
         requests: state.requests,
         otherBadges: state.otherBadges,
+        logs: state.logs,
         tokenCount: Object.keys(state.tokens).length,
         lastExecPath: state.lastExecPath,
         execCount: state.execCount
