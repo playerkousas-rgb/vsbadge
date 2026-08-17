@@ -1,8 +1,8 @@
-# 🔥 深資童軍進度及行政平台 v8.1
+# 🔥 深資童軍進度及行政平台 v8.2
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  
 > COPYRIGHT 2026 Scout System  
-> 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、成員申請→領袖審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）
+> 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、帳戶自助申請→團長前端審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）
 
 ## 快速結構
 
@@ -14,7 +14,7 @@ data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
 data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
-apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.1：進度/獎章/審批/帳戶/活動履歷）
+apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.2：進度/獎章/審批/帳戶/活動履歷/自助申請）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
@@ -38,6 +38,13 @@ docs/                   — 成員/執委/領袖教學 MD + PROXY_ARCHITECTURE.m
 ## 部署
 
 見 [DEPLOY_GUIDE_FOR_TROOPS.md](DEPLOY_GUIDE_FOR_TROOPS.md)
+
+## v8.2 帳戶自助申請（成員／執委／領袖）
+
+- 登入頁「🆕 申請帳戶」可選擇申請身份：**團員／執委／領袖（支部領袖）**；團長／管理員仍須由現任團長在「用戶管理」直接開立
+- **毋須填寫支部／單位**：支部＝深資童軍（本系統），單位自動帶入所選旅團名稱，申請人只填 YMIS、姓名、電郵（執委／領袖必填）
+- **團長／支部領袖**在「審批中心」→「👤 用戶審批」一鍵批准；批准時**按申請身份直接開戶**（審批者權限不足時退回團員並提示），並顯示一次性臨時密碼
+- 後端 v8.2（可選升級）：`apply` 接受並驗證 `requested_role`、`getApplications` 回傳申請角色、`reviewApplication` 按角色開戶並回傳 `final_role`——**無新工作表／新欄位，毋須 `initializeSheets()`**，覆蓋 Code.gs 重新部署即可；未升級旅團一切照舊（申請以團員開戶，領袖批准後可在用戶管理調整角色）
 
 ## v8.1 活動履歷（服務／活動／訓練班紀錄）
 
