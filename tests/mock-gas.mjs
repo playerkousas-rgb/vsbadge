@@ -25,6 +25,15 @@ export function startMockGas({ port, name, users, apikey = '' }) {
   };
   for (const u of users) state.users[u.ymis] = { status: 'active', email: '', ...u };
 
+  // 與 Code.gs 一致的角色層級及可管理範圍（v8.2 帳戶申請審批用）
+  const ROLE_LEVEL = { super_admin: 100, admin: 80, group_leader: 60, branch_leader: 40, exec_committee: 20, member: 0 };
+  const CAN_MANAGE_ROLES = {
+    super_admin: ['admin', 'group_leader', 'branch_leader', 'exec_committee', 'member'],
+    admin: ['group_leader', 'branch_leader', 'exec_committee', 'member'],
+    group_leader: ['branch_leader', 'exec_committee', 'member'],
+    branch_leader: ['exec_committee', 'member']
+  };
+
   const pendingRedirects = new Map(); // rid -> payload
 
   function routeAction(action, body) {
@@ -44,7 +53,15 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         return { success: true };
       }
       case 'apply': {
-        state.applications.push({ app_id: 'APP_' + Date.now(), ymis: body.ymis, name: body.name, status: 'pending' });
+        // v8.2：只接受 member/exec_committee/branch_leader；branch 由前端自動帶旅團名
+        const reqRole = String(body.requested_role || 'member');
+        if (!['member', 'exec_committee', 'branch_leader'].includes(reqRole)) return { success: false, error: '無效的申請角色' };
+        if (reqRole !== 'member' && !String(body.email || '').trim()) return { success: false, error: '執委／領袖申請必須填寫聯絡電郵' };
+        state.applications.push({
+          app_id: 'APP_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          ymis: body.ymis, name: body.name, email: body.email || '', requested_role: reqRole,
+          branch: body.branch || '', status: 'pending', applied_at: '2026-08-17'
+        });
         return { success: true, message: '申請已提交' };
       }
       case 'load': {
@@ -123,9 +140,38 @@ export function startMockGas({ port, name, users, apikey = '' }) {
       case 'getAllUsers':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         return { success: true, users: Object.values(state.users).map(u => ({ ymis: u.ymis, name: u.name, role: u.role, can_tick: u.can_tick, status: u.status })) };
-      case 'getApplications':
+      case 'getApplications': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const manager = state.users[tokenYmis];
+        if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足，需支部領袖或以上' };
         return { success: true, applications: state.applications.filter(a => a.status === 'pending') };
+      }
+      case 'reviewApplication': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const manager = state.users[tokenYmis];
+        if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足' };
+        const app = state.applications.find(a => a.app_id === body.app_id);
+        if (!app || app.status !== 'pending') return { success: false, error: '找不到待審批申請' };
+        if (body.decision === 'rejected') { app.status = 'rejected'; return { success: true, message: '已拒絕申請' }; }
+        if (body.decision !== 'approved') return { success: false, error: '無效決定' };
+        const password = String(body.temp_password || 'Vs!' + Math.random().toString(36).slice(2, 10));
+        const reqRole = app.requested_role || 'member';
+        const finalRole = (CAN_MANAGE_ROLES[manager.role] || []).includes(reqRole) ? reqRole : 'member';
+        state.users[app.ymis] = {
+          ymis: app.ymis, name: app.name, email: app.email || '', role: finalRole, pass: password,
+          can_tick: finalRole !== 'member', status: 'active'
+        };
+        app.status = 'approved';
+        return { success: true, message: '已批准並建立帳號', temp_password: password, final_role: finalRole };
+      }
+      case 'updateUserRole': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const u = state.users[body.target_ymis];
+        if (!u) return { success: false, error: '找不到目標用戶' };
+        if (body.new_role) u.role = body.new_role;
+        if (body.can_tick !== undefined) u.can_tick = body.can_tick === true || body.can_tick === 'true';
+        return { success: true };
+      }
       case 'getLogRecords':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         return { success: true, logs: state.logs };

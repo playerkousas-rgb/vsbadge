@@ -1,10 +1,15 @@
 // ============================================================
-// 深資童軍進度及行政平台 - Apps Script 後端 v8.1
+// 深資童軍進度及行政平台 - Apps Script 後端 v8.2
 // 全前端帳戶管理、批量開戶、首次登入改密碼、角色驗證及操作紀錄
 // v8.1 新增：活動履歷（服務紀錄／活動紀錄／訓練班紀錄）
 //   - 新工作表「活動履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
 //   - 新 action：getLogRecords / saveLogRecord（支援批量 records[]）/ deleteLogRecord
 //   - handleLoad 回應新增 logs + logsSupported
+// v8.2 新增：帳戶自助申請（成員／執委／領袖）
+//   - apply 接受 requested_role（只限 member/exec_committee/branch_leader），存入 Applications 工作表
+//   - getApplications 回傳申請人要求的角色；branch 由前端自動帶入所屬旅團（毋須申請人填寫）
+//   - reviewApplication 按申請角色開戶（審批者無權限設定該角色時退回團員），回應加 final_role
+//   - 無新工作表、無新欄位：覆蓋 Code.gs 並重新部署即可，毋須 initializeSheets()
 // ============================================================
 
 const ADMIN_YMIS = '1111111111';
@@ -53,6 +58,8 @@ function canManageRole(m,t){ return (CAN_MANAGE_ROLES[m]||[]).indexOf(t)>=0; }
 
 const USER_HEADERS = ['ymis','name','email','role','password_hash','branch','can_tick','auth_by','auth_date','created_at','last_login','status','allowed_badges','force_change_password'];
 const VALID_ROLES = ['admin','group_leader','branch_leader','exec_committee','member'];
+// v8.2：公開申請入口只接受這三個角色；團長／管理員必須由現任管理層在「用戶管理」直接開立
+const APPLY_ROLES = ['member','exec_committee','branch_leader'];
 // v8.1：活動履歷
 const LOG_SHEET_NAME = '活動履歷';
 const LOG_HEADERS = ['record_id','type','ymis','name','date','title','role','hours','cert_no','detail','recorder','recorded_at','updated_at'];
@@ -290,8 +297,9 @@ function doPost(e){
     const action=String(body.action||'');
     if(action==='login') return handleLogin(body.login_id,body.password);
     if(action==='logout'){ destroyToken(body.token); return jsonResponse({success:true}); }
-    // 公開入口只接受普通成員申請；角色由管理層在前端批准後再調整。
-    if(action==='apply') return handleApply(body.ymis,body.name,body.email,'member',body.branch);
+    // v8.2：公開入口接受成員／執委／領袖申請（角色在 handleApply 內嚴格驗證）；
+    // 支部／單位由前端自動帶入所屬旅團名稱，毋須申請人填寫。
+    if(action==='apply') return handleApply(body.ymis,body.name,body.email,body.requested_role||'member',body.branch);
 
     // 兼容舊部署／Portal：進度寫入可用有效 token 或 API key；帳戶管理絕不接受 API key 代替登入。
     if(action==='save' || action==='saveOtherBadge'){
@@ -420,9 +428,12 @@ function handleChangePassword(ymis,oldP,newP){
 }
 function handleApply(ymis,name,email,role,branch){
   ymis=String(ymis||'').trim(); name=safeSheetText(name,100); email=String(email||'').trim().substring(0,160); branch=safeSheetText(branch,100);
+  role=String(role||'member');
+  if(APPLY_ROLES.indexOf(role)<0) return jsonResponse({success:false,error:'無效的申請角色'});
   if(!/^\d{10}$/.test(ymis)) return jsonResponse({success:false,error:'YMIS 須為 10 位數字'});
   if(!name) return jsonResponse({success:false,error:'請填寫姓名'});
   if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
+  if(role!=='member' && !email) return jsonResponse({success:false,error:'執委／領袖申請必須填寫聯絡電郵'});
   if(findUserRecord(ymis)) return jsonResponse({success:false,error:'YMIS 已註冊或曾建立帳號，請聯絡領袖'});
   if(email){
     const users=getAllUsers();
@@ -432,14 +443,14 @@ function handleApply(ymis,name,email,role,branch){
   if(!sheet) return jsonResponse({success:false,error:'Applications 工作表不存在，請先執行 initializeSheets()'});
   const data=sheet.getDataRange().getValues();
   for(let i=1;i<data.length;i++) if(String(data[i][1])===ymis && String(data[i][6])==='pending') return jsonResponse({success:false,error:'此 YMIS 已有待審批申請'});
-  sheet.appendRow(['APP_'+Date.now(),ymis,name,email,'member',branch||'b4','pending',now(),'','','']);
+  sheet.appendRow(['APP_'+Date.now(),ymis,name,email,role,branch||'b4','pending',now(),'','','']);
   return jsonResponse({success:true,message:'申請已提交，請等待領袖在前端審批'});
 }
 function handleGetApplications(){
   const sheet=getSheet().getSheetByName('Applications'); const apps=[];
   if(!sheet) return jsonResponse({success:true,applications:apps});
   const data=sheet.getDataRange().getValues();
-  for(let i=1;i<data.length;i++) if(String(data[i][6])==='pending') apps.push({app_id:String(data[i][0]),ymis:String(data[i][1]),name:String(data[i][2]),email:String(data[i][3]||''),requested_role:'member',branch:String(data[i][5]||''),applied_at:data[i][7]?formatDate(data[i][7]):''});
+  for(let i=1;i<data.length;i++) if(String(data[i][6])==='pending') apps.push({app_id:String(data[i][0]),ymis:String(data[i][1]),name:String(data[i][2]),email:String(data[i][3]||''),requested_role:String(data[i][4]||'member'),branch:String(data[i][5]||''),applied_at:data[i][7]?formatDate(data[i][7]):''});
   return jsonResponse({success:true,applications:apps});
 }
 function generateTemporaryPassword(){ return 'Vs!'+Utilities.getUuid().replace(/-/g,'').substring(0,9); }
@@ -455,11 +466,14 @@ function handleReviewApplication(appId,decision,note,manager,tempPassword){
     return jsonResponse({success:true,message:'已拒絕申請'});
   }
   const password=String(tempPassword||generateTemporaryPassword());
-  const result=createUsersBatch([{ymis:String(app[1]),name:String(app[2]),email:String(app[3]||''),branch:String(app[5]||''),role:'member',can_tick:false,password:password}],manager);
+  // v8.2：按申請人要求的角色開戶；若審批者權限層級不能設定該角色則退回團員（批准後仍可在用戶管理調整）。
+  const requestedRole=String(app[4]||'member');
+  const finalRole=(VALID_ROLES.indexOf(requestedRole)>=0 && canManageUser(manager,requestedRole)) ? requestedRole : 'member';
+  const result=createUsersBatch([{ymis:String(app[1]),name:String(app[2]),email:String(app[3]||''),branch:String(app[5]||''),role:finalRole,can_tick:finalRole!=='member',password:password}],manager);
   if(!result.success || result.created!==1) return jsonResponse({success:false,error:(result.results&&result.results[0]&&result.results[0].error)||'建立帳號失敗'});
   sheet.getRange(rowIndex,7).setValue('approved'); sheet.getRange(rowIndex,9).setValue(manager.ymis); sheet.getRange(rowIndex,10).setValue(now()); sheet.getRange(rowIndex,11).setValue(note||'');
   writeAudit(manager.ymis,'approve_application',String(app[1]),String(appId));
-  return jsonResponse({success:true,message:'已批准並建立帳號',temp_password:password});
+  return jsonResponse({success:true,message:'已批准並建立帳號',temp_password:password,final_role:finalRole});
 }
 function handleUpdateUserRole(targetYmis,newRole,canTick,managerYmis,allowedBadges){
   const manager=getUser(managerYmis); const rec=findUserRecord(targetYmis);
