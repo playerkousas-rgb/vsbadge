@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>深資童軍進度及行政平台 v8.0</title>
+<title>深資童軍進度及行政平台 v8.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 :root{
@@ -320,10 +320,10 @@ a:hover{text-decoration:underline}
       </div>
       <div style="text-align:left">
         <h1>深資童軍進度追蹤系統</h1>
-        <p>Venture Scout Progress &amp; Admin Platform v8.0 • 第11版綱要</p>
+        <p>Venture Scout Progress &amp; Admin Platform v8.2 • 第11版綱要</p>
       </div>
     </div>
-    <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫</div>
+    <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶</div>
     <div class="welcome-nav">
       <button class="active" data-tab="enter" onclick="showWelcomeTab('enter', this)">🏠 進入系統</button>
       <button data-tab="setup" onclick="showWelcomeTab('setup', this)">📋 新旅團部署</button>
@@ -429,7 +429,15 @@ a:hover{text-decoration:underline}
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：v8.0 FRONTEND ADMIN</h3>
+        <h3>最新：v8.2 帳戶自助申請（成員／執委／領袖）</h3>
+        <p style="font-size:12px">申請帳戶毋須填寫支部／單位（支部＝深資童軍、單位＝所屬旅團，系統自動帶入）；執委／領袖亦可自行申請，團長／支部領袖在「審批中心」→「用戶審批」一鍵批准開戶。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>v8.1 活動履歷（服務／活動／訓練班紀錄）</h3>
+        <p style="font-size:12px">領袖可新增／編輯／刪除紀錄，支援同一活動批量套用多個成員；成員唯讀查看。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>v8.0 FRONTEND ADMIN</h3>
         <p style="font-size:12px">全前端帳戶管理、CSV／JSON 批量開戶、首次登入改密碼、操作紀錄及手機友善介面</p>
       </div>
     </div>
@@ -441,7 +449,7 @@ a:hover{text-decoration:underline}
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
-      <div><h1 style="font-size:18px">深資童軍進度及行政平台 v8.0</h1></div>
+      <div><h1 style="font-size:18px">深資童軍進度及行政平台 v8.2</h1></div>
     </div>
   </div>
   <div class="container">
@@ -462,7 +470,7 @@ a:hover{text-decoration:underline}
       <div class="form-group"><label>密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼"></div>
       <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin">登入</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
-        <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px">🆕 申請成員帳戶</a>
+        <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px">🆕 申請帳戶（成員／執委／領袖）</a>
         <a href="#" onclick="showContactModal();return false" style="font-size:12px">新旅團登記</a>
         <a href="#" onclick="backToHome();return false" style="font-size:12px">← 返回首頁</a>
       </div>
@@ -622,12 +630,12 @@ a:hover{text-decoration:underline}
 
 <div id="accountApplyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountApplyTitle">
   <div class="modal-content">
-    <h3 id="accountApplyTitle">📝 申請深資童軍成員帳戶</h3>
-    <p style="font-size:12px;color:var(--text-light);margin-bottom:12px">提交後由所屬旅團領袖在「審批中心」批准，毋須直接修改 Google Sheet。</p>
+    <h3 id="accountApplyTitle">📝 申請帳戶</h3>
+    <div style="font-size:12px;background:var(--blue-light);border:1px solid var(--blue);color:var(--blue);padding:8px 10px;border-radius:8px;margin-bottom:12px">📍 旅團：<b id="applyTroopName">—</b><br><span style="font-size:11px">支部＝深資童軍、單位＝所屬旅團，系統自動帶入，毋須填寫。提交後由團長／支部領袖在「審批中心」批准，毋須直接修改 Google Sheet。</span></div>
+    <div class="form-group"><label>申請身份 *</label><select id="applyRole" onchange="syncApplyRole()"><option value="member">團員（深資童軍）</option><option value="exec_committee">執委</option><option value="branch_leader">領袖（支部領袖）</option></select><div style="font-size:10px;color:var(--text-light);margin-top:3px">團員、執委、領袖都可自行申請；團長／管理員角色須由現任團長在「用戶管理」直接開立。</div></div>
     <div class="form-group"><label>YMIS（10 位數字）*</label><input id="applyYmis" inputmode="numeric" maxlength="10" autocomplete="username"></div>
     <div class="form-group"><label>姓名 *</label><input id="applyName" autocomplete="name"></div>
-    <div class="form-group"><label>支部／單位</label><input id="applyBranch" placeholder="例如：深資童軍支部"></div>
-    <div class="form-group"><label>聯絡電郵</label><input id="applyEmail" type="email" autocomplete="email"></div>
+    <div class="form-group"><label>聯絡電郵 <span id="applyEmailReq" style="color:var(--red);display:none">* 執委／領袖必填</span></label><input id="applyEmail" type="email" autocomplete="email"></div>
     <div id="applyMsg" class="login-msg" aria-live="polite"></div>
     <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('accountApplyModal')">取消</button><button class="btn btn-primary" id="btnAccountApply" onclick="submitAccountApply()">提交申請</button></div>
   </div>
@@ -712,7 +720,7 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div>COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.1</div>
+  <div>COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.2</div>
   <div style="margin-top:4px;font-size:11px">全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank">香港童軍總會</a></div>
 </footer>
@@ -1073,20 +1081,29 @@ function closeContactModal(){ document.getElementById('contactModal').classList.
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 function showAccountApplyModal(){
   if(!currentTroopId){ showToast('請先選擇旅團','warning'); return; }
-  ['applyYmis','applyName','applyBranch','applyEmail'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['applyYmis','applyName','applyEmail'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const roleEl=document.getElementById('applyRole'); if(roleEl) roleEl.value='member'; syncApplyRole();
+  const tn=document.getElementById('applyTroopName'); if(tn) tn.textContent=currentTroopName||('第'+currentTroopId+'旅');
   const msg=document.getElementById('applyMsg'); msg.className='login-msg'; msg.textContent='';
   document.getElementById('accountApplyModal').classList.add('active');
+}
+function syncApplyRole(){
+  const role=document.getElementById('applyRole')?.value||'member';
+  const req=document.getElementById('applyEmailReq');
+  if(req) req.style.display=(role==='member')?'none':'inline';
 }
 async function submitAccountApply(){
   const ymis=document.getElementById('applyYmis').value.trim();
   const name=document.getElementById('applyName').value.trim();
-  const branch=document.getElementById('applyBranch').value.trim();
+  const role=document.getElementById('applyRole')?.value||'member';
   const email=document.getElementById('applyEmail').value.trim();
   const msg=document.getElementById('applyMsg'),btn=document.getElementById('btnAccountApply');
   if(!/^\d{10}$/.test(ymis)||!name){ msg.textContent='請填寫姓名及 10 位數字 YMIS'; msg.className='login-msg error'; return; }
+  if(role!=='member' && !email){ msg.textContent='執委／領袖申請必須填寫聯絡電郵'; msg.className='login-msg error'; return; }
   btn.disabled=true; btn.textContent='提交中...';
   try{
-    const d=await apiRequest('apply',{ymis,name,email,branch,requested_role:'member'});
+    // v8.2：不問支部／單位——支部固定深資童軍，單位自動帶入所選旅團名稱
+    const d=await apiRequest('apply',{ymis,name,email,branch:currentTroopName||'',requested_role:role});
     if(!d.success) throw new Error(d.error||'提交失敗');
     msg.textContent=d.message||'申請已提交'; msg.className='login-msg success';
     setTimeout(()=>closeModal('accountApplyModal'),1200);
@@ -2178,7 +2195,10 @@ async function renderRequestsTab(){
     if(totalUser===0){
       html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">暫無用戶待批</p>`;
     }else{
-      html+=userApplications.map(a=>`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${escapeHtmlText(getRoleName(a.requested_role))} | ${escapeHtmlText(a.applied_at)}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`).join('');
+      html+=userApplications.map(a=>{
+        const reqRole=a.requested_role||'member';
+        return `<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請身份：<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`;
+      }).join('');
     }
     html+=`</div>`;
   }
@@ -3223,13 +3243,14 @@ async function loadApplications(){
       let h='<h3 style="margin-bottom:12px;color:var(--maroon)">待審批帳號申請</h3>';
       if(d.applications.length===0) h+='<p style="color:var(--text-light)">目前沒有待審批的申請</p>';
       else d.applications.forEach(a=>{
-        h+=`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請角色：${escapeHtmlText(getRoleName(a.requested_role))} | ${escapeHtmlText(a.applied_at)}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`;
+        const reqRole=a.requested_role||'member';
+        h+=`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">申請身份：<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">批准</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">拒絕</button></div></div>`;
       });
       c.innerHTML=h;
     }else c.innerHTML='<p style="color:var(--red)">載入失敗</p>';
   }catch(e){ c.innerHTML='<p style="color:var(--red)">錯誤</p>'; }
 }
-async function reviewApp(id,dec){
+async function reviewApp(id,dec,requestedRole){
   if(!confirm(`確定要${dec==='approved'?'批准並開立帳戶':'拒絕'}嗎？`)) return;
   const tempPassword=dec==='approved'?generateTempPassword():'';
   try{
@@ -3237,8 +3258,14 @@ async function reviewApp(id,dec){
     if(!d.success) throw new Error(d.error||'審批失敗');
     showToast(d.message,'success');
     if(dec==='approved'){
+      const finalRole=d.final_role||'member';
+      let roleLine;
+      if(d.final_role){ roleLine=`已按申請開立為 <b>${escapeHtmlText(getRoleName(finalRole))}</b> 帳戶。`; }
+      else if(requestedRole && requestedRole!=='member'){ roleLine=`舊版後端已建立帳戶（團員）。如需 <b>${escapeHtmlText(getRoleName(requestedRole))}</b> 角色，請在「用戶管理」修改。`; }
+      else{ roleLine='帳戶角色：團員。'; }
+      if(requestedRole && d.final_role && d.final_role!==requestedRole){ roleLine=`申請人要求 ${escapeHtmlText(getRoleName(requestedRole))}，但你的權限層級未能設定該角色，已建立為 <b>團員</b>，請由團長在「用戶管理」調整。`; }
       document.getElementById('historyTitle').textContent='✅ 帳戶已建立';
-      document.getElementById('historyBody').innerHTML=`<div class="info-section"><p>臨時密碼只在本次顯示，請安全地個別交給申請人：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
+      document.getElementById('historyBody').innerHTML=`<div class="info-section"><p>${roleLine}<br>臨時密碼只在本次顯示，請安全地個別交給申請人：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
       document.getElementById('historyModal').classList.add('active');
     }
     renderRequestsTab();

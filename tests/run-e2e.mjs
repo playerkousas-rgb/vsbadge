@@ -247,6 +247,46 @@ console.log('\n【10b】活動履歷：單筆/批量寫入、讀取、成員被�
   check('欠日期/名稱 → success:false', bad.success === false);
 }
 
+// ---- v8.2 帳戶自助申請：毋須填支部／單位、領袖可申請、團長前端審批 ----
+console.log('\n【10c】帳戶申請：成員／執委／領袖自助申請 → 團長審批（v8.2）');
+{
+  // 成員申請（支部／單位由前端自動帶入旅團名）
+  const ap1 = await apiA('apply', { ymis: '1234560020', name: '新成員乙', email: 'newmember@example.org', branch: '第 82 旅', requested_role: 'member' });
+  check('成員申請成功', ap1.success === true);
+  // 領袖申請
+  const ap2 = await apiA('apply', { ymis: '1234560021', name: '新領袖丙', email: 'newleader@example.org', branch: '第 82 旅', requested_role: 'branch_leader' });
+  check('領袖申請成功', ap2.success === true);
+  // 執委申請（無 email 被拒）
+  const apNoMail = await apiA('apply', { ymis: '1234560023', name: '無電郵執委', email: '', branch: '第 82 旅', requested_role: 'exec_committee' });
+  check('執委申請缺 Email 被拒', apNoMail.success === false && /電郵/.test(apNoMail.error || ''));
+  // 惡意申請管理員角色被拒
+  const apBad = await apiA('apply', { ymis: '1234560022', name: '壞人', email: 'bad@example.org', branch: '', requested_role: 'admin' });
+  check('申請管理員角色被拒', apBad.success === false && /角色/.test(apBad.error || ''));
+  // 團長（group_leader）可查看申請
+  const apps = await apiA('getApplications', { token: tokenA });
+  check('團長可查看用戶申請', apps.success === true && apps.applications.length === 2);
+  const leaderApp = apps.applications.find(a => a.ymis === '1234560021');
+  const memberApp = apps.applications.find(a => a.ymis === '1234560020');
+  check('申請帶有所要求角色（branch_leader）', leaderApp?.requested_role === 'branch_leader');
+  check('申請自動帶旅團單位（第 82 旅）', leaderApp?.branch === '第 82 旅' && memberApp?.branch === '第 82 旅');
+  // 團長批准領袖申請 → 直接開立為支部領袖
+  const rev = await apiA('reviewApplication', { token: tokenA, app_id: leaderApp.app_id, decision: 'approved', review_note: '', temp_password: 'Vs!12345678' });
+  check('團長批准領袖申請（final_role=branch_leader）', rev.success === true && rev.final_role === 'branch_leader');
+  const loginNewLeader = await apiA('login', { login_id: '1234560021', password: 'Vs!12345678' });
+  check('新領袖可登入（角色=支部領袖, can_tick）', loginNewLeader.success === true && loginNewLeader.user.role === 'branch_leader' && loginNewLeader.user.can_tick === true);
+  // 團長批准成員申請 → 開立為團員
+  const rev2 = await apiA('reviewApplication', { token: tokenA, app_id: memberApp.app_id, decision: 'approved', review_note: '', temp_password: 'Vs!abcdefgh' });
+  check('團長批准成員申請（final_role=member）', rev2.success === true && rev2.final_role === 'member');
+  const loginNewMember = await apiA('login', { login_id: '1234560020', password: 'Vs!abcdefgh' });
+  check('新成員可登入（角色=member）', loginNewMember.success === true && loginNewMember.user.role === 'member');
+  // 批准後不再出現於待批列表
+  const appsAfter = await apiA('getApplications', { token: tokenA });
+  check('已處理申請不再待批', appsAfter.success === true && appsAfter.applications.length === 0);
+  // 普通成員無權查看申請
+  const memberSee = await apiA('getApplications', { token: loginNewMember.token });
+  check('普通成員不可查看用戶申請', memberSee.success === false && /權限/.test(memberSee.error || ''));
+}
+
 // ---- 多旅團隔離 ----
 console.log('\n【11】多旅團隔離：旅團 B 獨立寫入、token 不串用');
 {
