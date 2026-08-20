@@ -37,7 +37,9 @@ Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same
 - If you see “backend not yet v8.1”, follow DEPLOY_GUIDE v8.1 upgrade
 
 ### 5. Users — front-end admin
-- Create one account or **📥 bulk onboard** (CSV → preview → write; blank passwords generated)
+- Create one account or **📥 bulk onboard**
+  - **Recommended:** YMIS custom-report PDF (columns: Scout ID → Name in Chinese → Email) → unlock / preview / edit in the browser → confirm. The PDF never leaves the device. See [YMIS_EXPORT.md](YMIS_EXPORT.md)
+  - **Fallback:** CSV → preview → write; blank passwords generated. JSON paste also works.
 - Edit, reset temporary password, deactivate / reactivate, audit log
 - First sign-in after create/reset forces a password change
 - Promote member → exec + allow ticking
