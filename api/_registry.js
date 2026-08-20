@@ -97,7 +97,7 @@ export function listPublicTroops() {
   const out = {};
   for (const [id, t] of Object.entries(reg)) {
     // 只有後端設定有效才列出（與舊版 /api/troops「有 backend 才算有效旅團」一致）
-    if (t.backend) out[id] = { name: t.name };
+    if (t.backend) out[id] = { name: t.name, en: t.en || '' };
   }
   return out;
 }

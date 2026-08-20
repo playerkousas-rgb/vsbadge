@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>深資童軍進度及行政平台 v8.2</title>
+<title>深資童軍進度及行政平台 v8.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 :root{
@@ -310,6 +310,10 @@ a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
+<div class="lang-toggle" role="group" aria-label="Language / 語言">
+  <button type="button" id="langBtnZh" class="active" onclick="setLang('zh')" title="中文">中</button>
+  <button type="button" id="langBtnEn" onclick="setLang('en')" title="English">EN</button>
+</div>
 <!-- ===== Home ===== -->
 <div id="homePage">
   <div class="app-header-common">
@@ -319,15 +323,15 @@ a:hover{text-decoration:underline}
         <svg id="fallbackSvgHome" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:none"><defs><radialGradient id="flameGrad2" cx="0.5" cy="0.3" r="0.7"><stop offset="0%" stop-color="#FFEE58"/><stop offset="50%" stop-color="#FFA000"/><stop offset="100%" stop-color="#BF360C"/></radialGradient></defs><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="url(#flameGrad2)"/></svg>
       </div>
       <div style="text-align:left">
-        <h1>深資童軍進度追蹤系統</h1>
-        <p>Venture Scout Progress &amp; Admin Platform v8.2 • 第11版綱要</p>
+        <h1 data-i18n="app.homeTitle">深資童軍進度追蹤系統</h1>
+        <p data-i18n="app.homeSub">Venture Scout Progress &amp; Admin Platform v8.3 • 第11版綱要</p>
       </div>
     </div>
-    <div class="header-subtitle">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶</div>
+    <div class="header-subtitle" data-i18n="app.homeTag">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶</div>
     <div class="welcome-nav">
-      <button class="active" data-tab="enter" onclick="showWelcomeTab('enter', this)">🏠 進入系統</button>
-      <button data-tab="setup" onclick="showWelcomeTab('setup', this)">📋 新旅團部署</button>
-      <button data-tab="guide" onclick="showWelcomeTab('guide', this)">📖 使用教學</button>
+      <button class="active" data-tab="enter" onclick="showWelcomeTab('enter', this)" data-i18n="nav.enter">🏠 進入系統</button>
+      <button data-tab="setup" onclick="showWelcomeTab('setup', this)" data-i18n="nav.setup">📋 新旅團部署</button>
+      <button data-tab="guide" onclick="showWelcomeTab('guide', this)" data-i18n="nav.guide">📖 使用教學</button>
       <!-- changelog hidden for production -->
     </div>
   </div>
@@ -343,13 +347,13 @@ a:hover{text-decoration:underline}
       <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <div style="width:32px;height:32px;background:var(--maroon);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700">L</div>
-          <h2 style="font-size:16px;color:var(--maroon)">四級勾選架構 + 級聯自動完成</h2>
+          <h2 style="font-size:16px;color:var(--maroon)" data-i18n="home.levels">四級勾選架構 + 級聯自動完成</h2>
         </div>
         <div class="level-structure">
-          <div class="level-box"><div class="level-num">L1</div><div class="level-name">會員章</div><div class="level-desc">13項 • 含保護兒童</div></div>
-          <div class="level-box"><div class="level-num">L2</div><div class="level-name">肩章</div><div class="level-desc">23項基礎技能</div></div>
-          <div class="level-box"><div class="level-num">L3</div><div class="level-name">深資童軍獎章</div><div class="level-desc">4段章 100+選項</div></div>
-          <div class="level-box"><div class="level-num">L4</div><div class="level-name">榮譽童軍獎章</div><div class="level-desc">4金帶 • 最高榮譽</div></div>
+          <div class="level-box"><div class="level-num">L1</div><div class="level-name" data-i18n="home.l1">會員章</div><div class="level-desc" data-i18n="home.l1d">13項 • 含保護兒童</div></div>
+          <div class="level-box"><div class="level-num">L2</div><div class="level-name" data-i18n="home.l2">肩章</div><div class="level-desc" data-i18n="home.l2d">23項基礎技能</div></div>
+          <div class="level-box"><div class="level-num">L3</div><div class="level-name" data-i18n="home.l3">深資童軍獎章</div><div class="level-desc" data-i18n="home.l3d">4段章 100+選項</div></div>
+          <div class="level-box"><div class="level-num">L4</div><div class="level-name" data-i18n="home.l4">榮譽童軍獎章</div><div class="level-desc" data-i18n="home.l4d">4金帶 • 最高榮譽</div></div>
         </div>
       </div>
 
@@ -449,30 +453,30 @@ a:hover{text-decoration:underline}
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
-      <div><h1 style="font-size:18px">深資童軍進度及行政平台 v8.2</h1></div>
+      <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v8.3</h1></div>
     </div>
   </div>
   <div class="container">
     <div class="login-container">
-      <h2>🔐 登入系統</h2>
+      <h2 data-i18n="login.title">🔐 登入系統</h2>
       <div class="troop-info-box" id="loginTroopInfo">—</div>
       <div style="text-align:center;margin-bottom:16px;padding:12px;background:#FFF7ED;border-radius:8px;border:1px dashed var(--orange)">
-        <div style="font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px">🎬 快速體驗</div>
-        <div style="font-size:11px;color:var(--text-light);margin-bottom:8px">無需部署、無需登入，即刻用 10 個 MOCK 成員試用所有功能</div>
-        <button class="btn btn-warning btn-sm" onclick="enterDemoMode()" style="width:100%">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
+        <div style="font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px" data-i18n="login.quick">🎬 快速體驗</div>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:8px" data-i18n="login.quickDesc">無需部署、無需登入，即刻用 10 個 MOCK 成員試用所有功能</div>
+        <button class="btn btn-warning btn-sm" onclick="enterDemoMode()" style="width:100%" data-i18n="login.demoBtn">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
       </div>
       <div class="login-type-tabs">
-        <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')">👤 成員<br><small style="font-weight:normal">YMIS 10位</small></div>
-        <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')">👨‍💼 領袖<br><small style="font-weight:normal">Email</small></div>
+        <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')"><span data-i18n="login.member">👤 成員</span><br><small style="font-weight:normal" data-i18n="login.memberHint">YMIS 10位</small></div>
+        <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')"><span data-i18n="login.leader">👨‍💼 領袖</span><br><small style="font-weight:normal" data-i18n="login.leaderHint">Email</small></div>
       </div>
       <div id="loginMsg" class="login-msg"></div>
-      <div class="form-group"><label id="loginIdLabel">YMIS（10位數字）</label><input type="text" id="loginId" placeholder="例如 1234567890" maxlength="10"></div>
-      <div class="form-group"><label>密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼"></div>
-      <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin">登入</button>
+      <div class="form-group"><label id="loginIdLabel" data-i18n="login.ymis">YMIS（10位數字）</label><input type="text" id="loginId" placeholder="例如 1234567890" maxlength="10" data-i18n-placeholder="login.ymisPh"></div>
+      <div class="form-group"><label data-i18n="login.password">密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼" data-i18n-placeholder="login.passwordPh"></div>
+      <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin" data-i18n="login.submit">登入</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
-        <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px">🆕 申請帳戶（成員／執委／領袖）</a>
-        <a href="#" onclick="showContactModal();return false" style="font-size:12px">新旅團登記</a>
-        <a href="#" onclick="backToHome();return false" style="font-size:12px">← 返回首頁</a>
+        <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px" data-i18n="login.apply">🆕 申請帳戶（成員／執委／領袖）</a>
+        <a href="#" onclick="showContactModal();return false" style="font-size:12px" data-i18n="login.register">新旅團登記</a>
+        <a href="#" onclick="backToHome();return false" style="font-size:12px" data-i18n="login.back">← 返回首頁</a>
       </div>
     </div>
   </div>
@@ -487,19 +491,19 @@ a:hover{text-decoration:underline}
     </div>
     <div class="user-info">
       <span class="user-chip" id="userInfo">—</span>
-      <button class="btn btn-sm btn-secondary" onclick="showChangePasswordModal(false)">🔑 改密碼</button>
-      <button class="btn btn-sm btn-secondary" onclick="doLogout()">登出</button>
+      <button class="btn btn-sm btn-secondary" onclick="showChangePasswordModal(false)" data-i18n="btn.changePw">🔑 改密碼</button>
+      <button class="btn btn-sm btn-secondary" onclick="doLogout()" data-i18n="btn.logout">登出</button>
     </div>
   </div>
   <div class="nav-tabs" id="mainNavTabs">
-    <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)">📊 我的進度</button>
-    <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)">👥 全團總覽</button>
-    <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)">✅ 審批中心 <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
-    <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)">📅 活動履歷</button>
-    <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)">🖨️ 表格列印</button>
-    <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)">❓ 教學</button>
-    <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)">📚 資料庫</button>
-    <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none">👥 用戶管理</button>
+    <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)" data-i18n="nav.progress">📊 我的進度</button>
+    <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)" data-i18n="nav.overview">👥 全團總覽</button>
+    <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)"><span data-i18n="nav.requests">✅ 審批中心</span> <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
+    <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)" data-i18n="nav.logs">📅 活動履歷</button>
+    <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)" data-i18n="nav.forms">🖨️ 表格列印</button>
+    <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)" data-i18n="nav.help">❓ 教學</button>
+    <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)" data-i18n="nav.info">📚 資料庫</button>
+    <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none" data-i18n="nav.users">👥 用戶管理</button>
     <!-- 已合併：審批申請已併入審批中心，按項目及按項目已併入全團總覽，其他獎章已併入我的進度，版本更新框架保留 -->
     <button class="nav-tab" id="btn-tab-apps" onclick="switchTab('apps', this)" style="display:none">📋 審批申請(舊-已合併)</button>
     <button class="nav-tab" id="btn-tab-byitem" onclick="switchTab('byitem', this)" style="display:none">🔍 按項目(舊)</button>
@@ -720,12 +724,466 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div>COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.2</div>
-  <div style="margin-top:4px;font-size:11px">全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
-  <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank">香港童軍總會</a></div>
+  <div data-i18n="app.footer">COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.3</div>
+  <div style="margin-top:4px;font-size:11px" data-i18n="app.footer2">全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
+  <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank" data-i18n="sahk">香港童軍總會</a></div>
 </footer>
 
 <script>
+/* ================== i18n：一鍵全中／全英（同一套後端紀錄，只換顯示） ================== */
+const LANG_KEY='vsbadge_lang';
+let currentLang=(function(){ try{ const v=localStorage.getItem(LANG_KEY); return v==='en'?'en':'zh'; }catch(e){ return 'zh'; } })();
+const I18N={
+zh:{
+  'app.title':'深資童軍進度及行政平台 v8.3',
+  'app.homeTitle':'深資童軍進度追蹤系統',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v8.3 • 第11版綱要',
+  'app.homeTag':'基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶',
+  'app.track':'進度追蹤',
+  'app.footer':'COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.3',
+  'app.footer2':'全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm',
+  'app.footer3':'Developed for 82 Troop • All rights reserved • 香港童軍總會',
+  'nav.enter':'🏠 進入系統','nav.setup':'📋 新旅團部署','nav.guide':'📖 使用教學',
+  'nav.progress':'📊 我的進度','nav.overview':'👥 全團總覽','nav.requests':'✅ 審批中心',
+  'nav.logs':'📅 活動履歷','nav.forms':'🖨️ 表格列印','nav.help':'❓ 教學','nav.info':'📚 資料庫','nav.users':'👥 用戶管理',
+  'home.levels':'四級勾選架構 + 級聯自動完成',
+  'home.l1':'會員章','home.l1d':'13項 • 含保護兒童','home.l2':'肩章','home.l2d':'23項基礎技能',
+  'home.l3':'深資童軍獎章','home.l3d':'4段章 100+選項','home.l4':'榮譽童軍獎章','home.l4d':'4金帶 • 最高榮譽',
+  'home.pickTroop':'📍 請選擇您的旅團','home.reload':'🔄 重新載入','home.demo':'👀 試用 MOCK 效果',
+  'home.loading':'載入中...','home.demoTitle':'🎬 免部署、免登入、免選旅團',
+  'home.demoDesc':'點擊上方「👀 試用 MOCK 效果」即刻體驗 10 個 MOCK 成員的完整進度、全團總覽卡片、批量剔選、表格列印等所有功能',
+  'home.demoNow':'👀 立即試用 MOCK 效果',
+  'login.title':'🔐 登入系統','login.quick':'🎬 快速體驗','login.quickDesc':'無需部署、無需登入，即刻用 10 個 MOCK 成員試用所有功能',
+  'login.demoBtn':'👀 試用 MOCK 效果 (免登入瀏覽器看)','login.member':'👤 成員','login.memberHint':'YMIS 10位',
+  'login.leader':'👨‍💼 領袖','login.leaderHint':'Email','login.ymis':'YMIS（10位數字）','login.ymisPh':'例如 1234567890',
+  'login.email':'Email','login.emailPh':'your@email.com','login.password':'密碼','login.passwordPh':'請輸入密碼',
+  'login.submit':'登入','login.logging':'登入中...','login.apply':'🆕 申請帳戶（成員／執委／領袖）',
+  'login.register':'新旅團登記','login.back':'← 返回首頁','login.fill':'請填寫帳號和密碼','login.ok':'登入成功！載入資料...',
+  'login.fail':'登入失敗','login.net':'無法連接伺服器，請檢查網絡或後端 URL',
+  'btn.changePw':'🔑 改密碼','btn.logout':'登出','btn.cancel':'取消','btn.close':'關閉','btn.save':'儲存','btn.retry':'重試',
+  'btn.refresh':'🔄 刷新','btn.discard':'捨棄','btn.confirmSave':'✅ 確認寫入雲端','btn.submit':'提交申請',
+  'save.pending':'{n} 項未保存 (已暫存於瀏覽器)','save.hint':'已暫存於瀏覽器','save.none':'沒有需要保存的變更',
+  'save.demo':'DEMO模式：數據僅在瀏覽器，無後端可寫入','save.busy':'正在寫入雲端，請稍候',
+  'save.writing':'正在寫入雲端...','save.prep':'準備寫入 {n} 項','save.ok':'✅ 寫入成功！','save.done':'已處理 {n} 項',
+  'save.wait':'請稍候，切勿關閉頁面','save.fail':'❌ 寫入失敗','save.cloudOk':'✅ 已成功寫入雲端',
+  'save.cloudFail':'寫入失敗：{m}，已保留於瀏覽器可重試','save.discardConfirm':'確定捨棄 {n} 項未保存變更？','save.discarded':'已捨棄未保存變更',
+  'role.super_admin':'超管','role.admin':'管理員','role.group_leader':'團長','role.branch_leader':'支部領袖','role.exec_committee':'執委','role.member':'團員',
+  'toast.memberMode':'成員模式：只能查看自己進度，其他獎章及申請',
+  'progress.viewMember':'檢視成員：','progress.pick':'-- 選擇成員 --','progress.self':'看自己','progress.now':'目前：',
+  'progress.completion':'完成度','progress.selfChip':'自己',
+  'progress.memberHint':'ℹ️ 成員模式：你不能直接勾選。若你已完成某項，請按「📝 申請完成」，填寫日期及證據，領袖確認後會自動寫入。',
+  'progress.viewOnly':'只能查看他人進度，不能編輯',
+  'progress.other':'⭐ 其他獎章及徽章','progress.otherSub':'- 非進度性但深資可考，併入進度一覽',
+  'progress.otherHint':'💡 此區包含急救章、拯溺、AYP、航空/海上等，數據與「⭐其他獎章」頁同步，領袖可在此直接剔，成員只讀。',
+  'progress.certNo':'證書編號','progress.apply':'📝 申請','progress.done':'✅ 已完成','progress.expand':'▶ 展開','progress.collapse':'▼ 收合',
+  'progress.mandatory':'必修','progress.noData':'資料未載入','progress.loading':'載入訓練綱要及進度...',
+  'progress.fail':'載入失敗','item.noDetail':'暫無詳細說明，請參考訓練綱要。','item.detailTitle':'考驗說明',
+  'overview.batchTitle':'🚀 考驗營 / 集體活動 批量完成 (領袖專用)',
+  'overview.batchDesc':'例如剛去完考驗營，可一鍵幫有去的成員全剔。先暫存瀏覽器，底部按確認才寫入。',
+  'overview.allMembers':'全選成員','overview.noMembers':'取消全選','overview.allItems':'全選項目','overview.noItems':'取消全選',
+  'overview.mark':'✅ 一鍵標記完成','overview.pickMembers':'1. 選擇成員 (可搜尋過濾後批量)','overview.pickItems':'2. 選擇項目 (當前篩選段章內)',
+  'overview.allSeg':'全部段章','overview.searchPh':'搜尋成員姓名/ YMIS','overview.byMember':'👥 按成員總覽 (一眼睇會員章)',
+  'overview.byItem':'🔍 按項目統計 (百分比)','overview.pickHint':'選擇段章以查看詳細矩陣。','overview.noMember':'無成員',
+  'overview.noMatch':'無成員符合搜尋','overview.noItemSearch':'無符合搜尋的項目','overview.member':'成員',
+  'overview.searchItem':'搜尋項目名稱/編號','overview.allBadges':'全部獎章','overview.l1done':'會員章✓',
+  'overview.itemsPct':'{done}/{total} 項 • {pct}%','overview.needMember':'請先選擇至少一位成員','overview.needItem':'請先選擇至少一個項目',
+  'overview.batchConfirm':'確定將 {items} 個項目標記為完成，套用到 {members} 位成員？\n日期：{date}\n將先暫存瀏覽器，需按底部確認寫入',
+  'overview.batchOk':'✅ 已批量加入 {n} 項至待寫入 ({m}人 x {i}項)',
+  'overview.tooMany':'⚠️ 該段章共有 {n} 項，為避免卡死，僅顯示前 30 項。請選擇更細分段章或使用卡片總覽。',
+  'overview.showAll':'仍要顯示全部 ({n})','overview.only50items':'僅顯示前50項，更多請分段章篩選',
+  'overview.only50mem':'僅顯示前50位成員，請用搜尋篩選',
+  'overview.clickHint':'💡 點擊 ✅ 可快速切換完成狀態（領袖權限），先暫存瀏覽器再批量寫入',
+  'overview.noPerm':'沒有權限','overview.loading':'載入中...','tab.loading':'載入中...','tab.home':'🏠 緊急返回',
+  'tab.renderErr':'⚠️ 載入此頁時出錯：{m}','tab.stuck':'此頁載入出錯，已防止卡死','tab.esc':'已緊急退出至我的進度','tab.dbl':'雙擊已返回首頁','tab.switchErr':'切頁出錯，已返回安全頁',
+  'req.loading':'載入審批中心...','req.emptyTitle':'目前沒有待審批項目','req.emptyHint':'成員的獎章申請及新用戶註冊申請都會在此顯示',
+  'req.badgeTab':'🏅 獎章審批 ({n})','req.userTab':'👤 用戶審批 ({n})','req.badgeH':'🏅 獎章審批 - 成員申請完成',
+  'req.batch':'✅ 批量批准選中','req.noBadge':'暫無獎章待批','req.noUser':'暫無用戶待批',
+  'req.userH':'👤 用戶審批 - 新帳號註冊','req.local':'本地暫存','req.itemDate':'📅 申請日期：','req.submitted':'提交：',
+  'req.select':'選中','req.approve':'✅ 批准','req.reject':'❌ 拒絕','req.pending':'⏳ 待領袖確認','req.saved':'💾 已暫存',
+  'req.applyRole':'申請身份：','req.confirmDec':'確定要{dec}此申請？','req.decA':'批准','req.decR':'拒絕',
+  'req.localOk':'✅ 已批准並加入待寫入清單，請按底部確認寫入','req.approving':'正在批准並寫入...','req.rejecting':'正在拒絕...',
+  'req.opFail':'操作失敗：{m}','req.pickFirst':'請先選中要批准的項目','req.batchBusy':'批核進行中，請稍候',
+  'req.batchConfirm':'確定批量批准 {n} 項？','req.batching':'正在批量批核...','req.batchProg':'批核中 {i} / {n}',
+  'req.batchOk':'✅ 已批准 {n} 項並加入待寫入，請按底部確認寫入雲端',
+  'req.batchPartial':'已批准 {ok} 項；{fail} 項失敗（{err}），已保留在列表可重試',
+  'req.openTitle':'📝 申請完成 - ','req.date':'完成日期 *','req.evidence':'證據/備註（例如：相片、證書編號、服務時數）',
+  'req.evidencePh':'例如：2026-05-01 區際露營相片3張，團長可參閱共享相簿...',
+  'req.hint':'💡 提交後領袖會在「待批」頁看到，可批准即自動寫入進度。先暫存於瀏覽器，按確認才送出（支援離線）。',
+  'req.needDate':'請選擇完成日期','req.sending':'提交中...','req.sent':'✅ 申請已送出，待領袖確認',
+  'req.sendFail':'⚠️ 申請未能送出：{m}。已暫存於瀏覽器，請稍後重新整理確認或通知領袖',
+  'log.upgradeTitle':'📅 活動履歷（服務／活動／訓練班紀錄）',
+  'log.upgradeP1':'⚠️ 此旅團後端尚未升級到 <b>v8.1</b>，暫未能使用活動履歷。進度、審批、用戶管理等現有功能完全不受影響。',
+  'log.upgradeP2':'升級方法（約 5 分鐘）：Apps Script 貼上最新 Code.gs → 執行 initializeSheets() 補建「活動履歷」工作表 → 部署 → 管理部署 → 編輯 → 版本選「新版本」→ 部署。URL 不變。',
+  'log.recheck':'🔄 重新檢查','log.viewMember':'檢視成員：','log.add':'➕ 新增紀錄','log.all':'全部',
+  'log.empty':'暫無紀錄','log.emptyLeader':'，可按上方「➕ 新增紀錄」補登','log.role':'崗位：','log.hours':'時數：','log.cert':'證書：','log.recorder':'記錄：',
+  'log.refreshed':'✅ 活動履歷已更新','log.readFail':'讀取失敗：{m}','log.needLeader':'只有領袖可以新增／編輯紀錄',
+  'log.needUpgrade':'後端未升級 v8.1，暫未能儲存','log.notFound':'找不到紀錄，請先重新載入',
+  'log.editTitle':'✏️ 編輯紀錄','log.addTitle':'➕ 新增活動履歷紀錄',
+  'log.type':'類型 *','log.service':'🤝 服務紀錄','log.activity':'🏕️ 活動紀錄','log.training':'🎓 訓練班紀錄',
+  'log.member':'成員 *','log.batch':'📥 批量：同一活動套用到多個成員','log.batchHint':'按住 Ctrl（電腦）或逐點（手機）可多選成員',
+  'log.date':'日期 *','log.title':'活動名稱 *','log.titleSvc':'服務名稱 *','log.titleTrn':'訓練班名稱 *',
+  'log.roleF':'崗位／身份','log.hoursF':'時數','log.svcHours':'服務時數','log.certF':'證書編號','log.detail':'內容／備註',
+  'log.needFields':'請填寫日期及名稱','log.needMem':'請選擇至少一位成員','log.saving':'儲存中...','log.save':'💾 儲存',
+  'log.demoOk':'✅ 已儲存（DEMO 本機模式，不寫入雲端）','log.savedN':'✅ 已儲存 {n} 筆活動履歷',
+  'log.partial':'已儲存 {ok} 筆；{fail} 筆失敗（{err}）','log.saveFail':'儲存失敗：{m}',
+  'log.onlyLeaderDel':'只有領袖可以刪除紀錄','log.delConfirm':'確定刪除「{t}」？此操作不能復原。',
+  'log.delDemo':'已刪除（DEMO 本機模式）','log.deleted':'✅ 已刪除紀錄','log.delFail':'刪除失敗：{m}',
+  'log.svcHoursSum':' · 服務總時數 ',
+  'forms.autoTitle':'🖨️ 表格自動填寫功能',
+  'forms.autoP':'系統會根據進度自動填寫 PT/19 及 PT/20 表格所需完成日期，領袖/成員可修改後直接列印。支援雙面列印，符合總會要求。',
+  'forms.auto1':'自動帶入姓名、YMIS、旅團、段章完成日期','forms.auto2':'可手動編輯補充服務時數、證書編號','forms.auto3':'一鍵列印，隱藏操作按鈕',
+  'forms.explainTitle':'📋 表格說明',
+  'forms.explain':'<b>PT/19 深資童軍獎章</b>：完成4段章後申請。<br><b>PT/20 榮譽童軍獎章</b>：完成4金帶+服務紀錄，每年9月15日前交總會，安排當年大會操頒發。<br><b>PT/65 考驗計劃</b>：開展金帶前需提交計劃書。',
+  'forms.pickMember':'選擇成員：','forms.pt19':'🖨️ 產生 PT/19 深資童軍獎章申請表','forms.pt20':'🐉 產生 PT/20 榮譽童軍獎章申請表',
+  'help.youAre':'❓ 教學 - 按角色分開 (你當前：{role} {code})',
+  'help.intro':'此頁只顯示你關心的功能，成員不會看到領袖的複雜操作。已改為內嵌版，不會再出現 NOT_FOUND 或 404。',
+  'help.memberBtn':'👤 成員教學','help.execBtn':'🎖️ 執委教學','help.leaderBtn':'👨‍💼 領袖教學',
+  'help.docs':'📚 完整文件 (vercel.json已開放docs/，若仍404請重新部署)',
+  'help.mdM':'成員MD','help.mdE':'執委MD','help.mdL':'領袖MD',
+  'users.loading':'載入用戶...','users.fail':'載入失敗：','users.settings':'🔒 前端系統設定',
+  'users.settingsP':'日常帳戶、角色、權限、私隱及停用操作全部在本頁完成，不需開啟 Google Sheet。',
+  'users.allowOthers':'允許成員互相查看進度（鼓勵模式）','users.center':'👥 用戶管理中心',
+  'users.centerP':'可在前端新增／批量開戶、編輯資料、設定角色與考核權限、重設密碼、停用及重新啟用帳號。停用只停止登入，既有進度仍會保留。',
+  'users.create':'➕ 開立帳戶','users.bulk':'📥 批量開戶','users.audit':'🧾 操作紀錄',
+  'users.search':'搜尋姓名／YMIS／Email','users.active':'使用中','users.allSt':'全部狀態','users.inactive':'已停用','users.none':'沒有用戶',
+  'users.branch':'支部：','users.unset':'未設定','users.perm':'權限：','users.nonePerm':'無','users.allPerm':'全部 (*)','users.forcePw':' · 下次登入須改密碼',
+  'users.inUse':'使用中','users.disabled':'已停用','users.edit':'✏️ 編輯','users.grantTick':'授權勾選','users.revokeTick':'收回勾選',
+  'users.permBtn':'⚙️ 權限','users.resetPw':'🔑 重設密碼','users.disable':'⛔ 停用','users.enable':'♻️ 重新啟用',
+  'perm.title':'⚙️ 設定可勾選權限 - ','perm.hint':'領袖默認全部 (*)，團長/管理員可更改。執委可按個別成員勾選可考核範圍。<br>成員改為執委後，可設定其可考核：會員章、活動段章(細項不用)、其他獎章逐個勾。',
+  'perm.prog':'進度性獎章 (段章層級)','perm.other':'其他獎章 (逐個勾)','perm.all':'全選','perm.none':'全不選',
+  'perm.execDef':'設為執委默認 (會員章+活動段章+其他部分)','perm.leaderAll':'設為領袖全部 (*)','perm.save':'💾 儲存權限','perm.saved':'✅ 權限已更新','perm.saveFail':'儲存失敗：{m}',
+  'contact.title':'📧 提交旅團接入申請','contact.id':'旅團編號 *','contact.name':'旅團名稱','contact.url':'Apps Script URL (…/exec) *','contact.key':'API Key *','contact.note':'聯絡 Email / 備註',
+  'contact.notePh':'請留下聯絡方式...','contact.submit':'提交申請','contact.need':'請填寫旅團編號、Script URL 和 API Key','contact.ok':'✅ 申請已提交！管理員會盡快處理','contact.fail':'❌ 提交失敗：{m}',
+  'apply.title':'📝 申請帳戶','apply.troop':'📍 旅團：','apply.hint':'支部＝深資童軍、單位＝所屬旅團，系統自動帶入，毋須填寫。提交後由團長／支部領袖在「審批中心」批准，毋須直接修改 Google Sheet。',
+  'apply.role':'申請身份 *','apply.member':'團員（深資童軍）','apply.exec':'執委','apply.leader':'領袖（支部領袖）',
+  'apply.roleHint':'團員、執委、領袖都可自行申請；團長／管理員角色須由現任團長在「用戶管理」直接開立。',
+  'apply.ymis':'YMIS（10 位數字）*','apply.name':'姓名 *','apply.email':'聯絡電郵 ','apply.emailReq':'* 執委／領袖必填',
+  'apply.need':'請填寫姓名及 10 位數字 YMIS','apply.needMail':'執委／領袖申請必須填寫聯絡電郵','apply.pickTroop':'請先選擇旅團',
+  'apply.sent':'申請已提交','pw.title':'🔑 更改密碼','pw.hint':'新密碼至少 8 位。','pw.old':'現有／臨時密碼 *','pw.new':'新密碼 *','pw.confirm':'再次輸入新密碼 *',
+  'pw.save':'儲存新密碼','pw.must':'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 8 位。',
+  'pw.short':'新密碼至少 8 位','pw.mismatch':'兩次輸入的新密碼不一致','pw.saving':'儲存中...','pw.ok':'密碼已更新','pw.fail':'更改密碼失敗：{m}','pw.loginFirst':'請先登入',
+  'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名、10 位 YMIS 及至少 8 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
+  'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
+  'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 8 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 8 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
+  'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
+  'hist.title':'🧾 操作紀錄','hist.empty':'沒有操作紀錄','hist.fail':'讀取紀錄失敗：{m}','hist.time':'時間','hist.actor':'操作者','hist.act':'操作','hist.target':'對象','hist.detail':'詳情',
+  'bulk.title':'📥 批量開戶','bulk.flow':'<b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。',
+  'bulk.guide':'查看完整說明','bulk.csv':'⬇️ 下載 CSV 範本','bulk.pick':'📂 選擇 CSV','bulk.json':'{} 貼上 JSON','bulk.previewJson':'預覽 JSON',
+  'bulk.auto':'空白密碼自動產生安全臨時密碼','bulk.none':'尚未選擇檔案','bulk.close':'關閉','bulk.go':'🚀 確認批量開戶',
+  'bulk.noPrev':'沒有可預覽資料','bulk.sum':'共 {n} 筆；','bulk.okN':'{n} 筆可開戶','bulk.skipN':'{n} 筆會略過','bulk.provided':'已提供','bulk.autoPw':'自動產生','bulk.can':'✓ 可開戶',
+  'bulk.confirm':'確定建立 {n} 個帳戶？','bulk.working':'開戶中...','bulk.prog':'開戶中 {a}-{b} / {n}',
+  'bulk.done':'完成：成功 {ok}，失敗 {fail}','bulk.pwHint':'臨時密碼只在本次畫面保留，請立即下載並以安全方式分別交給用戶。',
+  'bulk.dl':'⬇️ 下載成功帳戶及臨時密碼','bulk.okToast':'批量開戶完成：成功 {n} 筆','bulk.fail':'批量開戶失敗：{m}','bulk.csvFail':'CSV 讀取失敗：{m}','bulk.jsonFail':'JSON 格式錯誤：{m}',
+  'cfg.ok':'已{on}成員互看進度 (鼓勵/私隱模式)','cfg.on':'開啟','cfg.off':'關閉','cfg.fail':'設定失敗：{m}',
+  'tick.noPerm':'你沒有勾選權限，請使用申請功能','tick.noItem':'你的權限不可勾選此項目 ({id})，請聯絡團長/管理員設定',
+  'tick.noOther':'無權限勾選此其他獎章','other.ok':'✅ 其他獎章已更新','other.fail':'⚠️ 即時寫入失敗：{m}。變更已保留在下方待寫入清單，可按「確認寫入」重試',
+  'other.syncFail':'⚠️ 其他獎章同步失敗：{m}。已暫存於待寫入清單，可按「確認寫入」重試','other.writing':'寫入中，請稍候','other.update':'更新','other.complete':'完成','other.done':'已完成',
+  'demo.loading':'載入 MOCK 中...','demo.ok':'✅ 已進入 MOCK 試用模式，10個成員進度、批量剔、表格等皆可用，數據僅在瀏覽器','demo.fail':'MOCK試用載入失敗：{m}',
+  'demo.chip':'團長 DEMO','demo.mock':'MOCK試用','demo.title':'進度追蹤 (DEMO免登入)',
+  'portal.chip':'進度追蹤 (Portal)','unreg':'此旅團未在系統登記，請聯絡管理員','troopFail':'無法取得旅團設定',
+  'tmp.pw':'的臨時密碼：','tmp.hint':'請立即以安全方式轉交；用戶首次登入必須更改密碼。',
+  'appv.ok':'✅ 帳戶已建立','appv.as':'已按申請開立為 <b>{role}</b> 帳戶。','appv.old':'舊版後端已建立帳戶（團員）。如需 <b>{role}</b> 角色，請在「用戶管理」修改。',
+  'appv.member':'帳戶角色：團員。','appv.fallback':'申請人要求 {want}，但你的權限層級未能設定該角色，已建立為 <b>團員</b>，請由團長在「用戶管理」調整。',
+  'appv.temp':'臨時密碼只在本次顯示，請安全地個別交給申請人：',
+  'review.confirmA':'確定要批准並開立帳戶嗎？','review.confirmR':'確定要拒絕嗎？','review.fail':'審批失敗：{m}',
+  'role.updated':'角色已更新','role.fail':'角色更新失敗：{m}','tick.granted':'已授權勾選','tick.revoked':'已收回權限','tick.fail':'權限更新失敗：{m}',
+  'offline':'⚠️ 離線模式：顯示快取資料','info.goto':'前往',
+  'sahk':'香港童軍總會'
+},
+en:{
+  'app.title':'Venture Scout Progress & Admin Platform v8.3',
+  'app.homeTitle':'Venture Scout Progress Tracker',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v8.3 • 11th Edition Scheme',
+  'app.homeTag':'Based on the 11th Edition (2026) Venture Scout Training Scheme • offline draft • bulk save • member claims • auto-filled forms • self-service account applications',
+  'app.track':'Progress',
+  'app.footer':'COPYRIGHT 2026 Scout System • Venture Scout Progress & Admin Platform v8.3',
+  'app.footer2':'Front-end account admin • bulk onboarding • activity log (service / events / courses) • mobile-friendly • offline draft • Safe from Harm',
+  'app.footer3':'Developed for 82nd Group • All rights reserved • Scout Association of Hong Kong',
+  'nav.enter':'🏠 Enter','nav.setup':'📋 New Group setup','nav.guide':'📖 How to use',
+  'nav.progress':'📊 My progress','nav.overview':'👥 Unit overview','nav.requests':'✅ Approvals',
+  'nav.logs':'📅 Activity log','nav.forms':'🖨️ Print forms','nav.help':'❓ Guide','nav.info':'📚 Library','nav.users':'👥 Users',
+  'home.levels':'Four-level checklist + cascading auto-complete',
+  'home.l1':'Membership Badge','home.l1d':'13 items • incl. child protection','home.l2':'Epaulettes','home.l2d':'23 foundation skills',
+  'home.l3':'Venture Scout Award','home.l3d':'4 Achievement Badges, 100+ options','home.l4':'Dragon Scout Award','home.l4d':'4 Bars • highest honour',
+  'home.pickTroop':'📍 Select your Group','home.reload':'🔄 Reload','home.demo':'👀 Try MOCK demo',
+  'home.loading':'Loading...','home.demoTitle':'🎬 No deploy, no login, no Group pick',
+  'home.demoDesc':'Tap “👀 Try MOCK demo” to try 10 MOCK members, unit overview cards, bulk ticking and form printing — all features.',
+  'home.demoNow':'👀 Try MOCK demo now',
+  'login.title':'🔐 Sign in','login.quick':'🎬 Quick look','login.quickDesc':'No deploy, no login — try every feature with 10 MOCK members',
+  'login.demoBtn':'👀 Try MOCK demo (browser only, no login)','login.member':'👤 Member','login.memberHint':'10-digit YMIS',
+  'login.leader':'👨‍💼 Leader','login.leaderHint':'Email','login.ymis':'YMIS (10 digits)','login.ymisPh':'e.g. 1234567890',
+  'login.email':'Email','login.emailPh':'your@email.com','login.password':'Password','login.passwordPh':'Enter password',
+  'login.submit':'Sign in','login.logging':'Signing in...','login.apply':'🆕 Apply for an account (member / exec / leader)',
+  'login.register':'Register a new Group','login.back':'← Home','login.fill':'Please enter ID and password','login.ok':'Signed in. Loading data...',
+  'login.fail':'Sign-in failed','login.net':'Cannot reach the server. Check the network or backend URL.',
+  'btn.changePw':'🔑 Change password','btn.logout':'Sign out','btn.cancel':'Cancel','btn.close':'Close','btn.save':'Save','btn.retry':'Retry',
+  'btn.refresh':'🔄 Refresh','btn.discard':'Discard','btn.confirmSave':'✅ Save to cloud','btn.submit':'Submit',
+  'save.pending':'{n} unsaved item(s) (draft in this browser)','save.hint':'Drafted in this browser','save.none':'Nothing to save',
+  'save.demo':'DEMO mode: data stays in this browser; there is no backend.','save.busy':'Saving to cloud, please wait',
+  'save.writing':'Saving to cloud...','save.prep':'Preparing {n} item(s)','save.ok':'✅ Saved!','save.done':'Processed {n} item(s)',
+  'save.wait':'Please wait. Do not close this page.','save.fail':'❌ Save failed','save.cloudOk':'✅ Saved to cloud',
+  'save.cloudFail':'Save failed: {m}. Kept in this browser so you can retry.','save.discardConfirm':'Discard {n} unsaved change(s)?','save.discarded':'Unsaved changes discarded',
+  'role.super_admin':'Super admin','role.admin':'Admin','role.group_leader':'Group Scout Leader','role.branch_leader':'Venture Scout Leader','role.exec_committee':'Exec','role.member':'Member',
+  'toast.memberMode':'Member mode: you only see your own progress, other badges and applications',
+  'progress.viewMember':'View member:','progress.pick':'-- Select member --','progress.self':'Myself','progress.now':'Now:',
+  'progress.completion':'Completion','progress.selfChip':'You',
+  'progress.memberHint':'ℹ️ Member mode: you cannot tick items. If you have completed one, tap “📝 Claim”, enter the date and evidence. A leader will confirm and it will be recorded.',
+  'progress.viewOnly':'View-only for other members',
+  'progress.other':'⭐ Other badges','progress.otherSub':'- not progressive, but Venture Scouts may earn them; listed here',
+  'progress.otherHint':'💡 First Aid, lifesaving, AYP, air/sea badges, etc. Synced with Other Badges. Leaders may tick; members are read-only.',
+  'progress.certNo':'Certificate no.','progress.apply':'📝 Claim','progress.done':'✅ Done','progress.expand':'▶ Expand','progress.collapse':'▼ Collapse',
+  'progress.mandatory':'Required','progress.noData':'Data not loaded','progress.loading':'Loading the Training Scheme and progress...',
+  'progress.fail':'Load failed','item.noDetail':'No extra notes. Please refer to the Training Scheme.','item.detailTitle':'Assessment notes',
+  'overview.batchTitle':'🚀 Assessment camp / group activity — bulk complete (leaders)',
+  'overview.batchDesc':'After a camp, tick everyone who took part in one go. Drafts stay in the browser until you confirm at the bottom.',
+  'overview.allMembers':'Select all members','overview.noMembers':'Clear members','overview.allItems':'Select all items','overview.noItems':'Clear items',
+  'overview.mark':'✅ Mark complete','overview.pickMembers':'1. Select members (filter, then bulk)','overview.pickItems':'2. Select items (in the filtered badge)',
+  'overview.allSeg':'All segments','overview.searchPh':'Search name / YMIS','overview.byMember':'👥 By member (Membership Badge at a glance)',
+  'overview.byItem':'🔍 By item (percentages)','overview.pickHint':'Choose a badge to see the matrix.','overview.noMember':'No members',
+  'overview.noMatch':'No members match','overview.noItemSearch':'No items match','overview.member':'Member',
+  'overview.searchItem':'Search item name / code','overview.allBadges':'All badges','overview.l1done':'Membership ✓',
+  'overview.itemsPct':'{done}/{total} items • {pct}%','overview.needMember':'Select at least one member','overview.needItem':'Select at least one item',
+  'overview.batchConfirm':'Mark {items} item(s) complete for {members} member(s)?\nDate: {date}\nDrafted in this browser until you confirm at the bottom.',
+  'overview.batchOk':'✅ Queued {n} item(s) to save ({m} members × {i} items)',
+  'overview.tooMany':'⚠️ This segment has {n} items. Showing the first 30 to keep the page responsive. Filter to a smaller segment or use cards.',
+  'overview.showAll':'Show all ({n})','overview.only50items':'Showing the first 50 items; filter by segment for more',
+  'overview.only50mem':'Showing the first 50 members; use search',
+  'overview.clickHint':'💡 Click ✓ to toggle (leaders). Drafts stay in the browser until bulk-saved.',
+  'overview.noPerm':'No permission','overview.loading':'Loading...','tab.loading':'Loading...','tab.home':'🏠 Emergency home',
+  'tab.renderErr':'⚠️ This page failed to load: {m}','tab.stuck':'This page failed; freeze prevented','tab.esc':'Escaped to My progress','tab.dbl':'Double-click returned home','tab.switchErr':'Tab switch failed; returned to a safe page',
+  'req.loading':'Loading approvals...','req.emptyTitle':'Nothing pending','req.emptyHint':'Badge claims and new-account applications appear here',
+  'req.badgeTab':'🏅 Badge claims ({n})','req.userTab':'👤 Accounts ({n})','req.badgeH':'🏅 Badge claims — member completions',
+  'req.batch':'✅ Approve selected','req.noBadge':'No badge claims','req.noUser':'No account applications',
+  'req.userH':'👤 Accounts — new registrations','req.local':'Local draft','req.itemDate':'📅 Claimed date: ','req.submitted':'Submitted: ',
+  'req.select':'Select','req.approve':'✅ Approve','req.reject':'❌ Reject','req.pending':'⏳ Awaiting leader','req.saved':'💾 Drafted',
+  'req.applyRole':'Applied as: ','req.confirmDec':'{dec} this application?','req.decA':'Approve','req.decR':'Reject',
+  'req.localOk':'✅ Approved and queued to save. Confirm at the bottom.','req.approving':'Approving and saving...','req.rejecting':'Rejecting...',
+  'req.opFail':'Failed: {m}','req.pickFirst':'Select items to approve first','req.batchBusy':'Approval in progress',
+  'req.batchConfirm':'Approve {n} item(s) in bulk?','req.batching':'Approving in bulk...','req.batchProg':'Approving {i} / {n}',
+  'req.batchOk':'✅ Approved {n} item(s) and queued to save. Confirm at the bottom.',
+  'req.batchPartial':'Approved {ok}; {fail} failed ({err}). Kept on the list to retry.',
+  'req.openTitle':'📝 Claim complete — ','req.date':'Completion date *','req.evidence':'Evidence / notes (photos, certificate no., service hours)',
+  'req.evidencePh':'e.g. 3 photos from the 2026-05-01 District camp; VSL may check the shared album...',
+  'req.hint':'💡 Leaders will see this under Approvals. Confirming writes progress. Drafted in this browser until sent (works offline).',
+  'req.needDate':'Please choose a completion date','req.sending':'Submitting...','req.sent':'✅ Claim sent. Awaiting a leader.',
+  'req.sendFail':'⚠️ Could not send: {m}. Drafted in this browser; refresh later or tell a leader.',
+  'log.upgradeTitle':'📅 Activity log (service / events / courses)',
+  'log.upgradeP1':'⚠️ This Group’s backend is not yet on <b>v8.1</b>, so the activity log is unavailable. Progress, approvals and user admin are unaffected.',
+  'log.upgradeP2':'Upgrade (~5 min): paste the latest Code.gs in Apps Script → run initializeSheets() to add the Activity Log sheet → Deploy → Manage deployments → Edit → version “New version” → Deploy. The URL stays the same.',
+  'log.recheck':'🔄 Check again','log.viewMember':'View member:','log.add':'➕ Add record','log.all':'All',
+  'log.empty':'No records yet','log.emptyLeader':'. Tap “➕ Add record” above.','log.role':'Role: ','log.hours':'Hours: ','log.cert':'Cert: ','log.recorder':'Recorded by: ',
+  'log.refreshed':'✅ Activity log updated','log.readFail':'Read failed: {m}','log.needLeader':'Only leaders can add or edit records',
+  'log.needUpgrade':'Backend not on v8.1; cannot save yet','log.notFound':'Record not found. Please reload.',
+  'log.editTitle':'✏️ Edit record','log.addTitle':'➕ Add activity-log record',
+  'log.type':'Type *','log.service':'🤝 Service','log.activity':'🏕️ Activity','log.training':'🎓 Course',
+  'log.member':'Member *','log.batch':'📥 Bulk: apply the same activity to several members','log.batchHint':'Ctrl-click (desktop) or tap (phone) to multi-select',
+  'log.date':'Date *','log.title':'Activity name *','log.titleSvc':'Service name *','log.titleTrn':'Course name *',
+  'log.roleF':'Role / position','log.hoursF':'Hours','log.svcHours':'Service hours','log.certF':'Certificate no.','log.detail':'Notes',
+  'log.needFields':'Please fill in the date and name','log.needMem':'Select at least one member','log.saving':'Saving...','log.save':'💾 Save',
+  'log.demoOk':'✅ Saved (DEMO, local only — not written to the cloud)','log.savedN':'✅ Saved {n} activity-log record(s)',
+  'log.partial':'Saved {ok}; {fail} failed ({err})','log.saveFail':'Save failed: {m}',
+  'log.onlyLeaderDel':'Only leaders can delete records','log.delConfirm':'Delete “{t}”? This cannot be undone.',
+  'log.delDemo':'Deleted (DEMO, local only)','log.deleted':'✅ Record deleted','log.delFail':'Delete failed: {m}',
+  'log.svcHoursSum':' · total service hours ',
+  'forms.autoTitle':'🖨️ Auto-filled forms',
+  'forms.autoP':'The system fills completion dates for PT/19 and PT/20 from progress. Leaders/members may edit, then print double-sided as required by Headquarters.',
+  'forms.auto1':'Name, YMIS, Group and Achievement Badge dates are filled in','forms.auto2':'You may add service hours and certificate numbers','forms.auto3':'One-click print; action buttons are hidden',
+  'forms.explainTitle':'📋 About the forms',
+  'forms.explain':'<b>PT/19 Venture Scout Award</b>: apply after 4 Achievement Badges.<br><b>PT/20 Dragon Scout Award</b>: 4 Bars + service record; submit to Headquarters by 15 September for that year’s Scout Rally.<br><b>PT/65 Planning Form</b>: submit before starting a Bar.',
+  'forms.pickMember':'Select member:','forms.pt19':'🖨️ Generate PT/19 Venture Scout Award form','forms.pt20':'🐉 Generate PT/20 Dragon Scout Award form',
+  'help.youAre':'❓ Guide — by role (you are: {role} {code})',
+  'help.intro':'This page only shows what you need. Members do not see leader tools. Embedded, so no NOT_FOUND / 404.',
+  'help.memberBtn':'👤 Member guide','help.execBtn':'🎖️ Exec guide','help.leaderBtn':'👨‍💼 Leader guide',
+  'help.docs':'📚 Full documents (docs/ is open in vercel.json; redeploy if you still see 404)',
+  'help.mdM':'Member MD','help.mdE':'Exec MD','help.mdL':'Leader MD',
+  'users.loading':'Loading users...','users.fail':'Load failed: ','users.settings':'🔒 Front-end settings',
+  'users.settingsP':'Accounts, roles, permissions, privacy and deactivation are all done here. No need to open the Google Sheet.',
+  'users.allowOthers':'Allow members to view one another’s progress (encouragement mode)','users.center':'👥 User admin',
+  'users.centerP':'Create or bulk-onboard accounts, edit profiles, set roles and assessment rights, reset passwords, deactivate and reactivate. Deactivation only blocks sign-in; progress is kept.',
+  'users.create':'➕ Create account','users.bulk':'📥 Bulk onboard','users.audit':'🧾 Audit log',
+  'users.search':'Search name / YMIS / email','users.active':'Active','users.allSt':'All statuses','users.inactive':'Inactive','users.none':'No users',
+  'users.branch':'Section / unit: ','users.unset':'Not set','users.perm':'Rights: ','users.nonePerm':'None','users.allPerm':'All (*)','users.forcePw':' · must change password next sign-in',
+  'users.inUse':'Active','users.disabled':'Inactive','users.edit':'✏️ Edit','users.grantTick':'Allow ticking','users.revokeTick':'Revoke ticking',
+  'users.permBtn':'⚙️ Rights','users.resetPw':'🔑 Reset password','users.disable':'⛔ Deactivate','users.enable':'♻️ Reactivate',
+  'perm.title':'⚙️ Tick permissions — ','perm.hint':'Leaders default to all (*); GSL/admin may change. Execs can be limited per member.<br>After promoting a member to exec, set what they may assess: Membership Badge, Activity Achievement Badge (no need to tick every sub-item), other badges one by one.',
+  'perm.prog':'Progressive badges (Achievement Badge level)','perm.other':'Other badges (tick each)','perm.all':'Select all','perm.none':'Select none',
+  'perm.execDef':'Exec default (Membership + Activity Achievement Badge + some others)','perm.leaderAll':'Leader all (*)','perm.save':'💾 Save rights','perm.saved':'✅ Rights updated','perm.saveFail':'Save failed: {m}',
+  'contact.title':'📧 Apply to connect a Group','contact.id':'Group no. *','contact.name':'Group name','contact.url':'Apps Script URL (…/exec) *','contact.key':'API Key *','contact.note':'Contact email / notes',
+  'contact.notePh':'Leave a contact...','contact.submit':'Submit','contact.need':'Please fill in Group no., Script URL and API Key','contact.ok':'✅ Application sent. An admin will follow up.','contact.fail':'❌ Submit failed: {m}',
+  'apply.title':'📝 Apply for an account','apply.troop':'📍 Group: ','apply.hint':'Section = Venture Scouts, unit = your Group — filled in automatically. A GSL / VSL approves it in Approvals. No need to edit the Google Sheet.',
+  'apply.role':'Apply as *','apply.member':'Member (Venture Scout)','apply.exec':'Executive Committee','apply.leader':'Leader (Venture Scout Leader)',
+  'apply.roleHint':'Members, execs and leaders may self-apply. GSL / admin accounts must be created by the current GSL under Users.',
+  'apply.ymis':'YMIS (10 digits) *','apply.name':'Name *','apply.email':'Email ','apply.emailReq':'* required for exec / leader',
+  'apply.need':'Please enter a name and a 10-digit YMIS','apply.needMail':'Exec / leader applications require an email','apply.pickTroop':'Please select a Group first',
+  'apply.sent':'Application submitted','pw.title':'🔑 Change password','pw.hint':'New password must be at least 8 characters.','pw.old':'Current / temporary password *','pw.new':'New password *','pw.confirm':'Confirm new password *',
+  'pw.save':'Save new password','pw.must':'<b style="color:var(--red)">First sign-in or after a reset: you must set your own new password.</b> At least 8 characters.',
+  'pw.short':'New password must be at least 8 characters','pw.mismatch':'The two new passwords do not match','pw.saving':'Saving...','pw.ok':'Password updated','pw.fail':'Change password failed: {m}','pw.loginFirst':'Please sign in first',
+  'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name, 10-digit YMIS and a temporary password of at least 8 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
+  'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
+  'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 8 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 8 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
+  'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
+  'hist.title':'🧾 Audit log','hist.empty':'No audit records','hist.fail':'Could not read the log: {m}','hist.time':'Time','hist.actor':'Actor','hist.act':'Action','hist.target':'Target','hist.detail':'Detail',
+  'bulk.title':'📥 Bulk onboard','bulk.flow':'<b>All in the front end:</b> download CSV → fill in → upload and preview → confirm. Written to the backend in one batch. Blank passwords can be generated. Download the temporary-password list afterwards.',
+  'bulk.guide':'Full guide','bulk.csv':'⬇️ Download CSV template','bulk.pick':'📂 Choose CSV','bulk.json':'{} Paste JSON','bulk.previewJson':'Preview JSON',
+  'bulk.auto':'Generate a safe temporary password when blank','bulk.none':'No file chosen yet','bulk.close':'Close','bulk.go':'🚀 Confirm bulk onboard',
+  'bulk.noPrev':'Nothing to preview','bulk.sum':'{n} row(s); ','bulk.okN':'{n} can be created','bulk.skipN':'{n} will be skipped','bulk.provided':'Provided','bulk.autoPw':'Auto','bulk.can':'✓ Ready',
+  'bulk.confirm':'Create {n} account(s)?','bulk.working':'Creating...','bulk.prog':'Creating {a}–{b} / {n}',
+  'bulk.done':'Done: {ok} succeeded, {fail} failed','bulk.pwHint':'Temporary passwords are shown only this once. Download them and pass them on securely, separately.',
+  'bulk.dl':'⬇️ Download successful accounts and temporary passwords','bulk.okToast':'Bulk onboard finished: {n} succeeded','bulk.fail':'Bulk onboard failed: {m}','bulk.csvFail':'CSV read failed: {m}','bulk.jsonFail':'JSON error: {m}',
+  'cfg.ok':'Member-to-member progress view {on}','cfg.on':'turned on','cfg.off':'turned off','cfg.fail':'Setting failed: {m}',
+  'tick.noPerm':'You cannot tick items. Please use Claim.','tick.noItem':'You may not tick this item ({id}). Ask the GSL/admin to set rights.',
+  'tick.noOther':'You may not tick this other badge','other.ok':'✅ Other badge updated','other.fail':'⚠️ Instant save failed: {m}. Kept in the queue below — tap “Save to cloud” to retry.',
+  'other.syncFail':'⚠️ Other-badge sync failed: {m}. Drafted in the queue — tap “Save to cloud” to retry.','other.writing':'Saving, please wait','other.update':'Update','other.complete':'Complete','other.done':'Done',
+  'demo.loading':'Loading MOCK...','demo.ok':'✅ MOCK demo: 10 members, bulk tick, forms and more. Data stays in this browser.','demo.fail':'MOCK demo failed: {m}',
+  'demo.chip':'GSL DEMO','demo.mock':'MOCK','demo.title':'Progress (DEMO, no login)',
+  'portal.chip':'Progress (Portal)','unreg':'This Group is not registered. Please contact an admin.','troopFail':'Could not load Group settings',
+  'tmp.pw':' temporary password:','tmp.hint':'Pass it on securely now. The user must change it at first sign-in.',
+  'appv.ok':'✅ Account created','appv.as':'Opened as <b>{role}</b> as applied.','appv.old':'Legacy backend created a Member account. To make them <b>{role}</b>, change the role under Users.',
+  'appv.member':'Role: Member.','appv.fallback':'They asked for {want}, but your level cannot set that role. Created as <b>Member</b>. Ask the GSL to adjust under Users.',
+  'appv.temp':'The temporary password is shown only this once. Pass it to the applicant securely:',
+  'review.confirmA':'Approve and open the account?','review.confirmR':'Reject this application?','review.fail':'Review failed: {m}',
+  'role.updated':'Role updated','role.fail':'Role update failed: {m}','tick.granted':'Ticking allowed','tick.revoked':'Ticking revoked','tick.fail':'Rights update failed: {m}',
+  'offline':'⚠️ Offline: showing cached data','info.goto':'Open',
+  'sahk':'Scout Association of Hong Kong'
+}
+};
+function i18n(key, vars){
+  const pack=I18N[currentLang]||I18N.zh;
+  let s=pack[key];
+  if(s==null) s=I18N.zh[key];
+  if(s==null) return key;
+  if(vars&&typeof vars==='object'){
+    Object.keys(vars).forEach(k=>{ s=String(s).split('{'+k+'}').join(vars[k]); });
+  }
+  return s;
+}
+function tx(obj, field){
+  if(!obj) return '';
+  field=field||'name';
+  if(currentLang==='en'){
+    if(field==='name' && obj.en) return obj.en;
+    if(field==='title' && obj.enTitle) return obj.enTitle;
+    const camel='en'+field.charAt(0).toUpperCase()+field.slice(1);
+    if(obj[camel]) return obj[camel];
+  }
+  return obj[field]||'';
+}
+function txList(obj, field){
+  if(!obj) return [];
+  if(currentLang==='en'){
+    const camel='en'+field.charAt(0).toUpperCase()+field.slice(1);
+    if(Array.isArray(obj[camel])) return obj[camel];
+  }
+  return Array.isArray(obj[field])?obj[field]:[];
+}
+function troopDisplayName(t, id){
+  if(currentLang==='en'){
+    if(t&&t.en) return t.en;
+    if(id) return (id.replace(/^0+/,'')||id)+'th Group';
+  }
+  if(t&&t.name) return t.name;
+  return id?('第'+id+'旅'):'';
+}
+function isEn(){ return currentLang==='en'; }
+function applyStaticI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    const attr=el.getAttribute('data-i18n-attr');
+    if(attr) el.setAttribute(attr, i18n(key));
+    else el.innerHTML=i18n(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    el.placeholder=i18n(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    el.title=i18n(el.getAttribute('data-i18n-title'));
+  });
+  const titleEl=document.querySelector('title');
+  if(titleEl) titleEl.textContent=i18n('app.title');
+  const zhB=document.getElementById('langBtnZh'), enB=document.getElementById('langBtnEn');
+  if(zhB) zhB.classList.toggle('active', currentLang==='zh');
+  if(enB) enB.classList.toggle('active', currentLang==='en');
+}
+function setLang(lang){
+  currentLang=(lang==='en')?'en':'zh';
+  try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
+  document.documentElement.lang=currentLang==='en'?'en':'zh-Hant';
+  applyStaticI18n();
+  localizeLongWelcome();
+  // Re-render live views (same backend IDs; display language only)
+  try{
+    const loginInfo=document.getElementById('loginTroopInfo');
+    if(loginInfo&&currentTroopId) loginInfo.textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
+    const home=document.getElementById('homePage');
+    if(home&&home.style.display!=='none') loadTroops();
+    const main=document.getElementById('mainApp');
+    if(main&&main.style.display!=='none'&&currentUser){
+      const appTitle=document.getElementById('appTitle');
+      if(appTitle) appTitle.textContent=`${currentTroopName} - ${i18n('app.track')}`;
+      const ui=document.getElementById('userInfo');
+      if(ui) ui.innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span>`;
+      setupTabsByRole();
+      const active=document.querySelector('.tab-content.active');
+      const tab=(active&&active.id||'tab-progress').replace('tab-','');
+      switchTab(tab, document.getElementById('btn-tab-'+tab));
+    }
+    updateSaveBar();
+    localizeModals();
+  }catch(e){ console.warn('setLang rerender', e); }
+}
+const WELCOME_HTML_CACHE={};
+const WELCOME_EN={
+setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 New Group setup — with / without the main platform (about 10 minutes)</h2>
+<div class="info-card" style="background:var(--blue-light);border-color:var(--blue);margin-bottom:12px">
+  <h3 style="color:var(--blue)">🌟 What is the main platform?</h3>
+  <p style="font-size:12px">This <b>Venture Scout Progress Tracker</b> is a Tier 3 component. It works on its own, and also as a plugin of the larger <b>scoutsystem-2.0</b> platform:</p>
+  <ul style="font-size:11px;margin:6px 0 0 16px">
+    <li>📊 Dashboard: numbers, activities and finance at a glance</li>
+    <li>👥 Members, ✅ meeting attendance QR, 💰 finance, 📅 event signup</li>
+    <li>🧩 Plugin market: this system is one plugin, added as a card</li>
+    <li>🔐 Single sign-on: the card carries your identity — no extra YMIS/password</li>
+  </ul>
+  <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>Having the main platform ≠ you must connect this system.</b> Use it standalone or connected; both paths work.</p>
+</div>
+<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to troops.json → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). Use: Dashboard → card → from=portal&embed=1.</p></div>
+<div class="tutorial"><div class="steps">
+  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (single file)</h4><p>Pending claims, other badges, bulk, PNG, privacy switch</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs</a></div></div>
+  <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy API Key<br><b>2.4</b> Deploy as web app (execute as me, access anyone), copy the /exec URL</p></div></div>
+  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Path A: no main platform — submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add troops.json. After Vercel deploys, use it standalone.</p></div></div>
+  <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Path B: main platform card only needs the Group number</h4><p>From v3.0, same-origin proxy: the card URL is ?u=0082&role=&ymis=&from=portal&embed=1. The GAS URL stays in the vsbadge server Registry.</p></div></div>
+  <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Privacy</h4><p>You may stay standalone. Members see only themselves by default. To encourage one another, the GSL can turn on “Allow members to view one another’s progress” under Users → settings.</p></div></div>
+</div></div>
+<div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 After that</h3><p style="font-size:11px">Standalone: send to a vsbadge admin<br>Connect the main platform: the same Registry registration (the card only sends u)<br>Both paths can run together</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 One-click connection request to a vsbadge admin</button></div>`,
+guide:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 How to use</h2>
+<div class="tutorial"><div class="steps">
+  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Pick your Group</h4><p>On the home page tap a Group card (e.g. 0082 — 82nd Group)</p></div></div>
+  <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Sign in</h4><p>Members: 10-digit YMIS + password. Leaders: email + password. Ask an admin for the first password.</p></div></div>
+  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Members: claim complete</h4><p>Members cannot tick. Tap “📝 Claim” → date → evidence → submit. Leaders see it under Approvals.</p></div></div>
+  <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Leaders: tick + date</h4><p>Leaders may tick (today’s date is filled). Changes draft in the browser; the bar shows unsaved count. Tap “Save to cloud” to write in bulk, with a progress overlay.</p></div></div>
+  <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Other features</h4><p>Unit overview: filter by Achievement Badge. By item: percentages + counts. Other badges sit in My progress. Print: official VS / Dragon forms auto-filled.</p></div></div>
+</div></div>
+<div class="info-section" style="margin-top:16px">
+  <h3>👥 Role guide (after sign-in)</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:8px">
+    <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid var(--green)"><b>👤 Member</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>Own progress only</li><li>Cannot tick — use 📝 Claim</li><li>See your own claims</li><li>Other badges read-only (yours)</li><li>Print official forms</li><li>Library: scheme + Safe from Harm</li></ul></div>
+    <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid #D63384"><b>🎖️ Exec</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>All member functions</li><li>May tick (if authorised)</li><li>Default: Membership Badge + Activity Achievement Badge + other badges one by one</li><li>May view other members</li><li>Bulk tick if authorised</li><li>Approve claims if authorised</li></ul></div>
+    <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid var(--maroon)"><b>👨‍💼 Leader</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>Everything</li><li>My progress: any member</li><li>Unit overview + Membership Badge %</li><li>Camp bulk-tick</li><li>Offline draft then save</li><li>Bulk approve</li><li>Users: promote to exec + ⚙️ rights</li><li>Leaders default to all; GSL/admin may lower</li><li>Approve new accounts</li></ul></div>
+  </div>
+</div>`
+};
+function localizeLongWelcome(){
+  ['welcome-setup','welcome-guide'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(!WELCOME_HTML_CACHE[id]) WELCOME_HTML_CACHE[id]=el.innerHTML;
+    const key=id==='welcome-setup'?'setup':'guide';
+    el.innerHTML=currentLang==='en'?(WELCOME_EN[key]||WELCOME_HTML_CACHE[id]):WELCOME_HTML_CACHE[id];
+  });
+}
+function localizeModals(){
+  localizeLongWelcome();
+}
+
 /* ================== 全局狀態 ================== */
 /* v3.0 同源 Proxy 架構：前端只持有 troopId，永不接觸 GAS URL。
    所有後端請求經 apiRequest() → /api/proxy → 伺服器端 Registry → 旅團 GAS。 */
@@ -814,7 +1272,7 @@ async function handlePortalParams(){
   const role=params.get('role');
   const ymis=params.get('ymis');
   const nameParam=params.get('name') || params.get('displayName') || ymis || 'Portal User';
-  const troopNameParam=params.get('troopName') || (u?`第${u}旅`:'Portal Troop');
+  const troopNameParam=params.get('troopName') || (u?troopDisplayName(null,u):(isEn()?'Portal Group':'Portal Troop'));
   const from=params.get('from');
 
   // 安全（v3.0）：URL 參數中的 backend/apikey 一律忽略，杜絕任意後端注入（SSRF/Open Proxy 風險）。
@@ -866,7 +1324,7 @@ async function handlePortalParams(){
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='none';
     document.getElementById('mainApp').style.display='block';
-    document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤 (Portal)`;
+    document.getElementById('appTitle').textContent=`${currentTroopName} - ${i18n('portal.chip')}`;
     document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span> <span style="background:var(--blue);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">Portal</span>`;
     setupTabsByRole();
     // 旅團已登記才載入進度
@@ -920,17 +1378,17 @@ function backToHome(){
 }
 async function loadTroops(){
   const grid=document.getElementById('troopGrid');
-  grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">載入中...</p>';
+  grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">'+i18n('home.loading')+'</p>';
   // 後備（不含任何後端 URL）：確保即使資料源 404 都顯示 0082；真正後端由伺服器端 Registry 解析
-  const fallbackTroops={ "0082": { name:"第 82 旅" } };
+  const fallbackTroops={ "0082": { name:"第 82 旅", en:"82nd Group" } };
   try{
     let troops={};
-    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅')}; } } }catch(e){ console.warn('api/troops failed',e); }
-    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok){ const d=await r.json(); if(d.troops){ for(const [id,t] of Object.entries(d.troops)){ if(!troops[id]) troops[id]={name:t.name||('第'+id+'旅')}; } } } }catch(e){ console.warn('data/troops.json failed',e); }
+    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; } } }catch(e){ console.warn('api/troops failed',e); }
+    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok){ const d=await r.json(); if(d.troops){ for(const [id,t] of Object.entries(d.troops)){ if(!troops[id]) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; else if(t.en&&!troops[id].en) troops[id].en=t.en; } } } }catch(e){ console.warn('data/troops.json failed',e); }
     const fromSource=Object.keys(troops).length>0;
     // 合併後備，確保0082一定可見
     troops={...fallbackTroops, ...troops};
-    grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${t.name||'第'+id+'旅'}</div></div>`).join('');
+    grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${troopDisplayName(t,id)}</div></div>`).join('');
     // 若只有後備，提示
     if(!fromSource){
       grid.innerHTML+=`<div style="grid-column:1/-1;text-align:center;padding:8px;background:#FFF3CD;border-radius:8px;font-size:11px;margin-top:8px">⚠️ 正使用後備資料顯示 0082，若 Vercel 上 data/troops.json 未部署，請檢查 GitHub 是否已推送 data/troops.json</div>`;
@@ -943,13 +1401,13 @@ async function loadTroops(){
 }
 async function selectTroop(id){
   try{
-    let t=null;
-    try{ const r2=await fetch('/api/troops'); const d2=await r2.json(); t=(d2.troops||{})[id]; }catch(e){}
-    if(!t){
-      try{ const r=await fetch('data/troops.json'); const d=await r.json(); const f=(d.troops||{})[id]; if(f) t={name:f.name}; }catch(e){}
+    let tr=null;
+    try{ const r2=await fetch('/api/troops'); const d2=await r2.json(); tr=(d2.troops||{})[id]; }catch(e){}
+    if(!tr){
+      try{ const r=await fetch('data/troops.json'); const d=await r.json(); const f=(d.troops||{})[id]; if(f) tr={name:f.name,en:f.en||''}; }catch(e){}
     }
-    if(!t){ showToast('此旅團未在系統登記，請聯絡管理員','error'); return; }
-    currentTroopId=id; currentTroopName=t.name||('第'+id+'旅');
+    if(!tr){ showToast(i18n('unreg'),'error'); return; }
+    currentTroopId=id; currentTroopName=troopDisplayName(tr,id);
     document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='block';
@@ -963,8 +1421,8 @@ function switchLoginType(t){
   document.getElementById('tabMember').classList.toggle('active', t==='member');
   document.getElementById('tabLeader').classList.toggle('active', t==='leader');
   const l=document.getElementById('loginIdLabel'), i=document.getElementById('loginId');
-  if(t==='member'){ l.textContent='YMIS（10位數字）'; i.placeholder='例如 1234567890'; i.type='text'; i.maxLength=10; }
-  else{ l.textContent='Email'; i.placeholder='your@email.com'; i.type='email'; i.maxLength=100; }
+  if(t==='member'){ l.textContent=i18n('login.ymis'); i.placeholder=i18n('login.ymisPh'); i.type='text'; i.maxLength=10; }
+  else{ l.textContent=i18n('login.email'); i.placeholder=i18n('login.emailPh'); i.type='email'; i.maxLength=100; }
 }
 async function doLogin(){
   const lid=document.getElementById('loginId').value.trim();
@@ -978,11 +1436,11 @@ async function doLogin(){
     if(d.success){
       currentUser=d.user; currentUser.force_change_password=!!d.force_change_password; currentToken=d.token;
       saveCurrentSession();
-      msg.textContent='登入成功！載入資料...'; msg.className='login-msg success';
+      msg.textContent=i18n('login.ok'); msg.className='login-msg success';
       setTimeout(()=>{
         document.getElementById('loginPage').style.display='none';
         document.getElementById('mainApp').style.display='block';
-        document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤`;
+        document.getElementById('appTitle').textContent=`${currentTroopName} - ${i18n('app.track')}`;
         document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span>`;
         setupTabsByRole();
         loadItemsAndProgress();
@@ -990,7 +1448,7 @@ async function doLogin(){
       },600);
     }else{ msg.textContent=d.error||'登入失敗'; msg.className='login-msg error'; }
   }catch(e){ console.error(e); msg.textContent='無法連接伺服器，請檢查網絡或後端 URL'; msg.className='login-msg error'; }
-  finally{ btn.disabled=false; btn.textContent='登入'; }
+  finally{ btn.disabled=false; btn.textContent=i18n('login.submit'); }
 }
 function doLogout(){
   // 通知後端註銷 token（best-effort）：失敗只在 console 提示，不阻塞本機登出，亦不靜默
@@ -1013,7 +1471,7 @@ function checkSavedSession(){
     currentTroopId=ss.troopId; currentTroopName=ss.troopName; currentToken=ss.token; currentUser=ss.user;
     document.getElementById('homePage').style.display='none';
     document.getElementById('mainApp').style.display='block';
-    document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤`;
+    document.getElementById('appTitle').textContent=`${currentTroopName} - ${i18n('app.track')}`;
     document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-${currentUser.role}">${getRoleName(currentUser.role)}</span>`;
     setupTabsByRole();
     loadItemsAndProgress();
@@ -1044,7 +1502,7 @@ function setupTabsByRole(){
     showToast('成員模式：只能查看自己進度，其他獎章及申請','warning');
   }
 }
-function getRoleName(r){ const m={'super_admin':'超管','admin':'管理員','group_leader':'團長','branch_leader':'支部領袖','exec_committee':'執委','member':'團員'}; return m[r]||r; }
+function getRoleName(r){ const keys={'super_admin':'role.super_admin','admin':'role.admin','group_leader'roup_leader','branch_leader':'role.branch_leader','exec_committee':'role.exec_committee','member':'role.member'}; return keys[r]?i18n(keys[r]):r; }
 function canUserTickRole(role){
   const roleCanTick=['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role);
   return roleCanTick && (!currentUser || currentUser.role!==role || currentUser.can_tick!==false);
@@ -1168,7 +1626,7 @@ async function loadAppConfig(){
 
 async function loadItemsAndProgress(){
   const progTab=document.getElementById('tab-progress');
-  progTab.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light)"><div class="spinner" style="margin:0 auto 12px"></div>載入訓練綱要及進度...</div>';
+  progTab.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light)"><div class="spinner" style="margin:0 auto 12px"></div>'+i18n('progress.loading')+'</div>';
   try{
     // 先載入系統設定（私隱開關）
     await loadAppConfig();
@@ -1296,7 +1754,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 /* ================== Progress Tab ================== */
 function renderProgressTab(){
   const container=document.getElementById('tab-progress');
-  if(!itemsData){ container.innerHTML='<p>資料未載入</p>'; return; }
+  if(!itemsData){ container.innerHTML='<p>'+i18n('progress.noData')+'</p>'; return; }
   const isLeader=canUserTickRole(currentUser.role);
   const targetYmis=isLeader? (selectedProgressYmis||currentUser.ymis) : currentUser.ymis;
   const flat=progressFlat[targetYmis]||{};
@@ -1304,7 +1762,7 @@ function renderProgressTab(){
   let memberSelectorHtml='';
   if(isLeader){
     const opts=members.map(m=>`<option value="${m.ymis}" ${m.ymis===targetYmis?'selected':''}>${m.name} (${m.ymis})</option>`).join('');
-    memberSelectorHtml=`<div class="filter-bar"><label style="font-size:12px;font-weight:600">檢視成員：</label><select id="progressMemberSelect" onchange="onProgressMemberChange(this.value)"><option value="">-- 選擇成員 --</option>${opts}</select><button class="btn btn-sm btn-secondary" onclick="resetProgressMember()">看自己</button><span style="font-size:11px;color:var(--text-light)">目前：${members.find(m=>m.ymis===targetYmis)?.name||targetYmis}</span></div>`;
+    memberSelectorHtml=`<div class="filter-bar"><label style="font-size:12px;font-weight:600">${i18n('progress.viewMember')}</label><select id="progressMemberSelect" onchange="onProgressMemberChange(this.value)"><option value="">${i18n('progress.pick')}</option>${opts}</select><button class="btn btn-sm btn-secondary" onclick="resetProgressMember()">${i18n('progress.self')}</button><span style="font-size:11px;color:var(--text-light)">${i18n('progress.now')} ${members.find(m=>m.ymis===targetYmis)?.name||targetYmis}</span></div>`;
   }
   // overall stats
   const allItemIds=getAllItemIds(); // flat list of all item ids (including sub)
@@ -1315,12 +1773,12 @@ function renderProgressTab(){
   let html=`${memberSelectorHtml}
     <div class="info-section" style="padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <div><b>${members.find(m=>m.ymis===targetYmis)?.name||currentUser.name}</b> <small style="color:var(--text-light)">(${targetYmis})</small> ${targetYmis===currentUser.ymis?'<span style="background:var(--green-light);color:var(--green);padding:2px 6px;border-radius:999px;font-size:10px">自己</span>':''}</div>
-        <div style="font-size:12px">完成度 <b>${completedCount}/${totalCount}</b> (${pct}%)</div>
+        <div><b>${members.find(m=>m.ymis===targetYmis)?.name||currentUser.name}</b> <small style="color:var(--text-light)">(${targetYmis})</small> ${targetYmis===currentUser.ymis?'<span style="background:var(--green-light);color:var(--green);padding:2px 6px;border-radius:999px;font-size:10px">'+i18n('progress.selfChip')+'</span>':''}</div>
+        <div style="font-size:12px">${i18n('progress.completion')} <b>${completedCount}/${totalCount}</b> (${pct}%)</div>
       </div>
       <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
-      ${isMember() && targetYmis===currentUser.ymis ? '<div style="font-size:11px;color:var(--blue);background:var(--blue-light);padding:6px 10px;border-radius:6px;margin-top:8px">ℹ️ 成員模式：你不能直接勾選。若你已完成某項，請按「📝 申請完成」，填寫日期及證據，領袖確認後會自動寫入。</div>' : ''}
-      ${!isLeader && targetYmis!==currentUser.ymis ? '<div style="font-size:11px;color:var(--red);background:#FFF5F5;padding:6px 10px;border-radius:6px;margin-top:8px">只能查看他人進度，不能編輯</div>' : ''}
+      ${isMember() && targetYmis===currentUser.ymis ? '<div style="font-size:11px;color:var(--blue);background:var(--blue-light);padding:6px 10px;border-radius:6px;margin-top:8px">'+i18n('progress.memberHint')+'</div>' : ''}
+      ${!isLeader && targetYmis!==currentUser.ymis ? '<div style="font-size:11px;color:var(--red);background:#FFF5F5;padding:6px 10px;border-radius:6px;margin-top:8px">'+i18n('progress.viewOnly')+'</div>' : ''}
     </div>`;
 
   itemsData.badges.forEach(badge=>{
@@ -1358,11 +1816,11 @@ function renderProgressTab(){
     const otherPct = otherIds.length?Math.round(otherDone/otherIds.length*100):0;
     html+=`<div class="badge-card" style="border:2px dashed var(--gold-dark)">
       <div class="badge-header" style="background:linear-gradient(135deg,#856404 0%, #665007 100%)" onclick="toggleBadgeBody(this)">
-        <h3>⭐ 其他獎章及徽章 <small style="font-weight:400;opacity:.9">- 非進度性但深資可考，併入進度一覽</small></h3>
+        <h3>${i18n('progress.other')} <small style="font-weight:400;opacity:.9">${i18n('progress.otherSub')}</small></h3>
         <div style="display:flex;align-items:center;gap:8px"><span class="progress-chip">${otherDone}/${otherIds.length} (${otherPct}%)</span><span>▶</span></div>
       </div>
       <div class="badge-body">
-        <div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:#FFFBEB;border-bottom:1px solid var(--border)">💡 此區包含急救章、拯溺、AYP、航空/海上等，數據與「⭐其他獎章」頁同步，領袖可在此直接剔，成員只讀。</div>
+        <div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:#FFFBEB;border-bottom:1px solid var(--border)">${i18n('progress.otherHint')}</div>
         <div style="padding:8px 16px">
           ${itemsData.otherBadges.map(ob=>{
             const rec = otherFlat[ob.id];
@@ -1371,9 +1829,9 @@ function renderProgressTab(){
             const editable = isLeader && canUserTickRole(currentUser.role);
             return `<div class="item-row ${checked?'checked':''}" data-item-id="${ob.id}">
               <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleOtherBadgeToggle('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.checked)">
-              <div class="item-main"><div class="item-name">${ob.icon||''} ${ob.name}</div><div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${rec?.cert?`📜 ${rec.cert}`:''} - ${ob.desc||''}</div></div>
+              <div class="item-main"><div class="item-name">${ob.icon||''} ${tx(ob)}</div><div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${rec?.cert?`📜 ${rec.cert}`:''} - ${tx(ob,'desc')||''}</div></div>
               <div class="item-actions">
-                ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleOtherBadgeDate('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)"><input type="text" placeholder="證書編號" value="${rec?.cert||''}" style="width:90px;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" onchange="handleOtherBadgeCert('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)">`:''}
+                ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleOtherBadgeDate('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)"><input type="text" placeholder="${i18n('progress.certNo')}" value="${rec?.cert||''}" style="width:90px;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" onchange="handleOtherBadgeCert('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)">`:''}
                 <button class="info-btn" onclick="showSubDetail('${escapeAttr(ob.name)}','${escapeAttr(ob.desc+'\\n'+(ob.detail||''))}')">ⓘ</button>
               </div>
             </div>`;
@@ -1447,14 +1905,14 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
     return `<div class="item-row ${checked?'checked':''}" data-item-id="${item.id}">
       <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${item.id}', this.checked, '${targetYmis}')">
       <div class="item-main">
-        <div class="item-name">${item.name} ${item.mandatory?'<span style="background:var(--red);color:#fff;padding:1px 5px;border-radius:999px;font-size:9px">必修</span>':''}</div>
-        ${item.detail?`<div class="item-detail" style="display:none" id="detail-${item.id}">${item.detail}<br>${item.assessment?`<b>評核：</b>${item.assessment}<br>`:''}${item.tip?`<b>提示：</b>${item.tip}<br>`:''}${item.link?`<a href="${item.link}" target="_blank">🔗 參考連結</a><br>`:''}${item.links? item.links.map(l=>`<a href="${l.url}" target="_blank">🔗 ${l.title}</a>`).join('<br>'):''}</div>`:''}
+        <div class="item-name">${tx(item)} ${item.mandatory?'<span style="background:var(--red);color:#fff;padding:1px 5px;border-radius:999px;font-size:9px">'+i18n('progress.mandatory')+'</span>':''}</div>
+        ${item.detail?`<div class="item-detail" style="display:none" id="detail-${item.id}">${tx(item,'detail')}<br>${item.assessment?`<b>${isEn()?'Assessment: ':'評核：'}</b>${tx(item,'assessment')||item.assessment}<br>`:''}${item.tip?`<b>${isEn()?'Tip: ':'提示：'}</b>${tx(item,'tip')}<br>`:''}${item.link?`<a href="${item.link}" target="_blank">🔗</a><br>`:''}${item.links? item.links.map(l=>`<a href="${l.url}" target="_blank">🔗 ${tx(l,'title')||l.title}</a>`).join('<br>'):''}</div>`:''}
         <div class="item-meta">${dateVal?`<span>📅 ${dateVal}</span>`:''}${item.evidence?`<span>📎 ${item.evidence}</span>`:''}</div>
       </div>
       <div class="item-actions">
         ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleDateChange('${item.id}', this.value, '${targetYmis}')">`:''}
         <button class="info-btn" onclick="toggleDetail('${item.id}')" title="查看考驗說明">ⓘ</button>
-        ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${item.id}', '${escapeAttr(item.name)}')" title="申請完成">${checked?'✅ 已完成':'📝 申請'}</button>`:''}
+        ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${item.id}', '${escapeAttr(tx(item))}')" title="${i18n('progress.apply')}">${checked?i18n('progress.done'):i18n('progress.apply')}</button>`:''}
       </div>
     </div>`;
   }else{
@@ -1478,7 +1936,7 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
       <div class="item-actions">
         ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleDateChange('${item.id}', this.value, '${targetYmis}')">`:''}
         <button class="info-btn" onclick="toggleDetail('${item.id}')">ⓘ</button>
-        <span style="font-size:10px;cursor:pointer" onclick="toggleSubItems(this)">▶ 展開</span>
+        <span style="font-size:10px;cursor:pointer" onclick="toggleSubItems(this)">${i18n('progress.expand')}</span>
       </div>
       <div class="sub-items" style="display:none;flex-basis:100%;margin-top:8px;width:100%">
         ${item.subItems.map(sub=>{
@@ -1486,18 +1944,18 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
           if(sub.subItems && sub.subItems.length>0){
             const catDone=sub.subItems.filter(si2=>flat[si2.id]).length;
             return `<div class="sub-item" data-item-id="${sub.id}" style="background:#F5F5F5;border-radius:6px;padding:6px;margin:4px 0;border-left:3px solid var(--gold-dark)">
-              <div class="item-name" style="font-size:13px;font-weight:700">${sub.name} <span class="sub-count">${catDone}/${sub.subItems.length}</span>${sub.detail?` <small style="color:var(--text-light)">${sub.detail}</small>`:''}</div>
+              <div class="item-name" style="font-size:13px;font-weight:700">${tx(sub)} <span class="sub-count">${catDone}/${sub.subItems.length}</span>${sub.detail?` <small style="color:var(--text-light)">${tx(sub,'detail')}</small>`:''}</div>
               <div class="sub-items" style="margin-top:4px;padding-left:16px;border-left:2px dashed var(--border)">
                 ${sub.subItems.map(sub2=>{
                   const sc2=flat[sub2.id]?true:false;
                   const sd2=flat[sub2.id]||'';
                   return `<div class="sub-item ${sc2?'checked':''}" data-item-id="${sub2.id}">
                     <input type="checkbox" class="checkbox" ${sc2?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub2.id}', this.checked, '${targetYmis}')">
-                    <div class="item-main"><div class="item-name" style="font-size:11px">${sub2.name}</div><div class="item-meta">${sd2?`📅 ${sd2}`:''}${sub2.detail?` - ${sub2.detail.substring(0,50)}`:''}</div></div>
+                    <div class="item-main"><div class="item-name" style="font-size:11px">${tx(sub2)}</div><div class="item-meta">${sd2?`📅 ${sd2}`:''}${sub2.detail?` - ${tx(sub2,'detail').substring(0,50)}`:''}</div></div>
                     <div class="item-actions">
                       ${editable?`<input type="date" value="${sd2}" max="${todayISO()}" onchange="handleDateChange('${sub2.id}', this.value, '${targetYmis}')">`:''}
-                      <button class="info-btn" style="width:22px;height:22px;font-size:10px" onclick="showSubDetail('${escapeAttr(sub2.name)}','${escapeAttr(sub2.detail||'')}')">ⓘ</button>
-                      ${!editable?`<button class="btn btn-sm btn-outline" style="font-size:9px;padding:2px 6px" onclick="openRequestModal('${sub2.id}', '${escapeAttr(sub2.name)}')">${sc2?'✅':'📝'}</button>`:''}
+                      <button class="info-btn" style="width:22px;height:22px;font-size:10px" onclick="showSubDetail('${escapeAttr(tx(sub2))}','${escapeAttr(tx(sub2,'detail')||'')}')">ⓘ</button>
+                      ${!editable?`<button class="btn btn-sm btn-outline" style="font-size:9px;padding:2px 6px" onclick="openRequestModal('${sub2.id}', '${escapeAttr(tx(sub2))}')">${sc2?'✅':'📝'}</button>`:''}
                     </div>
                   </div>`;
                 }).join('')}
@@ -1509,11 +1967,11 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
             const sd=flat[sub.id]||'';
             return `<div class="sub-item ${sc?'checked':''}" data-item-id="${sub.id}">
               <input type="checkbox" class="checkbox" ${sc?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub.id}', this.checked, '${targetYmis}')">
-              <div class="item-main"><div class="item-name" style="font-size:12px">${sub.name}</div><div class="item-meta">${sd?`📅 ${sd}`:''}${sub.detail?` - ${sub.detail.substring(0,60)}`:''}</div></div>
+              <div class="item-main"><div class="item-name" style="font-size:12px">${tx(sub)}</div><div class="item-meta">${sd?`📅 ${sd}`:''}${sub.detail?` - ${tx(sub,'detail').substring(0,60)}`:''}</div></div>
               <div class="item-actions">
                 ${editable?`<input type="date" value="${sd}" max="${todayISO()}" onchange="handleDateChange('${sub.id}', this.value, '${targetYmis}')">`:''}
-                <button class="info-btn" onclick="showSubDetail('${escapeAttr(sub.name)}','${escapeAttr(sub.detail||'')}')">ⓘ</button>
-                ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${sub.id}', '${escapeAttr(sub.name)}')">${sc?'✅':'📝'}</button>`:''}
+                <button class="info-btn" onclick="showSubDetail('${escapeAttr(tx(sub))}','${escapeAttr(tx(sub,'detail')||'')}')">ⓘ</button>
+                ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${sub.id}', '${escapeAttr(tx(sub))}')">${sc?'✅':'📝'}</button>`:''}
               </div>
             </div>`;
           }
@@ -1540,7 +1998,7 @@ function toggleSubItems(btn){
   if(!sub) return;
   const isHidden=sub.style.display==='none' || !sub.style.display || getComputedStyle(sub).display==='none';
   sub.style.display=isHidden?'block':'none';
-  btn.textContent=isHidden?'▼ 收合':'▶ 展開';
+  btn.textContent=isHidden?i18n('progress.collapse'):i18n('progress.expand');
 }
 function toggleDetail(id){
   const el=document.getElementById('detail-'+id);
@@ -1549,7 +2007,7 @@ function toggleDetail(id){
 }
 function showSubDetail(name, detail){
   document.getElementById('detailTitle').textContent=name;
-  document.getElementById('detailBody').innerHTML=`<div style="white-space:pre-wrap">${detail||'暫無詳細說明，請參考訓練綱要。'}</div>`;
+  document.getElementById('detailBody').innerHTML=`<div style="white-space:pre-wrap">${detail||i18n('item.noDetail')}</div>`;
   document.getElementById('itemDetailModal').classList.add('active');
 }
 
@@ -1642,8 +2100,8 @@ function updateProgressDisplay(targetYmis){
   // Update completed/total text (find the div containing the count)
   const countDivs=progTab.querySelectorAll('.info-section div');
   for(const d of countDivs){
-    if(d.textContent && d.textContent.includes('完成度')){
-      d.innerHTML=`完成度 <b>${completedCount}/${totalCount}</b> (${pct}%)`;
+    if(d.textContent && (d.textContent.includes('完成度')||d.textContent.includes('Completion'))){
+      d.innerHTML=`${i18n('progress.completion')} <b>${completedCount}/${totalCount}</b> (${pct}%)`;
       break;
     }
   }
@@ -1655,7 +2113,7 @@ function updateProgressDisplay(targetYmis){
     // Find the badge card by looking at headers
     const headers=progTab.querySelectorAll('.badge-header');
     for(const h of headers){
-      if(h.textContent.includes(badge.name)){
+      if(h.getAttribute('data-badge-id')===badge.id || h.textContent.includes(badge.name) || h.textContent.includes(tx(badge))){
         const chip=h.querySelector('.progress-chip');
         if(chip) chip.textContent=`${badgeDone}/${badgeIds.length} (${badgePct}%)`;
         break;
@@ -1698,7 +2156,7 @@ function updateSaveBar(){
   const txt=document.getElementById('pendingText');
   if(pendingChanges.length>0){
     bar.classList.add('visible');
-    txt.textContent=`${pendingChanges.length} 項未保存 (已暫存於瀏覽器)`;
+    txt.textContent=i18n('save.pending',{n:pendingChanges.length});
   }else bar.classList.remove('visible');
 }
 function discardChanges(){
@@ -1823,30 +2281,30 @@ function renderOverviewTab(){
   if(!itemsData){ c.innerHTML='<p>載入中...</p>'; return; }
   const badgeOptions=itemsData.badges.map(b=>`<option value="${b.id}">${b.icon} ${b.name}</option>`).join('');
   c.innerHTML=`<div class="info-section" style="border-left-color:var(--blue);background:var(--blue-light);padding:12px">
-    <h3 style="color:var(--blue);font-size:15px">🚀 考驗營 / 集體活動 批量完成 (領袖專用)</h3>
-    <p style="font-size:12px;color:var(--text-light);margin-bottom:8px">例如剛去完考驗營，可一鍵幫有去的成員全剔。先暫存瀏覽器，底部按確認才寫入。</p>
+    <h3 style="color:var(--blue);font-size:15px">${i18n('overview.batchTitle')}</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:8px">${i18n('overview.batchDesc')}</p>
     <div class="filter-bar">
       <input type="date" id="batchDate" value="${todayISO()}" style="min-width:140px">
-      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(true)">全選成員</button>
-      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(false)">取消全選</button>
-      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(true)">全選項目</button>
-      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(false)">取消全選</button>
-      <button class="btn btn-sm btn-success" onclick="executeBatchTick()">✅ 一鍵標記完成</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(true)">${i18n('overview.allMembers')}</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllMembers(false)">${i18n('overview.noMembers')}</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(true)">${i18n('overview.allItems')}</button>
+      <button class="btn btn-sm btn-secondary" onclick="batchSelectAllItems(false)">${i18n('overview.noItems')}</button>
+      <button class="btn btn-sm btn-success" onclick="executeBatchTick()">${i18n('overview.mark')}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <div><b style="font-size:12px">1. 選擇成員 (可搜尋過濾後批量)</b><div id="batchMemberList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
-      <div><b style="font-size:12px">2. 選擇項目 (當前篩選段章內)</b><div id="batchItemList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+      <div><b style="font-size:12px">${i18n('overview.pickMembers')}</b><div id="batchMemberList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
+      <div><b style="font-size:12px">${i18n('overview.pickItems')}</b><div id="batchItemList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
     </div>
   </div>
   <div class="filter-bar" style="margin-top:12px">
     <select id="overviewBadgeSelect" onchange="renderOverviewTable()">${badgeOptions}</select>
-    <select id="overviewSegmentSelect" onchange="renderOverviewTable()"><option value="">全部段章</option></select>
-    <input type="text" id="overviewSearch" placeholder="搜尋成員姓名/ YMIS" oninput="renderOverviewTable()" style="flex:1;min-width:120px">
-    <button class="btn btn-sm btn-secondary" onclick="renderOverviewTable()">🔄 刷新</button>
+    <select id="overviewSegmentSelect" onchange="renderOverviewTable()"><option value="">${i18n('overview.allSeg')}</option></select>
+    <input type="text" id="overviewSearch" placeholder="${i18n('overview.searchPh')}" oninput="renderOverviewTable()" style="flex:1;min-width:120px">
+    <button class="btn btn-sm btn-secondary" onclick="renderOverviewTable()">${i18n('btn.refresh')}</button>
   </div>
   <div style="display:flex;gap:8px;margin:12px 0">
-    <button class="btn btn-sm btn-primary" id="btnOverviewMember" onclick="showOverviewSubTab('member')">👥 按成員總覽 (一眼睇會員章)</button>
-    <button class="btn btn-sm btn-secondary" id="btnOverviewItem" onclick="showOverviewSubTab('item')">🔍 按項目統計 (百分比)</button>
+    <button class="btn btn-sm btn-primary" id="btnOverviewMember" onclick="showOverviewSubTab('member')">${i18n('overview.byMember')}</button>
+    <button class="btn btn-sm btn-secondary" id="btnOverviewItem" onclick="showOverviewSubTab('item')">${i18n('overview.byItem')}</button>
   </div>
   <div id="overviewMemberView">
     <div id="overviewTableContainer"><p style="text-align:center;color:var(--text-light);padding:20px">選擇段章以查看詳細矩陣。</p></div>
@@ -1889,12 +2347,12 @@ function renderByItemListInner(){
   let html='';
   itemsData.badges.forEach(badge=>{
     if(badgeFilter && badge.id!==badgeFilter) return;
-    let badgeHtml=`<div class="info-section"><h3>${badge.icon} ${badge.name}</h3>`;
+    let badgeHtml=`<div class="info-section"><h3>${badge.icon} ${tx(badge)}</h3>`;
     badge.segments.forEach(seg=>{
       let segItems=[];
       seg.items.forEach(it=>{
-        if(it.subItems) it.subItems.forEach(sub=> segItems.push({id:sub.id,name:sub.name,parent:it.name,detail:sub.detail||'',group:seg.name}));
-        else segItems.push({id:it.id,name:it.name,parent:seg.name,detail:it.detail||'',group:seg.name});
+        if(it.subItems) it.subItems.forEach(sub=> segItems.push({id:sub.id,name:tx(sub),parent:tx(it),detail:tx(sub,'detail')||'',group:tx(seg)}));
+        else segItems.push({id:it.id,name:tx(it),parent:tx(seg),detail:tx(it,'detail')||'',group:tx(seg)});
       });
       let filtered=segItems;
       if(search) filtered=segItems.filter(it=> it.name.toLowerCase().includes(search) || it.id.toLowerCase().includes(search));
@@ -1904,7 +2362,7 @@ function renderByItemListInner(){
         const total=members.length||1;
         const doneCount=members.filter(m=>progressFlat[m.ymis] && progressFlat[m.ymis][it.id]).length;
         const pct=Math.round(doneCount/total*100);
-        badgeHtml+=`<div class="stat-card"><div class="stat-header"><div class="stat-title" style="font-size:13px">${it.name} <small style="color:var(--text-light)">(${it.id})</small></div><div class="stat-pct">${doneCount}/${members.length} (${pct}%)</div></div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div></div>`;
+        badgeHtml+=`<div class="stat-card"><div class="stat-header"><div class="stat-title" style="font-size:13px">${it.en&&isEn()?it.en:it.name} <small style="color:var(--text-light)">(${it.id})</small></div><div class="stat-pct">${doneCount}/${members.length} (${pct}%)</div></div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div></div>`;
       });
       badgeHtml+=`</div>`;
     });
@@ -1919,8 +2377,8 @@ function updateSegmentOptions(){
   const segSel=document.getElementById('overviewSegmentSelect');
   if(!segSel||!badgeId) return;
   const badge=itemsData.badges.find(b=>b.id===badgeId);
-  if(!badge){ segSel.innerHTML='<option value="">全部段章</option>'; return; }
-  segSel.innerHTML='<option value="">全部段章</option>'+badge.segments.map(s=>`<option value="${s.code}">${s.name}</option>`).join('');
+  if(!badge){ segSel.innerHTML='<option value="">'+i18n('overview.allSeg')+'</option>'; return; }
+  segSel.innerHTML='<option value="">'+i18n('overview.allSeg')+'</option>'+badge.segments.map(s=>`<option value="${s.code}">${tx(s)}</option>`).join('');
   renderOverviewTable();
 }
 function renderOverviewCards(){
@@ -2007,8 +2465,8 @@ function renderOverviewTable(){
   badge.segments.forEach(seg=>{
     if(segCode && seg.code!==segCode) return;
     seg.items.forEach(it=>{
-      if(it.subItems) it.subItems.forEach(sub=>itemList.push({id:sub.id,name:sub.name,group:it.name}));
-      else itemList.push({id:it.id,name:it.name,group:seg.name});
+      if(it.subItems) it.subItems.forEach(sub=>itemList.push({id:sub.id,name:tx(sub),group:tx(it)}));
+      else itemList.push({id:it.id,name:tx(it),group:tx(seg)});
     });
   });
   // 同步更新批量項目列表
@@ -2073,8 +2531,8 @@ function renderByItemList(){
     badge.segments.forEach(seg=>{
       let segItems=[];
       seg.items.forEach(it=>{
-        if(it.subItems) it.subItems.forEach(sub=> segItems.push({id:sub.id,name:sub.name,parent:it.name,detail:sub.detail||'',group:seg.name}));
-        else segItems.push({id:it.id,name:it.name,parent:seg.name,detail:it.detail||'',group:seg.name});
+        if(it.subItems) it.subItems.forEach(sub=> segItems.push({id:sub.id,name:tx(sub),parent:tx(it),detail:tx(sub,'detail')||'',group:tx(seg)}));
+        else segItems.push({id:it.id,name:tx(it),parent:tx(seg),detail:tx(it,'detail')||'',group:tx(seg)});
       });
       // filter
       let filtered=segItems;
@@ -2404,7 +2862,7 @@ const LOG_TYPES_CONFIG={
   activity:{icon:'🏕️',label:'活動紀錄',color:'var(--blue)',roleHints:['參加者','籌委','領隊','工作人員'],showHours:false,showCert:false},
   training:{icon:'🎓',label:'訓練班紀錄',color:'var(--maroon)',roleHints:['學員','助教','導師','班領導人'],showHours:true,showCert:true}
 };
-function logTypeLabel(t){ return (LOG_TYPES_CONFIG[t]||LOG_TYPES_CONFIG.activity).label; }
+function logTypeLabel(typ){ if(isEn()) return ({service:'Service records',activity:'Activity records',training:'Course records'})[typ]||typ; return (LOG_TYPES_CONFIG[typ]||LOG_TYPES_CONFIG.activity).label; }
 function logTypeIcon(t){ return (LOG_TYPES_CONFIG[t]||LOG_TYPES_CONFIG.activity).icon; }
 
 function renderLogsTab(){
@@ -2722,6 +3180,39 @@ function generatePrintableForm(type){
 
 
 /* ================== Help Tab - 角色分開教學 (內嵌版，不依賴外部MD，避免404) ================== */
+const EMBEDDED_GUIDES_EN={
+  member: `<h2>👤 Member guide</h2>
+  <blockquote>You only need your own progress; leaders handle the rest.</blockquote>
+  <h3>After you sign in</h3>
+  <ul>
+    <li><b>📊 My progress</b>: your completion only. Green bar = done. Tap a badge to expand. ⓘ shows assessment notes. You <b>cannot tick</b> — use “📝 Claim”.</li>
+    <li><b>⭐ Other badges</b>: listed at the bottom of My progress.</li>
+    <li><b>📝 Approvals</b>: see whether your claims were approved.</li>
+    <li><b>🖨️ Print forms</b>: PT/19 and PT/20 dates filled from progress; edit then print the official layout.</li>
+    <li><b>📚 Library</b>: Safe from Harm links and the Training Scheme (English of the 11th Edition).</li>
+  </ul>
+  <h3>How to claim an item?</h3>
+  <ol><li>Find it in My progress</li><li>Tap 📝 Claim</li><li>Date + evidence</li><li>Submit; a leader sees it under Approvals</li><li>When approved, progress updates</li></ol>
+  <h4>Why can’t I see other members?</h4>
+  <p>Privacy by default. The GSL can turn on “Allow members to view one another’s progress” under Users.</p>`,
+  exec: `<h2>🎖️ Executive Committee guide</h2>
+  <blockquote>You have some leader rights in addition to member functions.</blockquote>
+  <ul>
+    <li>All member functions</li>
+    <li><b>May tick progress</b> (if authorised). Default: Membership Badge + Activity Achievement Badge (no need to tick every sub-item) + other badges one by one</li>
+    <li>May view another member in My progress</li>
+    <li>May bulk-tick in Unit overview</li>
+    <li>May approve claims (if authorised)</li>
+  </ul>`,
+  leader: `<h2>👨‍💼 Leader guide</h2>
+  <blockquote>You have full rights.</blockquote>
+  <h3>1. My progress</h3><ul><li>View any member</li><li>Tick + date; draft offline then save to cloud</li></ul>
+  <h3>2. Unit overview</h3><ul><li>Cards show Membership Badge ✓</li><li>Matrix up to 30 columns</li><li>🚀 Camp bulk-tick: members + items → mark → draft → confirm save</li></ul>
+  <h3>3. Approvals</h3><ul><li>🏅 Badge claims + 👤 account applications</li></ul>
+  <h3>4. Print forms</h3><p>Auto-filled official PT/19 and PT/20</p>
+  <h3>5. Users</h3><ul><li>Promote members to exec</li><li>⚙️ Rights: leaders default to all; members none; execs default L1 + Activity Achievement Badge + OTHER</li></ul>
+  <h3>6. Settings</h3><p>Allow members to view one another’s progress: off by default; GSL may turn it on</p>`
+};
 const EMBEDDED_GUIDES={
   member: `<h2>👤 成員使用教學 (Member)</h2>
   <blockquote>你只需關心自己的進度，其他功能由領袖處理</blockquote>
@@ -2787,15 +3278,17 @@ function switchHelpRole(r){
   const map={member:'member', exec_committee:'exec', exec:'exec', leader:'leader'};
   const key=map[r]||'member';
   const el=document.getElementById('helpContent');
+  const guides=isEn()?EMBEDDED_GUIDES_EN:EMBEDDED_GUIDES;
   if(el){
-    el.innerHTML=`<div style="font-size:14px;line-height:1.8">${EMBEDDED_GUIDES[key]||EMBEDDED_GUIDES.member}</div>`;
+    el.innerHTML=`<div style="font-size:14px;line-height:1.8">${guides[key]||guides.member}</div>`;
   }
   // 更新按鈕樣式
   document.querySelectorAll('#tab-help .btn').forEach(b=>{
-    if(b.textContent.includes('成員') && key==='member') b.className='btn btn-sm btn-primary';
-    else if(b.textContent.includes('執委') && key==='exec') b.className='btn btn-sm btn-primary';
-    else if(b.textContent.includes('領袖') && key==='leader') b.className='btn btn-sm btn-primary';
-    else if(b.textContent.includes('教學')) b.className='btn btn-sm btn-secondary';
+    const txt=b.textContent||'';
+    if((txt.includes('成員')||txt.includes('Member')) && key==='member') b.className='btn btn-sm btn-primary';
+    else if((txt.includes('執委')||txt.includes('Exec')) && key==='exec') b.className='btn btn-sm btn-primary';
+    else if((txt.includes('領袖')||txt.includes('Leader')) && key==='leader') b.className='btn btn-sm btn-primary';
+    else if(txt.includes('教學')||txt.includes('guide')||txt.includes('Guide')) b.className='btn btn-sm btn-secondary';
   });
 }
 
@@ -2851,14 +3344,14 @@ function renderInfoTab(){
     </div>
   </div>`;
 
-  html+=`<div class="info-section"><h3>🎯 ${tp.title}</h3><p style="font-size:12px;line-height:1.8;margin-bottom:8px">${tp.purpose}</p>
+  html+=`<div class="info-section"><h3>🎯 ${tx(tp,'title')}</h3><p style="font-size:12px;line-height:1.8;margin-bottom:8px">${tx(tp,'purpose')}</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div><b style="font-size:12px">訓練方法：</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${tp.method.map(m=>`<li>${m}</li>`).join('')}</ul></div>
-      <div><b style="font-size:12px">預期成果：</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${tp.expected.map(e=>`<li>${e}</li>`).join('')}</ul></div>
+      <div><b style="font-size:12px">${isEn()?'Method:':'訓練方法：'}</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${txList(tp,'method').map(m=>`<li>${m}</li>`).join('')}</ul></div>
+      <div><b style="font-size:12px">${isEn()?'Expected outcomes:':'預期成果：'}</b><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${txList(tp,'expected').map(e=>`<li>${e}</li>`).join('')}</ul></div>
     </div>
-    <div style="margin-top:10px"><b style="font-size:12px">進度流程：</b><span style="font-size:11px;background:var(--maroon-light);padding:3px 8px;border-radius:999px;margin-left:6px">${tp.progressFlow}</span></div>
-    <div style="margin-top:8px;font-size:11px;color:var(--text-light)"><b>評估原則：</b>${tp.assessmentPrinciples}</div>
-    <div style="margin-top:10px"><b style="font-size:12px">有用連結：</b><div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">${tp.links.map(l=>`<a href="${l.url}" target="_blank" class="link-card" style="padding:8px;margin:0"><div class="link-icon">🔗</div><div class="link-text"><div class="title">${l.title}</div><div class="url">${l.url}</div></div></a>`).join('')}</div></div>
+    <div style="margin-top:10px"><b style="font-size:12px">${isEn()?'Progress:':'進度流程：'}</b><span style="font-size:11px;background:var(--maroon-light);padding:3px 8px;border-radius:999px;margin-left:6px">${tx(tp,'progressFlow')}</span></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-light)"><b>${isEn()?'Assessment: ':'評估原則：'}</b>${tx(tp,'assessmentPrinciples')}</div>
+    <div style="margin-top:10px"><b style="font-size:12px">${isEn()?'Useful links:':'有用連結：'}</b><div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">${tp.links.map(l=>`<a href="${l.url}" target="_blank" class="link-card" style="padding:8px;margin:0"><div class="link-icon">🔗</div><div class="link-text"><div class="title">${tx(l,'title')}</div><div class="url">${l.url}</div></div></a>`).join('')}</div></div>
   </div>`;
 
   html+=`<div class="info-section"><h3>🛡️ ${sfh.title}</h3><p style="font-size:11px;background:#FFF5F5;padding:8px;border-radius:6px;border-left:3px solid var(--red)">${sfh.policy}</p>
@@ -2871,11 +3364,11 @@ function renderInfoTab(){
     <div style="margin-top:10px"><b style="font-size:11px">求助熱線：</b><div style="font-size:11px;color:var(--text-light)">${sfh.hotlines.map(h=>`<div>• ${h.name}: ${h.tel||''} ${h.email||''}</div>`).join('')}</div></div>
   </div>`;
 
-  html+=`<div class="info-section"><h3>📚 各獎章考驗總覽（點擊展開）</h3>`;
+  html+=`<div class="info-section"><h3>📚 ${isEn()?'Award assessment overview (tap to expand)':'各獎章考驗總覽（點擊展開）'}</h3>`;
   itemsData.badges.forEach(b=>{
-    html+=`<details style="margin-bottom:8px;border:1px solid var(--border);border-radius:8px;padding:8px"><summary style="cursor:pointer;font-weight:700;color:var(--maroon)">${b.icon} ${b.name} - ${b.purpose}</summary>
-      <div style="font-size:11px;line-height:1.7;margin-top:8px">${b.description||''}<br><b>要求：</b>${b.requirements||b.requirement||'參考段章說明'}</div>
-      ${b.segments.map(s=>`<div style="margin-top:8px"><b style="font-size:12px">${s.name}</b> <small style="color:var(--text-light)">${s.desc||''} ${s.requirement||''}</small><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${s.items.map(it=>`<li><b>${it.name}</b>${it.detail?`：${it.detail.substring(0,80)}...`:''}${it.subItems?`（${it.subItems.length}選項）`:''}</li>`).join('')}</ul></div>`).join('')}
+    html+=`<details style="margin-bottom:8px;border:1px solid var(--border);border-radius:8px;padding:8px"><summary style="cursor:pointer;font-weight:700;color:var(--maroon)">${b.icon} ${tx(b)} - ${tx(b,'purpose')}</summary>
+      <div style="font-size:11px;line-height:1.7;margin-top:8px">${tx(b,'description')||''}<br><b>${isEn()?'Requirement: ':'要求：'}</b>${tx(b,'requirements')||tx(b,'requirement')||(isEn()?'See Achievement Badge notes':'參考段章說明')}</div>
+      ${b.segments.map(s=>`<div style="margin-top:8px"><b style="font-size:12px">${tx(s)}</b> <small style="color:var(--text-light)">${tx(s,'desc')||''} ${tx(s,'requirement')||''}</small><ul style="font-size:11px;color:var(--text-light);padding-left:16px">${s.items.map(it=>`<li><b>${tx(it)}</b>${it.detail?`：${tx(it,'detail').substring(0,80)}...`:''}${it.subItems?`（${it.subItems.length}${isEn()?' options':'選項'}）`:''}</li>`).join('')}</ul></div>`).join('')}
     </details>`;
   });
   html+=`</div>`;
@@ -3047,7 +3540,19 @@ function openPermissionModal(ymis, name, role, allowed){
   currentPermUser={ymis, name, role, allowed: allowed||''};
   document.getElementById('permUserName').textContent=`${name} (${ymis}) [${role}]`;
   // badges list
-  const badges=[
+  const badges=isEn()?[
+    {id:'L1', name:'Membership Badge (all items)'},
+    {id:'L1-CP', name:'Membership Badge — Child Protection (required)'},
+    {id:'L2', name:'Epaulettes (23 foundation skills)'},
+    {id:'L3-SELF', name:'Project Achievement Badge (was Self-reliance)'},
+    {id:'L3-RESP', name:'Service Achievement Badge (was Responsibility)'},
+    {id:'L3-ACT-SCOUT', name:'Multiple Skills — Area 1 Scoutcraft'},
+    {id:'L3-ACT-SP', name:'Multiple Skills — Area 2 Recreation & Sports'},
+    {id:'L3-ACT-INT', name:'Multiple Skills — Area 3 New Experiences'},
+    {id:'L3-EXP', name:'Outdoor Exploration Achievement Badge'},
+    {id:'L4', name:'Dragon Scout Award — all Bars'},
+    {id:'L4-ACT', name:'Project Bar / Multiple Skills Bar'},
+  ]:[
     {id:'L1', name:'會員章 (全部12項)'},
     {id:'L1-CP', name:'會員章-保護兒童 (必修)'},
     {id:'L2', name:'肩章 (基礎技能23項)'},
@@ -3139,8 +3644,8 @@ async function enterDemoMode(){
       }
     }
     currentTroopId='DEMO';
-    currentTroopName='第82旅 DEMO (MOCK)';
-    currentUser={ymis:'DEMO_LEADER', name:'DEMO 團長 (免登入試用)', role:'group_leader', can_tick:true, allowed_badges:'*'};
+    currentTroopName=isEn()?'82nd Group DEMO (MOCK)':'第82旅 DEMO (MOCK)';
+    currentUser={ymis:'DEMO_LEADER', name:isEn()?'DEMO GSL (try without sign-in)':'DEMO 團長 (免登入試用)', role:'group_leader', can_tick:true, allowed_badges:'*'};
     currentToken='demo-token';
     appConfig={allow_member_view_others:'true'};
     // v8.1：DEMO 範例活動履歷（僅本機記憶體，方便試用）
@@ -3159,18 +3664,18 @@ async function enterDemoMode(){
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='none';
     document.getElementById('mainApp').style.display='block';
-    document.getElementById('appTitle').textContent=`${currentTroopName} - 進度追蹤 (DEMO免登入)`;
-    document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-group_leader">團長 DEMO</span> <span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">MOCK試用</span>`;
+    document.getElementById('appTitle').textContent=`${currentTroopName} - ${i18n('demo.title')}`;
+    document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-group_leader">${i18n('demo.chip')}</span> <span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">${i18n('demo.mock')}</span>`;
     setupTabsByRole();
     renderProgressTab();
     renderInfoTab();
-    showToast('✅ 已進入 MOCK 試用模式，10個成員進度、批量剔、表格等皆可用，數據僅在瀏覽器', 'success');
+    showToast(i18n('demo.ok'), 'success');
   }catch(e){
     console.error(e);
     showToast('MOCK試用載入失敗：'+e.message,'error');
   }finally{
     const btn=document.querySelector('button[onclick="enterDemoMode()"]');
-    if(btn){ btn.disabled=false; btn.textContent='👀 試用 MOCK 效果 (免登入瀏覽器看)'; }
+    if(btn){ btn.disabled=false; btn.textContent=i18n('login.demoBtn'); }
   }
 }
 
@@ -3273,4 +3778,45 @@ async function reviewApp(id,dec,requestedRole){
 }
 </script>
 </body>
+</html>
+dy').innerHTML=`<div class="info-section"><p>${roleLine}<br>臨時密碼只在本次顯示，請安全地個別交給申請人：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
+      document.getElementById('historyModal').classList.add('active');
+    }
+    renderRequestsTab();
+  }catch(e){ showToast('審批失敗：'+e.message,'error'); }
+}
+</script>
+</body>
+</html>
+dy>
+</html>
+body>
+</html>
+dy>
+</html>
+</html>
+oryModal').classList.add('active');
+    }
+    renderRequestsTab();
+  }catch(e){ showToast('審批失敗：'+e.message,'error'); }
+}
+</script>
+</body>
+</html>
+dy>
+</html>
+body>
+</html>
+dy>
+</html>
+</html>
+tml>
+dy>
+</html>
+body>
+</html>
+dy>
+</html>
+</html>
+ml>
 </html>

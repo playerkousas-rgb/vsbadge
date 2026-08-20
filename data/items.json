@@ -2,7 +2,10 @@
   "meta": {
     "version": "11.0 PURE v7",
     "base": "2026年第11版《深資童軍訓練綱要》純新版，不含舊版過渡",
-    "updated": "2026-07-22 v7.0 FIXES"
+    "baseEn": "11th Edition (2026) Venture Scout Training Scheme — new scheme only, no legacy transition",
+    "updated": "2026-07-22 v7.0 FIXES",
+    "sourceZh": "https://drive.google.com/file/d/1F8aZSr_WzRbJCLy7l41iDO2tEUxpKCvE/view",
+    "sourceEn": "https://sites.google.com/scouting.org.hk/sections/支部訓練檢討"
   },
   "badges": [
     {
@@ -12,61 +15,75 @@
       "en": "Membership Badge",
       "color": "#8B0000",
       "purpose": "幫助新成員認識所屬團體及接納誓詞規律",
+      "enPurpose": "To help new Venture Scouts get to know their Unit, be accepted, and accept the Scout Promise and Law",
       "description": "由團長與執行委員會商議後頒發。入團後三個月內完成。",
+      "enDescription": "Awarded by the Venture Scout Leader after consulting the Unit Executive Committee. Complete within three months of joining.",
       "segments": [
         {
           "code": "L1-ACT",
           "name": "活動",
+          "en": "Activities",
           "items": [
             {
               "id": "L1-ACT-01",
               "name": "參加最少六次團活動，而其中一次須為戶外活動",
+              "en": "Participate in at least six Unit activities, one of which must be an outdoor activity",
               "detail": "出席團活動6次，其中1次戶外（遠足、露營、服務）。新成員可與團內或團外深資一同參與。",
-              "evidence": "出席紀錄"
+              "enDetail": "Attend 6 Unit activities, including 1 outdoor activity (hike, camp or service). New members may take part with Venture Scouts of their own Unit or another Unit.",
+              "evidence": "出席紀錄",
+              "enEvidence": "Attendance record"
             }
           ]
         },
         {
           "code": "L1-UND",
           "name": "理解",
+          "en": "Understanding",
           "items": [
-            {"id": "L1-UND-01", "name": "明瞭童軍運動的目的及人們對深資童軍的期望", "detail": "1907年貝登堡創立，目的促進青少年全人發展。深資教育目標自務自治明日領袖。"},
-            {"id": "L1-UND-02", "name": "認識香港及世界童軍運動", "detail": "香港童軍總會架構總會/地域/區/旅團，WOSM世界童軍運動"},
-            {"id": "L1-UND-03", "name": "能辨認中華人民共和國國旗和國徽；並能說明其含意", "detail": "五星紅旗及國徽含意"},
-            {"id": "L1-UND-04", "name": "能辨認香港特別行政區區旗和區徽；並能說明其含意", "detail": "紅底白洋紫荊"},
-            {"id": "L1-UND-05", "name": "明瞭設立國歌的用意，並能背唱之", "detail": "義勇軍進行曲，奏唱須肅立"}
+            {"id": "L1-UND-01", "name": "明瞭童軍運動的目的及人們對深資童軍的期望", "en": "Understand the aim of the Scout Movement and what is expected of Venture Scouts", "detail": "1907年貝登堡創立，目的促進青少年全人發展。深資教育目標自務自治明日領袖。", "enDetail": "Founded by Baden-Powell in 1907 to promote the holistic development of young people. The educational aim of the Venture Scout Section is self-governing, self-programming future leaders."},
+            {"id": "L1-UND-02", "name": "認識香港及世界童軍運動", "en": "Know Scouting in Hong Kong and the World Scout Movement", "detail": "香港童軍總會架構總會/地域/區/旅團，WOSM世界童軍運動", "enDetail": "Structure of the Scout Association of Hong Kong: Headquarters / Region / District / Group. WOSM — World Organization of the Scout Movement."},
+            {"id": "L1-UND-03", "name": "能辨認中華人民共和國國旗和國徽；並能說明其含意", "en": "Identify the National Flag and National Emblem of the People's Republic of China and explain their meaning", "detail": "五星紅旗及國徽含意", "enDetail": "Meaning of the Five-star Red Flag and the National Emblem."},
+            {"id": "L1-UND-04", "name": "能辨認香港特別行政區區旗和區徽；並能說明其含意", "en": "Identify the Regional Flag and Regional Emblem of the Hong Kong Special Administrative Region and explain their meaning", "detail": "紅底白洋紫荊", "enDetail": "Red background with a white Bauhinia."},
+            {"id": "L1-UND-05", "name": "明瞭設立國歌的用意，並能背唱之", "en": "Understand the purpose of the National Anthem and be able to sing it from memory", "detail": "義勇軍進行曲，奏唱須肅立", "enDetail": "March of the Volunteers. Stand at attention when it is performed or sung."}
           ]
         },
         {
           "code": "L1-ETQ",
           "name": "禮節",
+          "en": "Etiquette",
           "desc": "第11版：中式隊列及童軍升旗禮程序",
+          "enDesc": "11th Edition: Chinese-style drill and Scout flag-break procedure",
           "items": [
-            {"id": "L1-ETQ-01", "name": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作", "detail": "宣誓禮儀 + 中式隊列：立正、稍息、向左/右轉、原地踏步、齊步走等"},
-            {"id": "L1-ETQ-02", "name": "認識在國歌奏唱和升掛國旗、區旗時表現應有之禮儀，以及升國旗及童軍升旗禮的基本程序", "detail": "奏唱國歌肅立脫帽行注目禮，升國旗及童軍升旗禮程序"},
-            {"id": "L1-ETQ-03", "name": "認識升掛國旗、區旗及展示國徽、區徽時的注意事項及使用之限制", "detail": "國旗不得倒掛破損落地，不得用於商標，遵守國旗及國徽條例、區旗條例"},
-            {"id": "L1-ETQ-04", "name": "示範國旗和區旗的升掛方法", "detail": "實際示範升掛國旗及區旗的正確步驟及方法"}
+            {"id": "L1-ETQ-01", "name": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作", "en": "Know the Scout ceremonies for investiture and the basic movements of Chinese-style drill", "detail": "宣誓禮儀 + 中式隊列：立正、稍息、向左/右轉、原地踏步、齊步走等", "enDetail": "Investiture etiquette and Chinese-style drill: attention, at ease, left/right turn, marking time, quick march, etc."},
+            {"id": "L1-ETQ-02", "name": "認識在國歌奏唱和升掛國旗、區旗時表現應有之禮儀，以及升國旗及童軍升旗禮的基本程序", "en": "Know the proper etiquette when the National Anthem is performed and when the National or Regional Flag is hoisted, and the basic procedures of the National Flag hoisting and Scout flag-break", "detail": "奏唱國歌肅立脫帽行注目禮，升國旗及童軍升旗禮程序", "enDetail": "Stand at attention, uncover and pay compliments during the National Anthem; procedures of National Flag hoisting and Scout flag-break."},
+            {"id": "L1-ETQ-03", "name": "認識升掛國旗、區旗及展示國徽、區徽時的注意事項及使用之限制", "en": "Know the points to note and restrictions on hoisting the National and Regional Flags and displaying the National and Regional Emblems", "detail": "國旗不得倒掛破損落地，不得用於商標，遵守國旗及國徽條例、區旗條例", "enDetail": "The National Flag must not be hung upside down, damaged or allowed to touch the ground, nor used as a trademark. Comply with the National Flag and National Emblem Ordinance and the Regional Flag Ordinance."},
+            {"id": "L1-ETQ-04", "name": "示範國旗和區旗的升掛方法", "en": "Demonstrate how to hoist the National Flag and the Regional Flag", "detail": "實際示範升掛國旗及區旗的正確步驟及方法", "enDetail": "Practically demonstrate the correct steps and method of hoisting the National Flag and the Regional Flag."}
           ]
         },
         {
           "code": "L1-PRM",
           "name": "許諾",
+          "en": "Promise",
           "items": [
-            {"id": "L1-PRM-01", "name": "接納童軍誓詞與規律", "detail": "我願以信譽為誓，竭盡所能，對神明對國家盡責任，對別人要幫助，對規律必遵行。規律7條。"}
+            {"id": "L1-PRM-01", "name": "接納童軍誓詞與規律", "en": "Accept the Scout Promise and Law", "detail": "我願以信譽為誓，竭盡所能，對神明對國家盡責任，對別人要幫助，對規律必遵行。規律7條。", "enDetail": "On my honour, I promise that I will do my best to do my duty to God and to my Country, to help other people and to keep the Scout Law. Seven Scout Laws."}
           ]
         },
         {
           "code": "L1-CP",
           "name": "保護兒童",
+          "en": "Child Protection",
           "desc": "於2025年7月1日起生效",
+          "enDesc": "Effective from 1 July 2025",
           "items": [
             {
               "id": "L1-CP-01",
               "name": "完成下列其中一項：對保護兒童及青少年有基本認識並認識保護他們免受傷害的預防及處理方法；或完成「保護童軍成員免受傷害」網上自學課程",
+              "en": "Complete either: a basic understanding of protecting children and young people and of prevention and handling to keep them safe from harm; or the “Safe from Harm” online self-learning course",
               "detail": "認識侵害類型、預防（界限、透明、兩人同行）、處理（聆聽、記錄、報告）。或完成課程",
+              "enDetail": "Know types of harm, prevention (boundaries, transparency, two-deep) and handling (listen, record, report); or complete the course.",
               "links": [
-                {"title": "Safe from Harm 自學課程", "url": "https://sfh.scout.org.hk"},
-                {"title": "eLearning 網上學習平台", "url": "https://elearning.scout.org.hk/"}
+                {"title": "Safe from Harm 自學課程", "enTitle": "Safe from Harm self-learning course", "url": "https://sfh.scout.org.hk"},
+                {"title": "eLearning 網上學習平台", "enTitle": "eLearning platform", "url": "https://elearning.scout.org.hk/"}
               ],
               "mandatory": true
             }
@@ -81,61 +98,70 @@
       "en": "Venture Scout Epaulettes",
       "color": "#1565C0",
       "purpose": "提供階梯，讓剛獲會員章的深資對支部活動及童軍技能有基本認識",
+      "enPurpose": "A stepping stone so that newly invested Venture Scouts gain a basic knowledge of Section activities and scoutcraft",
       "description": "由團長簽發，正常6個月內完成。完成先修章者可豁免認識部分，已考標準獎章者可豁免童軍技能部分。",
+      "enDescription": "Issued by the Venture Scout Leader; normally completed within 6 months. Holders of the Venture Scout Link Badge may be exempted from the Knowledge section; holders of the Scout Standard Award may be exempted from the Scoutcraft section.",
       "segments": [
         {
           "code": "L2-REC",
           "name": "(一)認識",
+          "en": "(I) Knowledge",
           "desc": "童軍支部已考獲「深資童軍先修章」的成員可以獲得豁免",
+          "enDesc": "Members who have gained the Venture Scout Link Badge in the Scout Section may be exempted",
           "items": [
-            {"id": "L2-REC-01", "name": "說出深資童軍支部的目的、方法及預期成果"},
-            {"id": "L2-REC-02", "name": "認識深資童軍制服"},
-            {"id": "L2-REC-03", "name": "明瞭深資童軍獎章及榮譽童軍獎章之四個考驗組別及考驗範圍"},
-            {"id": "L2-REC-04", "name": "明瞭深資童軍獎章及榮譽童軍獎章與其他機構互相關連的地方"},
-            {"id": "L2-REC-05", "name": "說出執行委員會之基本功能"},
-            {"id": "L2-REC-06", "name": "說出執行委員會之組織及委員的職責"},
-            {"id": "L2-REC-07", "name": "明瞭執行委員會之產生方法"},
-            {"id": "L2-REC-08", "name": "明瞭執行委員會中領袖的角色"},
-            {"id": "L2-REC-09", "name": "認識多元化的深資童軍活動"},
-            {"id": "L2-REC-10", "name": "參加最少一次深資童軍執行委員會會議"}
+            {"id": "L2-REC-01", "name": "說出深資童軍支部的目的、方法及預期成果", "en": "State the aim, method and expected outcomes of the Venture Scout Section"},
+            {"id": "L2-REC-02", "name": "認識深資童軍制服", "en": "Recognise the Venture Scout uniform"},
+            {"id": "L2-REC-03", "name": "明瞭深資童軍獎章及榮譽童軍獎章之四個考驗組別及考驗範圍", "en": "Understand the four assessment groups and scope of the Venture Scout Award and the Dragon Scout Award"},
+            {"id": "L2-REC-04", "name": "明瞭深資童軍獎章及榮譽童軍獎章與其他機構互相關連的地方", "en": "Understand how the Venture Scout Award and the Dragon Scout Award relate to other organisations"},
+            {"id": "L2-REC-05", "name": "說出執行委員會之基本功能", "en": "State the basic functions of the Executive Committee"},
+            {"id": "L2-REC-06", "name": "說出執行委員會之組織及委員的職責", "en": "State the organisation of the Executive Committee and the duties of its members"},
+            {"id": "L2-REC-07", "name": "明瞭執行委員會之產生方法", "en": "Understand how the Executive Committee is formed"},
+            {"id": "L2-REC-08", "name": "明瞭執行委員會中領袖的角色", "en": "Understand the role of leaders in the Executive Committee"},
+            {"id": "L2-REC-09", "name": "認識多元化的深資童軍活動", "en": "Know the diversity of Venture Scout activities"},
+            {"id": "L2-REC-10", "name": "參加最少一次深資童軍執行委員會會議", "en": "Attend at least one Venture Scout Executive Committee meeting"}
           ]
         },
         {
           "code": "L2-CAMP",
           "name": "(二)童軍技能 - 露營",
+          "en": "(II) Scoutcraft — Camping",
           "desc": "童軍支部已考獲「童軍標準獎章」的成員可以獲得豁免",
+          "enDesc": "Members who have gained the Scout Standard Award in the Scout Section may be exempted",
           "items": [
-            {"id": "L2-CAMP-01", "name": "與團內或團外之深資童軍完成一次兩日一夜之露營"},
-            {"id": "L2-CAMP-02", "name": "準備一份適合兩日一夜小隊露營的個人及小隊物資清單"},
-            {"id": "L2-CAMP-03", "name": "收拾一個兩日一夜露營用的背囊及個人急救藥囊"},
-            {"id": "L2-CAMP-04", "name": "能正確架搭、收拾及存放一個營幕"},
-            {"id": "L2-CAMP-05", "name": "熟悉並正確地使用氣爐及摺刀，並知道有關之安全措施"},
-            {"id": "L2-CAMP-06", "name": "設計一個兩日一夜小隊露營的食譜及單獨烹調其中一款菜式"},
-            {"id": "L2-CAMP-07", "name": "能以火柴及天然物生火"}
+            {"id": "L2-CAMP-01", "name": "與團內或團外之深資童軍完成一次兩日一夜之露營", "en": "Complete a two-day one-night camp with Venture Scouts of your own Unit or another Unit"},
+            {"id": "L2-CAMP-02", "name": "準備一份適合兩日一夜小隊露營的個人及小隊物資清單", "en": "Prepare personal and patrol kit lists suitable for a two-day one-night patrol camp"},
+            {"id": "L2-CAMP-03", "name": "收拾一個兩日一夜露營用的背囊及個人急救藥囊", "en": "Pack a rucksack and a personal first-aid kit for a two-day one-night camp"},
+            {"id": "L2-CAMP-04", "name": "能正確架搭、收拾及存放一個營幕", "en": "Pitch, strike and store a tent correctly"},
+            {"id": "L2-CAMP-05", "name": "熟悉並正確地使用氣爐及摺刀，並知道有關之安全措施", "en": "Use a gas stove and a folding knife correctly and know the related safety measures"},
+            {"id": "L2-CAMP-06", "name": "設計一個兩日一夜小隊露營的食譜及單獨烹調其中一款菜式", "en": "Plan a menu for a two-day one-night patrol camp and cook one dish independently"},
+            {"id": "L2-CAMP-07", "name": "能以火柴及天然物生火", "en": "Light a fire with matches and natural materials"}
           ]
         },
         {
           "code": "L2-KNOT",
           "name": "(二)童軍技能 - 繩結",
+          "en": "(II) Scoutcraft — Knotting",
           "items": [
-            {"id": "L2-KNOT-01", "name": "示範下列繩結並說出其用途：平結、接繩結、八字結、雙套結、稱人結、繫木結、四方編結、十字編結及八字編結"}
+            {"id": "L2-KNOT-01", "name": "示範下列繩結並說出其用途：平結、接繩結、八字結、雙套結、稱人結、繫木結、四方編結、十字編結及八字編結", "en": "Demonstrate the following knots and state their uses: reef knot, sheet bend, figure-of-eight knot, clove hitch, bowline, round turn and two half hitches, square lashing, diagonal lashing and figure-of-eight lashing"}
           ]
         },
         {
           "code": "L2-HIKE",
           "name": "(二)童軍技能 - 遠足",
+          "en": "(II) Scoutcraft — Hiking",
           "items": [
-            {"id": "L2-HIKE-01", "name": "認識戶外活動時常用的地圖種類，明白不同圖例的意義"},
-            {"id": "L2-HIKE-02", "name": "參與一個運用指南針及地圖之戶外活動，期間需示範正置地圖及利用指南針找出正確的前進方向"}
+            {"id": "L2-HIKE-01", "name": "認識戶外活動時常用的地圖種類，明白不同圖例的意義", "en": "Know the types of maps commonly used in outdoor activities and understand map legends"},
+            {"id": "L2-HIKE-02", "name": "參與一個運用指南針及地圖之戶外活動，期間需示範正置地圖及利用指南針找出正確的前進方向", "en": "Take part in an outdoor activity using a compass and a map, and demonstrate setting the map and finding the correct direction of travel with a compass"}
           ]
         },
         {
           "code": "L2-FA",
           "name": "(二)童軍技能 - 急救",
+          "en": "(II) Scoutcraft — First Aid",
           "items": [
-            {"id": "L2-FA-01", "name": "知道急救目的及原則"},
-            {"id": "L2-FA-02", "name": "示範出血處理、傷口護理及簡單包紥的方法"},
-            {"id": "L2-FA-03", "name": "示範燒傷、燙傷、抽筋及扭傷傷病者的處理方法"}
+            {"id": "L2-FA-01", "name": "知道急救目的及原則", "en": "Know the aim and principles of first aid"},
+            {"id": "L2-FA-02", "name": "示範出血處理、傷口護理及簡單包紥的方法", "en": "Demonstrate the management of bleeding, wound care and simple bandaging"},
+            {"id": "L2-FA-03", "name": "示範燒傷、燙傷、抽筋及扭傷傷病者的處理方法", "en": "Demonstrate the management of burns, scalds, cramp and sprains"}
           ]
         }
       ]
@@ -147,48 +173,63 @@
       "en": "Venture Scout Award",
       "color": "#FD7E14",
       "purpose": "完成4個段章，建議以活動策劃段章為首個完成",
+      "enPurpose": "Complete 4 Achievement Badges; the Project Badge is recommended as the first to complete",
       "description": "需使用PT/65考驗計劃與團長商討，完成任何一個段章可佩戴該段章。舊自立→活動策劃、責任→社會服務、活動→多元技能、探險→戶外探險。",
+      "enDescription": "Discuss your plan with the Venture Scout Leader using Form PT/65. On completing any Achievement Badge you may wear it. Legacy mapping: Self-reliance → Project; Responsibility → Service; Activity → Multiple Skills; Exploration → Outdoor Exploration.",
       "segments": [
         {
           "code": "L3-PROJECT",
           "name": "活動策劃段章",
+          "en": "Project Achievement Badge",
           "desc": "舊自立段章，第11版新名。建議以此段章為首個完成段章。",
+          "enDesc": "Formerly the Self-reliance Achievement Badge (renamed in the 11th Edition). Recommended as the first Achievement Badge to complete.",
           "requirement": "完成工作坊",
+          "enRequirement": "Complete the workshop",
           "items": [
             {
               "id": "L3-PROJECT-01",
               "name": "完成一個由區／地域／總會認許之「深資童軍執行委員會工作坊」",
+              "en": "Complete a District / Region / Headquarters recognised “Venture Scout Executive Committee Workshop”",
               "detail": "目標：透過「深資童軍執行委員會工作坊」，使深資童軍明瞭執行委員會制度及各項會議程序，強化活動策劃、人際關係與溝通技巧等。此外，同時拓展人脈，擴大社交圈子，認識更多同儕。",
-              "tip": "建議以此段章為首個完成段章"
+              "enDetail": "Aim: Through the Venture Scout Executive Committee Workshop, Venture Scouts understand the Executive Committee system and meeting procedures, and strengthen programme planning, interpersonal and communication skills. It also widens their network and circle of peers.",
+              "tip": "建議以此段章為首個完成段章",
+              "enTip": "Recommended as the first Achievement Badge to complete"
             }
           ]
         },
         {
           "code": "L3-SERVICE",
           "name": "社會服務段章",
+          "en": "Service Achievement Badge",
           "desc": "舊責任段章。完成選修部分(I)及選修部分(II)",
+          "enDesc": "Formerly the Responsibility Achievement Badge. Complete Elective Part (I) and Elective Part (II).",
           "requirement": "選修部分(I)選1 + 選修部分(II)選1",
+          "enRequirement": "Choose 1 from Elective Part (I) + 1 from Elective Part (II)",
           "items": [
             {
               "id": "L3-SERVICE-PART1",
               "name": "選修部分(I)：完成下列其中一項",
+              "en": "Elective Part (I): complete one of the following",
               "detail": "需完成此部分其中一項",
+              "enDetail": "Complete one item in this part",
               "subItems": [
-                {"id": "L3-SERVICE-01", "name": "急救 - 持有有效本會或其他根據香港法例《職業安全及健康規例》（第509章，附屬法例A）勞工處認可的三十小時急救課程證書", "detail": "本會或其他勞工處認可課程"},
-                {"id": "L3-SERVICE-02", "name": "拯溺(I) - 持有有效中國香港拯溺總會拯溺銅章或以上程度資格", "detail": "中國香港拯溺總會"}
+                {"id": "L3-SERVICE-01", "name": "急救 - 持有有效本會或其他根據香港法例《職業安全及健康規例》（第509章，附屬法例A）勞工處認可的三十小時急救課程證書", "en": "First Aid — hold a valid 30-hour first-aid course certificate recognised by the Association or by the Labour Department under the Occupational Safety and Health Regulation (Cap. 509A)", "detail": "本會或其他勞工處認可課程", "enDetail": "An Association course or another Labour Department recognised course"},
+                {"id": "L3-SERVICE-02", "name": "拯溺(I) - 持有有效中國香港拯溺總會拯溺銅章或以上程度資格", "en": "Life Saving (I) — hold a valid Bronze Medallion or higher of the Hong Kong China Life Saving Society", "detail": "中國香港拯溺總會", "enDetail": "Hong Kong China Life Saving Society"}
               ]
             },
             {
               "id": "L3-SERVICE-PART2",
               "name": "選修部分(II)：完成下列其中一項",
+              "en": "Elective Part (II): complete one of the following",
               "detail": "需完成此部分其中一項",
+              "enDetail": "Complete one item in this part",
               "subItems": [
-                {"id": "L3-SERVICE-03", "name": "消防 - 完成由區／地域／總會認許之深資童軍消防訓練班", "detail": "2026新增選項"},
-                {"id": "L3-SERVICE-04", "name": "拯溺(II) - 持有有效中國香港拯溺總會泳池救生章、沙灘救生章或以上程度資格", "detail": "中國香港拯溺總會"},
-                {"id": "L3-SERVICE-05", "name": "手語 - 完成不少於二十小時之手語課程", "detail": "2026新增選項"},
-                {"id": "L3-SERVICE-06", "name": "精神健康急救 - 持有有效香港心理衛生會精神健康急救課程（標準版）或（關懷青少年版）證書", "detail": "香港心理衛生會，2026新增"},
-                {"id": "L3-SERVICE-07", "name": "SOUL Keeper 精神健康守護者課程 (Level 2) - 完成一個認許之「SOUL Keeper 精神健康守護者課程 (Level 2)」", "detail": "認許課程，2026新增"},
-                {"id": "L3-SERVICE-08", "name": "共融大使 - 完成由區／地域／總會認許之深資童軍共融大使訓練班", "detail": "2026新增"}
+                {"id": "L3-SERVICE-03", "name": "消防 - 完成由區／地域／總會認許之深資童軍消防訓練班", "en": "Fire Fighting — complete a District / Region / Headquarters recognised Venture Scout Fire Fighting Course", "detail": "2026新增選項", "enDetail": "New option in 2026"},
+                {"id": "L3-SERVICE-04", "name": "拯溺(II) - 持有有效中國香港拯溺總會泳池救生章、沙灘救生章或以上程度資格", "en": "Life Saving (II) — hold a valid Pool Lifeguard Award, Beach Lifeguard Award or higher of the Hong Kong China Life Saving Society", "detail": "中國香港拯溺總會", "enDetail": "Hong Kong China Life Saving Society"},
+                {"id": "L3-SERVICE-05", "name": "手語 - 完成不少於二十小時之手語課程", "en": "Sign Language — complete a sign-language course of not less than 20 hours", "detail": "2026新增選項", "enDetail": "New option in 2026"},
+                {"id": "L3-SERVICE-06", "name": "精神健康急救 - 持有有效香港心理衛生會精神健康急救課程（標準版）或（關懷青少年版）證書", "en": "Mental Health First Aid — hold a valid Mental Health First Aid (Standard) or (Youth) certificate of the Mental Health Association of Hong Kong", "detail": "香港心理衛生會，2026新增", "enDetail": "Mental Health Association of Hong Kong; new in 2026"},
+                {"id": "L3-SERVICE-07", "name": "SOUL Keeper 精神健康守護者課程 (Level 2) - 完成一個認許之「SOUL Keeper 精神健康守護者課程 (Level 2)」", "en": "SOUL Keeper Mental Health Guardian Course (Level 2) — complete a recognised SOUL Keeper Course (Level 2)", "detail": "認許課程，2026新增", "enDetail": "Recognised course; new in 2026"},
+                {"id": "L3-SERVICE-08", "name": "共融大使 - 完成由區／地域／總會認許之深資童軍共融大使訓練班", "en": "Integration Ambassador — complete a District / Region / Headquarters recognised Venture Scout Integration Ambassador Course", "detail": "2026新增", "enDetail": "New in 2026"}
               ]
             }
           ]
@@ -196,78 +237,88 @@
         {
           "code": "L3-ACTIVITY",
           "name": "多元技能段章",
+          "en": "Multiple Skills Achievement Badge",
           "desc": "舊活動段章。簽發條件：完成下列三個範疇中任何一個範疇可獲簽發段章。",
+          "enDesc": "Formerly the Activity Achievement Badge. Awarded on completing any one of the three areas below.",
           "requirement": "三範疇擇一獲段章，全部獲金帶",
+          "enRequirement": "Any one of three areas for the Achievement Badge; all three for the Bar",
           "items": [
             {
               "id": "L3-ACT-SCOUT",
               "name": "範疇一：童軍技能",
+              "en": "Area 1: Scoutcraft",
               "detail": "需完成全部四項",
+              "enDetail": "Complete all four items",
               "subItems": [
-                {"id": "L3-ACT-SCOUT-101", "name": "A-101 原野生活知識", "detail": "用火柴生火、原野烹飪、天然遮蔽處等"},
-                {"id": "L3-ACT-SCOUT-102", "name": "A-102 先鋒工程（知識及技巧）- 完成訓練班", "detail": "30多種繩結編結、用具、轆轤樁躉槓桿"},
-                {"id": "L3-ACT-SCOUT-103", "name": "A-103 露營技藝及營務工作", "detail": "兩日一夜固定露營，計劃書及紀錄，10項營務"},
-                {"id": "L3-ACT-SCOUT-104", "name": "A-104 先鋒工程（實踐）", "detail": "須先完成A-102，3-5人完成2項先鋒工程及模型"}
+                {"id": "L3-ACT-SCOUT-101", "name": "A-101 原野生活知識", "en": "A-101 Wilderness Knowledge", "detail": "用火柴生火、原野烹飪、天然遮蔽處等", "enDetail": "Light a fire with matches, outdoor cooking, natural shelter, etc."},
+                {"id": "L3-ACT-SCOUT-102", "name": "A-102 先鋒工程（知識及技巧）- 完成訓練班", "en": "A-102 Pioneering (Knowledge & Skills) — complete the training course", "detail": "30多種繩結編結、用具、轆轤樁躉槓桿", "enDetail": "30+ knots and lashings, equipment, blocks, pickets and levers"},
+                {"id": "L3-ACT-SCOUT-103", "name": "A-103 露營技藝及營務工作", "en": "A-103 Campcraft and Camp Work", "detail": "兩日一夜固定露營，計劃書及紀錄，10項營務", "enDetail": "Two-day one-night standing camp; plan and log; 10 camp duties"},
+                {"id": "L3-ACT-SCOUT-104", "name": "A-104 先鋒工程（實踐）", "en": "A-104 Pioneering (Practice)", "detail": "須先完成A-102，3-5人完成2項先鋒工程及模型", "enDetail": "A-102 must be completed first. In a group of 3–5, complete 2 pioneering projects and a model."}
               ]
             },
             {
               "id": "L3-ACT-SPORT",
               "name": "範疇二：康樂體育",
+              "en": "Area 2: Recreation & Sports",
               "detail": "考獲任何一項A-301至A-312的體育技能章；或考獲任何兩項不同類型的體育技能章",
+              "enDetail": "Gain any one Sports Skills badge A-301 to A-312; or gain any two Sports Skills badges of different types",
               "subItems": [
-                {"id": "L3-ACT-SPORT-301", "name": "考獲任何一項體育技能章 (A-301至A-312)", "detail": "球類/水上競技/田徑/射擊/氣鎗/定向/箭術/獨木舟/單車/馬術/風帆/體適能 任一"},
-                {"id": "L3-ACT-SPORT-302", "name": "或考獲任何兩項不同類型的體育技能章", "detail": "兩項不同類型的A-301至A-312體育技能章，例如球類+水上競技"}
+                {"id": "L3-ACT-SPORT-301", "name": "考獲任何一項體育技能章 (A-301至A-312)", "en": "Gain any one Sports Skills badge (A-301 to A-312)", "detail": "球類/水上競技/田徑/射擊/氣鎗/定向/箭術/獨木舟/單車/馬術/風帆/體適能 任一", "enDetail": "Any one of: ball games / competitive water sports / athletics / shooting / air pistol / orienteering / archery / canoeing / cycling / equestrian / sailing / physical fitness"},
+                {"id": "L3-ACT-SPORT-302", "name": "或考獲任何兩項不同類型的體育技能章", "en": "Or gain any two Sports Skills badges of different types", "detail": "兩項不同類型的A-301至A-312體育技能章，例如球類+水上競技", "enDetail": "Two different types among A-301 to A-312, e.g. ball games + competitive water sports"}
               ]
             },
             {
               "id": "L3-ACT-NEW",
               "name": "範疇三：新體驗",
+              "en": "Area 3: New Experiences",
               "desc": "從六個範疇中選擇兩個不同範疇各完成一項",
+              "enDesc": "From six categories, complete one item in each of two different categories",
               "detail": "須要達到兩項不同類型（範疇）",
+              "enDetail": "Must cover two different types (categories)",
               "subItems": [
-                {"id": "L3-ACT-NEW-CAT1", "name": "範疇A：飛行及跳傘", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT1", "name": "範疇A：飛行及跳傘", "en": "Category A: Flight & Parachuting", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-203", "name": "A-203 飛行 - 考獲飛行章"},
-                    {"id": "L3-ACT-NEW-204", "name": "A-204 跳傘 - 考獲跳傘章"}
+                    {"id": "L3-ACT-NEW-203", "name": "A-203 飛行 - 考獲飛行章", "en": "A-203 Flight Training — gain the Flight Badge"},
+                    {"id": "L3-ACT-NEW-204", "name": "A-204 跳傘 - 考獲跳傘章", "en": "A-204 Parachuting — gain the Parachuting Badge"}
                   ]
                 },
-                {"id": "L3-ACT-NEW-CAT2", "name": "範疇B：天文及氣象", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT2", "name": "範疇B：天文及氣象", "en": "Category B: Astronomy & Meteorology", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-207", "name": "A-207 天象"},
-                    {"id": "L3-ACT-NEW-226", "name": "A-226 氣象"}
+                    {"id": "L3-ACT-NEW-207", "name": "A-207 天象", "en": "A-207 Astronomy"},
+                    {"id": "L3-ACT-NEW-226", "name": "A-226 氣象", "en": "A-226 Meteorology"}
                   ]
                 },
-                {"id": "L3-ACT-NEW-CAT3", "name": "範疇C：自然及環境", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT3", "name": "範疇C：自然及環境", "en": "Category C: Nature & Environment", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-210", "name": "A-210 林務"}
+                    {"id": "L3-ACT-NEW-210", "name": "A-210 林務", "en": "A-210 Forestry"}
                   ]
                 },
-                {"id": "L3-ACT-NEW-CAT4", "name": "範疇D：科技及媒體", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT4", "name": "範疇D：科技及媒體", "en": "Category D: Technology & Media", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-212", "name": "A-212 業餘無線電"},
-                    {"id": "L3-ACT-NEW-220", "name": "A-220 電腦 - 網站建構或軟件編程"},
-                    {"id": "L3-ACT-NEW-221", "name": "A-221 攝影"},
-                    {"id": "L3-ACT-NEW-222", "name": "A-222 數碼攝影 20張作品集"},
-                    {"id": "L3-ACT-NEW-223", "name": "A-223 電影理論及拍攝 20分鐘短片"}
+                    {"id": "L3-ACT-NEW-212", "name": "A-212 業餘無線電", "en": "A-212 Amateur Radio"},
+                    {"id": "L3-ACT-NEW-220", "name": "A-220 電腦 - 網站建構或軟件編程", "en": "A-220 Computer — website building or software programming"},
+                    {"id": "L3-ACT-NEW-221", "name": "A-221 攝影", "en": "A-221 Photography"},
+                    {"id": "L3-ACT-NEW-222", "name": "A-222 數碼攝影 20張作品集", "en": "A-222 Digital Photography — portfolio of 20 works"},
+                    {"id": "L3-ACT-NEW-223", "name": "A-223 電影理論及拍攝 20分鐘短片", "en": "A-223 Film Theory and Filming Techniques — 20-minute short film"}
                   ]
                 },
-                {"id": "L3-ACT-NEW-CAT5", "name": "範疇E：藝術及演辭", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT5", "name": "範疇E：藝術及演辭", "en": "Category E: Arts & Public Speaking", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-227", "name": "A-227 音樂"},
-                    {"id": "L3-ACT-NEW-229", "name": "A-229 演辭"}
+                    {"id": "L3-ACT-NEW-227", "name": "A-227 音樂", "en": "A-227 Music"},
+                    {"id": "L3-ACT-NEW-229", "name": "A-229 演辭", "en": "A-229 Public Speaking"}
                   ]
                 },
-                {"id": "L3-ACT-NEW-CAT6", "name": "範疇F：海上及航空活動 / 其他A-999", "detail": "選擇一項",
+                {"id": "L3-ACT-NEW-CAT6", "name": "範疇F：海上及航空活動 / 其他A-999", "en": "Category F: Sea & Air Activities / other A-999", "detail": "選擇一項", "enDetail": "Choose one",
                   "subItems": [
-                    {"id": "L3-ACT-NEW-235", "name": "A-235 海上活動 水手長 (段章適用)"},
-                    {"id": "L3-ACT-NEW-236", "name": "A-236 副舵手"},
-                    {"id": "L3-ACT-NEW-237", "name": "A-237 舵手"},
-                    {"id": "L3-ACT-NEW-238", "name": "A-238 初級空勤員"},
-                    {"id": "L3-ACT-NEW-239", "name": "A-239 中級空勤員"},
-                    {"id": "L3-ACT-NEW-240", "name": "A-240 高級空勤員"},
-                    {"id": "L3-ACT-NEW-999B", "name": "A-999 步操 - 完成步操基本訓練班"},
-                    {"id": "L3-ACT-NEW-999R", "name": "A-999 龍舟 - 中級證書"},
-                    {"id": "L3-ACT-NEW-999U", "name": "A-999 無人機 - 認識法例飛行原理及3個月計劃"}
+                    {"id": "L3-ACT-NEW-235", "name": "A-235 海上活動 水手長 (段章適用)", "en": "A-235 Sea Activity — Bosun (for Achievement Badge)"},
+                    {"id": "L3-ACT-NEW-236", "name": "A-236 副舵手", "en": "A-236 Coxswain"},
+                    {"id": "L3-ACT-NEW-237", "name": "A-237 舵手", "en": "A-237 Helmsman"},
+                    {"id": "L3-ACT-NEW-238", "name": "A-238 初級空勤員", "en": "A-238 Junior Air Crew"},
+                    {"id": "L3-ACT-NEW-239", "name": "A-239 中級空勤員", "en": "A-239 Intermediate Air Crew"},
+                    {"id": "L3-ACT-NEW-240", "name": "A-240 高級空勤員", "en": "A-240 Senior Air Crew"},
+                    {"id": "L3-ACT-NEW-999B", "name": "A-999 步操 - 完成步操基本訓練班", "en": "A-999 Drill — complete the basic drill course"},
+                    {"id": "L3-ACT-NEW-999R", "name": "A-999 龍舟 - 中級證書", "en": "A-999 Dragon Boat — intermediate certificate"},
+                    {"id": "L3-ACT-NEW-999U", "name": "A-999 無人機 - 認識法例飛行原理及3個月計劃", "en": "A-999 Unmanned Aircraft — know the law and principles of flight, and a 3-month plan"}
                   ]
                 }
               ]
@@ -277,30 +328,36 @@
         {
           "code": "L3-EXPLORE",
           "name": "戶外探險段章",
+          "en": "Outdoor Exploration Achievement Badge",
           "desc": "舊探險段章。地圖閱讀及遠足訓練僅為遠足及單車探險旅程之必修前設，海上探險旅程須先完成海上旅程訓練。",
+          "enDesc": "Formerly the Exploration Achievement Badge. Map reading and expedition training are compulsory prerequisites only for hiking and cycling expeditions. A sea expedition requires Sea Journey Training first.",
           "items": [
             {
               "id": "L3-EXP-PRE",
               "name": "前設訓練（按選修旅程類型決定是否必修）",
+              "en": "Prerequisite training (compulsory depending on the chosen expedition type)",
               "detail": "選修陸上徒步遠足或單車探險旅程者，須先完成地圖閱讀訓練班/考驗及遠足訓練班。選修海上探險旅程者，須先完成海上旅程訓練。",
+              "enDetail": "Those choosing a hiking or cycling expedition must first complete the Map Reading Course/assessment and the Expedition Training Course. Those choosing a sea expedition must first complete Sea Journey Training.",
               "subItems": [
-                {"id": "L3-EXP-001", "name": "深資童軍地圖閱讀訓練班／考驗（遠足及單車探險旅程必修）", "detail": "完成訓練班或考驗。僅選修遠足或單車探險旅程者須完成此項。"},
-                {"id": "L3-EXP-002", "name": "深資童軍遠足訓練班（遠足及單車探險旅程必修）", "detail": "完成訓練班。僅選修遠足或單車探險旅程者須完成此項。"},
-                {"id": "L3-EXP-010", "name": "海上旅程訓練（海上探險旅程必修）", "detail": "選修海上探險旅程者須先完成海上旅程訓練。"}
+                {"id": "L3-EXP-001", "name": "深資童軍地圖閱讀訓練班／考驗（遠足及單車探險旅程必修）", "en": "Venture Scout Map Reading Course / assessment (compulsory for hiking and cycling expeditions)", "detail": "完成訓練班或考驗。僅選修遠足或單車探險旅程者須完成此項。", "enDetail": "Complete the course or assessment. Required only if you choose a hiking or cycling expedition."},
+                {"id": "L3-EXP-002", "name": "深資童軍遠足訓練班（遠足及單車探險旅程必修）", "en": "Venture Scout Expedition Training Course (compulsory for hiking and cycling expeditions)", "detail": "完成訓練班。僅選修遠足或單車探險旅程者須完成此項。", "enDetail": "Complete the course. Required only if you choose a hiking or cycling expedition."},
+                {"id": "L3-EXP-010", "name": "海上旅程訓練（海上探險旅程必修）", "en": "Sea Journey Training (compulsory for sea expeditions)", "detail": "選修海上探險旅程者須先完成海上旅程訓練。", "enDetail": "Those choosing a sea expedition must complete Sea Journey Training first."}
               ]
             },
             {
               "id": "L3-EXP-SEL",
               "name": "選修：完成一項戶外探險旅程",
+              "en": "Elective: complete one outdoor expedition",
               "detail": "選修一項，三日兩夜（海上探險旅程亦為三日兩夜）",
+              "enDetail": "Choose one; three days two nights (including sea expeditions)",
               "subItems": [
-                {"id": "L3-EXP-003", "name": "陸上徒步遠足40公里（三日兩夜）", "detail": "3-6人一組。須先完成地圖閱讀及遠足訓練班。"},
-                {"id": "L3-EXP-004", "name": "單車探險旅程160公里（三日兩夜）", "detail": "須先完成地圖閱讀及遠足訓練班。"},
-                {"id": "L3-EXP-005", "name": "境外自行駕駛旅程650公里（三日兩夜境外，需有效駕照）", "detail": "僅境外，需持有效駕駛執照"},
-                {"id": "L3-EXP-006", "name": "使用機動化交通工具進行境外旅程800公里，停留點不少於3個，每點停留≥12小時（三日兩夜境外）", "detail": "陌生地方+事工。停留點不少於3個，每個停留點最少12小時。"},
-                {"id": "L3-EXP-007", "name": "海上探險旅程50公里（三日兩夜）- 需副舵手+二級遊樂船操作人員證書", "detail": "童軍標準艇。須先完成海上旅程訓練。需持副舵手章及二級遊樂船操作人員證書。"},
-                {"id": "L3-EXP-008", "name": "海上探險旅程50公里（三日兩夜）- 獨木舟，需中級金章", "detail": "獨木舟海上探險旅程。須先完成海上旅程訓練。需持中級金章。"},
-                {"id": "L3-EXP-009", "name": "海上探險旅程50公里（三日兩夜）- 風帆，需三級，需機動艇隨航", "detail": "風帆海上探險旅程。須先完成海上旅程訓練。需持三級風帆資格及機動艇隨航。"}
+                {"id": "L3-EXP-003", "name": "陸上徒步遠足40公里（三日兩夜）", "en": "40 km expedition on foot (three days two nights)", "detail": "3-6人一組。須先完成地圖閱讀及遠足訓練班。", "enDetail": "Group of 3–6. Map reading and expedition training must be completed first."},
+                {"id": "L3-EXP-004", "name": "單車探險旅程160公里（三日兩夜）", "en": "160 km cycling expedition (three days two nights)", "detail": "須先完成地圖閱讀及遠足訓練班。", "enDetail": "Map reading and expedition training must be completed first."},
+                {"id": "L3-EXP-005", "name": "境外自行駕駛旅程650公里（三日兩夜境外，需有效駕照）", "en": "650 km self-drive journey outside Hong Kong (three days two nights overseas; valid driving licence required)", "detail": "僅境外，需持有效駕駛執照", "enDetail": "Outside Hong Kong only; a valid driving licence is required."},
+                {"id": "L3-EXP-006", "name": "使用機動化交通工具進行境外旅程800公里，停留點不少於3個，每點停留≥12小時（三日兩夜境外）", "en": "800 km overseas journey using mechanical transport, at least 3 stops of ≥12 hours each (three days two nights overseas)", "detail": "陌生地方+事工。停留點不少於3個，每個停留點最少12小時。", "enDetail": "Unfamiliar places plus a purpose/project. At least 3 stops, each of at least 12 hours."},
+                {"id": "L3-EXP-007", "name": "海上探險旅程50公里（三日兩夜）- 需副舵手+二級遊樂船操作人員證書", "en": "50 km sea expedition (three days two nights) — Coxswain Badge + Pleasure Vessel Operator Grade 2 Certificate required", "detail": "童軍標準艇。須先完成海上旅程訓練。需持副舵手章及二級遊樂船操作人員證書。", "enDetail": "Scout Standard Boat. Sea Journey Training first. Hold the Coxswain Badge and a Pleasure Vessel Operator Grade 2 Certificate."},
+                {"id": "L3-EXP-008", "name": "海上探險旅程50公里（三日兩夜）- 獨木舟，需中級金章", "en": "50 km sea expedition (three days two nights) — canoeing; Intermediate Gold Award required", "detail": "獨木舟海上探險旅程。須先完成海上旅程訓練。需持中級金章。", "enDetail": "Canoe sea expedition. Sea Journey Training first. Hold the Intermediate Gold Award."},
+                {"id": "L3-EXP-009", "name": "海上探險旅程50公里（三日兩夜）- 風帆，需三級，需機動艇隨航", "en": "50 km sea expedition (three days two nights) — sailing; Level 3 required, with a powered boat in attendance", "detail": "風帆海上探險旅程。須先完成海上旅程訓練。需持三級風帆資格及機動艇隨航。", "enDetail": "Sailing sea expedition. Sea Journey Training first. Hold Level 3 sailing qualification with a powered boat in attendance."}
               ]
             }
           ]
@@ -314,122 +371,148 @@
       "en": "Dragon Scout Award",
       "color": "#FFD700",
       "purpose": "青少年最高榮譽，需完成4條金帶，約2-4年，總領袖於大會操頒發",
+      "enPurpose": "The highest youth honour. Complete 4 Bars, typically in 2–4 years. Presented by the Chief Scout at the Scout Rally.",
       "description": "完成任何一個段章後即可開始考取相對金帶。需9月15日前交總會安排當年大會操頒發。",
+      "enDescription": "After completing any Achievement Badge you may start the corresponding Bar. Submit to Headquarters by 15 September for presentation at that year's Scout Rally.",
       "segments": [
         {
           "code": "L4-PROJECT",
           "name": "活動策劃金帶",
+          "en": "Project Bar",
           "desc": "舊自立金帶。完成下列其中一項",
+          "enDesc": "Formerly the Self-reliance Bar. Complete one of the following.",
           "requirement": "2選1",
+          "enRequirement": "Choose 1 of 2",
           "items": [
             {
               "id": "L4-PROJ-01",
               "name": "實踐一項活動策劃",
-              "detail": "與其他旅團深資童軍、樂行童軍或青年人聯合組織大型活動。須活動前2個月向團長及金帶主考人申請及得到許可，活動前1個月呈交計劃書，完結後1個月內呈交報告書（包括會議文件、分工、財政報告、活動反思等）。必須由青年人或深資童軍成員主導。"
+              "en": "Carry out an activity-planning project",
+              "detail": "與其他旅團深資童軍、樂行童軍或青年人聯合組織大型活動。須活動前2個月向團長及金帶主考人申請及得到許可，活動前1個月呈交計劃書，完結後1個月內呈交報告書（包括會議文件、分工、財政報告、活動反思等）。必須由青年人或深資童軍成員主導。",
+              "enDetail": "Jointly organise a major activity with Venture Scouts of other Groups, Rover Scouts or other young people. Apply to the Venture Scout Leader and the Bar assessor at least 2 months before the activity and obtain approval; submit a plan 1 month before; submit a report within 1 month after (including meeting papers, division of work, financial report and reflection). Must be led by young people or Venture Scouts."
             },
             {
               "id": "L4-PROJ-02",
               "name": "實踐一項活動策劃，該活動需外宿最少五日四夜",
-              "detail": "完成該選項可與香港青年獎勵計劃「團體生活科」銜接。詳細請參閱香港青年獎勵計劃的獎勵計劃手冊 - 團體生活科或與主考人聯絡。其餘條件同上。"
+              "en": "Carry out an activity-planning project involving at least five days four nights away from home",
+              "detail": "完成該選項可與香港青年獎勵計劃「團體生活科」銜接。詳細請參閱香港青年獎勵計劃的獎勵計劃手冊 - 團體生活科或與主考人聯絡。其餘條件同上。",
+              "enDetail": "This option may be linked with the Residential Project of The Hong Kong Award For Young People. See the AYP handbook — Residential Project — or contact the assessor. Other conditions as above."
             }
           ]
         },
         {
           "code": "L4-SERVICE",
           "name": "社會服務金帶",
+          "en": "Service Bar",
           "desc": "舊責任金帶。完成下列其中一項",
+          "enDesc": "Formerly the Responsibility Bar. Complete one of the following.",
           "requirement": "3選1",
+          "enRequirement": "Choose 1 of 3",
           "items": [
             {
               "id": "L4-SERV-01",
               "name": "(一) 童軍及社區服務",
-              "detail": "1. 童軍運動基本原則訓練班（單元1A及1B）；及 2. 童軍單位內進行四次或以上認許的服務，而時間總計不少於二十六小時；及 3. 為非童軍單位的社區服務，進行服務四次或以上，或策劃及執行有持續性的服務一次或以上（如適用），總計服務時間則不少於二十六小時。"
+              "en": "(1) Scout and Community Services",
+              "detail": "1. 童軍運動基本原則訓練班（單元1A及1B）；及 2. 童軍單位內進行四次或以上認許的服務，而時間總計不少於二十六小時；及 3. 為非童軍單位的社區服務，進行服務四次或以上，或策劃及執行有持續性的服務一次或以上（如適用），總計服務時間則不少於二十六小時。",
+              "enDetail": "1. Fundamental Principles of Scouting Course (Modules 1A and 1B); and 2. four or more recognised services within a Scout unit totalling not less than 26 hours; and 3. community service for a non-Scout unit on four or more occasions, or plan and carry out one or more ongoing services (where applicable), totalling not less than 26 hours."
             },
             {
               "id": "L4-SERV-02",
               "name": "(二) 志願服務",
-              "detail": "經常參與一項六個月或以上之服務，總計服務時間不少於五十二小時。進行此項服務前須對服務對象及該服務機構有所認識。深資童軍須保存一份服務紀錄，以備審核。"
+              "en": "(2) Voluntary Services",
+              "detail": "經常參與一項六個月或以上之服務，總計服務時間不少於五十二小時。進行此項服務前須對服務對象及該服務機構有所認識。深資童軍須保存一份服務紀錄，以備審核。",
+              "enDetail": "Regularly take part in a service of 6 months or more, totalling not less than 52 hours. Before starting, know the service users and the organisation. Keep a service log for assessment."
             },
             {
               "id": "L4-SERV-03",
               "name": "(三) 寰宇童軍計劃",
-              "detail": "1. 完成寰宇童軍計劃「探索」課程；及 2. 組織行動小組完成「自願服務」。"
+              "en": "(3) Scouts of the World Award",
+              "detail": "1. 完成寰宇童軍計劃「探索」課程；及 2. 組織行動小組完成「自願服務」。",
+              "enDetail": "1. Complete the Scouts of the World Award “Discovery” course; and 2. form an action team and complete “Voluntary Service”."
             }
           ]
         },
         {
           "code": "L4-ACTIVITY",
           "name": "多元技能金帶",
+          "en": "Multiple Skills Bar",
           "desc": "舊活動金帶。簽發條件：完成全部三個範疇可獲簽發金帶。",
+          "enDesc": "Formerly the Activity Bar. Awarded on completing all three areas.",
           "requirement": "需完成全部三範疇",
+          "enRequirement": "Complete all three areas",
           "items": [
             {
               "id": "L4-ACT-SCOUT",
               "name": "範疇一：童軍技能（需全部）",
+              "en": "Area 1: Scoutcraft (all required)",
               "subItems": [
-                {"id": "L4-ACT-SCOUT-101", "name": "A-101 原野生活知識"},
-                {"id": "L4-ACT-SCOUT-102", "name": "A-102 先鋒工程（知識及技巧）- 完成訓練班"},
-                {"id": "L4-ACT-SCOUT-103", "name": "A-103 露營技藝及營務工作 - 兩日一夜固定露營，營前1月交計劃書，營後1月交個人紀錄"},
-                {"id": "L4-ACT-SCOUT-104", "name": "A-104 先鋒工程（實踐）- 須先完成A-102，3-5人完成2項先鋒工程及模型"}
+                {"id": "L4-ACT-SCOUT-101", "name": "A-101 原野生活知識", "en": "A-101 Wilderness Knowledge"},
+                {"id": "L4-ACT-SCOUT-102", "name": "A-102 先鋒工程（知識及技巧）- 完成訓練班", "en": "A-102 Pioneering (Knowledge & Skills) — complete the training course"},
+                {"id": "L4-ACT-SCOUT-103", "name": "A-103 露營技藝及營務工作 - 兩日一夜固定露營，營前1月交計劃書，營後1月交個人紀錄", "en": "A-103 Campcraft and Camp Work — two-day one-night standing camp; submit a plan 1 month before and a personal log 1 month after"},
+                {"id": "L4-ACT-SCOUT-104", "name": "A-104 先鋒工程（實踐）- 須先完成A-102，3-5人完成2項先鋒工程及模型", "en": "A-104 Pioneering (Practice) — A-102 first; group of 3–5 completes 2 pioneering projects and a model"}
               ]
             },
             {
               "id": "L4-ACT-SPORT",
               "name": "範疇二：康樂體育",
+              "en": "Area 2: Recreation & Sports",
               "detail": "考獲任何一項A-301至A-312的體育技能章；或考獲任何兩項不同類型的體育技能章",
+              "enDetail": "Gain any one Sports Skills badge A-301 to A-312; or gain any two Sports Skills badges of different types",
               "subItems": [
-                {"id": "L4-ACT-SPORT-301", "name": "考獲任何一項體育技能章 (A-301至A-312)"},
-                {"id": "L4-ACT-SPORT-302", "name": "或考獲任何兩項不同類型的體育技能章"}
+                {"id": "L4-ACT-SPORT-301", "name": "考獲任何一項體育技能章 (A-301至A-312)", "en": "Gain any one Sports Skills badge (A-301 to A-312)"},
+                {"id": "L4-ACT-SPORT-302", "name": "或考獲任何兩項不同類型的體育技能章", "en": "Or gain any two Sports Skills badges of different types"}
               ]
             },
             {
               "id": "L4-ACT-NEW",
               "name": "範疇三：新體驗",
+              "en": "Area 3: New Experiences",
               "desc": "從六個範疇中選擇兩個不同範疇各完成一項（須要達到兩項不同類型）",
+              "enDesc": "From six categories, complete one item in each of two different categories (two different types required)",
               "subItems": [
-                {"id": "L4-ACT-NEW-CAT1", "name": "範疇A：飛行及跳傘",
+                {"id": "L4-ACT-NEW-CAT1", "name": "範疇A：飛行及跳傘", "en": "Category A: Flight & Parachuting",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-203", "name": "A-203 飛行"},
-                    {"id": "L4-ACT-NEW-204", "name": "A-204 跳傘"}
+                    {"id": "L4-ACT-NEW-203", "name": "A-203 飛行", "en": "A-203 Flight Training"},
+                    {"id": "L4-ACT-NEW-204", "name": "A-204 跳傘", "en": "A-204 Parachuting"}
                   ]
                 },
-                {"id": "L4-ACT-NEW-CAT2", "name": "範疇B：天文及氣象",
+                {"id": "L4-ACT-NEW-CAT2", "name": "範疇B：天文及氣象", "en": "Category B: Astronomy & Meteorology",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-207", "name": "A-207 天象"},
-                    {"id": "L4-ACT-NEW-226", "name": "A-226 氣象"}
+                    {"id": "L4-ACT-NEW-207", "name": "A-207 天象", "en": "A-207 Astronomy"},
+                    {"id": "L4-ACT-NEW-226", "name": "A-226 氣象", "en": "A-226 Meteorology"}
                   ]
                 },
-                {"id": "L4-ACT-NEW-CAT3", "name": "範疇C：自然及環境",
+                {"id": "L4-ACT-NEW-CAT3", "name": "範疇C：自然及環境", "en": "Category C: Nature & Environment",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-210", "name": "A-210 林務"}
+                    {"id": "L4-ACT-NEW-210", "name": "A-210 林務", "en": "A-210 Forestry"}
                   ]
                 },
-                {"id": "L4-ACT-NEW-CAT4", "name": "範疇D：科技及媒體",
+                {"id": "L4-ACT-NEW-CAT4", "name": "範疇D：科技及媒體", "en": "Category D: Technology & Media",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-212", "name": "A-212 業餘無線電"},
-                    {"id": "L4-ACT-NEW-220", "name": "A-220 電腦"},
-                    {"id": "L4-ACT-NEW-221", "name": "A-221 攝影"},
-                    {"id": "L4-ACT-NEW-222", "name": "A-222 數碼攝影"},
-                    {"id": "L4-ACT-NEW-223", "name": "A-223 電影理論及拍攝"}
+                    {"id": "L4-ACT-NEW-212", "name": "A-212 業餘無線電", "en": "A-212 Amateur Radio"},
+                    {"id": "L4-ACT-NEW-220", "name": "A-220 電腦", "en": "A-220 Computer"},
+                    {"id": "L4-ACT-NEW-221", "name": "A-221 攝影", "en": "A-221 Photography"},
+                    {"id": "L4-ACT-NEW-222", "name": "A-222 數碼攝影", "en": "A-222 Digital Photography"},
+                    {"id": "L4-ACT-NEW-223", "name": "A-223 電影理論及拍攝", "en": "A-223 Film Theory and Filming Techniques"}
                   ]
                 },
-                {"id": "L4-ACT-NEW-CAT5", "name": "範疇E：藝術及演辭",
+                {"id": "L4-ACT-NEW-CAT5", "name": "範疇E：藝術及演辭", "en": "Category E: Arts & Public Speaking",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-227", "name": "A-227 音樂"},
-                    {"id": "L4-ACT-NEW-229", "name": "A-229 演辭"}
+                    {"id": "L4-ACT-NEW-227", "name": "A-227 音樂", "en": "A-227 Music"},
+                    {"id": "L4-ACT-NEW-229", "name": "A-229 演辭", "en": "A-229 Public Speaking"}
                   ]
                 },
-                {"id": "L4-ACT-NEW-CAT6", "name": "範疇F：海上及航空活動 / 其他A-999",
+                {"id": "L4-ACT-NEW-CAT6", "name": "範疇F：海上及航空活動 / 其他A-999", "en": "Category F: Sea & Air Activities / other A-999",
                   "subItems": [
-                    {"id": "L4-ACT-NEW-235", "name": "A-235 海上活動 水手長"},
-                    {"id": "L4-ACT-NEW-236", "name": "A-236 副舵手"},
-                    {"id": "L4-ACT-NEW-237", "name": "A-237 舵手"},
-                    {"id": "L4-ACT-NEW-238", "name": "A-238 初級空勤員"},
-                    {"id": "L4-ACT-NEW-239", "name": "A-239 中級空勤員"},
-                    {"id": "L4-ACT-NEW-240", "name": "A-240 高級空勤員"},
-                    {"id": "L4-ACT-NEW-999B", "name": "A-999 步操"},
-                    {"id": "L4-ACT-NEW-999R", "name": "A-999 龍舟"},
-                    {"id": "L4-ACT-NEW-999U", "name": "A-999 無人機"}
+                    {"id": "L4-ACT-NEW-235", "name": "A-235 海上活動 水手長", "en": "A-235 Sea Activity — Bosun"},
+                    {"id": "L4-ACT-NEW-236", "name": "A-236 副舵手", "en": "A-236 Coxswain"},
+                    {"id": "L4-ACT-NEW-237", "name": "A-237 舵手", "en": "A-237 Helmsman"},
+                    {"id": "L4-ACT-NEW-238", "name": "A-238 初級空勤員", "en": "A-238 Junior Air Crew"},
+                    {"id": "L4-ACT-NEW-239", "name": "A-239 中級空勤員", "en": "A-239 Intermediate Air Crew"},
+                    {"id": "L4-ACT-NEW-240", "name": "A-240 高級空勤員", "en": "A-240 Senior Air Crew"},
+                    {"id": "L4-ACT-NEW-999B", "name": "A-999 步操", "en": "A-999 Drill"},
+                    {"id": "L4-ACT-NEW-999R", "name": "A-999 龍舟", "en": "A-999 Dragon Boat"},
+                    {"id": "L4-ACT-NEW-999U", "name": "A-999 無人機", "en": "A-999 Unmanned Aircraft"}
                   ]
                 }
               ]
@@ -439,20 +522,24 @@
         {
           "code": "L4-EXPLORE",
           "name": "戶外探險金帶",
+          "en": "Outdoor Exploration Bar",
           "desc": "舊探險金帶。四日三夜。選修海上探險旅程者須先完成海上旅程訓練。",
+          "enDesc": "Formerly the Exploration Bar. Four days three nights. A sea expedition requires Sea Journey Training first.",
           "items": [
             {
               "id": "L4-EXP-SEL",
               "name": "選修一項戶外探險旅程",
+              "en": "Choose one outdoor expedition",
               "detail": "四日三夜。如深資童軍於段章是利用「境外自行駕駛旅程」或「使用機動化交通工具進行境外旅程」，則不能透過該項目考取金帶。",
+              "enDetail": "Four days three nights. If the Achievement Badge was completed by a self-drive journey outside Hong Kong or an overseas journey using mechanical transport, that option cannot be used again for the Bar.",
               "subItems": [
-                {"id": "L4-EXP-001", "name": "陸上徒步遠足60公里（四日三夜）", "detail": "須先完成地圖閱讀及遠足訓練班"},
-                {"id": "L4-EXP-002", "name": "單車探險旅程240公里（四日三夜）", "detail": "須先完成地圖閱讀及遠足訓練班"},
-                {"id": "L4-EXP-003", "name": "境外自行駕駛旅程1000公里（四日三夜境外）", "detail": "需持有效駕駛執照"},
-                {"id": "L4-EXP-004", "name": "使用機動化交通工具進行境外旅程1200公里，停留點不少於3個（四日三夜境外）", "detail": "停留點不少於3個，每個停留點最少12小時。陌生地方+事工。"},
-                {"id": "L4-EXP-005", "name": "海上探險旅程60公里 - 童軍標準艇（四日三夜）需副舵手+帆船二級+二級遊樂船操作人員證書", "detail": "須先完成海上旅程訓練"},
-                {"id": "L4-EXP-006", "name": "海上探險旅程60公里 - 獨木舟（四日三夜）需中級金章", "detail": "須先完成海上旅程訓練"},
-                {"id": "L4-EXP-007", "name": "海上探險旅程60公里 - 風帆（四日三夜）需三級，需機動艇隨航", "detail": "須先完成海上旅程訓練"}
+                {"id": "L4-EXP-001", "name": "陸上徒步遠足60公里（四日三夜）", "en": "60 km expedition on foot (four days three nights)", "detail": "須先完成地圖閱讀及遠足訓練班", "enDetail": "Map reading and expedition training must be completed first"},
+                {"id": "L4-EXP-002", "name": "單車探險旅程240公里（四日三夜）", "en": "240 km cycling expedition (four days three nights)", "detail": "須先完成地圖閱讀及遠足訓練班", "enDetail": "Map reading and expedition training must be completed first"},
+                {"id": "L4-EXP-003", "name": "境外自行駕駛旅程1000公里（四日三夜境外）", "en": "1,000 km self-drive journey outside Hong Kong (four days three nights overseas)", "detail": "需持有效駕駛執照", "enDetail": "A valid driving licence is required"},
+                {"id": "L4-EXP-004", "name": "使用機動化交通工具進行境外旅程1200公里，停留點不少於3個（四日三夜境外）", "en": "1,200 km overseas journey using mechanical transport, at least 3 stops (four days three nights overseas)", "detail": "停留點不少於3個，每個停留點最少12小時。陌生地方+事工。", "enDetail": "At least 3 stops of at least 12 hours each. Unfamiliar places plus a purpose/project."},
+                {"id": "L4-EXP-005", "name": "海上探險旅程60公里 - 童軍標準艇（四日三夜）需副舵手+帆船二級+二級遊樂船操作人員證書", "en": "60 km sea expedition — Scout Standard Boat (four days three nights); Coxswain + Sailing Level 2 + Pleasure Vessel Operator Grade 2 Certificate required", "detail": "須先完成海上旅程訓練", "enDetail": "Sea Journey Training must be completed first"},
+                {"id": "L4-EXP-006", "name": "海上探險旅程60公里 - 獨木舟（四日三夜）需中級金章", "en": "60 km sea expedition — canoeing (four days three nights); Intermediate Gold Award required", "detail": "須先完成海上旅程訓練", "enDetail": "Sea Journey Training must be completed first"},
+                {"id": "L4-EXP-007", "name": "海上探險旅程60公里 - 風帆（四日三夜）需三級，需機動艇隨航", "en": "60 km sea expedition — sailing (four days three nights); Level 3 required, with a powered boat in attendance", "detail": "須先完成海上旅程訓練", "enDetail": "Sea Journey Training must be completed first"}
               ]
             }
           ]
@@ -461,19 +548,21 @@
     }
   ],
   "otherBadges": [
-    {"id": "OT-FA", "name": "深資童軍急救章", "icon": "🩺", "desc": "30小時急救證書勞工處認可"},
-    {"id": "OT-ENV", "name": "世界童軍環境章", "icon": "🌏", "desc": "完成環境教育訓練班"},
-    {"id": "OT-SEA-BOSUN", "name": "水手長章", "icon": "⚓", "desc": "海上活動基礎，僅供段章考核"},
-    {"id": "OT-SEA-COX", "name": "副舵手章", "icon": "🛥️", "desc": "副舵手"},
-    {"id": "OT-SEA-HELM", "name": "舵手章", "icon": "⛵", "desc": "舵手"},
-    {"id": "OT-AIR-JUNIOR", "name": "初級空勤員", "icon": "✈️", "desc": "航空入門"},
-    {"id": "OT-AIR-INT", "name": "中級空勤員", "icon": "🛩️", "desc": "中級航空"},
-    {"id": "OT-AIR-SENIOR", "name": "高級空勤員", "icon": "🚁", "desc": "高級航空"},
-    {"id": "OT-WORLD", "name": "世界童軍組織獎章", "icon": "🌐", "desc": "和平使者等最多右袖4枚"}
+    {"id": "OT-FA", "name": "深資童軍急救章", "en": "Venture Scout First-aid Badge", "icon": "🩺", "desc": "30小時急救證書勞工處認可", "enDesc": "30-hour first-aid certificate recognised by the Labour Department"},
+    {"id": "OT-ENV", "name": "世界童軍環境章", "en": "World Scout Environment Badge", "icon": "🌏", "desc": "完成環境教育訓練班", "enDesc": "Complete the environmental education course"},
+    {"id": "OT-SEA-BOSUN", "name": "水手長章", "en": "Bosun Badge", "icon": "⚓", "desc": "海上活動基礎，僅供段章考核", "enDesc": "Foundation sea activity; for Achievement Badge assessment only"},
+    {"id": "OT-SEA-COX", "name": "副舵手章", "en": "Coxswain Badge", "icon": "🛥️", "desc": "副舵手", "enDesc": "Coxswain"},
+    {"id": "OT-SEA-HELM", "name": "舵手章", "en": "Helmsman Badge", "icon": "⛵", "desc": "舵手", "enDesc": "Helmsman"},
+    {"id": "OT-AIR-JUNIOR", "name": "初級空勤員", "en": "Junior Air Crew", "icon": "✈️", "desc": "航空入門", "enDesc": "Introduction to air activities"},
+    {"id": "OT-AIR-INT", "name": "中級空勤員", "en": "Intermediate Air Crew", "icon": "🛩️", "desc": "中級航空", "enDesc": "Intermediate air activities"},
+    {"id": "OT-AIR-SENIOR", "name": "高級空勤員", "en": "Senior Air Crew", "icon": "🚁", "desc": "高級航空", "enDesc": "Senior air activities"},
+    {"id": "OT-WORLD", "name": "世界童軍組織獎章", "en": "WOSM Badges", "icon": "🌐", "desc": "和平使者等最多右袖4枚", "enDesc": "Messengers of Peace etc.; up to 4 on the right sleeve"}
   ],
   "trainingPlan": {
     "title": "深資童軍支部的訓練計劃",
+    "enTitle": "Training Programme of the Venture Scout Section",
     "purpose": "深資童軍支部旨在延續童軍支部之訓練，運用執行委員會制度，以自治和自務方式配合有進度性及富挑戰性之活動及訓練誘導成員，為社會培育未來領袖。",
+    "enPurpose": "The Venture Scout Section extends the training of the Scout Section. Under the Executive Committee system, members are guided through self-governing and self-programming progressive and challenging activities, to nurture future leaders for society.",
     "method": [
       "執行委員會制度：民主選舉、會議常規、職務分工",
       "自務自治：自行策劃組織執行檢討活動，領袖擔任顧問",
@@ -481,28 +570,43 @@
       "社會服務：選修部分(I)2選1 + 選修部分(II)6選1，第11版新增消防、手語、精神健康急救、SOUL Keeper、共融大使",
       "戶外探險：遠足/單車需先完成地圖閱讀及遠足訓練，海上探險旅程需先完成海上旅程訓練"
     ],
+    "enMethod": [
+      "Executive Committee system: democratic election, meeting procedure, division of duties",
+      "Self-governing and self-programming: members plan, organise, run and review activities; leaders act as advisers",
+      "Multiple Skills: Scoutcraft, Recreation & Sports, New Experiences — any one area for the Achievement Badge, all three for the Bar",
+      "Service: Elective Part (I) choose 1 of 2 + Elective Part (II) choose 1 of 6. 11th Edition adds Fire Fighting, Sign Language, Mental Health First Aid, SOUL Keeper and Integration Ambassador",
+      "Outdoor Exploration: hiking/cycling require map reading and expedition training first; a sea expedition requires Sea Journey Training first"
+    ],
     "expected": ["自務自治明日領袖","活動策劃能力","社會服務精神","多元技能","戶外探險毅力"],
+    "enExpected": ["Self-governing, self-programming future leaders","Activity-planning ability","Spirit of community service","Multiple skills","Perseverance in outdoor exploration"],
     "progressFlow": "會員章→肩章→深資童軍獎章(活動策劃/社會服務/多元技能/戶外探險)→榮譽童軍獎章(4金帶)",
+    "enProgressFlow": "Membership Badge → Epaulettes → Venture Scout Award (Project / Service / Multiple Skills / Outdoor Exploration) → Dragon Scout Award (4 Bars)",
     "assessmentPrinciples": "使用PT/65考驗計劃與團長商討，完成任何段章可佩戴該段章，建議先完成活動策劃段章。舊版自立→活動策劃、責任→社會服務、活動→多元技能、探險→戶外探險。",
+    "enAssessmentPrinciples": "Discuss your plan with the Venture Scout Leader using Form PT/65. On completing any Achievement Badge you may wear it. The Project Badge is recommended first. Legacy mapping: Self-reliance → Project; Responsibility → Service; Activity → Multiple Skills; Exploration → Outdoor Exploration.",
     "links": [
-      {"title": "深資童軍訓練綱要 第11版 2026", "url": "https://drive.google.com/file/d/1f6Zz6HCrxapSMlmH-q9XpKBHUtYjBbKp/view"},
-      {"title": "新修訂支部訓練綱要通告 P022-26 對照表", "url": "https://www.scout.org.hk/uploads/tc/circulars/23585/p022-26.pdf"}
+      {"title": "深資童軍訓練綱要 第11版 2026", "enTitle": "Venture Scout Training Scheme 11th Edition 2026", "url": "https://drive.google.com/file/d/1F8aZSr_WzRbJCLy7l41iDO2tEUxpKCvE/view"},
+      {"title": "Venture Scout Section (English, as at 14 August 2026)", "enTitle": "Venture Scout Section (English, as at 14 August 2026)", "url": "https://sites.google.com/scouting.org.hk/sections/支部訓練檢討"},
+      {"title": "新修訂支部訓練綱要通告 P022-26 對照表", "enTitle": "Updates on Sectional Training Scheme Circular P022-26 (mapping table)", "url": "https://www.scout.org.hk/uploads/tc/circulars/23585/p022-26.pdf"}
     ]
   },
   "safeFromHarm": {
     "title": "保護童軍成員免受傷害 Safe from Harm",
+    "enTitle": "Keeping Scout Members Safe from Harm",
     "policy": "所有童軍活動須在安全環境進行",
+    "enPolicy": "All Scout activities must take place in a safe environment",
     "learning": [
-      {"title": "Safe from Harm 自學課程", "url": "https://sfh.scout.org.hk", "mandatory": true},
-      {"title": "eLearning 網上學習平台", "url": "https://elearning.scout.org.hk/"}
+      {"title": "Safe from Harm 自學課程", "enTitle": "Safe from Harm self-learning course", "url": "https://sfh.scout.org.hk", "mandatory": true},
+      {"title": "eLearning 網上學習平台", "enTitle": "eLearning platform", "url": "https://elearning.scout.org.hk/"}
     ],
     "prevention": ["兩人同行","保持界限透明"],
+    "enPrevention": ["Two-deep leadership","Keep boundaries transparent"],
     "handling": ["聆聽","記錄","報告"],
-    "hotlines": [{"name": "童軍總會 青少年活動署", "tel": "2957 6414"}]
+    "enHandling": ["Listen","Record","Report"],
+    "hotlines": [{"name": "童軍總會 青少年活動署", "enName": "SAHK Programme Branch", "tel": "2957 6414"}]
   },
   "forms": {
-    "PT19": {"name": "深資童軍獎章及證書申請表 PT/19","code": "PT/19"},
-    "PT20": {"name": "榮譽童軍獎章及證書申請表 PT/20","code": "PT/20"},
-    "PT65": {"name": "考驗計劃 PT/65","code": "PT/65"}
+    "PT19": {"name": "深資童軍獎章及證書申請表 PT/19", "en": "Application Form for the Venture Scout Award and Certificate PT/19", "code": "PT/19"},
+    "PT20": {"name": "榮譽童軍獎章及證書申請表 PT/20", "en": "Application Form for the Dragon Scout Award and Certificate PT/20", "code": "PT/20"},
+    "PT65": {"name": "考驗計劃 PT/65", "en": "Planning for Assessment PT/65", "code": "PT/65"}
   }
 }
