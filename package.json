@@ -6,6 +6,8 @@
   "description": "Venture Scout Progress & Admin Platform（多旅團，同源 Proxy，中／英一鍵切換）",
   "scripts": {
     "dev": "node tests/dev-server.mjs 3000",
-    "test": "node tests/run-e2e.mjs"
+    "test": "node tests/ymis_parse.test.cjs && node tests/run-e2e.mjs",
+    "test:ymis": "node tests/ymis_parse.test.cjs",
+    "test:e2e": "node tests/run-e2e.mjs"
   }
 }

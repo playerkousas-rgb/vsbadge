@@ -260,6 +260,8 @@ a:hover{text-decoration:underline}
 .bulk-preview{width:100%;border-collapse:collapse;font-size:11px;min-width:680px;background:#fff}
 .bulk-preview th,.bulk-preview td{padding:7px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
 .bulk-preview th{position:sticky;top:0;background:var(--maroon);color:#fff;z-index:1}
+.ymis-preview input[type="text"],.ymis-preview input:not([type]){width:100%;min-width:0;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit}
+.ymis-preview input[type="checkbox"]{width:16px;height:16px}
 .bulk-error{color:var(--red);font-weight:600}.bulk-ok{color:var(--green);font-weight:600}
 .input-action-row{display:flex;gap:6px}.form-group .input-action-row input{width:auto;min-width:0;flex:1}.input-action-row .btn{flex:0 0 auto}
 .mobile-only{display:none}
@@ -429,7 +431,7 @@ a:hover{text-decoration:underline}
       <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 版本更新紀錄（未來用於新版本後端GS及功能改動）</h2>
       <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
         <h3 style="color:var(--blue)">框架保留，內容已精簡（依你要求移除舊修復資訊）</h3>
-        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.0 已加入全前端管理、批量開戶及手機版</p>
+        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.3 已加入 YMIS 自訂報表 PDF 批量開戶（瀏覽器內解析，PDF 不上傳）</p>
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -442,7 +444,7 @@ a:hover{text-decoration:underline}
       </div>
       <div class="info-section" style="margin-top:12px">
         <h3>v8.0 FRONTEND ADMIN</h3>
-        <p style="font-size:12px">全前端帳戶管理、CSV／JSON 批量開戶、首次登入改密碼、操作紀錄及手機友善介面</p>
+        <p style="font-size:12px">全前端帳戶管理、YMIS PDF／CSV／JSON 批量開戶、首次登入改密碼、操作紀錄及手機友善介面</p>
       </div>
     </div>
   </div>
@@ -691,22 +693,58 @@ a:hover{text-decoration:underline}
 
 <div id="bulkOnboardModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkOnboardTitle">
   <div class="modal-content" style="max-width:820px">
-    <h3 id="bulkOnboardTitle">📥 批量開戶</h3>
+    <h3 id="bulkOnboardTitle" data-i18n="bulk.title">📥 批量開戶</h3>
     <div class="info-section" style="font-size:12px;line-height:1.7;padding:12px">
-      <b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。<a href="docs/BULK_ONBOARD.md" target="_blank" rel="noopener">查看完整說明</a>
+      <span data-i18n="bulk.ymisRec"><b>最推薦：</b>從 YMIS 匯出自訂報表 PDF，在瀏覽器內解析後一次過開戶。PDF 不會離開你的裝置。</span>
+      <span data-i18n="bulk.flow2"> 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。</span>
+      <a href="docs/YMIS_EXPORT.md" target="_blank" rel="noopener" data-i18n="bulk.ymisGuide">📘 如何在 YMIS 匯出指定格式報告？</a>
+      · <a href="docs/BULK_ONBOARD.md" target="_blank" rel="noopener" data-i18n="bulk.guide">查看完整說明</a>
     </div>
+
+    <div class="info-section" style="border-left:4px solid var(--maroon);padding:12px;margin-top:8px">
+      <b style="color:var(--maroon)" data-i18n="bulk.ymisTitle">① YMIS 自訂報表（推薦）</b>
+      <p style="font-size:11px;color:var(--text-light);margin:6px 0" data-i18n="bulk.ymisHint">欄位次序必須為：童軍成員編號 → 中文姓名 → 電郵地址。PDF 只在瀏覽器內解密，不會上傳伺服器。</p>
+      <div class="form-row">
+        <div class="form-group"><label data-i18n="bulk.ymisPw">PDF 密碼（如有）</label><input id="ymisPdfPw" type="password" autocomplete="off" data-i18n-placeholder="bulk.ymisPwPh" placeholder="YMIS 匯出密碼"></div>
+        <div class="form-group"><label data-i18n="bulk.ymisBranch">預設支部／單位</label><input id="ymisDefaultBranch" placeholder="深資童軍支部"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label data-i18n="bulk.ymisRole">預設角色</label>
+          <select id="ymisDefaultRole" onchange="applyYmisToBulkDraft()">
+            <option value="member">團員</option>
+            <option value="exec_committee">執委</option>
+            <option value="branch_leader">支部領袖</option>
+            <option value="group_leader">團長</option>
+            <option value="admin">管理員</option>
+          </select>
+        </div>
+        <div class="form-group"><label data-i18n="bulk.ymisSharedPw">共用初始密碼（選填）</label><input id="ymisSharedPassword" type="text" minlength="8" data-i18n-placeholder="bulk.ymisSharedPwPh" placeholder="留空則自動產生臨時密碼" oninput="applyYmisToBulkDraft()"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0">
+        <label class="btn btn-primary">📄 <span data-i18n="bulk.ymisPick">上載 YMIS PDF 報表</span><input id="ymisPdfFile" type="file" accept="application/pdf,.pdf" onchange="importYmisPdf(this.files[0])" style="display:none"></label>
+        <button type="button" class="btn btn-secondary" onclick="ymisPadAll()" data-i18n="bulk.ymisPad">🔢 全部補零至10位</button>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label data-i18n="bulk.ymisPaste">讀不到 PDF？可把報表文字複製貼上</label>
+        <textarea id="ymisPasteText" rows="3" style="font-family:monospace;font-size:12px" placeholder="2019051156  陳大文  a.chan@example.com"></textarea>
+        <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="importYmisPastedText()" data-i18n="bulk.ymisParsePaste">🔍 解析貼上的文字</button>
+      </div>
+      <div id="ymisPreview"></div>
+    </div>
+
+    <div style="margin:12px 0 6px;font-size:12px;font-weight:700;color:var(--text-light)" data-i18n="bulk.csvTitle">② CSV／JSON（備用）</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
-      <button class="btn btn-primary" onclick="downloadMembersTemplate()">⬇️ 下載 CSV 範本</button>
-      <label class="btn btn-secondary">📂 選擇 CSV<input id="bulkFile" type="file" accept=".csv,text/csv" onchange="importMembersFile(this.files[0])" style="display:none"></label>
-      <button class="btn btn-outline" onclick="showBulkJsonInput()">{} 貼上 JSON</button>
+      <button class="btn btn-primary" onclick="downloadMembersTemplate()" data-i18n="bulk.csv">⬇️ 下載 CSV 範本</button>
+      <label class="btn btn-secondary"><span data-i18n="bulk.pick">📂 選擇 CSV</span><input id="bulkFile" type="file" accept=".csv,text/csv" onchange="importMembersFile(this.files[0])" style="display:none"></label>
+      <button class="btn btn-outline" onclick="showBulkJsonInput()" data-i18n="bulk.json">{} 貼上 JSON</button>
     </div>
     <textarea id="bulkJsonInput" style="display:none;width:100%;min-height:110px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:monospace;font-size:12px" placeholder='[{"ymis":"1234567890","name":"陳大文","role":"member"}]'></textarea>
-    <button id="bulkJsonParseBtn" class="btn btn-sm btn-secondary" style="display:none;margin-top:6px" onclick="parseBulkJsonInput()">預覽 JSON</button>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0"><input id="bulkAutoPassword" type="checkbox" checked onchange="renderBulkPreview()"> 空白密碼自動產生安全臨時密碼</label>
-    <div id="bulkSummary" style="font-size:12px;color:var(--text-light)" aria-live="polite">尚未選擇檔案</div>
+    <button id="bulkJsonParseBtn" class="btn btn-sm btn-secondary" style="display:none;margin-top:6px" onclick="parseBulkJsonInput()" data-i18n="bulk.previewJson">預覽 JSON</button>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0"><input id="bulkAutoPassword" type="checkbox" checked onchange="renderBulkPreview();applyYmisToBulkDraft()"> <span data-i18n="bulk.auto">空白密碼自動產生安全臨時密碼</span></label>
+    <div id="bulkSummary" style="font-size:12px;color:var(--text-light)" aria-live="polite" data-i18n="bulk.none">尚未選擇檔案</div>
     <div id="bulkPreviewContainer"></div>
     <div id="bulkResult" style="display:none;margin-top:10px"></div>
-    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('bulkOnboardModal')">關閉</button><button class="btn btn-primary" id="btnExecuteBulk" onclick="executeBulkOnboard()" disabled>🚀 確認批量開戶</button></div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('bulkOnboardModal')" data-i18n="bulk.close">關閉</button><button class="btn btn-primary" id="btnExecuteBulk" onclick="executeBulkOnboard()" disabled data-i18n="bulk.go">🚀 確認批量開戶</button></div>
   </div>
 </div>
 
@@ -729,6 +767,7 @@ a:hover{text-decoration:underline}
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank" data-i18n="sahk">香港童軍總會</a></div>
 </footer>
 
+<script src="assets/ymis-parse.js"></script>
 <script>
 /* ================== i18n：一鍵全中／全英（同一套後端紀錄，只換顯示） ================== */
 const LANG_KEY='vsbadge_lang';
@@ -888,6 +927,49 @@ zh:{
   'review.confirmA':'確定要批准並開立帳戶嗎？','review.confirmR':'確定要拒絕嗎？','review.fail':'審批失敗：{m}',
   'role.updated':'角色已更新','role.fail':'角色更新失敗：{m}','tick.granted':'已授權勾選','tick.revoked':'已收回權限','tick.fail':'權限更新失敗：{m}',
   'offline':'⚠️ 離線模式：顯示快取資料','info.goto':'前往',
+  'ymis.pwWrong':'密碼不正確，請再試一次',
+  'ymis.pwPrompt':'此 PDF 有密碼保護，請輸入 YMIS 匯出密碼：',
+  'ymis.pwNeeded':'需要 PDF 密碼才能讀取',
+  'ymis.readingPages':'正在讀取第 {p}／{n} 頁…',
+  'ymis.reading':'正在讀取 {name}…',
+  'ymis.pdfjsFail':'無法載入 PDF 解析元件（需連網）。請改用「貼上文字」，或先另存為無密碼 PDF。',
+  'ymis.none':'讀不到成員。請確認報表欄位為「童軍成員編號 → 中文姓名 → 電郵地址」，或改用貼上文字。',
+  'ymis.parsedPages':'已從 {pages} 頁讀出 {n} 人（略過 {skip} 列）',
+  'ymis.parsed':'已讀出 {n} 人（略過 {skip} 列）',
+  'ymis.statusExist':'⏭️ 已存在',
+  'ymis.statusLen':'⚠️ 編號非10位',
+  'ymis.statusNoname':'⚠️ 缺姓名',
+  'ymis.statusNoemail':'ℹ️ 缺電郵',
+  'ymis.statusOk':'✅ 可匯入',
+  'ymis.previewTitle':'匯入預覽',
+  'ymis.countFmt':'（{n} 人，已選 {picked}）',
+  'ymis.selAll':'全選',
+  'ymis.selNone':'全不選',
+  'ymis.colUse':'匯入',
+  'ymis.colYmis':'YMIS',
+  'ymis.colName':'姓名',
+  'ymis.colEmail':'聯絡電郵',
+  'ymis.colStatus':'狀態',
+  'ymis.clear':'清除預覽',
+  'ymis.go':'🚀 確認批量開戶（{n} 人）',
+  'ymis.pickNone':'請先勾選至少一位可匯入的成員（YMIS 須為 10 位數字且有姓名）',
+  'ymis.notLoaded':'未能載入 YMIS 解析器（assets/ymis-parse.js）',
+  'bulk.ymisRec':'<b>最推薦：</b>從 YMIS 匯出自訂報表 PDF，在瀏覽器內解析後一次過開戶。PDF 不會離開你的裝置。',
+  'bulk.flow2':' 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。',
+  'bulk.ymisGuide':'📘 如何在 YMIS 匯出指定格式報告？',
+  'bulk.ymisTitle':'① YMIS 自訂報表（推薦）',
+  'bulk.ymisHint':'欄位次序必須為：童軍成員編號 → 中文姓名 → 電郵地址。PDF 只在瀏覽器內解密，不會上傳伺服器。',
+  'bulk.ymisPw':'PDF 密碼（如有）',
+  'bulk.ymisPwPh':'YMIS 匯出密碼',
+  'bulk.ymisBranch':'預設支部／單位',
+  'bulk.ymisRole':'預設角色',
+  'bulk.ymisSharedPw':'共用初始密碼（選填）',
+  'bulk.ymisSharedPwPh':'留空則自動產生臨時密碼',
+  'bulk.ymisPick':'上載 YMIS PDF 報表',
+  'bulk.ymisPad':'🔢 全部補零至10位',
+  'bulk.ymisPaste':'讀不到 PDF？可把報表文字複製貼上',
+  'bulk.ymisParsePaste':'🔍 解析貼上的文字',
+  'bulk.csvTitle':'② CSV／JSON（備用）',
   'sahk':'香港童軍總會'
 },
 en:{
@@ -1044,6 +1126,49 @@ en:{
   'review.confirmA':'Approve and open the account?','review.confirmR':'Reject this application?','review.fail':'Review failed: {m}',
   'role.updated':'Role updated','role.fail':'Role update failed: {m}','tick.granted':'Ticking allowed','tick.revoked':'Ticking revoked','tick.fail':'Rights update failed: {m}',
   'offline':'⚠️ Offline: showing cached data','info.goto':'Open',
+  'ymis.pwWrong':'Incorrect password. Please try again.',
+  'ymis.pwPrompt':'This PDF is password-protected. Enter the YMIS export password:',
+  'ymis.pwNeeded':'A PDF password is required to read the report.',
+  'ymis.readingPages':'Reading page {p} of {n}…',
+  'ymis.reading':'Reading {name}…',
+  'ymis.pdfjsFail':'Could not load the PDF parser (needs the network). Paste the report text, or re-save the PDF without a password.',
+  'ymis.none':'No members found. Check the columns are Scout ID → Name in Chinese → Email, or paste the text instead.',
+  'ymis.parsedPages':'Read {n} people from {pages} page(s) ({skip} row(s) skipped)',
+  'ymis.parsed':'Read {n} people ({skip} row(s) skipped)',
+  'ymis.statusExist':'⏭️ Already exists',
+  'ymis.statusLen':'⚠️ ID is not 10 digits',
+  'ymis.statusNoname':'⚠️ Missing name',
+  'ymis.statusNoemail':'ℹ️ Missing email',
+  'ymis.statusOk':'✅ Ready',
+  'ymis.previewTitle':'Import preview',
+  'ymis.countFmt':'({n} people, {picked} selected)',
+  'ymis.selAll':'Select all',
+  'ymis.selNone':'Select none',
+  'ymis.colUse':'Import',
+  'ymis.colYmis':'YMIS',
+  'ymis.colName':'Name',
+  'ymis.colEmail':'Email',
+  'ymis.colStatus':'Status',
+  'ymis.clear':'Clear preview',
+  'ymis.go':'🚀 Confirm bulk onboard ({n})',
+  'ymis.pickNone':'Select at least one member who can be imported (10-digit YMIS and a name).',
+  'ymis.notLoaded':'YMIS parser not loaded (assets/ymis-parse.js)',
+  'bulk.ymisRec':'<b>Recommended:</b> export a YMIS custom-report PDF and parse it in the browser. The PDF never leaves your device.',
+  'bulk.flow2':' You can also download a CSV, fill it in and preview, or paste JSON. Blank passwords can be generated. Download the temporary-password list afterwards.',
+  'bulk.ymisGuide':'📘 How to export the YMIS report in the required format',
+  'bulk.ymisTitle':'① YMIS custom report (recommended)',
+  'bulk.ymisHint':'Column order must be: Scout ID → Name in Chinese → Email. The PDF is decrypted in the browser only and is never uploaded.',
+  'bulk.ymisPw':'PDF password (if any)',
+  'bulk.ymisPwPh':'YMIS export password',
+  'bulk.ymisBranch':'Default section / unit',
+  'bulk.ymisRole':'Default role',
+  'bulk.ymisSharedPw':'Shared initial password (optional)',
+  'bulk.ymisSharedPwPh':'Leave blank to auto-generate temporary passwords',
+  'bulk.ymisPick':'Upload YMIS PDF report',
+  'bulk.ymisPad':'🔢 Pad all IDs to 10 digits',
+  'bulk.ymisPaste':'Cannot read the PDF? Paste the report text',
+  'bulk.ymisParsePaste':'🔍 Parse pasted text',
+  'bulk.csvTitle':'② CSV / JSON (fallback)',
   'sahk':'Scout Association of Hong Kong'
 }
 };
@@ -1194,7 +1319,7 @@ let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],
 let logRecords=[],logRecordsSupported=false,logFilterType='all'; // v8.1 活動履歷
 let selectedProgressYmis=null; // 領袖查看他人進度
 let appConfig={allow_member_view_others:'false'}; // 系統設定
-let adminUsersCache=[],bulkDraft=[],bulkResults=[];
+let adminUsersCache=[],bulkDraft=[],bulkResults=[],ymisImportRows=[],_pdfjsPromise=null;
 
 const LS = {
   session: 'vsbadge_session_v4',
@@ -1502,7 +1627,7 @@ function setupTabsByRole(){
     showToast('成員模式：只能查看自己進度，其他獎章及申請','warning');
   }
 }
-function getRoleName(r){ const keys={'super_admin':'role.super_admin','admin':'role.admin','group_leader'roup_leader','branch_leader':'role.branch_leader','exec_committee':'role.exec_committee','member':'role.member'}; return keys[r]?i18n(keys[r]):r; }
+function getRoleName(r){ const keys={'super_admin':'role.super_admin','admin':'role.admin','group_leader':'role.group_leader','branch_leader':'role.branch_leader','exec_committee':'role.exec_committee','member':'role.member'}; return keys[r]?i18n(keys[r]):r; }
 function canUserTickRole(role){
   const roleCanTick=['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role);
   return roleCanTick && (!currentUser || currentUser.role!==role || currentUser.can_tick!==false);
@@ -3211,6 +3336,12 @@ const EMBEDDED_GUIDES_EN={
   <h3>3. Approvals</h3><ul><li>🏅 Badge claims + 👤 account applications</li></ul>
   <h3>4. Print forms</h3><p>Auto-filled official PT/19 and PT/20</p>
   <h3>5. Users</h3><ul><li>Promote members to exec</li><li>⚙️ Rights: leaders default to all; members none; execs default L1 + Activity Achievement Badge + OTHER</li></ul>
+  <h3>📥 Bulk onboard (YMIS report)</h3>
+  <ol><li>YMIS → Functions → Search member records → pick Group → Select all → Compile report</li>
+  <li>Report type “Custom report”, add in order: Scout ID → Name in Chinese → Email</li>
+  <li>Download the PDF, then Users → 📥 Bulk onboard (enter the password if asked; decrypted in the browser only)</li>
+  <li>Preview, tick rows; blank passwords are generated. Download the temporary-password list and pass them on securely</li></ol>
+  <p>Details: <a href="docs/YMIS_EXPORT.md" target="_blank">YMIS export guide</a> · <a href="docs/BULK_ONBOARD.md" target="_blank">Bulk onboard</a></p>
   <h3>6. Settings</h3><p>Allow members to view one another’s progress: off by default; GSL may turn it on</p>`
 };
 const EMBEDDED_GUIDES={
@@ -3248,6 +3379,12 @@ const EMBEDDED_GUIDES={
   <h3>3. 審批中心</h3><ul><li>🏅獎章審批+👤用戶審批合併</li></ul>
   <h3>4. 表格列印</h3><p>自動填入，官方PT/19/PT/20格式</p>
   <h3>5. 用戶管理</h3><ul><li>成員改執委</li><li>⚙️權限：領袖默認全部，成員無，執委默認L1+活動段章+OTHER</li><li>可按個別成員設定可考核範圍</li></ul>
+  <h3>📥 批量開戶（YMIS 報表匯入）</h3>
+  <ol><li>YMIS「功能」→「搜尋成員紀錄」→ 選旅團 → 全選 →「編製報告」</li>
+  <li>報告種類選「自訂報表」，依序加入：童軍成員編號 → 中文姓名 → 電郵地址</li>
+  <li>下載 PDF 後，本系統「用戶管理」→「📥 批量開戶」上載（有密碼可在欄位輸入；PDF 只在瀏覽器解密）</li>
+  <li>預覽可修改／勾選；空白密碼自動產生。完成後下載臨時密碼清單交給用戶</li></ol>
+  <p>詳細步驟：<a href="docs/YMIS_EXPORT.md" target="_blank">YMIS 匯出指引</a> · <a href="docs/BULK_ONBOARD.md" target="_blank">批量開戶說明</a></p>
   <h3>6. 系統設定</h3><p>允許成員互相查看進度：預設關，團長可開</p>`
 };
 
@@ -3270,7 +3407,7 @@ async function renderHelpTab(){
     </div>
   </div>
   <div class="info-section" id="helpContent"><div style="font-size:14px;line-height:1.8">${EMBEDDED_GUIDES[key]||EMBEDDED_GUIDES.member}</div></div>
-  <div class="info-section" style="background:var(--bg)"><h4>📚 完整文件 (vercel.json已開放docs/，若仍404請重新部署)</h4><div style="font-size:11px"><a href="docs/MEMBER_GUIDE.md" target="_blank">成員MD</a> | <a href="docs/EXEC_GUIDE.md" target="_blank">執委MD</a> | <a href="docs/LEADER_GUIDE.md" target="_blank">領袖MD</a></div></div>`;
+  <div class="info-section" style="background:var(--bg)"><h4>📚 完整文件 (vercel.json已開放docs/，若仍404請重新部署)</h4><div style="font-size:11px"><a href="docs/MEMBER_GUIDE.md" target="_blank">成員MD</a> | <a href="docs/EXEC_GUIDE.md" target="_blank">執委MD</a> | <a href="docs/LEADER_GUIDE.md" target="_blank">領袖MD</a> | <a href="docs/YMIS_EXPORT.md" target="_blank">YMIS 批量開戶</a> | <a href="docs/BULK_ONBOARD.md" target="_blank">批量開戶</a></div></div>`;
 
   c.innerHTML=html;
 }
@@ -3491,7 +3628,210 @@ function downloadMembersTemplate(){
   downloadTextFile('vsbadge-members-template.csv','\ufeff'+csv,'text/csv;charset=utf-8');
 }
 function downloadTextFile(name,text,type){const url=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-function openBulkOnboardModal(){bulkDraft=[];bulkResults=[];document.getElementById('bulkSummary').textContent='尚未選擇檔案';document.getElementById('bulkPreviewContainer').innerHTML='';document.getElementById('bulkResult').style.display='none';document.getElementById('bulkJsonInput').style.display='none';document.getElementById('bulkJsonParseBtn').style.display='none';document.getElementById('bulkJsonInput').value='';document.getElementById('bulkFile').value='';document.getElementById('btnExecuteBulk').disabled=true;document.getElementById('bulkOnboardModal').classList.add('active');}
+function openBulkOnboardModal(){
+  bulkDraft=[];bulkResults=[];ymisImportRows=[];
+  document.getElementById('bulkSummary').textContent=i18n('bulk.none');
+  document.getElementById('bulkPreviewContainer').innerHTML='';
+  document.getElementById('bulkResult').style.display='none';
+  document.getElementById('bulkJsonInput').style.display='none';
+  document.getElementById('bulkJsonParseBtn').style.display='none';
+  document.getElementById('bulkJsonInput').value='';
+  document.getElementById('bulkFile').value='';
+  const yf=document.getElementById('ymisPdfFile'); if(yf) yf.value='';
+  const yp=document.getElementById('ymisPasteText'); if(yp) yp.value='';
+  const ypw=document.getElementById('ymisPdfPw'); if(ypw) ypw.value='';
+  const ysp=document.getElementById('ymisSharedPassword'); if(ysp) ysp.value='';
+  const yb=document.getElementById('ymisDefaultBranch'); if(yb) yb.value=currentTroopName||'';
+  fillYmisRoleOptions();
+  renderYmisPreview();
+  document.getElementById('btnExecuteBulk').disabled=true;
+  document.getElementById('bulkOnboardModal').classList.add('active');
+  applyStaticI18n();
+}
+function fillYmisRoleOptions(){
+  const sel=document.getElementById('ymisDefaultRole'); if(!sel) return;
+  const cur=sel.value||'member';
+  const roles=['member','exec_committee','branch_leader','group_leader','admin'];
+  sel.innerHTML=roles.filter(r=>canCreateRoleFrontend(r)).map(r=>`<option value="${r}">${escapeHtmlText(getRoleName(r))}</option>`).join('');
+  if([...sel.options].some(o=>o.value===cur)) sel.value=cur; else sel.value='member';
+}
+function existingYmisSet(){
+  const set=new Set();
+  (adminUsersCache||[]).forEach(u=>{ if(u&&u.ymis) set.add(String(u.ymis)); });
+  (members||[]).forEach(m=>{ if(m&&m.ymis) set.add(String(m.ymis)); });
+  return set;
+}
+function loadPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if(_pdfjsPromise) return _pdfjsPromise;
+  const srcs=[
+    'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+    'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+  ];
+  _pdfjsPromise=new Promise((resolve,reject)=>{
+    let i=0;
+    const tryNext=()=>{
+      if(i>=srcs.length){ _pdfjsPromise=null; reject(new Error('pdfjs_load_fail')); return; }
+      const src=srcs[i++];
+      const s=document.createElement('script');
+      s.src=src; s.async=true;
+      s.onload=()=>{
+        if(window.pdfjsLib){
+          try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=src.replace('pdf.min.js','pdf.worker.min.js'); }catch(e){}
+          resolve(window.pdfjsLib);
+        } else tryNext();
+      };
+      s.onerror=tryNext;
+      document.head.appendChild(s);
+    };
+    tryNext();
+  });
+  return _pdfjsPromise;
+}
+function fileToArrayBuffer(file){
+  if(file.arrayBuffer) return file.arrayBuffer();
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onload=()=>resolve(fr.result);
+    fr.onerror=()=>reject(fr.error||new Error('read_fail'));
+    fr.readAsArrayBuffer(file);
+  });
+}
+async function readYmisPdfPages(file, password, retry){
+  const pdfjsLib=await loadPdfJs();
+  const buf=await fileToArrayBuffer(file);
+  let doc;
+  try{
+    doc=await pdfjsLib.getDocument({ data:new Uint8Array(buf), password:password||'' }).promise;
+  }catch(err){
+    const isPw=err&&(err.name==='PasswordException'||/password/i.test(err.message||''));
+    if(isPw){
+      const pw=prompt(retry?i18n('ymis.pwWrong'):i18n('ymis.pwPrompt'), password||'');
+      if(!pw) throw new Error(i18n('ymis.pwNeeded'));
+      const box=document.getElementById('ymisPdfPw'); if(box) box.value=pw;
+      return readYmisPdfPages(file, pw, true);
+    }
+    throw err;
+  }
+  const pages=[];
+  for(let p=1;p<=doc.numPages;p++){
+    if(doc.numPages>1) showToast(i18n('ymis.readingPages',{p:p,n:doc.numPages}));
+    const page=await doc.getPage(p);
+    const tc=await page.getTextContent();
+    const items=tc.items.map(it=>({ str:it.str, x:it.transform[4], y:it.transform[5], width:it.width }));
+    pages.push(YmisParse.itemsToRows(items));
+  }
+  return pages;
+}
+async function importYmisPdf(file){
+  if(!file) return;
+  if(!window.YmisParse){ showToast(i18n('ymis.notLoaded'),'error'); return; }
+  const pw=(document.getElementById('ymisPdfPw')?.value||'').trim();
+  showToast(i18n('ymis.reading',{name:file.name}));
+  try{
+    const pages=await readYmisPdfPages(file, pw, false);
+    applyYmisParseResult(YmisParse.parsePages(pages));
+  }catch(e){
+    if(e&&e.message==='pdfjs_load_fail'){ showToast(i18n('ymis.pdfjsFail'),'error'); return; }
+    showToast((e&&e.message)||i18n('ymis.none'),'error');
+  }
+}
+function importYmisPastedText(){
+  if(!window.YmisParse){ showToast(i18n('ymis.notLoaded'),'error'); return; }
+  const raw=document.getElementById('ymisPasteText')?.value||'';
+  if(!raw.trim()){ showToast(i18n('ymis.none'),'warning'); return; }
+  applyYmisParseResult(YmisParse.parseText(raw));
+}
+function applyYmisParseResult(res){
+  const existing=existingYmisSet();
+  ymisImportRows=(res.members||[]).map(m=>({
+    ymis:m.ymis, name:m.name, email:m.email,
+    exists:existing.has(m.ymis),
+    use:!existing.has(m.ymis)
+  }));
+  if(!ymisImportRows.length){ showToast(i18n('ymis.none'),'warning'); renderYmisPreview(); return; }
+  if(res.pages>1) showToast(i18n('ymis.parsedPages',{n:ymisImportRows.length,pages:res.pages,skip:(res.skipped||[]).length}),'success');
+  else showToast(i18n('ymis.parsed',{n:ymisImportRows.length,skip:(res.skipped||[]).length}),'success');
+  renderYmisPreview();
+}
+function ymisRowStatus(r){
+  if(r.exists) return i18n('ymis.statusExist');
+  if(!/^\d{10}$/.test(r.ymis)) return i18n('ymis.statusLen');
+  if(!r.name) return i18n('ymis.statusNoname');
+  if(!r.email) return i18n('ymis.statusNoemail');
+  return i18n('ymis.statusOk');
+}
+function renderYmisPreview(){
+  const box=document.getElementById('ymisPreview');
+  if(!box) return;
+  if(!ymisImportRows.length){ box.innerHTML=''; applyYmisToBulkDraft(); return; }
+  const picked=ymisImportRows.filter(r=>r.use).length;
+  const rows=ymisImportRows.map((r,i)=>`<tr>
+    <td style="text-align:center"><input type="checkbox" ${r.use?'checked':''} ${r.exists?'disabled':''} onchange="ymisEdit(${i},'use',this.checked)"></td>
+    <td><input value="${escapeHtmlText(r.ymis||'')}" oninput="ymisEdit(${i},'ymis',this.value)" style="width:110px;font-family:monospace;font-size:11px;padding:3px;border:1px solid var(--border);border-radius:4px"></td>
+    <td><input value="${escapeHtmlText(r.name||'')}" oninput="ymisEdit(${i},'name',this.value)" style="width:100%;min-width:80px;font-size:11px;padding:3px;border:1px solid var(--border);border-radius:4px"></td>
+    <td><input value="${escapeHtmlText(r.email||'')}" oninput="ymisEdit(${i},'email',this.value)" style="width:100%;min-width:120px;font-size:11px;padding:3px;border:1px solid var(--border);border-radius:4px"></td>
+    <td style="font-size:11px;white-space:nowrap">${ymisRowStatus(r)}</td>
+  </tr>`).join('');
+  box.innerHTML=`<div class="info-section" style="border-left-color:var(--blue);background:var(--blue-light);padding:10px;margin-top:8px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+      <h4 style="font-size:13px;margin:0;flex:1">${i18n('ymis.previewTitle')} ${i18n('ymis.countFmt',{n:ymisImportRows.length,picked:picked})}</h4>
+      <button type="button" class="btn btn-sm btn-outline" onclick="ymisSelectAll(true)">${i18n('ymis.selAll')}</button>
+      <button type="button" class="btn btn-sm btn-outline" onclick="ymisSelectAll(false)">${i18n('ymis.selNone')}</button>
+      <button type="button" class="btn btn-sm btn-outline" onclick="ymisClearPreview()">${i18n('ymis.clear')}</button>
+    </div>
+    <div class="bulk-preview-wrap ymis-preview"><table class="bulk-preview">
+      <thead><tr>
+        <th>${i18n('ymis.colUse')}</th><th>${i18n('ymis.colYmis')}</th>
+        <th>${i18n('ymis.colName')}</th><th>${i18n('ymis.colEmail')}</th>
+        <th>${i18n('ymis.colStatus')}</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <button type="button" class="btn btn-sm btn-success" style="width:100%;margin-top:10px" onclick="confirmYmisImport()">${i18n('ymis.go',{n:picked})}</button>
+  </div>`;
+  applyYmisToBulkDraft();
+}
+function ymisEdit(i, field, val){
+  if(!ymisImportRows[i]) return;
+  ymisImportRows[i][field]=(field==='use')?!!val:String(val).trim();
+  if(field==='ymis'){
+    ymisImportRows[i].exists=existingYmisSet().has(ymisImportRows[i].ymis);
+    if(ymisImportRows[i].exists) ymisImportRows[i].use=false;
+  }
+  if(field!=='use'){
+    const cell=document.querySelectorAll('#ymisPreview tbody tr')[i]?.children[4];
+    if(cell) cell.textContent=ymisRowStatus(ymisImportRows[i]);
+    applyYmisToBulkDraft();
+  } else renderYmisPreview();
+}
+function ymisPadAll(){
+  if(!window.YmisParse||!ymisImportRows.length) return;
+  ymisImportRows.forEach(r=>{ r.ymis=YmisParse.padTo10(r.ymis); });
+  const existing=existingYmisSet();
+  ymisImportRows.forEach(r=>{ r.exists=existing.has(r.ymis); if(r.exists) r.use=false; });
+  renderYmisPreview();
+}
+function ymisSelectAll(v){ ymisImportRows.forEach(r=>{ r.use=!!v&&!r.exists; }); renderYmisPreview(); }
+function ymisClearPreview(){ ymisImportRows=[]; bulkDraft=[]; renderYmisPreview(); renderBulkPreview(); }
+function applyYmisToBulkDraft(){
+  if(!ymisImportRows.length) return;
+  const role=document.getElementById('ymisDefaultRole')?.value||'member';
+  const branch=(document.getElementById('ymisDefaultBranch')?.value||'').trim();
+  const pw=(document.getElementById('ymisSharedPassword')?.value||'').trim();
+  const canTick=role!=='member';
+  bulkDraft=normalizeBulkRows(ymisImportRows.filter(r=>r.use&&/^\d{10}$/.test(r.ymis)&&r.name).map(r=>({
+    ymis:r.ymis, name:r.name, email:r.email||'', branch, role, can_tick:canTick, password:pw, note:'YMIS import'
+  })));
+  renderBulkPreview();
+}
+async function confirmYmisImport(){
+  applyYmisToBulkDraft();
+  const valid=bulkDraft.filter(u=>!u._errors?.length);
+  if(!valid.length){ showToast(i18n('ymis.pickNone'),'warning'); return; }
+  await executeBulkOnboard();
+}
 function parseCSV(text){
   const rows=[];let row=[],cell='',quoted=false;
   for(let i=0;i<text.length;i++){const ch=text[i];if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(ch==='"')quoted=false;else cell+=ch;}else if(ch==='"')quoted=true;else if(ch===','){row.push(cell);cell='';}else if(ch==='\n'){row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';}else if(ch!=='\r')cell+=ch;}

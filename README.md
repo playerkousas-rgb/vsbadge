@@ -22,7 +22,7 @@ apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.2：進度/�
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
-tests/                  — e2e 測試（雙 mock GAS 旅團）+ 本機 dev server
+tests/                  — e2e 測試（雙 mock GAS 旅團）+ YMIS 解析單元測試 + 本機 dev server
 vercel.json             — 部署設定
 docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY_ARCHITECTURE.md
 ```
@@ -63,6 +63,7 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 
 - 「用戶管理」可新增、編輯、重設密碼、停用／重啟帳戶及查看操作紀錄
 - CSV／JSON 前端預覽、驗證及批量開戶，支援自動產生臨時密碼
+- **YMIS 自訂報表 PDF 批量開戶**（瀏覽器內 pdf.js 解密，PDF 不上傳伺服器；見 [`docs/YMIS_EXPORT.md`](docs/YMIS_EXPORT.md)）
 - 成員可在登入頁自行申請，領袖在審批中心批准並開戶
 - 初始及重設密碼首次登入強制更改
 - 手機底部彈窗、安全區、44px 觸控目標、響應式卡片及管理工具列
