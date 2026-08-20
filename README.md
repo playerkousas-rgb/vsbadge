@@ -1,8 +1,12 @@
-# 🔥 深資童軍進度及行政平台 v8.2
+# 🔥 深資童軍進度及行政平台 v8.3
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  
 > COPYRIGHT 2026 Scout System  
 > 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、帳戶自助申請→團長前端審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）
+
+## 中／英一鍵切換（英語旅團）
+
+右上角 **中 | EN** 切換全介面。訓練綱要採用香港童軍總會第11版官方英文譯名（Membership Badge、Venture Scout Epaulettes、Venture Scout Award、Dragon Scout Award、Project / Service / Multiple Skills / Outdoor Exploration Achievement Badge 及 Bar）。**項目 ID 不變**，雲端進度、審批、履歷紀錄中英共用同一套資料，只換顯示語言。
 
 ## 快速結構
 
@@ -20,7 +24,7 @@ api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + en
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
 tests/                  — e2e 測試（雙 mock GAS 旅團）+ 本機 dev server
 vercel.json             — 部署設定
-docs/                   — 成員/執委/領袖教學 MD + PROXY_ARCHITECTURE.md
+docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY_ARCHITECTURE.md
 ```
 
 ## 🔐 v3.0 同源 Proxy 架構（重要）
