@@ -88,9 +88,9 @@ run();
 
 /* =============================================================
  * 真實 YMIS 自訂報表版面測試（依領袖提供的報表截圖版面重建；姓名／電郵已改為虛構測試資料）
- * 版面：香港童軍總會 / Scout Association of Hong Kong / 82nd Hong Kong Group
+ * 版面：香港童軍總會 / Scout Association of Hong Kong / XXth Hong Kong Group
  *       欄名為中英雙行：童軍成員編號 Scout ID / 中文姓名 Name in Chinese / 電郵地址 Email
- *       成員編號為 10 位數（20xx 開頭），部分帶「*」標記，部分成員無電郵
+ *       成員編號為 10 位數（`12345601xx` 示範假號），部分帶「*」標記，部分成員無電郵
  * ============================================================= */
 function runRealLayout() {
   console.log('\n=== 真實 YMIS 報表版面（多頁）測試 ===\n');
@@ -98,7 +98,7 @@ function runRealLayout() {
   const header = (yTop) => ([
     { str: '香港童軍總會', x: 250, y: yTop, width: 60 },
     { str: 'Scout Association of Hong Kong', x: 230, y: yTop - 18, width: 130 },
-    { str: '82nd Hong Kong Group', x: 250, y: yTop - 42, width: 100 },
+    { str: 'XXth Hong Kong Group', x: 250, y: yTop - 42, width: 100 },
     { str: '童軍成員編號', x: 50, y: yTop - 70, width: 60 },
     { str: '中文姓名', x: 250, y: yTop - 70, width: 40 },
     { str: '電郵地址', x: 450, y: yTop - 70, width: 40 },
@@ -117,22 +117,22 @@ function runRealLayout() {
   // 第 1 頁
   const page1 = [].concat(
     header(760),
-    dataRow('2019051156', '陳大文', 'a.chan@example.com', 640),
-    dataRow('2019072178', '梁小明', 'b.leung@example.com', 615),
-    dataRow('2019096664', '梁志文', '', 590),
-    dataRow('2019108618', '彭小晴', 'c.pang@example.com', 565),
-    dataRow('2019168125', '王家安', 'd.wong@example.edu.hk', 540),
+    dataRow('1234560101', '陳大文', 'a.chan@example.com', 640),
+    dataRow('1234560102', '梁小明', 'b.leung@example.com', 615),
+    dataRow('1234560103', '梁志文', '', 590),
+    dataRow('1234560104', '彭小晴', 'c.pang@example.com', 565),
+    dataRow('1234560105', '王家安', 'd.wong@example.edu.hk', 540),
     [{ str: 'Page 1 of 2', x: 480, y: 40, width: 50 }]
   );
 
   // 第 2 頁：抬頭 / 欄名重複；帶「*」標記；長電郵被換行拆到下一行
   const page2 = [].concat(
     header(760),
-    dataRow('2019259338 *', '劉子彤', '', 640),
+    dataRow('1234560106 *', '劉子彤', '', 640),
     [{ str: 'e.lau@example.com', x: 450, y: 628, width: 100 }], // 續行電郵
-    dataRow('2019266200', '黎子柏', '', 600),
-    dataRow('2019266390', '徐家駿', '', 575),
-    dataRow('2026036356', '徐頌文', '', 550),
+    dataRow('1234560107', '黎子柏', '', 600),
+    dataRow('1234560108', '徐家駿', '', 575),
+    dataRow('1234560109', '徐頌文', '', 550),
     [{ str: '第 2 頁，共 2 頁', x: 480, y: 40, width: 60 }],
     [{ str: '202608210505', x: 50, y: 25, width: 60 }] // 頁尾流水號（獨立一行），不可當成成員
   );
@@ -145,16 +145,16 @@ function runRealLayout() {
   assert.strictEqual(res.members.length, 9, '兩頁合共 9 位成員');
 
   const byId = Object.fromEntries(res.members.map(m => [m.ymis, m]));
-  assert.strictEqual(byId['2019051156'].name, '陳大文');
-  assert.strictEqual(byId['2019051156'].email, 'a.chan@example.com');
-  assert.strictEqual(byId['2019096664'].email, '', '無電郵者留空');
-  assert.ok(byId['2019096664'].warn.includes('no_email'));
+  assert.strictEqual(byId['1234560101'].name, '陳大文');
+  assert.strictEqual(byId['1234560101'].email, 'a.chan@example.com');
+  assert.strictEqual(byId['1234560103'].email, '', '無電郵者留空');
+  assert.ok(byId['1234560103'].warn.includes('no_email'));
   // 「*」標記不會混入姓名，編號仍為純 10 位數
-  assert.strictEqual(byId['2019259338'].name, '劉子彤');
-  assert.ok(/^\d{10}$/.test(byId['2019259338'].ymis));
+  assert.strictEqual(byId['1234560106'].name, '劉子彤');
+  assert.ok(/^\d{10}$/.test(byId['1234560106'].ymis));
   // 續行電郵補回上一位成員
-  assert.strictEqual(byId['2019259338'].email, 'e.lau@example.com');
-  assert.ok(!byId['2019259338'].warn.includes('no_email'));
+  assert.strictEqual(byId['1234560106'].email, 'e.lau@example.com');
+  assert.ok(!byId['1234560106'].warn.includes('no_email'));
   // 每位編號均為 10 位、無 warn ymis_len
   res.members.forEach(m => assert.ok(/^\d{10}$/.test(m.ymis), '編號應為10位: ' + m.ymis));
   // 頁尾流水號 / 重複抬頭不會變成成員
