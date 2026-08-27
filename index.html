@@ -1312,7 +1312,7 @@ function localizeModals(){
 /* ================== 全局狀態 ================== */
 /* v3.0 同源 Proxy 架構：前端只持有 troopId，永不接觸 GAS URL。
    所有後端請求經 apiRequest() → /api/proxy → 伺服器端 Registry → 旅團 GAS。 */
-const API_ENDPOINT='/api/proxy';
+let API_ENDPOINT='/api/proxy';
 let currentTroopId='',currentTroopName='';
 let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
@@ -1351,6 +1351,20 @@ async function apiRequest(action, data={}, opts={}){
       }),
       signal:controller.signal
     });
+    // 若 /api/proxy 在伺服器無乾淨路由時回傳 404，自動降級至 /api/proxy.js 重試
+    if(res.status===404 && API_ENDPOINT==='/api/proxy'){
+      API_ENDPOINT='/api/proxy.js';
+      res=await fetch(API_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          troopId:(opts.troopId!==undefined?opts.troopId:currentTroopId),
+          action:action,
+          data:data
+        }),
+        signal:controller.signal
+      });
+    }
   }catch(e){
     if(e && e.name==='AbortError') throw new Error('連線逾時，伺服器沒有回應，請稍後重試');
     throw new Error('無法連接伺服器，請檢查網絡連線');
@@ -1508,7 +1522,11 @@ async function loadTroops(){
   const fallbackTroops={ "0082": { name:"第 82 旅", en:"82nd Group" } };
   try{
     let troops={};
-    try{ const r2=await fetch('/api/troops?_='+Date.now()); if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; } } }catch(e){ console.warn('api/troops failed',e); }
+    try{
+      let r2=await fetch('/api/troops?_='+Date.now());
+      if(!r2.ok) r2=await fetch('/api/troops.js?_='+Date.now());
+      if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; } }
+    }catch(e){ console.warn('api/troops failed',e); }
     try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok){ const d=await r.json(); if(d.troops){ for(const [id,t] of Object.entries(d.troops)){ if(!troops[id]) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; else if(t.en&&!troops[id].en) troops[id].en=t.en; } } } }catch(e){ console.warn('data/troops.json failed',e); }
     const fromSource=Object.keys(troops).length>0;
     // 合併後備，確保0082一定可見
@@ -1527,7 +1545,12 @@ async function loadTroops(){
 async function selectTroop(id){
   try{
     let tr=null;
-    try{ const r2=await fetch('/api/troops'); const d2=await r2.json(); tr=(d2.troops||{})[id]; }catch(e){}
+    try{
+      let r2=await fetch('/api/troops');
+      if(!r2.ok) r2=await fetch('/api/troops.js');
+      const d2=await r2.json();
+      tr=(d2.troops||{})[id];
+    }catch(e){}
     if(!tr){
       try{ const r=await fetch('data/troops.json'); const d=await r.json(); const f=(d.troops||{})[id]; if(f) tr={name:f.name,en:f.en||''}; }catch(e){}
     }
@@ -1572,7 +1595,7 @@ async function doLogin(){
         if(currentUser.force_change_password) setTimeout(()=>showChangePasswordModal(true),250);
       },600);
     }else{ msg.textContent=d.error||'登入失敗'; msg.className='login-msg error'; }
-  }catch(e){ console.error(e); msg.textContent='無法連接伺服器，請檢查網絡或後端 URL'; msg.className='login-msg error'; }
+  }catch(e){ console.error(e); msg.textContent=(e && e.message) ? e.message : '無法連接伺服器，請檢查網絡或後端 URL'; msg.className='login-msg error'; }
   finally{ btn.disabled=false; btn.textContent=i18n('login.submit'); }
 }
 function doLogout(){
@@ -4118,45 +4141,4 @@ async function reviewApp(id,dec,requestedRole){
 }
 </script>
 </body>
-</html>
-dy').innerHTML=`<div class="info-section"><p>${roleLine}<br>臨時密碼只在本次顯示，請安全地個別交給申請人：</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
-      document.getElementById('historyModal').classList.add('active');
-    }
-    renderRequestsTab();
-  }catch(e){ showToast('審批失敗：'+e.message,'error'); }
-}
-</script>
-</body>
-</html>
-dy>
-</html>
-body>
-</html>
-dy>
-</html>
-</html>
-oryModal').classList.add('active');
-    }
-    renderRequestsTab();
-  }catch(e){ showToast('審批失敗：'+e.message,'error'); }
-}
-</script>
-</body>
-</html>
-dy>
-</html>
-body>
-</html>
-dy>
-</html>
-</html>
-tml>
-dy>
-</html>
-body>
-</html>
-dy>
-</html>
-</html>
-ml>
 </html>
