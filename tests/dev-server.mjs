@@ -23,8 +23,8 @@ function vercelize(res) {
 const MIME = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.js': 'text/javascript', '.md': 'text/markdown; charset=utf-8', '.csv': 'text/csv; charset=utf-8' };
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://local');
-  if (u.pathname === '/api/proxy') return proxyHandler(req, vercelize(res));
-  if (u.pathname === '/api/troops') return troopsHandler(req, vercelize(res));
+  if (u.pathname === '/api/proxy' || u.pathname === '/api/proxy.js') return proxyHandler(req, vercelize(res));
+  if (u.pathname === '/api/troops' || u.pathname === '/api/troops.js') return troopsHandler(req, vercelize(res));
   let p = u.pathname === '/' ? '/index.html' : decodeURIComponent(u.pathname);
   const fp = path.join(ROOT, p);
   if (!fp.startsWith(ROOT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) {

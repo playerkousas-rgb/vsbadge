@@ -9,6 +9,8 @@
     { "src": "api/**", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/api/proxy/?", "dest": "/api/proxy.js" },
+    { "src": "/api/troops/?", "dest": "/api/troops.js" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/apps-script/(.*)", "dest": "/apps-script/$1" },
     { "src": "/data/(.*)", "dest": "/data/$1" },
