@@ -18,7 +18,7 @@ data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
 data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
-apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.2：進度/獎章/審批/帳戶/活動履歷/自助申請）
+apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.3：進度/獎章/審批/帳戶/活動履歷/自助申請，含內置超管 sheep + 4位密碼）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
@@ -62,12 +62,18 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 ## v8.0 前端行政及手機版
 
 - 「用戶管理」可新增、編輯、重設密碼、停用／重啟帳戶及查看操作紀錄
-- CSV／JSON 前端預覽、驗證及批量開戶，支援自動產生臨時密碼
+- CSV／JSON 前端預覽、驗證及批量開戶，空白密碼預設為 `1234`
 - **YMIS 自訂報表 PDF 批量開戶**（瀏覽器內 pdf.js 解密，PDF 不上傳伺服器；見 [`docs/YMIS_EXPORT.md`](docs/YMIS_EXPORT.md)）
 - 成員可在登入頁自行申請，領袖在審批中心批准並開戶
 - 初始及重設密碼首次登入強制更改
 - 手機底部彈窗、安全區、44px 觸控目標、響應式卡片及管理工具列
 - 後端再次驗證角色層級，帳戶管理不能只靠 API Key
+
+## v8.3 密碼及超管帳號
+
+- 密碼最短 **4 位**（不再強制 8 位），適用於更改密碼、開立帳戶、重設密碼及批量開戶。
+- 批量開戶／審批的初始密碼統一預設為 **1234**；首次登入仍會要求更改。
+- 後端 Google Sheet 內置超管 `sheep`／密碼 `0728`，`initializeSheets()` 會自動補回，不會因重建 Sheet 而消失；重新部署後執行一次 `initializeSheets()` 即可恢復。
 
 批量開戶說明見 [`docs/BULK_ONBOARD.md`](docs/BULK_ONBOARD.md)。部署新後端或升級既有後端後，請再次執行 `initializeSheets()` 以補上新欄位及「操作紀錄」工作表。
 

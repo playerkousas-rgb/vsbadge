@@ -1,4 +1,4 @@
 ymis,name,email,branch,role,can_tick,password,note
-1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,空白密碼由前端自動產生
-1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,TempPass!82,執委
+1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,初始密碼預設 1234
+1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,1234,執委
 1234560003,王小華,wong@example.org,深資童軍支部,member,false,,新團員

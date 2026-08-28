@@ -650,10 +650,10 @@ a:hover{text-decoration:underline}
 <div id="changePasswordModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle">
   <div class="modal-content" style="max-width:460px">
     <h3 id="changePasswordTitle">🔑 更改密碼</h3>
-    <p id="changePasswordHint" style="font-size:12px;color:var(--text-light);margin-bottom:12px">新密碼至少 8 位。</p>
+    <p id="changePasswordHint" style="font-size:12px;color:var(--text-light);margin-bottom:12px">新密碼至少 4 位。</p>
     <div class="form-group"><label>現有／臨時密碼 *</label><input type="password" id="oldPassword" autocomplete="current-password"></div>
-    <div class="form-group"><label>新密碼 *</label><input type="password" id="newPassword" minlength="8" autocomplete="new-password"></div>
-    <div class="form-group"><label>再次輸入新密碼 *</label><input type="password" id="confirmNewPassword" minlength="8" autocomplete="new-password"></div>
+    <div class="form-group"><label>新密碼 *</label><input type="password" id="newPassword" minlength="4" maxlength="128" autocomplete="new-password"></div>
+    <div class="form-group"><label>再次輸入新密碼 *</label><input type="password" id="confirmNewPassword" minlength="4" maxlength="128" autocomplete="new-password"></div>
     <div class="modal-actions"><button class="btn btn-secondary" id="changePasswordCancel" onclick="closeModal('changePasswordModal')">取消</button><button class="btn btn-primary" id="btnChangePassword" onclick="submitChangePassword()">儲存新密碼</button></div>
   </div>
 </div>
@@ -664,7 +664,7 @@ a:hover{text-decoration:underline}
     <p style="font-size:12px;color:var(--text-light);margin-bottom:12px">帳戶建立後可立即登入；首次登入會強制更改臨時密碼。</p>
     <div class="form-row"><div class="form-group"><label>YMIS（10 位）*</label><input id="cuYmis" inputmode="numeric" maxlength="10"></div><div class="form-group"><label>姓名 *</label><input id="cuName"></div></div>
     <div class="form-row"><div class="form-group"><label>Email</label><input id="cuEmail" type="email"></div><div class="form-group"><label>支部／單位</label><input id="cuBranch"></div></div>
-    <div class="form-row"><div class="form-group"><label>角色 *</label><select id="cuRole" onchange="syncCreateUserRole()"><option value="member">團員</option><option value="exec_committee">執委</option><option value="branch_leader">支部領袖</option><option value="group_leader">團長</option><option value="admin">管理員</option></select></div><div class="form-group"><label>臨時密碼 *</label><div class="input-action-row"><input id="cuPassword" type="text" minlength="8" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('cuPassword').value=generateTempPassword()">產生</button></div></div></div>
+    <div class="form-row"><div class="form-group"><label>角色 *</label><select id="cuRole" onchange="syncCreateUserRole()"><option value="member">團員</option><option value="exec_committee">執委</option><option value="branch_leader">支部領袖</option><option value="group_leader">團長</option><option value="admin">管理員</option></select></div><div class="form-group"><label>臨時密碼 *</label><div class="input-action-row"><input id="cuPassword" type="text" minlength="4" maxlength="128" value="1234" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('cuPassword').value=generateTempPassword()">產生</button></div></div></div>
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-top:4px"><input id="cuCanTick" type="checkbox"> 允許勾選進度（只適用於領袖／執委）</label>
     <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('createUserModal')">取消</button><button class="btn btn-primary" id="btnCreateUser" onclick="submitCreateUser()">建立帳戶</button></div>
   </div>
@@ -685,7 +685,7 @@ a:hover{text-decoration:underline}
   <div class="modal-content" style="max-width:460px">
     <h3 id="resetPasswordTitle">🔑 重設臨時密碼</h3><input type="hidden" id="rpYmis">
     <p id="rpUserLabel" style="font-size:12px;margin-bottom:10px"></p>
-    <div class="form-group"><label>新臨時密碼（至少 8 位）*</label><div class="input-action-row"><input id="rpPassword" type="text" minlength="8" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('rpPassword').value=generateTempPassword()">產生</button></div></div>
+    <div class="form-group"><label>新臨時密碼（至少 4 位）*</label><div class="input-action-row"><input id="rpPassword" type="text" minlength="4" maxlength="128" style="flex:1"><button class="btn btn-secondary" onclick="document.getElementById('rpPassword').value=generateTempPassword()">產生</button></div></div>
     <p style="font-size:11px;color:var(--text-light)">重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。</p>
     <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('resetPasswordModal')">取消</button><button class="btn btn-primary" onclick="submitResetPassword()">確認重設</button></div>
   </div>
@@ -696,7 +696,7 @@ a:hover{text-decoration:underline}
     <h3 id="bulkOnboardTitle" data-i18n="bulk.title">📥 批量開戶</h3>
     <div class="info-section" style="font-size:12px;line-height:1.7;padding:12px">
       <span data-i18n="bulk.ymisRec"><b>最推薦：</b>從 YMIS 匯出自訂報表 PDF，在瀏覽器內解析後一次過開戶。PDF 不會離開你的裝置。</span>
-      <span data-i18n="bulk.flow2"> 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。</span>
+      <span data-i18n="bulk.flow2"> 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼預設為 1234，完成後請下載臨時密碼清單。</span>
       <a href="docs/YMIS_EXPORT.md" target="_blank" rel="noopener" data-i18n="bulk.ymisGuide">📘 如何在 YMIS 匯出指定格式報告？</a>
       · <a href="docs/BULK_ONBOARD.md" target="_blank" rel="noopener" data-i18n="bulk.guide">查看完整說明</a>
     </div>
@@ -718,7 +718,7 @@ a:hover{text-decoration:underline}
             <option value="admin">管理員</option>
           </select>
         </div>
-        <div class="form-group"><label data-i18n="bulk.ymisSharedPw">共用初始密碼（選填）</label><input id="ymisSharedPassword" type="text" minlength="8" data-i18n-placeholder="bulk.ymisSharedPwPh" placeholder="留空則自動產生臨時密碼" oninput="applyYmisToBulkDraft()"></div>
+        <div class="form-group"><label data-i18n="bulk.ymisSharedPw">共用初始密碼（選填）</label><input id="ymisSharedPassword" type="text" minlength="4" maxlength="128" data-i18n-placeholder="bulk.ymisSharedPwPh" placeholder="留空預設為 1234" oninput="applyYmisToBulkDraft()"></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0">
         <label class="btn btn-primary">📄 <span data-i18n="bulk.ymisPick">上載 YMIS PDF 報表</span><input id="ymisPdfFile" type="file" accept="application/pdf,.pdf" onchange="importYmisPdf(this.files[0])" style="display:none"></label>
@@ -740,7 +740,7 @@ a:hover{text-decoration:underline}
     </div>
     <textarea id="bulkJsonInput" style="display:none;width:100%;min-height:110px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:monospace;font-size:12px" placeholder='[{"ymis":"1234567890","name":"陳大文","role":"member"}]'></textarea>
     <button id="bulkJsonParseBtn" class="btn btn-sm btn-secondary" style="display:none;margin-top:6px" onclick="parseBulkJsonInput()" data-i18n="bulk.previewJson">預覽 JSON</button>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0"><input id="bulkAutoPassword" type="checkbox" checked onchange="renderBulkPreview();applyYmisToBulkDraft()"> <span data-i18n="bulk.auto">空白密碼自動產生安全臨時密碼</span></label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0"><input id="bulkAutoPassword" type="checkbox" checked onchange="renderBulkPreview();applyYmisToBulkDraft()"> <span data-i18n="bulk.auto">空白密碼預設為 1234</span></label>
     <div id="bulkSummary" style="font-size:12px;color:var(--text-light)" aria-live="polite" data-i18n="bulk.none">尚未選擇檔案</div>
     <div id="bulkPreviewContainer"></div>
     <div id="bulkResult" style="display:none;margin-top:10px"></div>
@@ -898,18 +898,18 @@ zh:{
   'apply.roleHint':'團員、執委、領袖都可自行申請；團長／管理員角色須由現任團長在「用戶管理」直接開立。',
   'apply.ymis':'YMIS（10 位數字）*','apply.name':'姓名 *','apply.email':'聯絡電郵 ','apply.emailReq':'* 執委／領袖必填',
   'apply.need':'請填寫姓名及 10 位數字 YMIS','apply.needMail':'執委／領袖申請必須填寫聯絡電郵','apply.pickTroop':'請先選擇旅團',
-  'apply.sent':'申請已提交','pw.title':'🔑 更改密碼','pw.hint':'新密碼至少 8 位。','pw.old':'現有／臨時密碼 *','pw.new':'新密碼 *','pw.confirm':'再次輸入新密碼 *',
-  'pw.save':'儲存新密碼','pw.must':'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 8 位。',
-  'pw.short':'新密碼至少 8 位','pw.mismatch':'兩次輸入的新密碼不一致','pw.saving':'儲存中...','pw.ok':'密碼已更新','pw.fail':'更改密碼失敗：{m}','pw.loginFirst':'請先登入',
-  'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名、10 位 YMIS 及至少 8 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
+  'apply.sent':'申請已提交','pw.title':'🔑 更改密碼','pw.hint':'新密碼至少 4 位。','pw.old':'現有／臨時密碼 *','pw.new':'新密碼 *','pw.confirm':'再次輸入新密碼 *',
+  'pw.save':'儲存新密碼','pw.must':'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 4 位。',
+  'pw.short':'新密碼至少 4 位','pw.mismatch':'兩次輸入的新密碼不一致','pw.saving':'儲存中...','pw.ok':'密碼已更新','pw.fail':'更改密碼失敗：{m}','pw.loginFirst':'請先登入',
+  'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名、10 位 YMIS 及至少 4 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
   'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
-  'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 8 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 8 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
+  'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 4 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 4 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
   'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
   'hist.title':'🧾 操作紀錄','hist.empty':'沒有操作紀錄','hist.fail':'讀取紀錄失敗：{m}','hist.time':'時間','hist.actor':'操作者','hist.act':'操作','hist.target':'對象','hist.detail':'詳情',
-  'bulk.title':'📥 批量開戶','bulk.flow':'<b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。',
+  'bulk.title':'📥 批量開戶','bulk.flow':'<b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼預設為 1234，完成後請下載臨時密碼清單。',
   'bulk.guide':'查看完整說明','bulk.csv':'⬇️ 下載 CSV 範本','bulk.pick':'📂 選擇 CSV','bulk.json':'{} 貼上 JSON','bulk.previewJson':'預覽 JSON',
-  'bulk.auto':'空白密碼自動產生安全臨時密碼','bulk.none':'尚未選擇檔案','bulk.close':'關閉','bulk.go':'🚀 確認批量開戶',
-  'bulk.noPrev':'沒有可預覽資料','bulk.sum':'共 {n} 筆；','bulk.okN':'{n} 筆可開戶','bulk.skipN':'{n} 筆會略過','bulk.provided':'已提供','bulk.autoPw':'自動產生','bulk.can':'✓ 可開戶',
+  'bulk.auto':'空白密碼預設為 1234','bulk.none':'尚未選擇檔案','bulk.close':'關閉','bulk.go':'🚀 確認批量開戶',
+  'bulk.noPrev':'沒有可預覽資料','bulk.sum':'共 {n} 筆；','bulk.okN':'{n} 筆可開戶','bulk.skipN':'{n} 筆會略過','bulk.provided':'已提供','bulk.autoPw':'預設 1234','bulk.can':'✓ 可開戶',
   'bulk.confirm':'確定建立 {n} 個帳戶？','bulk.working':'開戶中...','bulk.prog':'開戶中 {a}-{b} / {n}',
   'bulk.done':'完成：成功 {ok}，失敗 {fail}','bulk.pwHint':'臨時密碼只在本次畫面保留，請立即下載並以安全方式分別交給用戶。',
   'bulk.dl':'⬇️ 下載成功帳戶及臨時密碼','bulk.okToast':'批量開戶完成：成功 {n} 筆','bulk.fail':'批量開戶失敗：{m}','bulk.csvFail':'CSV 讀取失敗：{m}','bulk.jsonFail':'JSON 格式錯誤：{m}',
@@ -955,7 +955,7 @@ zh:{
   'ymis.pickNone':'請先勾選至少一位可匯入的成員（YMIS 須為 10 位數字且有姓名）',
   'ymis.notLoaded':'未能載入 YMIS 解析器（assets/ymis-parse.js）',
   'bulk.ymisRec':'<b>最推薦：</b>從 YMIS 匯出自訂報表 PDF，在瀏覽器內解析後一次過開戶。PDF 不會離開你的裝置。',
-  'bulk.flow2':' 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼可由系統自動產生，完成後請下載臨時密碼清單。',
+  'bulk.flow2':' 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼預設為 1234，完成後請下載臨時密碼清單。',
   'bulk.ymisGuide':'📘 如何在 YMIS 匯出指定格式報告？',
   'bulk.ymisTitle':'① YMIS 自訂報表（推薦）',
   'bulk.ymisHint':'欄位次序必須為：童軍成員編號 → 中文姓名 → 電郵地址。PDF 只在瀏覽器內解密，不會上傳伺服器。',
@@ -964,7 +964,7 @@ zh:{
   'bulk.ymisBranch':'預設支部／單位',
   'bulk.ymisRole':'預設角色',
   'bulk.ymisSharedPw':'共用初始密碼（選填）',
-  'bulk.ymisSharedPwPh':'留空則自動產生臨時密碼',
+  'bulk.ymisSharedPwPh':'留空預設為 1234',
   'bulk.ymisPick':'上載 YMIS PDF 報表',
   'bulk.ymisPad':'🔢 全部補零至10位',
   'bulk.ymisPaste':'讀不到 PDF？可把報表文字複製貼上',
@@ -1097,18 +1097,18 @@ en:{
   'apply.roleHint':'Members, execs and leaders may self-apply. GSL / admin accounts must be created by the current GSL under Users.',
   'apply.ymis':'YMIS (10 digits) *','apply.name':'Name *','apply.email':'Email ','apply.emailReq':'* required for exec / leader',
   'apply.need':'Please enter a name and a 10-digit YMIS','apply.needMail':'Exec / leader applications require an email','apply.pickTroop':'Please select a Group first',
-  'apply.sent':'Application submitted','pw.title':'🔑 Change password','pw.hint':'New password must be at least 8 characters.','pw.old':'Current / temporary password *','pw.new':'New password *','pw.confirm':'Confirm new password *',
-  'pw.save':'Save new password','pw.must':'<b style="color:var(--red)">First sign-in or after a reset: you must set your own new password.</b> At least 8 characters.',
-  'pw.short':'New password must be at least 8 characters','pw.mismatch':'The two new passwords do not match','pw.saving':'Saving...','pw.ok':'Password updated','pw.fail':'Change password failed: {m}','pw.loginFirst':'Please sign in first',
-  'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name, 10-digit YMIS and a temporary password of at least 8 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
+  'apply.sent':'Application submitted','pw.title':'🔑 Change password','pw.hint':'New password must be at least 4 characters.','pw.old':'Current / temporary password *','pw.new':'New password *','pw.confirm':'Confirm new password *',
+  'pw.save':'Save new password','pw.must':'<b style="color:var(--red)">First sign-in or after a reset: you must set your own new password.</b> At least 4 characters.',
+  'pw.short':'New password must be at least 4 characters','pw.mismatch':'The two new passwords do not match','pw.saving':'Saving...','pw.ok':'Password updated','pw.fail':'Change password failed: {m}','pw.loginFirst':'Please sign in first',
+  'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name, 10-digit YMIS and a temporary password of at least 4 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
   'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
-  'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 8 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 8 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
+  'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 4 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 4 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
   'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
   'hist.title':'🧾 Audit log','hist.empty':'No audit records','hist.fail':'Could not read the log: {m}','hist.time':'Time','hist.actor':'Actor','hist.act':'Action','hist.target':'Target','hist.detail':'Detail',
-  'bulk.title':'📥 Bulk onboard','bulk.flow':'<b>All in the front end:</b> download CSV → fill in → upload and preview → confirm. Written to the backend in one batch. Blank passwords can be generated. Download the temporary-password list afterwards.',
+  'bulk.title':'📥 Bulk onboard','bulk.flow':'<b>All in the front end:</b> download CSV → fill in → upload and preview → confirm. Written to the backend in one batch. Blank passwords default to 1234. Download the temporary-password list afterwards.',
   'bulk.guide':'Full guide','bulk.csv':'⬇️ Download CSV template','bulk.pick':'📂 Choose CSV','bulk.json':'{} Paste JSON','bulk.previewJson':'Preview JSON',
-  'bulk.auto':'Generate a safe temporary password when blank','bulk.none':'No file chosen yet','bulk.close':'Close','bulk.go':'🚀 Confirm bulk onboard',
-  'bulk.noPrev':'Nothing to preview','bulk.sum':'{n} row(s); ','bulk.okN':'{n} can be created','bulk.skipN':'{n} will be skipped','bulk.provided':'Provided','bulk.autoPw':'Auto','bulk.can':'✓ Ready',
+  'bulk.auto':'Blank passwords default to 1234','bulk.none':'No file chosen yet','bulk.close':'Close','bulk.go':'🚀 Confirm bulk onboard',
+  'bulk.noPrev':'Nothing to preview','bulk.sum':'{n} row(s); ','bulk.okN':'{n} can be created','bulk.skipN':'{n} will be skipped','bulk.provided':'Provided','bulk.autoPw':'Default 1234','bulk.can':'✓ Ready',
   'bulk.confirm':'Create {n} account(s)?','bulk.working':'Creating...','bulk.prog':'Creating {a}–{b} / {n}',
   'bulk.done':'Done: {ok} succeeded, {fail} failed','bulk.pwHint':'Temporary passwords are shown only this once. Download them and pass them on securely, separately.',
   'bulk.dl':'⬇️ Download successful accounts and temporary passwords','bulk.okToast':'Bulk onboard finished: {n} succeeded','bulk.fail':'Bulk onboard failed: {m}','bulk.csvFail':'CSV read failed: {m}','bulk.jsonFail':'JSON error: {m}',
@@ -1154,7 +1154,7 @@ en:{
   'ymis.pickNone':'Select at least one member who can be imported (10-digit YMIS and a name).',
   'ymis.notLoaded':'YMIS parser not loaded (assets/ymis-parse.js)',
   'bulk.ymisRec':'<b>Recommended:</b> export a YMIS custom-report PDF and parse it in the browser. The PDF never leaves your device.',
-  'bulk.flow2':' You can also download a CSV, fill it in and preview, or paste JSON. Blank passwords can be generated. Download the temporary-password list afterwards.',
+  'bulk.flow2':' You can also download a CSV, fill it in and preview, or paste JSON. Blank passwords default to 1234. Download the temporary-password list afterwards.',
   'bulk.ymisGuide':'📘 How to export the YMIS report in the required format',
   'bulk.ymisTitle':'① YMIS custom report (recommended)',
   'bulk.ymisHint':'Column order must be: Scout ID → Name in Chinese → Email. The PDF is decrypted in the browser only and is never uploaded.',
@@ -1163,7 +1163,7 @@ en:{
   'bulk.ymisBranch':'Default section / unit',
   'bulk.ymisRole':'Default role',
   'bulk.ymisSharedPw':'Shared initial password (optional)',
-  'bulk.ymisSharedPwPh':'Leave blank to auto-generate temporary passwords',
+  'bulk.ymisSharedPwPh':'Leave blank to use 1234 by default',
   'bulk.ymisPick':'Upload YMIS PDF report',
   'bulk.ymisPad':'🔢 Pad all IDs to 10 digits',
   'bulk.ymisPaste':'Cannot read the PDF? Paste the report text',
@@ -1720,14 +1720,14 @@ function showChangePasswordModal(required=false){
   if(!currentUser||!currentToken){ showToast('請先登入','warning'); return; }
   document.getElementById('oldPassword').value=''; document.getElementById('newPassword').value=''; document.getElementById('confirmNewPassword').value='';
   document.getElementById('changePasswordCancel').style.display=required?'none':'';
-  document.getElementById('changePasswordHint').innerHTML=required?'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 8 位。':'新密碼至少 8 位。';
+  document.getElementById('changePasswordHint').innerHTML=required?'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 4 位。':'新密碼至少 4 位。';
   document.getElementById('changePasswordModal').dataset.required=required?'1':'0';
   document.getElementById('changePasswordModal').classList.add('active');
   setTimeout(()=>document.getElementById('oldPassword').focus(),100);
 }
 async function submitChangePassword(){
   const oldP=document.getElementById('oldPassword').value,newP=document.getElementById('newPassword').value,confirmP=document.getElementById('confirmNewPassword').value;
-  if(newP.length<8){ showToast('新密碼至少 8 位','error'); return; }
+  if(newP.length<4){ showToast('新密碼至少 4 位','error'); return; }
   if(newP!==confirmP){ showToast('兩次輸入的新密碼不一致','error'); return; }
   const btn=document.getElementById('btnChangePassword'); btn.disabled=true; btn.textContent='儲存中...';
   try{
@@ -3406,7 +3406,7 @@ const EMBEDDED_GUIDES={
   <ol><li>YMIS「功能」→「搜尋成員紀錄」→ 選旅團 → 全選 →「編製報告」</li>
   <li>報告種類選「自訂報表」，依序加入：童軍成員編號 → 中文姓名 → 電郵地址</li>
   <li>下載 PDF 後，本系統「用戶管理」→「📥 批量開戶」上載（有密碼可在欄位輸入；PDF 只在瀏覽器解密）</li>
-  <li>預覽可修改／勾選；空白密碼自動產生。完成後下載臨時密碼清單交給用戶</li></ol>
+  <li>預覽可修改／勾選；空白密碼預設為 1234。完成後下載臨時密碼清單交給用戶</li></ol>
   <p>詳細步驟：<a href="docs/YMIS_EXPORT.md" target="_blank">YMIS 匯出指引</a> · <a href="docs/BULK_ONBOARD.md" target="_blank">批量開戶說明</a></p>
   <h3>6. 系統設定</h3><p>允許成員互相查看進度：預設關，團長可開</p>`
 };
@@ -3602,9 +3602,8 @@ function filterUsers(){
   document.querySelectorAll('#userList .user-item').forEach(el=>{ el.style.display=(el.dataset.search.includes(q)&&(status==='all'||el.dataset.status===status))?'flex':'none'; });
 }
 function generateTempPassword(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-  const bytes=new Uint32Array(9); if(window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes); else for(let i=0;i<bytes.length;i++) bytes[i]=Math.floor(Math.random()*0xffffffff);
-  return 'Vs!'+[...bytes].map(n=>chars[n%chars.length]).join('');
+  // v8.3：初始／批量／審批密碼統一為簡單的 4 位數字 1234
+  return '1234';
 }
 function openCreateUserModal(){
   ['cuYmis','cuName','cuEmail','cuBranch'].forEach(id=>document.getElementById(id).value='');
@@ -3622,7 +3621,7 @@ function showTemporaryPasswordResult(title,ymis,name,password){
 }
 async function submitCreateUser(){
   const payload={action:'addUser',token:currentToken,ymis:document.getElementById('cuYmis').value.trim(),name:document.getElementById('cuName').value.trim(),email:document.getElementById('cuEmail').value.trim(),branch:document.getElementById('cuBranch').value.trim(),role:document.getElementById('cuRole').value,can_tick:document.getElementById('cuCanTick').checked,password:document.getElementById('cuPassword').value};
-  if(!/^\d{10}$/.test(payload.ymis)||!payload.name||payload.password.length<8){showToast('請填寫姓名、10 位 YMIS 及至少 8 位臨時密碼','error');return;}
+  if(!/^\d{10}$/.test(payload.ymis)||!payload.name||payload.password.length<4){showToast('請填寫姓名、10 位 YMIS 及至少 4 位臨時密碼','error');return;}
   const btn=document.getElementById('btnCreateUser');btn.disabled=true;btn.textContent='建立中...';
   try{const d=await apiRequest('addUser',payload);if(!d.success)throw new Error(d.error);closeModal('createUserModal');showTemporaryPasswordResult('✅ 帳戶已建立',payload.ymis,payload.name,payload.password);showToast('帳戶已建立，請安全轉交臨時密碼','success');await loadUsers();await loadItemsAndProgress();}catch(e){showToast('建立失敗：'+e.message,'error');}finally{btn.disabled=false;btn.textContent='建立帳戶';}
 }
@@ -3635,7 +3634,7 @@ async function submitEditUser(){
 }
 function openResetPasswordModal(ymis,name){document.getElementById('rpYmis').value=ymis;document.getElementById('rpUserLabel').textContent=`${name}（${ymis}）`;document.getElementById('rpPassword').value=generateTempPassword();document.getElementById('resetPasswordModal').classList.add('active');}
 async function submitResetPassword(){
-  const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;if(password.length<8){showToast('臨時密碼至少 8 位','error');return;}
+  const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;if(password.length<4){showToast('臨時密碼至少 4 位','error');return;}
   try{const d=await apiRequest('resetPassword',{token:currentToken,target_ymis:ymis,new_password:password});if(!d.success)throw new Error(d.error);const name=document.getElementById('rpUserLabel').textContent.split('（')[0];closeModal('resetPasswordModal');showTemporaryPasswordResult('🔑 密碼已重設',ymis,name,password);showToast('密碼已重設；請立即安全轉交臨時密碼','success');loadUsers();}catch(e){showToast('重設失敗：'+e.message,'error');}
 }
 async function setUserStatus(ymis,status){
@@ -3647,7 +3646,7 @@ async function loadAuditHistory(){
   try{const d=await apiRequest('getAuditLog',{token:currentToken});if(!d.success)throw new Error(d.error);const rows=(d.records||[]).slice().reverse();document.getElementById('historyBody').innerHTML=rows.length?`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>時間</th><th>操作者</th><th>操作</th><th>對象</th><th>詳情</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtmlText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p style="text-align:center;color:var(--text-light)">沒有操作紀錄</p>';document.getElementById('historyModal').classList.add('active');}catch(e){showToast('讀取紀錄失敗：'+e.message,'error');}
 }
 function downloadMembersTemplate(){
-  const csv='ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,TempPass!82,執委\r\n';
+  const csv='ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,1234,執委\r\n';
   downloadTextFile('vsbadge-members-template.csv','\ufeff'+csv,'text/csv;charset=utf-8');
 }
 function downloadTextFile(name,text,type){const url=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -3868,11 +3867,11 @@ function showBulkJsonInput(){const t=document.getElementById('bulkJsonInput'),b=
 function parseBulkJsonInput(){try{let rows=JSON.parse(document.getElementById('bulkJsonInput').value);if(!Array.isArray(rows))rows=[rows];bulkDraft=normalizeBulkRows(rows);renderBulkPreview();}catch(e){showToast('JSON 格式錯誤：'+e.message,'error');}}
 function validateBulkRow(u,index){
   const errors=[],auto=document.getElementById('bulkAutoPassword').checked;
-  if(!/^\d{10}$/.test(u.ymis))errors.push('YMIS 不是 10 位數字');if(!u.name)errors.push('欠姓名');if(!['member','exec_committee','branch_leader','group_leader','admin'].includes(u.role))errors.push('角色無效');else if(!canCreateRoleFrontend(u.role))errors.push('不可建立此角色');if(u.role!=='member'&&!u.email)errors.push('領袖／執委欠 Email');if(u.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email))errors.push('Email 格式錯誤');if(!u.password&&!auto)errors.push('欠臨時密碼');if(u.password&&u.password.length<8)errors.push('密碼少於 8 位');if(adminUsersCache.some(x=>x.ymis===u.ymis))errors.push('YMIS 已存在');if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis))errors.push('檔內 YMIS 重複');return errors;
+  if(!/^\d{10}$/.test(u.ymis))errors.push('YMIS 不是 10 位數字');if(!u.name)errors.push('欠姓名');if(!['member','exec_committee','branch_leader','group_leader','admin'].includes(u.role))errors.push('角色無效');else if(!canCreateRoleFrontend(u.role))errors.push('不可建立此角色');if(u.role!=='member'&&!u.email)errors.push('領袖／執委欠 Email');if(u.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email))errors.push('Email 格式錯誤');if(!u.password&&!auto)errors.push('欠臨時密碼');if(u.password&&u.password.length<4)errors.push('密碼少於 4 位');if(adminUsersCache.some(x=>x.ymis===u.ymis))errors.push('YMIS 已存在');if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis))errors.push('檔內 YMIS 重複');return errors;
 }
 function renderBulkPreview(){
   const summary=document.getElementById('bulkSummary'),container=document.getElementById('bulkPreviewContainer'),btn=document.getElementById('btnExecuteBulk');if(!bulkDraft.length){summary.textContent='沒有可預覽資料';container.innerHTML='';btn.disabled=true;return;}
-  let valid=0;const rows=bulkDraft.map((u,i)=>{const errors=validateBulkRow(u,i);u._errors=errors;if(!errors.length)valid++;return `<tr><td>${i+1}</td><td>${escapeHtmlText(u.ymis)}</td><td>${escapeHtmlText(u.name)}</td><td>${escapeHtmlText(u.email)}</td><td>${escapeHtmlText(getRoleName(u.role))}</td><td>${u.password?'已提供':'自動產生'}</td><td class="${errors.length?'bulk-error':'bulk-ok'}">${errors.length?escapeHtmlText(errors.join('、')):'✓ 可開戶'}</td></tr>`;}).join('');
+  let valid=0;const rows=bulkDraft.map((u,i)=>{const errors=validateBulkRow(u,i);u._errors=errors;if(!errors.length)valid++;return `<tr><td>${i+1}</td><td>${escapeHtmlText(u.ymis)}</td><td>${escapeHtmlText(u.name)}</td><td>${escapeHtmlText(u.email)}</td><td>${escapeHtmlText(getRoleName(u.role))}</td><td>${u.password?'已提供':'預設 1234'}</td><td class="${errors.length?'bulk-error':'bulk-ok'}">${errors.length?escapeHtmlText(errors.join('、')):'✓ 可開戶'}</td></tr>`;}).join('');
   summary.innerHTML=`共 ${bulkDraft.length} 筆；<b style="color:var(--green)">${valid} 筆可開戶</b>；<b style="color:var(--red)">${bulkDraft.length-valid} 筆會略過</b>`;container.innerHTML=`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>#</th><th>YMIS</th><th>姓名</th><th>Email</th><th>角色</th><th>密碼</th><th>檢查</th></tr></thead><tbody>${rows}</tbody></table></div>`;btn.disabled=valid===0;
 }
 async function executeBulkOnboard(){
