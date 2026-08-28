@@ -96,8 +96,23 @@ const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const mStart = html.indexOf('async function apiRequest(');
 const mEnd = html.indexOf('\n}', mStart);
 const apiSrc = html.slice(mStart, mEnd + 2);
+// ---- apiRequest 內部使用 i18n()（逾時／網絡錯誤訊息）與 trBackendPayload() ----
+// 抽出真實 I18N 字典 + i18n()，讓測試與瀏覽器行為一致；trBackendPayload 以 identity stub
+const dictStart = html.indexOf('const I18N={');
+const dictBrace = html.indexOf('{', dictStart);
+let dictDepth = 0, dictEnd = -1;
+for (let i = dictBrace; i < html.length; i++) {
+  const c = html[i];
+  if (c === '{') dictDepth++;
+  else if (c === '}') { dictDepth--; if (dictDepth === 0) { dictEnd = i; break; } }
+}
+const dictLiteral = html.slice(dictBrace, dictEnd + 1);
+const fnStart = html.indexOf('function i18n(');
+const fnEnd = html.indexOf('\n}', fnStart);
+const i18nSrc = html.slice(fnStart, fnEnd + 2);
 const makeApi = (troopId, endpoint) =>
-  new Function('API_ENDPOINT', 'currentTroopId', apiSrc + '\nreturn apiRequest;')(endpoint, troopId);
+  new Function('API_ENDPOINT', 'currentTroopId',
+    `let currentLang='zh';\nconst I18N=${dictLiteral};\n${i18nSrc}\nfunction trBackendPayload(p){return p;}\n` + apiSrc + '\nreturn apiRequest;')(endpoint, troopId);
 const apiA = makeApi('0082', `${APP_BASE}/api/proxy`);
 const apiB = makeApi('1001', `${APP_BASE}/api/proxy`);
 const apiBadTroop = makeApi('9999', `${APP_BASE}/api/proxy`);
