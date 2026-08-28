@@ -1,8 +1,8 @@
-# 🔥 深資童軍進度及行政平台 v8.3
+# 🔥 深資童軍進度及行政平台 v8.4
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  
 > COPYRIGHT 2026 Scout System  
-> 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、帳戶自助申請→團長前端審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）
+> 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、帳戶自助申請→團長前端審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）、履歷自行申報→領袖審批
 
 ## 中／英一鍵切換（英語旅團）
 
@@ -18,7 +18,7 @@ data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
 data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
-apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.3：進度/獎章/審批/帳戶/活動履歷/自助申請，含內置超管 sheep + 4位密碼）
+apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.4：進度/獎章/審批/帳戶/活動履歷/履歷申報/自助申請，含內置超管 sheep + 4位密碼）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
@@ -42,6 +42,17 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 ## 部署
 
 見 [DEPLOY_GUIDE_FOR_TROOPS.md](DEPLOY_GUIDE_FOR_TROOPS.md)
+
+## v8.4 履歷申報（團員自行申報 → 領袖審批）
+
+- 團員在「📅 活動履歷」可按「📝 申報紀錄」**自行申報**服務／活動／訓練班紀錄；提交後進入「待批履歷」，**領袖批准後才寫入**「活動履歷」工作表
+- **已批准的履歷紀錄，團員可再按 ✏️ 提交「修改申報」**：以同一 `record_id` 更新，但必須經領袖**重批**才生效（同一紀錄同時只可有一個待批修改申報；批准前可自行取消）
+- **只有履歷申請有此「批後可再申報修改」機制**：進度待批（待批完成）及其他獎章維持原狀——批准／寫入後只有領袖可以更改
+- 團員只可為**自己**申報（後端以登入 token 強制 ymis，不接受偽冒）；領袖照舊可直接新增／編輯／刪除
+- 領袖在「審批中心」→「📅 履歷申報」逐項批准／拒絕；批准「新增申報」即寫入活動履歷、批准「修改申報」即更新原紀錄
+- GAS 後端新增「待批履歷」工作表及 4 個 action（requestLogRecord／getLogRequests／reviewLogRequest／cancelLogRequest），審批權限與進度審批相同（已獲勾選權限的領袖）
+- **需要旅團 Apps Script 升級至 v8.4**：覆蓋 Code.gs → 執行 `initializeSheets()` 補建「待批履歷」→ 管理部署 → 新版本部署（URL 不變）。未升級旅團一切照舊，只是不顯示申報按鈕——見 [`DEPLOY_GUIDE_FOR_TROOPS.md`](DEPLOY_GUIDE_FOR_TROOPS.md)「v8.4 升級」
+- 新 action 已加入 `/api/proxy` 白名單，繼續全線走同源 Proxy
 
 ## v8.2 帳戶自助申請（成員／執委／領袖）
 

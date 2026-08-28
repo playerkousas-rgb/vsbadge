@@ -34,7 +34,11 @@ Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same
 - **➕ Add** / **📥 bulk** (same activity for many members, max 200)
 - Edit / delete (delete is confirmed and audited)
 - Same tick-permission as progress
-- If you see “backend not yet v8.1”, follow DEPLOY_GUIDE v8.1 upgrade
+- **📅 Log claims** (v8.4): members can self-submit records (“Claim a record”) or edit claims for approved records. Review them under Approvals → “📅 Log claims”:
+  - Approving a **new claim** writes it to the activity log (recorder shows “Name (self-reported)”)
+  - Approving an **edit claim** updates the same record (the card shows the current record for comparison)
+  - Only the activity log has this claim-edit-re-approve loop; badge-progress claims and other badges stay leader-only after approval
+- If you see “backend not yet v8.1”, follow DEPLOY_GUIDE v8.1 upgrade; log claims additionally need the v8.4 upgrade (adds the pending-log sheet)
 
 ### 5. Users — front-end admin
 - Create one account or **📥 bulk onboard**

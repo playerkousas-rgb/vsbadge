@@ -13,7 +13,10 @@
 
 - **📝 Approvals**: whether your claims were approved (⏳ awaiting leader / ✅ approved)
 
-- **📅 Activity log** (v8.1): your **service** (with hours), **activities**, and **courses** (with certificate numbers). Leaders enter them; you are read-only.
+- **📅 Activity log** (v8.1/v8.4): your **service** (with hours), **activities**, and **courses** (with certificate numbers).
+  - **📝 Claim a record** (v8.4, needs backend upgrade): submit your own record; it is written **only after a leader approves**. You may cancel a pending claim.
+  - **✏️ Edit claims**: to correct an approved record (e.g. hours or date), tap ✏️ next to it and submit an edit claim — it updates only after a leader **re-approves**. One pending edit per record at a time.
+  - Leaders can still enter records for you directly; if the backend is not on v8.4, ask a leader to enter it.
 
 - **🖨️ Print forms**: PT/19 (Venture Scout Award) and PT/20 (Dragon Scout Award) dates filled from progress. Edit address / District / Region, then print double-sided.
 
