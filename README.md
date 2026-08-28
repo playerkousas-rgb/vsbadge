@@ -6,7 +6,19 @@
 
 ## 中／英一鍵切換（英語旅團）
 
-右上角 **中 | EN** 切換全介面。訓練綱要採用香港童軍總會第11版官方英文譯名（Membership Badge、Venture Scout Epaulettes、Venture Scout Award、Dragon Scout Award、Project / Service / Multiple Skills / Outdoor Exploration Achievement Badge 及 Bar）。**項目 ID 不變**，雲端進度、審批、履歷紀錄中英共用同一套資料，只換顯示語言。
+**🌐 English** 單鍵藥丸按鈕（與 ROVERBADGE 一致）切換全介面：
+
+| 位置 | 顯示 |
+|---|---|
+| 未登入首頁／登入頁標題右上角 | `🌐 English`（英文模式變 `🌐 中文`） |
+| 登入後用戶列（登出旁） | 同上 |
+
+按一下即時全站切換，毋須重新載入；語言記在瀏覽器（`localStorage: vsbadge_lang`）。
+
+- **未登入首頁全部有英文版**：選旅團畫面、四級架構、MOCK 試用、「📋 新旅團部署」、「📖 使用教學」、「📦 版本更新紀錄」— 中文模式下右上角仍有清晰可見的 `🌐 English` 按鈕，英語旅團不會誤以為「只有中文」。
+- **分享連結可鎖定語言**：`?lang=en` / `?lang=zh`（例：`https://vsbadge.vercel.app/?lang=en`，主系統卡片亦可帶 `&lang=en`）。
+
+訓練綱要採用香港童軍總會第11版官方英文譯名（Membership Badge、Venture Scout Epaulettes、Venture Scout Award、Dragon Scout Award、Project / Service / Multiple Skills / Outdoor Exploration Achievement Badge 及 Bar）。**項目 ID 不變**，雲端進度、審批、履歷紀錄中英共用同一套資料，只換顯示語言。
 
 ## 快速結構
 

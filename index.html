@@ -19,6 +19,11 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang HK","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;overscroll-behavior:none}
 a{color:var(--maroon);text-decoration:none}
 a:hover{text-decoration:underline}
+/* 中／EN 語言切換（單鍵藥丸，與 ROVERBADGE 一致：中文模式顯示「🌐 English」，英文模式顯示「🌐 中文」） */
+.lang-toggle{position:absolute;top:10px;right:10px;padding:7px 14px;border:1.5px solid rgba(255,255,255,0.6);border-radius:999px;background:rgba(255,255,255,0.12);color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;z-index:5;backdrop-filter:blur(4px)}
+.lang-toggle:hover{background:rgba(255,255,255,0.28);transform:translateY(-1px)}
+.main-app-header .lang-toggle{position:static;border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.12);color:#fff}
+@media(max-width:420px){.lang-toggle{top:8px;right:8px;padding:6px 12px;font-size:11.5px}}
 /* Header */
 .app-header-common{background:var(--maroon);color:#fff;padding:18px 16px;text-align:center;border-bottom:4px solid var(--gold);position:relative;overflow:hidden}
 .app-header-common::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 20%, rgba(255,215,0,0.15) 0%, transparent 50%);pointer-events:none}
@@ -312,10 +317,6 @@ a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-<div class="lang-toggle" role="group" aria-label="Language / 語言">
-  <button type="button" id="langBtnZh" class="active" onclick="setLang('zh')" title="中文">中</button>
-  <button type="button" id="langBtnEn" onclick="setLang('en')" title="English">EN</button>
-</div>
 <!-- ===== Home ===== -->
 <div id="homePage">
   <div class="app-header-common">
@@ -336,6 +337,7 @@ a:hover{text-decoration:underline}
       <button data-tab="guide" onclick="showWelcomeTab('guide', this)" data-i18n="nav.guide">📖 使用教學</button>
       <!-- changelog hidden for production -->
     </div>
+    <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
   <div class="container">
     <div id="welcome-enter" class="welcome-section active">
@@ -457,6 +459,7 @@ a:hover{text-decoration:underline}
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
       <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v8.3</h1></div>
     </div>
+    <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
   <div class="container">
     <div class="login-container">
@@ -493,6 +496,7 @@ a:hover{text-decoration:underline}
     </div>
     <div class="user-info">
       <span class="user-chip" id="userInfo">—</span>
+      <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
       <button class="btn btn-sm btn-secondary" onclick="showChangePasswordModal(false)" data-i18n="btn.changePw">🔑 改密碼</button>
       <button class="btn btn-sm btn-secondary" onclick="doLogout()" data-i18n="btn.logout">登出</button>
     </div>
@@ -1483,12 +1487,16 @@ function applyStaticI18n(){
   });
   const titleEl=document.querySelector('title');
   if(titleEl) titleEl.textContent=i18n('app.title');
-  const zhB=document.getElementById('langBtnZh'), enB=document.getElementById('langBtnEn');
-  if(zhB) zhB.classList.toggle('active', currentLang==='zh');
-  if(enB) enB.classList.toggle('active', currentLang==='en');
-  const lt=document.querySelector('.lang-toggle');
-  if(lt) lt.setAttribute('aria-label', currentLang==='en'?'Language':'語言');
+  syncLangToggle();
 }
+/* 單鍵語言切換：中文模式顯示「🌐 English」，英文模式顯示「🌐 中文」（與 ROVERBADGE 一致） */
+function syncLangToggle(){
+  document.querySelectorAll('.lang-toggle').forEach(b=>{
+    b.textContent=currentLang==='en'?'🌐 中文':'🌐 English';
+    b.setAttribute('aria-label', currentLang==='en'?'Switch to Chinese / 切換中文':'Switch to English / 切換英文');
+  });
+}
+function toggleLang(){ setLang(currentLang==='en'?'zh':'en'); }
 function setLang(lang){
   currentLang=(lang==='en')?'en':'zh';
   try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
@@ -1554,14 +1562,32 @@ guide:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 Ho
     <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid #D63384"><b>🎖️ Exec</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>All member functions</li><li>May tick (if authorised)</li><li>Default: Membership Badge + Activity Achievement Badge + other badges one by one</li><li>May view other members</li><li>Bulk tick if authorised</li><li>Approve claims if authorised</li></ul></div>
     <div style="background:var(--bg);padding:10px;border-radius:8px;border-left:3px solid var(--maroon)"><b>👨‍💼 Leader</b><ul style="font-size:11px;margin:6px 0 0 16px"><li>Everything</li><li>My progress: any member</li><li>Unit overview + Membership Badge %</li><li>Camp bulk-tick</li><li>Offline draft then save</li><li>Bulk approve</li><li>Users: promote to exec + ⚙️ rights</li><li>Leaders default to all; GSL/admin may lower</li><li>Approve new accounts</li></ul></div>
   </div>
+</div>`,
+changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 Release notes (for future Code.gs versions and feature changes)</h2>
+<div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
+  <h3 style="color:var(--blue)">Framework kept, content streamlined (old fix notes removed as requested)</h3>
+  <p style="font-size:12px">This section is reserved for:<br>• New backend Code.gs downloads (your old data is kept — initializeSheets does not clear it)<br>• New features and changes in each version<br>• v8.3 adds YMIS custom-report PDF bulk onboarding (parsed in the browser; the PDF is never uploaded)</p>
+  <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>Latest: v8.2 self-service account application (member / exec / leader)</h3>
+  <p style="font-size:12px">No need to fill in branch or unit (branch = Venture Scout, unit = your Group — filled in automatically). Execs and leaders may apply too; the GSL / branch leader approves in one tap under Approvals → Users.</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>v8.1 Activity log (service / events / courses)</h3>
+  <p style="font-size:12px">Leaders can add, edit and delete records, and apply one activity to several members at once. Members have read-only access.</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>v8.0 FRONTEND ADMIN</h3>
+  <p style="font-size:12px">Full front-end account admin, YMIS PDF / CSV / JSON bulk onboarding, change password on first sign-in, audit log and a mobile-friendly interface</p>
 </div>`
 };
 function localizeLongWelcome(){
-  ['welcome-setup','welcome-guide'].forEach(id=>{
+  ['welcome-setup','welcome-guide','welcome-changelog'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
     if(!WELCOME_HTML_CACHE[id]) WELCOME_HTML_CACHE[id]=el.innerHTML;
-    const key=id==='welcome-setup'?'setup':'guide';
+    const key=id.replace('welcome-','');
     el.innerHTML=currentLang==='en'?(WELCOME_EN[key]||WELCOME_HTML_CACHE[id]):WELCOME_HTML_CACHE[id];
   });
 }
@@ -1642,13 +1668,23 @@ async function apiRequest(action, data={}, opts={}){
 function getUrlParams(){ try{ return new URLSearchParams(window.location.search); }catch(e){ return new URLSearchParams(); } }
 function isEmbedMode(){ return getUrlParams().get('embed')==='1'; }
 
+// 分享連結可強制語言：?lang=en / ?lang=zh（例如英語旅團或主系統卡片）
+(function(){
+  try{
+    const v=getUrlParams().get('lang');
+    if((v==='en'||v==='zh') && v!==currentLang){
+      currentLang=v;
+      try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
+    }
+  }catch(e){}
+})();
+
 document.addEventListener('DOMContentLoaded',()=>{
   // 套用上次選擇的語言（例如已儲存 EN 的訪客，載入即顯示英文）
   try{
+    document.documentElement.lang=currentLang==='en'?'en':'zh-Hant';
     applyStaticI18n();
     localizeLongWelcome();
-    const lt=document.querySelector('.lang-toggle');
-    if(lt) lt.setAttribute('aria-label', isEn()?'Language':'語言');
   }catch(e){ console.warn('init i18n', e); }
   // 嵌入模式樣式
   if(isEmbedMode()){
