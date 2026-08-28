@@ -154,7 +154,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (!app || app.status !== 'pending') return { success: false, error: '找不到待審批申請' };
         if (body.decision === 'rejected') { app.status = 'rejected'; return { success: true, message: '已拒絕申請' }; }
         if (body.decision !== 'approved') return { success: false, error: '無效決定' };
-        const password = String(body.temp_password || 'Vs!' + Math.random().toString(36).slice(2, 10));
+        const password = String(body.temp_password || '1234');
         const reqRole = app.requested_role || 'member';
         const finalRole = (CAN_MANAGE_ROLES[manager.role] || []).includes(reqRole) ? reqRole : 'member';
         state.users[app.ymis] = {

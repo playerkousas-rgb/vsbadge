@@ -21,7 +21,7 @@
 //   branch    ：支部／單位（例如旅團名稱）
 //   role      ：member / exec_committee / branch_leader / group_leader / admin
 //   can_tick  ：true / false（可否勾選進度；member 不會獲得勾選權）
-//   password  ：有填則開立可登入帳號（直接寫入會以 SHA-256 雜湊儲存，與 app 後端完全一致）
+//   password  ：有填則開立可登入帳號（至少 4 位；建議用 1234 作初始密碼，直接寫入會以 SHA-256 雜湊儲存，與 app 後端完全一致）
 //   note      ：備註（Users 工作表無此欄，僅作填寫提醒）
 //
 // 直接寫入的工作表結構會與 app 後端 Users 工作表完全相同：
@@ -76,7 +76,8 @@ function toJson(rows) {
       branch: String(r.branch || r.squad || '').trim(),
       role: String(r.role || 'member').trim(),
       can_tick: ['true', '1', 'yes', 'y', '是'].indexOf(String(r.can_tick || '').trim().toLowerCase()) >= 0,
-      password: String(r.password || '').trim()
+      // v8.3：留空時預設初始密碼 1234
+      password: String(r.password || '').trim() || '1234'
     };
   });
 }
@@ -184,16 +185,14 @@ function writeToMainSheet() {
     set('role', m.role);
     set('branch', m.branch);
     set('can_tick', (m.role !== 'member' && m.can_tick) ? 'TRUE' : 'FALSE');
-    if (m.password) {
-      set('password_hash', hashPassword(m.password));
-      set('auth_by', 'bulk_onboard');
-      set('auth_date', nowStr);
-      set('status', 'active');
-      set('allowed_badges', defaultAllowedBadges(m.role));
-      set('force_change_password', 'TRUE');
-    } else {
-      set('status', 'active');
-    }
+    // v8.3：留空時預設初始密碼 1234（仍在首次登入強制更改）
+    var pass = String(m.password || '').trim() || '1234';
+    set('password_hash', hashPassword(pass));
+    set('auth_by', 'bulk_onboard');
+    set('auth_date', nowStr);
+    set('status', 'active');
+    set('allowed_badges', defaultAllowedBadges(m.role));
+    set('force_change_password', 'TRUE');
     set('created_at', nowStr);
     sh.appendRow(row);
     added++;

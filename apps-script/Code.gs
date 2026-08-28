@@ -1,5 +1,5 @@
 // ============================================================
-// 深資童軍進度及行政平台 - Apps Script 後端 v8.2
+// 深資童軍進度及行政平台 - Apps Script 後端 v8.3
 // 全前端帳戶管理、批量開戶、首次登入改密碼、角色驗證及操作紀錄
 // v8.1 新增：活動履歷（服務紀錄／活動紀錄／訓練班紀錄）
 //   - 新工作表「活動履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
@@ -10,12 +10,25 @@
 //   - getApplications 回傳申請人要求的角色；branch 由前端自動帶入所屬旅團（毋須申請人填寫）
 //   - reviewApplication 按申請角色開戶（審批者無權限設定該角色時退回團員），回應加 final_role
 //   - 無新工作表、無新欄位：覆蓋 Code.gs 並重新部署即可，毋須 initializeSheets()
+// v8.3 新增：
+//   - initializeSheets() 會自動補回內置超管 sheep（密碼 0728），不會因重建 Sheet 而消失
+//   - 密碼最短 4 位（原 8 位）；批量／審批初始密碼統一為 1234
+//   - 重新覆蓋 Code.gs 並部署後，執行 initializeSheets() 一次即可補回超管及套用新原則
 // ============================================================
 
 const ADMIN_YMIS = '1111111111';
 const ADMIN_NAME = '管理員';
 const ADMIN_EMAIL = 'admin@example.com';
 const ADMIN_PASS = 'changeme';
+// v8.3：後端 Google Sheet 的內置超管帳號（不會因重新初始化而消失）
+// 可直接以登入帳號 sheep（會員欄）或 sheep@vsbadge.local（領袖欄）登入。
+const SUPER_ADMIN_ID = 'sheep';
+const SUPER_ADMIN_NAME = 'Sheep 超管';
+const SUPER_ADMIN_EMAIL = 'sheep@vsbadge.local';
+const SUPER_ADMIN_PASS = '0728';
+const MIN_PASSWORD_LEN = 4;
+const MAX_PASSWORD_LEN = 128;
+const DEFAULT_TEMP_PASSWORD = '1234';
 
 // ===== 工具 =====
 function getSheet() { return SpreadsheetApp.getActiveSpreadsheet(); }
@@ -87,6 +100,28 @@ function ensureUserColumns(sheet){
   });
   return map;
 }
+function ensureSeedAccount(sheet,map,dataRows,acc){
+  // 只在完全找不到相同帳號（同 YMIS 或同 Email）時補回，避免覆蓋既有管理員資料。
+  if(!sheet || !map || map.ymis===undefined) return false;
+  const id=String(acc.ymis||'').toLowerCase();
+  const email=String(acc.email||'').toLowerCase();
+  for(let i=1;i<dataRows.length;i++){
+    const rowId=String(dataRows[i][map.ymis]||'').toLowerCase();
+    const rowEmail=map.email===undefined?'':String(dataRows[i][map.email]||'').toLowerCase();
+    if(rowId===id || (email && rowEmail===email)) return false;
+  }
+  const row=new Array(sheet.getLastColumn()||USER_HEADERS.length).fill('');
+  function set(name,val){ const idx=map[name]; if(idx!==undefined) row[idx]=val; }
+  set('ymis',acc.ymis); set('name',acc.name); set('email',acc.email||'');
+  set('role',acc.role||'member'); set('password_hash',hashPassword(acc.password||''));
+  set('branch',acc.branch||''); set('can_tick',acc.can_tick!==false);
+  set('auth_by',acc.auth_by||'system'); set('auth_date',now()); set('created_at',now());
+  set('last_login',''); set('status','active');
+  set('allowed_badges',acc.allowed_badges||defaultAllowedBadges(acc.role||'member'));
+  set('force_change_password',acc.force_change_password!==false);
+  sheet.appendRow(row);
+  return true;
+}
 function userFromRow(row,map){
   function v(name){ const i=map[name]; return i===undefined ? '' : row[i]; }
   return {
@@ -142,14 +177,16 @@ function initializeSheets() {
     uSheet.appendRow(USER_HEADERS);
     uSheet.getRange(1,1,1,USER_HEADERS.length).setFontWeight('bold').setBackground('#8B0000').setFontColor('#FFFFFF');
     uSheet.setFrozenRows(1);
-    uSheet.appendRow([ADMIN_YMIS,ADMIN_NAME,ADMIN_EMAIL,'admin',hashPassword(ADMIN_PASS),'b4',true,'system',now(),now(),'','active','*',true]);
-  } else {
-    // 舊版本會自動補上新欄，不需手動改 Sheet；仍使用預設密碼的舊管理員會被要求立即更改。
-    const userMap=ensureUserColumns(uSheet);
-    const oldUsers=uSheet.getDataRange().getValues();
-    for(let i=1;i<oldUsers.length;i++){
-      if(String(oldUsers[i][userMap.password_hash]||'')===hashPassword(ADMIN_PASS)) uSheet.getRange(i+1,userMap.force_change_password+1).setValue(true);
-    }
+  }
+  // 確保 Users 欄位完整，並補回內置帳號（管理員 + 超管 sheep）。
+  // 超管 sheep 不會因重新初始化而消失；若已存在同名帳號則不會改動原有資料。
+  const userMap=ensureUserColumns(uSheet);
+  const userRows=uSheet.getDataRange().getValues();
+  ensureSeedAccount(uSheet,userMap,userRows,{ymis:ADMIN_YMIS,name:ADMIN_NAME,email:ADMIN_EMAIL,role:'admin',password:ADMIN_PASS,branch:'b4',can_tick:true,force_change_password:true});
+  ensureSeedAccount(uSheet,userMap,userRows,{ymis:SUPER_ADMIN_ID,name:SUPER_ADMIN_NAME,email:SUPER_ADMIN_EMAIL,role:'super_admin',password:SUPER_ADMIN_PASS,branch:'b4',can_tick:true,force_change_password:false});
+  // 舊版本會自動補上新欄，不需手動改 Sheet；仍使用預設密碼的舊管理員會被要求立即更改。
+  for(let i=1;i<userRows.length;i++){
+    if(String(userRows[i][userMap.password_hash]||'')===hashPassword(ADMIN_PASS)) uSheet.getRange(i+1,userMap.force_change_password+1).setValue(true);
   }
   let aSheet = ss.getSheetByName('Applications');
   if(!aSheet){
@@ -222,7 +259,7 @@ function initializeSheets() {
   try{
     const ui=SpreadsheetApp.getUi();
     if(ui){
-      ui.alert('✅ v8.1 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 初始管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n\n🌐 URL:\n'+scriptUrl);
+      ui.alert('✅ v8.3 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（已自動補回，不會消失）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
@@ -414,8 +451,8 @@ function handleLogin(loginId,password){
 }
 function handleChangePassword(ymis,oldP,newP){
   newP=String(newP||'');
-  if(newP.length<8) return jsonResponse({success:false,error:'新密碼至少 8 位'});
-  if(newP.length>128) return jsonResponse({success:false,error:'新密碼不可超過 128 位'});
+  if(newP.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼至少 '+MIN_PASSWORD_LEN+' 位'});
+  if(newP.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
   if(newP===String(oldP||'')) return jsonResponse({success:false,error:'新密碼不可與原密碼相同'});
   const rec=findUserRecord(ymis);
   if(!rec || rec.user.status!=='active') return jsonResponse({success:false,error:'找不到用戶'});
@@ -453,7 +490,7 @@ function handleGetApplications(){
   for(let i=1;i<data.length;i++) if(String(data[i][6])==='pending') apps.push({app_id:String(data[i][0]),ymis:String(data[i][1]),name:String(data[i][2]),email:String(data[i][3]||''),requested_role:String(data[i][4]||'member'),branch:String(data[i][5]||''),applied_at:data[i][7]?formatDate(data[i][7]):''});
   return jsonResponse({success:true,applications:apps});
 }
-function generateTemporaryPassword(){ return 'Vs!'+Utilities.getUuid().replace(/-/g,'').substring(0,9); }
+function generateTemporaryPassword(){ return DEFAULT_TEMP_PASSWORD; }
 function handleReviewApplication(appId,decision,note,manager,tempPassword){
   if(decision!=='approved' && decision!=='rejected') return jsonResponse({success:false,error:'無效決定'});
   const sheet=getSheet().getSheetByName('Applications'); if(!sheet) return jsonResponse({success:false,error:'找不到 Applications 工作表'});
@@ -601,8 +638,8 @@ function createUsersBatch(rawUsers,manager){
       else if(!canCreateRole(manager,u.role)) error='你的角色不可建立 '+u.role;
       else if(u.role!=='member' && !u.email) error='領袖／執委帳號須填 Email';
       else if(u.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email)) error='Email 格式不正確';
-      else if(u.password.length<8) error='臨時密碼至少 8 位';
-      else if(u.password.length>128) error='臨時密碼不可超過 128 位';
+      else if(u.password.length<MIN_PASSWORD_LEN) error='臨時密碼至少 '+MIN_PASSWORD_LEN+' 位';
+      else if(u.password.length>MAX_PASSWORD_LEN) error='臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位';
       else if(existingYmis[u.ymis] || batchYmis[u.ymis]) error='YMIS 已存在（包括停用帳號）';
       else if(u.email && (existingEmail[u.email.toLowerCase()] || batchEmail[u.email.toLowerCase()])) error='Email 已存在';
       if(error){ results.push({ymis:u.ymis,name:u.name,success:false,error:error}); return; }
@@ -634,8 +671,8 @@ function handleResetPassword(targetYmis,newPassword,manager){
   if(!rec) return jsonResponse({success:false,error:'找不到帳號'});
   if(String(targetYmis)===String(manager.ymis)) return jsonResponse({success:false,error:'請使用「更改密碼」修改自己的密碼'});
   if(!canManageUser(manager,rec.user.role)) return jsonResponse({success:false,error:'權限不足，不能重設此角色'});
-  if(newPassword.length<8) return jsonResponse({success:false,error:'臨時密碼至少 8 位'});
-  if(newPassword.length>128) return jsonResponse({success:false,error:'臨時密碼不可超過 128 位'});
+  if(newPassword.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼至少 '+MIN_PASSWORD_LEN+' 位'});
+  if(newPassword.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
   rec.sheet.getRange(rec.row,rec.map.password_hash+1).setValue(hashPassword(newPassword));
   rec.sheet.getRange(rec.row,rec.map.force_change_password+1).setValue(true);
   rec.sheet.getRange(rec.row,rec.map.auth_by+1).setValue(manager.ymis);
