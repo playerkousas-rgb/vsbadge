@@ -11,23 +11,27 @@
 //   - reviewApplication 按申請角色開戶（審批者無權限設定該角色時退回團員），回應加 final_role
 //   - 無新工作表、無新欄位：覆蓋 Code.gs 並重新部署即可，毋須 initializeSheets()
 // v8.3 新增：
-//   - initializeSheets() 會自動補回內置超管 sheep（密碼 0728），不會因重建 Sheet 而消失
 //   - 密碼最短 4 位（原 8 位）；批量／審批初始密碼統一為 1234
-//   - 重新覆蓋 Code.gs 並部署後，執行 initializeSheets() 一次即可補回超管及套用新原則
+//   - 重新覆蓋 Code.gs 並部署後，執行 initializeSheets() 一次即可套用新原則
+// v8.5 起：內置超管改制為「只在後端（GS）存在」的虛擬帳號，不再寫入 Users 工作表、不會在用戶管理出現。
 // v8.4 新增：活動履歷「團員自行申報 → 領袖審批」
 //   - 新工作表「待批履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
 //   - 新 action：requestLogRecord（團員申報新增／修改）/ getLogRequests / reviewLogRequest / cancelLogRequest
 //   - 團員只可為自己申報；「修改申報」只限自己的紀錄，批准後以同一 record_id 更新（需領袖重批）
 //   - 進度待批（待批完成）及其他獎章流程不變：批准後只有領袖可改
 //   - handleLoad 回應新增 logRequests + logRequestsSupported
+// v8.5 新增：內置超管（sheep）改為「只在 GS 後端存在」的虛擬帳號
+//   - 不再寫入 Users 工作表，亦不會在「用戶管理」（USER 表單）出現
+//   - 登入／權限驗證／自助改密碼由後端直接處理（密碼存於 Script Properties）
+//   - initializeSheets() 會自動移除舊部署已寫入 Users 的超管列（只匹配 sheep / sheep@vsbadge.local）
 // ============================================================
 
 const ADMIN_YMIS = '1111111111';
 const ADMIN_NAME = '管理員';
 const ADMIN_EMAIL = 'admin@example.com';
 const ADMIN_PASS = 'changeme';
-// v8.3：後端 Google Sheet 的內置超管帳號（不會因重新初始化而消失）
-// 可直接以登入帳號 sheep（會員欄）或 sheep@vsbadge.local（領袖欄）登入。
+// v8.5：後端（GS）內置超管帳號 —— 只存在於程式碼／Script Properties，不寫入 Users 工作表。
+// 可直接以登入帳號 sheep 或 sheep@vsbadge.local 登入；密碼可經「改密碼」自訂（存於 Script Properties）。
 const SUPER_ADMIN_ID = 'sheep';
 const SUPER_ADMIN_NAME = 'Sheep 超管';
 const SUPER_ADMIN_EMAIL = 'sheep@vsbadge.local';
@@ -158,6 +162,46 @@ function writeAudit(actor,action,target,detail){
 function canManageUser(manager,targetRole){ return manager && (manager.role==='super_admin' || canManageRole(manager.role,targetRole)); }
 function canCreateRole(manager,targetRole){ return manager && (manager.role==='super_admin' || (manager.role==='admin' && targetRole==='admin') || canManageRole(manager.role,targetRole)); }
 
+// ===== 超管（v8.5：只存在於後端／GS 的虛擬帳號）=====
+// 超管不再寫入 Users 工作表，故所有查詢都在「程式碼層」處理：
+// getUser()/getUserByEmail() 會回傳虛擬超管；getAllUsers()/getMembers() 會排除它。
+function isSuperAdminId(id){
+  const v=String(id||'').trim().toLowerCase();
+  return v===String(SUPER_ADMIN_ID).trim().toLowerCase() || v===String(SUPER_ADMIN_EMAIL).trim().toLowerCase();
+}
+function isSuperAdminReserved(ymis,email){
+  return String(ymis||'').trim()===String(SUPER_ADMIN_ID).trim() ||
+         (String(email||'').trim()!=='' && String(email).trim().toLowerCase()===String(SUPER_ADMIN_EMAIL).trim().toLowerCase());
+}
+function getSuperAdminUser(){
+  return {
+    ymis:String(SUPER_ADMIN_ID), name:String(SUPER_ADMIN_NAME), email:String(SUPER_ADMIN_EMAIL),
+    role:'super_admin', can_tick:true, branch:'b4', allowed_badges:'*',
+    status:'active', force_change_password:false
+  };
+}
+// 超管密碼：預設 SUPER_ADMIN_PASS；若曾自行更改，存於 Script Properties（不會寫進 Users 工作表）。
+const SUPER_PASS_HASH_PROP='SUPER_ADMIN_PASSWORD_HASH';
+function getSuperAdminPasswordHash(){
+  const h=PropertiesService.getScriptProperties().getProperty(SUPER_PASS_HASH_PROP);
+  return h || hashPassword(SUPER_ADMIN_PASS);
+}
+function setSuperAdminPasswordHash(plain){
+  PropertiesService.getScriptProperties().setProperty(SUPER_PASS_HASH_PROP, hashPassword(plain));
+}
+function setSuperAdminLastLogin(){
+  PropertiesService.getScriptProperties().setProperty('SUPER_ADMIN_LAST_LOGIN', now());
+}
+// 移除舊部署已寫入 Users 工作表的超管列（只匹配 sheep / sheep@vsbadge.local，不會誤刪其他帳號）
+function removeSuperAdminFromSheet(sheet,map,dataRows){
+  if(!sheet || !map || map.ymis===undefined) return;
+  for(let i=dataRows.length-1;i>=1;i--){
+    const id=String(dataRows[i][map.ymis]||'').trim();
+    const email=(map.email===undefined)?'':String(dataRows[i][map.email]||'').trim();
+    if(isSuperAdminReserved(id,email)) sheet.deleteRow(i+1);
+  }
+}
+
 // ===== 初始化 =====
 function initializeSheets() {
   const ss = getSheet();
@@ -187,12 +231,14 @@ function initializeSheets() {
     uSheet.getRange(1,1,1,USER_HEADERS.length).setFontWeight('bold').setBackground('#8B0000').setFontColor('#FFFFFF');
     uSheet.setFrozenRows(1);
   }
-  // 確保 Users 欄位完整，並補回內置帳號（管理員 + 超管 sheep）。
-  // 超管 sheep 不會因重新初始化而消失；若已存在同名帳號則不會改動原有資料。
+  // 確保 Users 欄位完整，並補回內置管理員帳號。
+  // v8.5：內置超管改為「只在 GS 後端存在」的虛擬帳號，不再寫入 Users 工作表，
+  // 也不會在「用戶管理」（USER 表單）出現。若舊部署已把超管寫入 Users，
+  // 此處會自動移除該列（只匹配 SUPER_ADMIN_ID / SUPER_ADMIN_EMAIL，不會誤刪其他帳號）。
   const userMap=ensureUserColumns(uSheet);
+  removeSuperAdminFromSheet(uSheet,userMap,uSheet.getDataRange().getValues());
   const userRows=uSheet.getDataRange().getValues();
   ensureSeedAccount(uSheet,userMap,userRows,{ymis:ADMIN_YMIS,name:ADMIN_NAME,email:ADMIN_EMAIL,role:'admin',password:ADMIN_PASS,branch:'b4',can_tick:true,force_change_password:true});
-  ensureSeedAccount(uSheet,userMap,userRows,{ymis:SUPER_ADMIN_ID,name:SUPER_ADMIN_NAME,email:SUPER_ADMIN_EMAIL,role:'super_admin',password:SUPER_ADMIN_PASS,branch:'b4',can_tick:true,force_change_password:false});
   // 舊版本會自動補上新欄，不需手動改 Sheet；仍使用預設密碼的舊管理員會被要求立即更改。
   for(let i=1;i<userRows.length;i++){
     if(String(userRows[i][userMap.password_hash]||'')===hashPassword(ADMIN_PASS)) uSheet.getRange(i+1,userMap.force_change_password+1).setValue(true);
@@ -276,7 +322,7 @@ function initializeSheets() {
   try{
     const ui=SpreadsheetApp.getUi();
     if(ui){
-      ui.alert('✅ v8.4 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（已自動補回，不會消失）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
+      ui.alert('✅ v8.4 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（只存在於後端，不會在「用戶管理」看到；密碼可用「改密碼」自訂）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
@@ -284,11 +330,15 @@ function initializeSheets() {
 
 // ===== 用戶查詢 =====
 function getUser(ymis){
+  // v8.5：超管為後端虛擬帳號，任何登入／權限驗證都當作有效的 active 用戶。
+  if(isSuperAdminId(ymis)) return getSuperAdminUser();
   const rec=findUserRecord(ymis);
   return rec && rec.user.status==='active' ? rec.user : null;
 }
 function getUserByEmail(email){
   if(!email) return null;
+  // v8.5：超管電郵由後端直接處理，不依靠 Users 工作表。
+  if(String(email).trim().toLowerCase()===String(SUPER_ADMIN_EMAIL).trim().toLowerCase()) return getSuperAdminUser();
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const target=String(email).trim().toLowerCase();
   for(let i=1;i<data.length;i++){
@@ -302,7 +352,8 @@ function getAllUsers(){
   const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const users=[];
   for(let i=1;i<data.length;i++){
     const user=userFromRow(data[i],map);
-    if(user.ymis) users.push(user);
+    // v8.5：超管不會出現在用戶列表（USER 表單）。
+    if(user.ymis && !isSuperAdminReserved(user.ymis,user.email)) users.push(user);
   }
   return users;
 }
@@ -470,6 +521,13 @@ function handleLogin(loginId,password){
   if(!loginId||!password) return jsonResponse({success:false,error:'請填寫帳號和密碼'});
   const user=getUser(loginId)||getUserByEmail(loginId);
   if(!user) return jsonResponse({success:false,error:'找不到此帳號或帳號已停用'});
+  // v8.5：超管為只存在於後端（GS）的虛擬帳號，不存放在 Users 工作表。
+  if(isSuperAdminId(user.ymis)){
+    if(hashPassword(String(password))!==getSuperAdminPasswordHash()) return jsonResponse({success:false,error:'密碼錯誤'});
+    setSuperAdminLastLogin();
+    const token=createToken(user.ymis);
+    return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password});
+  }
   const rec=findUserRecord(user.ymis);
   const map=rec.map;
   if(String(rec.data[map.password_hash]||'')!==hashPassword(String(password))) return jsonResponse({success:false,error:'密碼錯誤'});
@@ -482,6 +540,14 @@ function handleChangePassword(ymis,oldP,newP){
   if(newP.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newP.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
   if(newP===String(oldP||'')) return jsonResponse({success:false,error:'新密碼不可與原密碼相同'});
+  // v8.5：超管為後端虛擬帳號，密碼存於 Script Properties（不會寫入 Users 工作表）。
+  if(isSuperAdminId(ymis)){
+    if(hashPassword(String(oldP||''))!==getSuperAdminPasswordHash()) return jsonResponse({success:false,error:'原密碼錯誤'});
+    setSuperAdminPasswordHash(newP);
+    setSuperAdminLastLogin();
+    writeAudit(ymis,'change_password',ymis,'用戶自行更改密碼（超管虛擬帳號）');
+    return jsonResponse({success:true,message:'密碼已更新'});
+  }
   const rec=findUserRecord(ymis);
   if(!rec || rec.user.status!=='active') return jsonResponse({success:false,error:'找不到用戶'});
   if(String(rec.data[rec.map.password_hash]||'')!==hashPassword(String(oldP||''))) return jsonResponse({success:false,error:'原密碼錯誤'});
@@ -499,6 +565,7 @@ function handleApply(ymis,name,email,role,branch){
   if(!name) return jsonResponse({success:false,error:'請填寫姓名'});
   if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
   if(role!=='member' && !email) return jsonResponse({success:false,error:'執委／領袖申請必須填寫聯絡電郵'});
+  if(isSuperAdminReserved(ymis,email)) return jsonResponse({success:false,error:'此帳號已被保留，請使用其他帳號'});
   if(findUserRecord(ymis)) return jsonResponse({success:false,error:'YMIS 已註冊或曾建立帳號，請聯絡領袖'});
   if(email){
     const users=getAllUsers();
@@ -580,7 +647,7 @@ function handleGetConfig(){
 function getMembers(){
   const mSheet=getSheet().getSheetByName('成員名單'); const members=[];
   if(mSheet){ const data=mSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ if(data[i][0]) members.push({ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():''}); } }
-  const uSheet=getSheet().getSheetByName('Users'); if(uSheet){ const data=uSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ if(data[i][11].toString()==='active' && data[i][0]){ const y=data[i][0].toString(); if(!members.some(m=>m.ymis===y)){ members.push({ymis:y,name:data[i][1].toString()}); } } } }
+  const uSheet=getSheet().getSheetByName('Users'); if(uSheet){ const data=uSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ const y=String(data[i][0]||''); if(data[i][11].toString()==='active' && y && !isSuperAdminId(y)){ if(!members.some(m=>m.ymis===y)){ members.push({ymis:y,name:String(data[i][1]||'')}); } } } }
   return members;
 }
 function handleLoad(){
@@ -668,6 +735,7 @@ function createUsersBatch(rawUsers,manager){
       else if(!canCreateRole(manager,u.role)) error='你的角色不可建立 '+u.role;
       else if(u.role!=='member' && !u.email) error='領袖／執委帳號須填 Email';
       else if(u.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email)) error='Email 格式不正確';
+      else if(isSuperAdminReserved(u.ymis,u.email)) error='此帳號已被保留';
       else if(u.password.length<MIN_PASSWORD_LEN) error='臨時密碼至少 '+MIN_PASSWORD_LEN+' 位';
       else if(u.password.length>MAX_PASSWORD_LEN) error='臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位';
       else if(existingYmis[u.ymis] || batchYmis[u.ymis]) error='YMIS 已存在（包括停用帳號）';
@@ -722,6 +790,7 @@ function handleUpdateUserProfile(body,manager){
   const name=safeSheetText(body.name,100); const email=String(body.email||'').trim().substring(0,160); const branch=safeSheetText(body.branch,100);
   if(!name) return jsonResponse({success:false,error:'姓名不可留空'});
   if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
+  if(isSuperAdminReserved('',email)) return jsonResponse({success:false,error:'此 Email 已被保留'});
   const users=getAllUsers();
   if(email && users.some(function(u){ return u.ymis!==rec.user.ymis && u.email.toLowerCase()===email.toLowerCase(); })) return jsonResponse({success:false,error:'Email 已被使用'});
   rec.sheet.getRange(rec.row,rec.map.name+1).setValue(name); rec.sheet.getRange(rec.row,rec.map.email+1).setValue(email); rec.sheet.getRange(rec.row,rec.map.branch+1).setValue(branch);

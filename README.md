@@ -96,7 +96,7 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 
 - 密碼最短 **4 位**（不再強制 8 位），適用於更改密碼、開立帳戶、重設密碼及批量開戶。
 - 批量開戶／審批的初始密碼統一預設為 **1234**；首次登入仍會要求更改。
-- 後端 Google Sheet 內置超管 `sheep`／密碼 `0728`，`initializeSheets()` 會自動補回，不會因重建 Sheet 而消失；重新部署後執行一次 `initializeSheets()` 即可恢復。
+- 內置超管 `sheep`／密碼 `0728` 為**只在後端（GS/Apps Script）存在的虛擬帳號**：不會寫入 Users 工作表，亦不會在「用戶管理」（USER 表單）出現；可直接以 `sheep` 或 `sheep@vsbadge.local` 登入，密碼可於登入後經「改密碼」自訂（存於後端，不會寫入 Sheet）。舊部署已把 sheep 寫入 Users 的，`initializeSheets()` 會自動移除該列（只匹配 `sheep`／`sheep@vsbadge.local`，不會誤刪其他帳號）。
 
 批量開戶說明見 [`docs/BULK_ONBOARD.md`](docs/BULK_ONBOARD.md)。部署新後端或升級既有後端後，請再次執行 `initializeSheets()` 以補上新欄位及「操作紀錄」工作表。
 
