@@ -604,6 +604,7 @@ a:hover{text-decoration:underline}
 <div id="logRecordModal" class="modal">
   <div class="modal-content">
     <h3 id="logModalTitle" data-i18n="log.addTitle">➕ 新增活動履歷紀錄</h3>
+    <p id="lgMemberHint" style="display:none;font-size:11px;background:var(--blue-light,#EFF6FF);border:1px solid var(--blue);color:var(--blue);padding:8px 10px;border-radius:8px;margin-bottom:10px" data-i18n="log.reqHint">💡 提交後由領袖審批，批准後才會寫入活動履歷。已批准的紀錄如需修改，可再提交修改申報，經領袖重批後更新。</p>
     <div class="form-group">
       <label data-i18n="log.type">類型 *</label>
       <select id="lgType" onchange="syncLogTypeFields()">
@@ -868,6 +869,19 @@ zh:{
   'log.onlyLeaderDel':'只有領袖可以刪除紀錄','log.delConfirm':'確定刪除「{t}」？此操作不能復原。',
   'log.delDemo':'已刪除（DEMO 本機模式）','log.deleted':'✅ 已刪除紀錄','log.delFail':'刪除失敗：{m}',
   'log.svcHoursSum':' · 服務總時數 ',
+  'log.selfAdd':'📝 申報紀錄','log.emptySelf':'，可按上方「📝 申報紀錄」自行申報（需領袖批准）',
+  'log.pendingH':'待領袖審批的申報','log.reqNew':'新增申報','log.reqEdit':'修改申報',
+  'log.cancelReq':'↩️ 取消申報','log.cancelConfirm':'確定取消申報「{t}」？','log.cancelled':'✅ 已取消申報',
+  'log.editPending':'⏳ 修改待批','log.editPendingToast':'此紀錄已有待批修改申報，請等待領袖審批或先取消',
+  'log.reqEditBtn':'申請修改（需領袖重批）','log.onlyOwnEdit':'只可申請修改自己的紀錄',
+  'log.reqAddTitle':'📝 申報活動履歷（需領袖批准）','log.reqEditTitle':'✏️ 申請修改紀錄（需領袖重批）',
+  'log.reqSubmit':'📨 提交申報','log.reqSending':'提交中...','log.reqSent':'✅ 申報已提交，待領袖審批',
+  'log.reqFail':'申報失敗：{m}','log.reqDemoOk':'✅ 已提交申報（DEMO 本機模式）',
+  'log.reqNeedUpgrade':'後端未升級 v8.4，暫未能自行申報，請聯絡領袖代為輸入',
+  'log.reqHint':'💡 提交後由領袖審批，批准後才會寫入活動履歷。已批准的紀錄如需修改，可再提交修改申報，經領袖重批後更新。',
+  'log.origRec':'原紀錄：','log.origMissing':'⚠️ 找不到原紀錄（可能已被刪除）',
+  'log.reqApproved':'✅ 已批准申報','log.reqRejected':'已拒絕申報',
+  'req.logTab':'📅 履歷申報 ({n})','req.logH':'📅 履歷申報 - 成員自行申報的服務／活動／訓練班紀錄','req.noLog':'沒有待批履歷申報',
   'forms.autoTitle':'🖨️ 表格自動填寫功能',
   'forms.autoP':'系統會根據進度自動填寫 PT/19 及 PT/20 表格所需完成日期，領袖/成員可修改後直接列印。支援雙面列印，符合總會要求。',
   'forms.auto1':'自動帶入姓名、YMIS、旅團、段章完成日期','forms.auto2':'可手動編輯補充服務時數、證書編號','forms.auto3':'一鍵列印，隱藏操作按鈕',
@@ -1127,6 +1141,19 @@ en:{
   'log.onlyLeaderDel':'Only leaders can delete records','log.delConfirm':'Delete “{t}”? This cannot be undone.',
   'log.delDemo':'Deleted (DEMO, local only)','log.deleted':'✅ Record deleted','log.delFail':'Delete failed: {m}',
   'log.svcHoursSum':' · total service hours ',
+  'log.selfAdd':'📝 Claim a record','log.emptySelf':'. Tap “📝 Claim a record” above (leader approval needed).',
+  'log.pendingH':'Claims awaiting a leader','log.reqNew':'New claim','log.reqEdit':'Edit claim',
+  'log.cancelReq':'↩️ Cancel claim','log.cancelConfirm':'Cancel the claim “{t}”?','log.cancelled':'✅ Claim cancelled',
+  'log.editPending':'⏳ Edit pending','log.editPendingToast':'This record already has a pending edit claim. Wait for a leader or cancel it first.',
+  'log.reqEditBtn':'Request an edit (needs leader re-approval)','log.onlyOwnEdit':'You can only request edits to your own records',
+  'log.reqAddTitle':'📝 Claim an activity-log record (leader approval needed)','log.reqEditTitle':'✏️ Request a record edit (leader re-approval needed)',
+  'log.reqSubmit':'📨 Submit claim','log.reqSending':'Submitting...','log.reqSent':'✅ Claim submitted. Awaiting a leader.',
+  'log.reqFail':'Claim failed: {m}','log.reqDemoOk':'✅ Claim submitted (DEMO, local only)',
+  'log.reqNeedUpgrade':'Backend not on v8.4; self-claims unavailable. Ask a leader to enter it.',
+  'log.reqHint':'💡 A leader reviews each claim; it is written to the activity log only after approval. To change an approved record, submit an edit claim — it updates after a leader re-approves.',
+  'log.origRec':'Current record: ','log.origMissing':'⚠️ Original record not found (may have been deleted)',
+  'log.reqApproved':'✅ Claim approved','log.reqRejected':'Claim rejected',
+  'req.logTab':'📅 Log claims ({n})','req.logH':'📅 Log claims — member-submitted service / activity / course records','req.noLog':'No pending log claims',
   'forms.autoTitle':'🖨️ Auto-filled forms',
   'forms.autoP':'The system fills completion dates for PT/19 and PT/20 from progress. Leaders/members may edit, then print double-sided as required by Headquarters.',
   'forms.auto1':'Name, YMIS, Group and Achievement Badge dates are filled in','forms.auto2':'You may add service hours and certificate numbers','forms.auto3':'One-click print; action buttons are hidden',
@@ -1550,6 +1577,7 @@ let currentTroopId='',currentTroopName='';
 let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
 let logRecords=[],logRecordsSupported=false,logFilterType='all'; // v8.1 活動履歷
+let logRequests=[],logRequestsSupported=false; // v8.4 履歷申報（團員自行申報 → 領袖審批）
 let selectedProgressYmis=null; // 領袖查看他人進度
 let appConfig={allow_member_view_others:'false'}; // 系統設定
 let adminUsersCache=[],bulkDraft=[],bulkResults=[],ymisImportRows=[],_pdfjsPromise=null;
@@ -2045,6 +2073,9 @@ async function loadItemsAndProgress(){
       // v8.1 活動履歷：舊後端沒有 logs 欄位 → 顯示升級提示
       logRecords=Array.isArray(backendData.logs)?backendData.logs:[];
       logRecordsSupported=backendData.logsSupported===true || Array.isArray(backendData.logs);
+      // v8.4 履歷申報：舊後端沒有 logRequests 欄位 → 隱藏申報功能
+      logRequests=Array.isArray(backendData.logRequests)?backendData.logRequests:[];
+      logRequestsSupported=backendData.logRequestsSupported===true;
       // pending requests from backend
       const pr=backendData.pendingRequests||[];
       // merge with local queue
@@ -2977,6 +3008,17 @@ async function renderRequestsTab(){
       if(d2.success) userApplications=d2.applications||[];
     }catch(e){ console.warn(e); }
   }
+  // v8.4 載入履歷申報：領袖見全部待批；團員見自己的（可取消）
+  let logReqList=[];
+  const isLogReviewer=canUserTickRole(currentUser.role);
+  if(currentTroopId==='DEMO'){
+    logReqList=logRequests.filter(r=>r.status==='pending'&&(isLogReviewer||r.ymis===currentUser.ymis));
+  }else if(logRequestsSupported){
+    try{
+      const d3=await apiRequest('getLogRequests',{token:currentToken});
+      if(d3.success){ logReqList=d3.requests||[]; logRequests=logReqList; }
+    }catch(e){ console.warn(e); }
+  }
   // 合併本地暫存
   try{
     const localKey=LS.requests(currentTroopId, currentUser.ymis);
@@ -2993,7 +3035,8 @@ async function renderRequestsTab(){
 
   const totalBadge=badgeRequests.length;
   const totalUser=userApplications.length;
-  const totalAll=totalBadge+totalUser;
+  const totalLog=logReqList.length;
+  const totalAll=totalBadge+totalUser+totalLog;
   // 更新紅點數字包含兩種
   const badgeEl=document.getElementById('badgeRequestsCount');
   if(badgeEl){ if(totalAll>0){ badgeEl.textContent=totalAll; badgeEl.style.display='inline-block'; } else badgeEl.style.display='none'; }
@@ -3005,6 +3048,7 @@ async function renderRequestsTab(){
 
   let html=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn btn-sm btn-primary" onclick="showApprovalSubTab('badge')">${i18n('req.badgeTab',{n:totalBadge})}</button>
+    ${(logRequestsSupported||currentTroopId==='DEMO')?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('log')">${i18n('req.logTab',{n:totalLog})}</button>`:''}
     ${isManage?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('user')">${i18n('req.userTab',{n:totalUser})}</button>`:''}
     <button class="btn btn-sm btn-secondary" onclick="renderRequestsTab()">${i18n('btn.refresh')}</button>
   </div>`;
@@ -3035,6 +3079,40 @@ async function renderRequestsTab(){
   }
   html+=`</div>`;
 
+  // v8.4 履歷申報審批區：領袖批准後才寫入／更新活動履歷；「修改申報」以同一 record_id 更新（重批機制）
+  if(logRequestsSupported||currentTroopId==='DEMO'){
+    html+=`<div id="approvalLogView" style="display:none;margin-top:16px">`;
+    html+=`<h3 style="font-size:14px;color:var(--maroon);margin-bottom:8px">${i18n('req.logH')}</h3>`;
+    if(totalLog===0){
+      html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">${i18n('req.noLog')}</p>`;
+    }else{
+      html+=logReqList.map(r=>{
+        const orig=r.kind==='edit'?logRecords.find(x=>x.record_id===r.target_record_id):null;
+        return `<div class="app-item" style="align-items:flex-start">
+          <div class="app-item-info">
+            <div style="font-weight:600">${escapeHtmlText(r.name||r.ymis)} <small style="color:var(--text-light)">(${escapeHtmlText(r.ymis)})</small>
+              <span style="background:${r.kind==='edit'?'var(--orange)':'var(--blue)'};color:#fff;padding:2px 8px;border-radius:999px;font-size:9px">${r.kind==='edit'?i18n('log.reqEdit'):i18n('log.reqNew')}</span></div>
+            <div style="font-size:12px;margin:4px 0">${logTypeIcon(r.type)} ${logTypeLabel(r.type)} · <b>${escapeHtmlText(r.title)}</b> <small style="color:var(--text-light)">📅 ${escapeHtmlText(r.date)}</small></div>
+            <div style="font-size:11px;display:flex;gap:6px;flex-wrap:wrap">
+              ${r.role?`<span style="background:var(--bg);padding:1px 8px;border-radius:999px">${i18n('log.role')}${escapeHtmlText(r.role)}</span>`:''}
+              ${r.hours?`<span style="background:var(--bg);padding:1px 8px;border-radius:999px">${i18n('log.hours')}${escapeHtmlText(r.hours)}</span>`:''}
+              ${r.cert_no?`<span style="background:var(--bg);padding:1px 8px;border-radius:999px">${i18n('log.cert')}${escapeHtmlText(r.cert_no)}</span>`:''}
+            </div>
+            ${r.detail?`<div style="font-size:11px;background:#FAFAFA;padding:6px;border-radius:6px;margin-top:4px;border-left:2px solid var(--border)">${escapeHtmlText(r.detail)}</div>`:''}
+            ${orig?`<div style="font-size:10px;color:var(--text-light);margin-top:3px">${i18n('log.origRec')}${escapeHtmlText(orig.title)}（📅 ${escapeHtmlText(orig.date)}${orig.role?` · ${escapeHtmlText(orig.role)}`:''}${orig.hours?` · ${i18n('log.hours')}${escapeHtmlText(orig.hours)}`:''}）</div>`:(r.kind==='edit'?`<div style="font-size:10px;color:var(--orange);margin-top:3px">${i18n('log.origMissing')}</div>`:'')}
+            <div style="font-size:11px;color:var(--text-light);margin-top:3px">${i18n('req.submitted')}${escapeHtmlText(r.created_at||'')}</div>
+          </div>
+          <div class="app-item-actions" style="flex-direction:column">
+            ${isLogReviewer?`<button class="btn btn-sm btn-success" onclick="reviewLogRequest('${escapeAttr(r.request_id)}','approved')">${i18n('req.approve')}</button>
+            <button class="btn btn-sm btn-danger" onclick="reviewLogRequest('${escapeAttr(r.request_id)}','rejected')">${i18n('req.reject')}</button>`
+            :(r.ymis===currentUser.ymis?`<button class="btn btn-sm btn-outline" onclick="cancelLogRequest('${escapeAttr(r.request_id)}').then(()=>renderRequestsTab())">${i18n('log.cancelReq')}</button>`:`<span style="font-size:11px;color:var(--text-light)">${i18n('req.pending')}</span>`)}
+          </div>
+        </div>`;
+      }).join('');
+    }
+    html+=`</div>`;
+  }
+
   // 用戶審批區 (僅管理層)
   if(isManage){
     html+=`<div id="approvalUserView" style="display:none;margin-top:16px">`;
@@ -3055,13 +3133,10 @@ async function renderRequestsTab(){
 function showApprovalSubTab(which){
   const bv=document.getElementById('approvalBadgeView');
   const uv=document.getElementById('approvalUserView');
-  if(which==='badge'){
-    if(bv) bv.style.display='block';
-    if(uv) uv.style.display='none';
-  }else{
-    if(bv) bv.style.display='none';
-    if(uv) uv.style.display='block';
-  }
+  const lv=document.getElementById('approvalLogView');
+  if(bv) bv.style.display=which==='badge'?'block':'none';
+  if(lv) lv.style.display=which==='log'?'block':'none';
+  if(uv) uv.style.display=which==='user'?'block':'none';
 }
 
 async function reviewSingleRequest(reqId, decision){
@@ -3281,9 +3356,24 @@ function renderLogsTab(){
   html+=`<span style="font-size:11px;color:var(--text-light)">`+i18n('log.countFmt',{s:countOf('service'),a:countOf('activity'),t:countOf('training')})+`${serviceHours?i18n('log.svcHoursSum')+`<b>${serviceHours}</b>`:''}</span>`;
   html+=`<button class="btn btn-sm btn-secondary" onclick="refreshLogRecords()" title="${i18n('log.reloadTitle')}">🔄</button>`;
   if(isLeader) html+=`<button class="btn btn-sm btn-primary" onclick="openLogRecordModal()">${i18n('log.add')}</button>`;
+  else if(logRequestsSupported||currentTroopId==='DEMO') html+=`<button class="btn btn-sm btn-primary" onclick="openLogRecordModal()">${i18n('log.selfAdd')}</button>`;
   html+='</div>';
   // 類型篩選
   html+=`<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">${['all','service','activity','training'].map(t=>`<button class="btn btn-sm ${logFilterType===t?'btn-primary':'btn-outline'}" onclick="logFilterType='${t}';renderLogsTab()">${t==='all'?i18n('log.all'):logTypeIcon(t)+' '+logTypeLabel(t)}</button>`).join('')}</div>`;
+  // v8.4：此成員的待批申報（新增／修改）。批准前不會寫入活動履歷；申報人可取消。
+  const myPendingReqs=logRequests.filter(r=>r.status==='pending'&&r.ymis===targetYmis);
+  if(myPendingReqs.length){
+    html+=`<div class="info-section" style="border-left:4px solid var(--orange);background:#FFFBEB"><h3>⏳ ${i18n('log.pendingH')} <small style="color:var(--text-light)">(${myPendingReqs.length})</small></h3>`;
+    html+=myPendingReqs.map(r=>`<div class="app-item" style="align-items:flex-start">
+      <div class="app-item-info">
+        <b>${logTypeIcon(r.type)} ${escapeHtmlText(r.title)}</b> <small style="color:var(--text-light)">📅 ${escapeHtmlText(r.date)}</small>
+        <span style="background:${r.kind==='edit'?'var(--orange)':'var(--blue)'};color:#fff;padding:1px 8px;border-radius:999px;font-size:9px;margin-left:4px">${r.kind==='edit'?i18n('log.reqEdit'):i18n('log.reqNew')}</span>
+        <div style="font-size:11px;color:var(--text-light);margin-top:3px">${i18n('req.pending')}</div>
+      </div>
+      ${r.ymis===currentUser.ymis?`<div class="app-item-actions"><button class="btn btn-sm btn-outline" onclick="cancelLogRequest('${escapeAttr(r.request_id)}')">${i18n('log.cancelReq')}</button></div>`:''}
+    </div>`).join('');
+    html+='</div>';
+  }
   // 三類區塊
   ['service','activity','training'].forEach(t=>{
     if(logFilterType!=='all'&&logFilterType!==t) return;
@@ -3291,7 +3381,7 @@ function renderLogsTab(){
     const rows=memberLogs.filter(r=>r.type===t).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     html+=`<div class="info-section" style="border-left:4px solid ${cfg.color}"><h3>${cfg.icon} ${logTypeLabelFull(t)} <small style="color:var(--text-light)">(${rows.length})</small></h3>`;
     if(rows.length===0){
-      html+=`<p style="font-size:12px;color:var(--text-light);padding:8px 0">${i18n('log.empty')}${isLeader?i18n('log.emptyLeader'):''}</p>`;
+      html+=`<p style="font-size:12px;color:var(--text-light);padding:8px 0">${i18n('log.empty')}${isLeader?i18n('log.emptyLeader'):((logRequestsSupported||currentTroopId==='DEMO')?i18n('log.emptySelf'):'')}</p>`;
     }else{
       html+=rows.map(r=>`<div class="app-item" style="align-items:flex-start">
         <div class="app-item-info">
@@ -3307,7 +3397,9 @@ function renderLogsTab(){
         ${isLeader?`<div class="app-item-actions" style="flex-direction:column">
           <button class="btn btn-sm btn-outline" title="${i18n('log.editBtn')}" onclick="openLogRecordModal('${escapeAttr(r.record_id)}')">✏️</button>
           <button class="btn btn-sm btn-danger" title="${i18n('log.delBtn')}" onclick="deleteLogRecord('${escapeAttr(r.record_id)}')">🗑️</button>
-        </div>`:''}
+        </div>`:((logRequestsSupported||currentTroopId==='DEMO')&&r.ymis===currentUser.ymis?`<div class="app-item-actions" style="flex-direction:column">
+          ${logRequests.some(q=>q.status==='pending'&&q.kind==='edit'&&q.target_record_id===r.record_id)?`<span style="font-size:10px;color:var(--orange);white-space:nowrap">${i18n('log.editPending')}</span>`:`<button class="btn btn-sm btn-outline" title="${i18n('log.reqEditBtn')}" onclick="openLogRecordModal('${escapeAttr(r.record_id)}')">✏️</button>`}
+        </div>`:'')}
       </div>`).join('');
     }
     html+='</div>';
@@ -3329,20 +3421,34 @@ async function refreshLogRecords(){
   }catch(e){ showToast(i18n('log.readFail',{m:e.message}),'error'); }
 }
 
-let editingLogRecordId=null;
+let editingLogRecordId=null,logModalMemberMode=false;
 function openLogRecordModal(recordId){
-  if(!canUserTickRole(currentUser.role)){ showToast(i18n('log.needLeader'),'warning'); return; }
-  if(!logRecordsSupported && currentTroopId!=='DEMO'){ showToast(i18n('log.needUpgrade'),'error'); return; }
+  const isLeader=canUserTickRole(currentUser.role);
+  logModalMemberMode=!isLeader;
+  if(isLeader){
+    if(!logRecordsSupported && currentTroopId!=='DEMO'){ showToast(i18n('log.needUpgrade'),'error'); return; }
+  }else{
+    // v8.4：團員自行申報（新增／修改自己的紀錄），提交後由領袖審批
+    if(!logRequestsSupported && currentTroopId!=='DEMO'){ showToast(i18n('log.reqNeedUpgrade'),'error'); return; }
+  }
   editingLogRecordId=recordId||null;
-  const opts=members.map(m=>`<option value="${m.ymis}">${escapeHtmlText(m.name)} (${m.ymis})</option>`).join('');
+  const opts=isLeader
+    ?members.map(m=>`<option value="${m.ymis}">${escapeHtmlText(m.name)} (${m.ymis})</option>`).join('')
+    :`<option value="${escapeAttr(currentUser.ymis)}">${escapeHtmlText(currentUser.name)} (${escapeHtmlText(currentUser.ymis)})</option>`;
   document.getElementById('lgMember').innerHTML=opts;
-  document.getElementById('lgBatchMembers').innerHTML=opts;
+  document.getElementById('lgBatchMembers').innerHTML=isLeader?opts:'';
   document.getElementById('lgBatchMode').checked=false;
+  document.getElementById('lgBatchToggleLabel').style.display=isLeader?'flex':'none';
+  document.getElementById('lgMemberHint').style.display=isLeader?'none':'block';
   syncLogBatchMode();
   if(recordId){
     const r=logRecords.find(x=>x.record_id===recordId);
     if(!r){ showToast(i18n('log.notFound'),'error'); return; }
-    document.getElementById('logModalTitle').textContent=i18n('log.editTitle');
+    if(!isLeader){
+      if(r.ymis!==currentUser.ymis){ showToast(i18n('log.onlyOwnEdit'),'warning'); return; }
+      if(logRequests.some(q=>q.status==='pending'&&q.kind==='edit'&&q.target_record_id===recordId)){ showToast(i18n('log.editPendingToast'),'warning'); return; }
+    }
+    document.getElementById('logModalTitle').textContent=isLeader?i18n('log.editTitle'):i18n('log.reqEditTitle');
     document.getElementById('lgType').value=r.type; document.getElementById('lgType').disabled=true;
     document.getElementById('lgMember').value=r.ymis; document.getElementById('lgMember').disabled=true;
     document.getElementById('lgBatchMode').disabled=true;
@@ -3353,15 +3459,16 @@ function openLogRecordModal(recordId){
     document.getElementById('lgCertNo').value=r.cert_no||'';
     document.getElementById('lgDetail').value=r.detail||'';
   }else{
-    document.getElementById('logModalTitle').textContent=i18n('log.addTitle');
+    document.getElementById('logModalTitle').textContent=isLeader?i18n('log.addTitle'):i18n('log.reqAddTitle');
     document.getElementById('lgType').disabled=false;
-    document.getElementById('lgMember').disabled=false;
-    document.getElementById('lgBatchMode').disabled=false;
+    document.getElementById('lgMember').disabled=!isLeader;
+    document.getElementById('lgBatchMode').disabled=!isLeader;
     document.getElementById('lgType').value='service';
-    document.getElementById('lgMember').value=selectedProgressYmis||currentUser.ymis;
+    document.getElementById('lgMember').value=isLeader?(selectedProgressYmis||currentUser.ymis):currentUser.ymis;
     document.getElementById('lgDate').value=todayISO();
     ['lgTitle','lgRole','lgHours','lgCertNo','lgDetail'].forEach(id=>document.getElementById(id).value='');
   }
+  document.getElementById('btnSaveLogRecord').textContent=isLeader?i18n('log.save'):i18n('log.reqSubmit');
   syncLogTypeFields();
   document.getElementById('logRecordModal').classList.add('active');
 }
@@ -3392,6 +3499,8 @@ async function submitLogRecord(){
   const cert_no=document.getElementById('lgCertNo').value.trim();
   const detail=document.getElementById('lgDetail').value.trim();
   if(!date||!title){ showToast(i18n('log.needFields'),'error'); return; }
+  // v8.4：團員模式 → 提交申報（待領袖審批），不直接寫入
+  if(logModalMemberMode){ await submitLogRequestFromModal({type,date,title,role,hours,cert_no,detail}); return; }
   // 目標成員：編輯=原成員；批量=多選；否則單選
   let targets=[];
   if(oldRec){
@@ -3438,8 +3547,7 @@ async function submitLogRecord(){
   finally{ btn.disabled=false; btn.textContent=i18n('log.save'); }
 }
 async function deleteLogRecord(recordId){
-  if(!canUserTickRole(currentUser.role)){ showToast(i18n('log.onlyLeaderDel'),'warning'); return; }
-  const r=logRecords.find(x=>x.record_id===recordId);
+  if(!canUserTickRole(currentUser.role)){ showToast(i18n('log.onlyLeaderDel'),'warning'); return; }  const r=logRecords.find(x=>x.record_id===recordId);
   if(!confirm(i18n('log.delConfirm',{t:r?r.title:recordId}))) return;
   try{
     if(currentTroopId==='DEMO'){
@@ -3452,6 +3560,78 @@ async function deleteLogRecord(recordId){
     try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
     renderLogsTab(); showToast(i18n('log.deleted'),'success');
   }catch(e){ showToast(i18n('log.delFail',{m:e.message}),'error'); }
+}
+
+/* ===== v8.4 履歷申報：團員自行申報 → 領袖審批（批准後才寫入／更新活動履歷） ===== */
+async function submitLogRequestFromModal(f){
+  const btn=document.getElementById('btnSaveLogRecord');
+  const oldRec=editingLogRecordId?logRecords.find(x=>x.record_id===editingLogRecordId):null;
+  const kind=oldRec?'edit':'new';
+  const record={type:oldRec?oldRec.type:f.type,ymis:currentUser.ymis,name:currentUser.name,date:f.date,title:f.title,role:f.role,hours:f.hours!==''?String(f.hours):'',cert_no:f.cert_no,detail:f.detail};
+  btn.disabled=true; btn.textContent=i18n('log.reqSending');
+  try{
+    if(currentTroopId==='DEMO'){
+      logRequests.push({request_id:'DEMOLREQ_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),kind,target_record_id:oldRec?oldRec.record_id:'',...record,status:'pending',created_at:todayISO()});
+      closeModal('logRecordModal'); renderLogsTab(); showToast(i18n('log.reqDemoOk'),'success'); return;
+    }
+    const d=await apiRequest('requestLogRecord',{token:currentToken,kind,target_record_id:oldRec?oldRec.record_id:'',record});
+    if(!d.success) throw new Error(/工作表不存在|Unknown action/i.test(d.error||'')?i18n('log.reqNeedUpgrade'):(d.error||i18n('save.fail')));
+    logRequests.push({request_id:d.request_id,kind,target_record_id:oldRec?oldRec.record_id:'',...record,status:'pending',created_at:todayISO()});
+    closeModal('logRecordModal'); renderLogsTab();
+    showToast(i18n('log.reqSent'),'success');
+  }catch(e){ showToast(i18n('log.reqFail',{m:e.message}),'error'); }
+  finally{ btn.disabled=false; btn.textContent=logModalMemberMode?i18n('log.reqSubmit'):i18n('log.save'); }
+}
+async function cancelLogRequest(reqId){
+  const r=logRequests.find(x=>x.request_id===reqId);
+  if(!confirm(i18n('log.cancelConfirm',{t:r?r.title:reqId}))) return;
+  try{
+    if(currentTroopId==='DEMO'){
+      logRequests=logRequests.filter(x=>x.request_id!==reqId);
+      renderLogsTab(); showToast(i18n('log.cancelled'),'success'); return;
+    }
+    const d=await apiRequest('cancelLogRequest',{token:currentToken,request_id:reqId});
+    if(!d.success) throw new Error(d.error||'');
+    logRequests=logRequests.filter(x=>x.request_id!==reqId);
+    renderLogsTab(); showToast(i18n('log.cancelled'),'success');
+  }catch(e){ showToast(i18n('req.opFail',{m:e.message}),'error'); }
+}
+async function reviewLogRequest(reqId,decision){
+  if(!canUserTickRole(currentUser.role)){ showToast(i18n('log.needLeader'),'warning'); return; }
+  if(!confirm(i18n('req.confirmDec',{dec:decision==='approved'?i18n('req.decA'):i18n('req.decR')}))) return;
+  try{
+    document.getElementById('savingOverlay').classList.add('active');
+    document.getElementById('savingText').textContent=decision==='approved'?i18n('req.approving'):i18n('req.rejecting');
+    if(currentTroopId==='DEMO'){
+      const r=logRequests.find(x=>x.request_id===reqId);
+      if(r&&decision==='approved'){
+        if(r.kind==='edit'){
+          const idx=logRecords.findIndex(x=>x.record_id===r.target_record_id);
+          if(idx>=0) logRecords[idx]={...logRecords[idx],date:r.date,title:r.title,role:r.role,hours:r.hours,cert_no:r.cert_no,detail:r.detail};
+        }else{
+          logRecords.push({record_id:'DEMOLOG_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:r.type,ymis:r.ymis,name:r.name,date:r.date,title:r.title,role:r.role,hours:r.hours,cert_no:r.cert_no,detail:r.detail,recorder:r.name+(isEn()?' (self-reported)':'（自行申報）')});
+        }
+      }
+      logRequests=logRequests.filter(x=>x.request_id!==reqId);
+      document.getElementById('savingOverlay').classList.remove('active');
+      renderRequestsTab(); showToast(decision==='approved'?i18n('log.reqApproved'):i18n('log.reqRejected'),'success'); return;
+    }
+    const d=await apiRequest('reviewLogRequest',{token:currentToken,request_id:reqId,decision,review_note:''});
+    document.getElementById('savingOverlay').classList.remove('active');
+    if(!d.success) throw new Error(d.error||'');
+    if(decision==='approved'&&d.record){
+      const idx=logRecords.findIndex(x=>x.record_id===d.record.record_id);
+      if(idx>=0) logRecords[idx]={...logRecords[idx],...d.record};
+      else logRecords.push(d.record);
+      try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
+    }
+    logRequests=logRequests.filter(x=>x.request_id!==reqId);
+    showToast('✅ '+(d.message||(decision==='approved'?i18n('log.reqApproved'):i18n('log.reqRejected'))),'success');
+    renderRequestsTab();
+  }catch(e){
+    document.getElementById('savingOverlay').classList.remove('active');
+    showToast(i18n('req.opFail',{m:e.message}),'error');
+  }
 }
 
 /* ================== Forms Tab ================== */
@@ -4235,6 +4415,12 @@ async function enterDemoMode(){
         const m=demoY[i%demoY.length];
         logRecords.push({record_id:'DEMOLOG_seed_'+i,type:t,ymis:m.y,name:m.n,date,title:isEn()?titleEn:titleZh,role:isEn()?roleEn:roleZh,hours,cert_no:t==='training'?'CERT-N2305-'+m.y.slice(-4):'',detail:isEn()?'DEMO sample data':'DEMO 範例資料',recorder:isEn()?'DEMO GSL':'DEMO 團長',recorded_at:date});
       });
+    // v8.4：DEMO 範例履歷申報（團員自行申報 → 領袖審批，僅本機記憶體）
+    logRequestsSupported=true;
+    logRequests=[
+      {request_id:'DEMOLREQ_seed_0',kind:'new',target_record_id:'',type:'service',ymis:demoY[0].y,name:demoY[0].n,date:todayISO(),title:isEn()?'Beach clean-up (self-reported)':'海灘清潔日（自行申報）',role:isEn()?'Volunteer':'義工',hours:'3',cert_no:'',detail:isEn()?'DEMO: member-submitted claim awaiting approval':'DEMO：成員自行申報，待領袖批准',status:'pending',created_at:todayISO()},
+      {request_id:'DEMOLREQ_seed_1',kind:'edit',target_record_id:'DEMOLOG_seed_0',type:'service',ymis:demoY[0].y,name:demoY[0].n,date:todayISO(),title:isEn()?'Summer flag-selling fundraiser (hours corrected)':'暑期賣旗籌款（時數更正）',role:isEn()?'Helper':'服務員',hours:'6',cert_no:'',detail:isEn()?'DEMO: edit claim — needs leader re-approval':'DEMO：修改申報，需領袖重批',status:'pending',created_at:todayISO()}
+    ];
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='none';
     document.getElementById('mainApp').style.display='block';

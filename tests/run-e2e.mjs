@@ -262,6 +262,60 @@ console.log('\n【10b】活動履歷：單筆/批量寫入、讀取、成員被�
   check('欠日期/名稱 → success:false', bad.success === false);
 }
 
+// ---- v8.4 履歷申報：團員自行申報 → 領袖審批（批准後可再申報修改，需領袖重批） ----
+console.log('\n【10b2】履歷申報：團員申報新增／修改 → 領袖審批；只可改自己的紀錄；取消申報');
+{
+  const loginMember = await apiA('login', { login_id: '1234560001', password: 'MemberA!234' });
+  check('成員登入成功', loginMember.success === true);
+  const mTok = loginMember.token;
+
+  // 1) 成員申報新增（kind=new）
+  const rq1 = await apiA('requestLogRecord', { token: mTok, kind: 'new', record: { type: 'service', date: '2026-08-20', title: '長者中心探訪', role: '義工', hours: '3', cert_no: '', detail: '自行申報測試' } });
+  check('成員申報新增成功 + 回傳 LREQ id', rq1.success === true && (rq1.request_id || '').startsWith('LREQ_'));
+
+  // 2) 領袖可見待批申報；load 亦包含 logRequests
+  const lr1 = await apiA('getLogRequests', { token: tokenA });
+  check('領袖 getLogRequests 見 1 筆待批', lr1.success === true && (lr1.requests || []).length === 1 && lr1.requests[0].kind === 'new');
+  const ld1 = await apiA('load', { token: tokenA });
+  check('load 回應包含 logRequests + logRequestsSupported', ld1.logRequestsSupported === true && (ld1.logRequests || []).length === 1);
+
+  // 3) 成員申請修改「他人」紀錄被拒
+  const leaderRec = (await apiA('getLogRecords', { token: tokenA })).logs.find(x => x.ymis === '1234567890');
+  const rqBad = await apiA('requestLogRecord', { token: mTok, kind: 'edit', target_record_id: leaderRec.record_id, record: { type: 'activity', date: '2026-07-15', title: '偽冒修改', role: '', hours: '', cert_no: '', detail: '' } });
+  check('修改他人紀錄被拒', rqBad.success === false && /自己/.test(rqBad.error || ''));
+
+  // 4) 成員無權審批
+  const mReview = await apiA('reviewLogRequest', { token: mTok, request_id: rq1.request_id, decision: 'approved' });
+  check('成員（can_tick=false）審批被拒', mReview.success === false && /權限/.test(mReview.error || ''));
+
+  // 5) 領袖批准新增 → 寫入活動履歷
+  const ap1 = await apiA('reviewLogRequest', { token: tokenA, request_id: rq1.request_id, decision: 'approved' });
+  check('領袖批准新增申報 + 回傳 record', ap1.success === true && (ap1.record?.record_id || '').startsWith('LOG_') && ap1.record.ymis === '1234560001');
+  const newRid = ap1.record.record_id;
+  const logsAfter = await apiA('getLogRecords', { token: tokenA });
+  check('批准後活動履歷 4 筆', (logsAfter.logs || []).length === 4);
+
+  // 6) 已批紀錄 → 成員申報修改（kind=edit）→ 領袖重批 → 同一 record_id 更新
+  const rq2 = await apiA('requestLogRecord', { token: mTok, kind: 'edit', target_record_id: newRid, record: { type: 'service', date: '2026-08-21', title: '長者中心探訪（改期）', role: '組長', hours: '4', cert_no: '', detail: '' } });
+  check('成員申報修改成功', rq2.success === true);
+  // 6b) 同一紀錄不可重複申報修改
+  const rq2dup = await apiA('requestLogRecord', { token: mTok, kind: 'edit', target_record_id: newRid, record: { type: 'service', date: '2026-08-22', title: '重複申報', role: '', hours: '', cert_no: '', detail: '' } });
+  check('重複修改申報被拒', rq2dup.success === false && /待批/.test(rq2dup.error || ''));
+  const ap2 = await apiA('reviewLogRequest', { token: tokenA, request_id: rq2.request_id, decision: 'approved' });
+  const editedRec = (await apiA('getLogRecords', { token: tokenA })).logs.find(x => x.record_id === newRid);
+  check('重批後同一 record_id 已更新（仍 4 筆）', ap2.success === true && editedRec?.title.includes('改期') && editedRec?.hours === '4' && (await apiA('getLogRecords', { token: tokenA })).logs.length === 4);
+
+  // 7) 成員再申報修改後自行取消
+  const rq3 = await apiA('requestLogRecord', { token: mTok, kind: 'edit', target_record_id: newRid, record: { type: 'service', date: '2026-08-23', title: '再改一次', role: '', hours: '', cert_no: '', detail: '' } });
+  const cxl = await apiA('cancelLogRequest', { token: mTok, request_id: rq3.request_id });
+  check('成員可取消自己的待批申報', rq3.success === true && cxl.success === true && ((await apiA('getLogRequests', { token: tokenA })).requests || []).length === 0);
+
+  // 8) 拒絕流程：拒絕後不寫入
+  const rq4 = await apiA('requestLogRecord', { token: mTok, kind: 'new', record: { type: 'activity', date: '2026-08-24', title: '待拒絕活動', role: '', hours: '', cert_no: '', detail: '' } });
+  const rj = await apiA('reviewLogRequest', { token: tokenA, request_id: rq4.request_id, decision: 'rejected' });
+  check('拒絕申報後不寫入活動履歷', rj.success === true && (await apiA('getLogRecords', { token: tokenA })).logs.length === 4);
+}
+
 // ---- v8.2 帳戶自助申請：毋須填支部／單位、領袖可申請、團長前端審批 ----
 console.log('\n【10c】帳戶申請：成員／執委／領袖自助申請 → 團長審批（v8.2）');
 {
@@ -366,9 +420,9 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   const badFetch = fetches.filter(f => !/^['"]?(API_ENDPOINT|'\/api\/troops|'data\/)/.test(f) && !/^'data\//.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
-  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
+  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
   const missing = need.filter(a => !apiCalls.includes(a));
-  check('26 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
+  check(need.length+' 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
   check('活動履歷 tab 已註冊', html.includes("id=\"tab-logs\"") && html.includes('renderLogsTab'));
   check('舊後端升級提示存在', html.includes('v8.1') && html.includes('logRecordsSupported'));
 }

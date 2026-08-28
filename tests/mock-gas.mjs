@@ -16,6 +16,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     requests: [],                 // {request_id,ymis,name,item_id,item_name,requested_date,evidence,status}
     applications: [],
     logs: [],                      // v8.1 活動履歷
+    logRequests: [],               // v8.4 待批履歷（團員自行申報）
     config: { allow_member_view_others: 'false' },
     apikey,
     mode: 'normal',               // normal | html-error | http500 | slow
@@ -80,7 +81,9 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           pendingRequests: state.requests.filter(r => r.status === 'pending'),
           otherBadges: state.otherBadges,
           logs: state.logs,
-          logsSupported: true
+          logsSupported: true,
+          logRequests: state.logRequests.filter(r => r.status === 'pending'),
+          logRequestsSupported: true
         };
       }
       case 'save':
@@ -209,6 +212,79 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (idx < 0) return { success: false, error: '找不到紀錄' };
         state.logs.splice(idx, 1);
         return { success: true, message: '已刪除紀錄' };
+      }
+      // v8.4 履歷申報：團員自行申報 → 領袖審批（與 Code.gs 行為一致）
+      case 'requestLogRecord': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const u = state.users[tokenYmis];
+        const rec = body.record || {};
+        if (!rec.title || !rec.date) return { success: false, error: '名稱及日期必填' };
+        const kind = body.kind === 'edit' ? 'edit' : 'new';
+        let targetId = '';
+        let type = ['service', 'activity', 'training'].includes(rec.type) ? rec.type : 'activity';
+        if (kind === 'edit') {
+          targetId = String(body.target_record_id || '');
+          if (!targetId) return { success: false, error: '缺少 target_record_id' };
+          const orig = state.logs.find(x => x.record_id === targetId);
+          if (!orig) return { success: false, error: '找不到原紀錄，可能已被刪除，請重新載入' };
+          if (String(orig.ymis) !== String(tokenYmis)) return { success: false, error: '只可申請修改自己的紀錄' };
+          if (state.logRequests.some(q => q.status === 'pending' && q.target_record_id === targetId))
+            return { success: false, error: '此紀錄已有待批修改申報，請等待領袖審批或先取消' };
+          type = orig.type || type;
+        }
+        const rid = 'LREQ_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        state.logRequests.push({
+          request_id: rid, kind, target_record_id: targetId, type,
+          ymis: tokenYmis, name: u.name, date: rec.date, title: rec.title,
+          role: rec.role || '', hours: rec.hours || '', cert_no: rec.cert_no || '', detail: rec.detail || '',
+          status: 'pending', created_at: '2026-08-28'
+        });
+        return { success: true, request_id: rid, message: '申報已提交，待領袖審批' };
+      }
+      case 'getLogRequests': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const u = state.users[tokenYmis];
+        const isReviewer = ['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(u.role) && u.can_tick === true;
+        return { success: true, requests: state.logRequests.filter(r => r.status === 'pending' && (isReviewer || r.ymis === tokenYmis)) };
+      }
+      case 'reviewLogRequest': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const reviewer = state.users[tokenYmis];
+        if (!reviewer || !['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(reviewer.role) || reviewer.can_tick !== true)
+          return { success: false, error: '權限不足，需已獲勾選權限的領袖' };
+        if (body.decision !== 'approved' && body.decision !== 'rejected') return { success: false, error: '無效決定' };
+        const req = state.logRequests.find(r => r.request_id === body.request_id && r.status === 'pending');
+        if (!req) return { success: false, error: '找不到待批申報' };
+        if (body.decision === 'rejected') { req.status = 'rejected'; return { success: true, message: '已拒絕申報' }; }
+        let record;
+        if (req.kind === 'edit') {
+          const idx = state.logs.findIndex(x => x.record_id === req.target_record_id);
+          if (idx < 0) return { success: false, error: '找不到原紀錄（可能已被刪除），無法批准修改' };
+          state.logs[idx] = { ...state.logs[idx], type: req.type, date: req.date, title: req.title, role: req.role, hours: req.hours, cert_no: req.cert_no, detail: req.detail };
+          record = state.logs[idx];
+        } else {
+          record = {
+            record_id: 'LOG_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            type: req.type, ymis: req.ymis, name: req.name, date: req.date, title: req.title,
+            role: req.role, hours: req.hours, cert_no: req.cert_no, detail: req.detail,
+            recorder: req.name + '（自行申報）', recorded_at: '2026-08-28'
+          };
+          state.logs.push(record);
+        }
+        req.status = 'approved';
+        return { success: true, message: req.kind === 'edit' ? '已批准修改並更新紀錄' : '已批准並寫入活動履歷', record_id: record.record_id, record };
+      }
+      case 'cancelLogRequest': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const u = state.users[tokenYmis];
+        const idx = state.logRequests.findIndex(r => r.request_id === body.request_id);
+        if (idx < 0) return { success: false, error: '找不到申報' };
+        const req = state.logRequests[idx];
+        if (req.status !== 'pending') return { success: false, error: '此申報已被審批，不能取消' };
+        const isReviewer = ['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(u.role) && u.can_tick === true;
+        if (!isReviewer && String(req.ymis) !== String(tokenYmis)) return { success: false, error: '只可取消自己的申報' };
+        state.logRequests.splice(idx, 1);
+        return { success: true, message: '已取消申報' };
       }
       case 'getAuditLog':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };

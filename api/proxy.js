@@ -37,6 +37,7 @@ const TOKEN_ACTIONS = new Set([
   'save', 'saveOtherBadge', 'requestComplete',
   'getPendingRequests', 'reviewRequest',
   'getLogRecords', 'saveLogRecord', 'deleteLogRecord',
+  'requestLogRecord', 'getLogRequests', 'reviewLogRequest', 'cancelLogRequest',
   'getAllUsers', 'addMember', 'addUser', 'bulkAddUsers',
   'resetPassword', 'updateUserProfile', 'setUserStatus',
   'getApplications', 'reviewApplication',
