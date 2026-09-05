@@ -644,9 +644,10 @@ a:hover{text-decoration:underline}
     <h3 id="accountApplyTitle" data-i18n="apply.title">📝 申請帳戶</h3>
     <div style="font-size:12px;background:var(--blue-light);border:1px solid var(--blue);color:var(--blue);padding:8px 10px;border-radius:8px;margin-bottom:12px"><span data-i18n="apply.troop">📍 旅團：</span><b id="applyTroopName">—</b><br><span style="font-size:11px" data-i18n="apply.hint">支部＝深資童軍、單位＝所屬旅團，系統自動帶入，毋須填寫。提交後由團長／支部領袖在「審批中心」批准，毋須直接修改 Google Sheet。</span></div>
     <div class="form-group"><label data-i18n="apply.role">申請身份 *</label><select id="applyRole" onchange="syncApplyRole()"><option value="member" data-i18n="apply.member">團員（深資童軍）</option><option value="exec_committee" data-i18n="apply.exec">執委</option><option value="branch_leader" data-i18n="apply.leader">領袖（支部領袖）</option></select><div style="font-size:10px;color:var(--text-light);margin-top:3px" data-i18n="apply.roleHint">團員、執委、領袖都可自行申請；團長／管理員角色須由現任團長在「用戶管理」直接開立。</div></div>
-    <div class="form-group"><label data-i18n="apply.ymis">YMIS（10 位數字）*</label><input id="applyYmis" inputmode="numeric" maxlength="10" autocomplete="username"></div>
+    <div class="form-group" id="applyYmisGroup"><label data-i18n="apply.ymis">YMIS（10 位數字）*</label><input id="applyYmis" inputmode="numeric" maxlength="10" autocomplete="username"></div>
     <div class="form-group"><label data-i18n="apply.name">姓名 *</label><input id="applyName" autocomplete="name"></div>
     <div class="form-group"><label><span data-i18n="apply.email">聯絡電郵 </span><span id="applyEmailReq" style="color:var(--red);display:none" data-i18n="apply.emailReq">* 執委／領袖必填</span></label><input id="applyEmail" type="email" autocomplete="email"></div>
+    <div style="font-size:11px;color:var(--text-light);background:var(--bg);padding:8px 10px;border-radius:6px;margin-bottom:12px" data-i18n="apply.pwNotice">💡 申請經批核後，初始密碼預設為 1234；首次登入時系統會強制要求設定新密碼。</div>
     <div id="applyMsg" class="login-msg" aria-live="polite"></div>
     <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('accountApplyModal')" data-i18n="btn.cancel">取消</button><button class="btn btn-primary" id="btnAccountApply" onclick="submitAccountApply()" data-i18n="btn.submit">提交申請</button></div>
   </div>
@@ -915,11 +916,12 @@ zh:{
   'apply.role':'申請身份 *','apply.member':'團員（深資童軍）','apply.exec':'執委','apply.leader':'領袖（支部領袖）',
   'apply.roleHint':'團員、執委、領袖都可自行申請；團長／管理員角色須由現任團長在「用戶管理」直接開立。',
   'apply.ymis':'YMIS（10 位數字）*','apply.name':'姓名 *','apply.email':'聯絡電郵 ','apply.emailReq':'* 執委／領袖必填',
-  'apply.need':'請填寫姓名及 10 位數字 YMIS','apply.needMail':'執委／領袖申請必須填寫聯絡電郵','apply.pickTroop':'請先選擇旅團',
+  'apply.need':'請填寫姓名及 10 位數字 YMIS','apply.needName':'請填寫姓名','apply.needMail':'執委／領袖申請必須填寫聯絡電郵','apply.pickTroop':'請先選擇旅團',
+  'apply.pwNotice':'💡 申請經批核後，初始密碼預設為 1234；首次登入時系統會強制要求設定新密碼。',
   'apply.sent':'申請已提交','pw.title':'🔑 更改密碼','pw.hint':'新密碼至少 4 位。','pw.old':'現有／臨時密碼 *','pw.new':'新密碼 *','pw.confirm':'再次輸入新密碼 *',
   'pw.save':'儲存新密碼','pw.must':'<b style="color:var(--red)">首次登入或密碼被重設，必須先設定自己的新密碼。</b> 新密碼至少 4 位。',
   'pw.short':'新密碼至少 4 位','pw.mismatch':'兩次輸入的新密碼不一致','pw.saving':'儲存中...','pw.ok':'密碼已更新','pw.fail':'更改密碼失敗：{m}','pw.loginFirst':'請先登入',
-  'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名、10 位 YMIS 及至少 4 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
+  'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名及至少 4 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
   'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
   'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 4 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 4 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
   'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
@@ -929,6 +931,8 @@ zh:{
   'bulk.auto':'空白密碼預設為 1234','bulk.none':'尚未選擇檔案','bulk.close':'關閉','bulk.go':'🚀 確認批量開戶',
   'bulk.noPrev':'沒有可預覽資料','bulk.sum':'共 {n} 筆；','bulk.sep':'；','bulk.okN':'{n} 筆可開戶','bulk.skipN':'{n} 筆會略過','bulk.provided':'已提供','bulk.autoPw':'預設 1234','bulk.can':'✓ 可開戶',
   'bulk.errRoleNo':'不可建立此角色','bulk.errEmail':'領袖／執委欠 Email','bulk.errEmailFmt':'Email 格式錯誤','bulk.errPwMissing':'欠臨時密碼','bulk.errDup':'YMIS 已存在','bulk.errDupFile':'檔內 YMIS 重複',
+  'bulk.errDupEmail':'Email 已存在','bulk.errDupEmailFile':'檔內 Email 重複','bulk.autoId':'（免 YMIS / 自動編號）',
+  'bulk.errGslExists':'團長只能有一位，全團已有現任團長。如需更換，請先將現任團長轉為其他角色。',
   'bulk.confirm':'確定建立 {n} 個帳戶？','bulk.working':'開戶中...','bulk.prog':'開戶中 {a}-{b} / {n}',
   'bulk.done':'完成：成功 {ok}，失敗 {fail}','bulk.pwHint':'臨時密碼只在本次畫面保留，請立即下載並以安全方式分別交給用戶。',
   'bulk.dl':'⬇️ 下載成功帳戶及臨時密碼','bulk.okToast':'批量開戶完成：成功 {n} 筆','bulk.fail':'批量開戶失敗：{m}','bulk.csvFail':'CSV 讀取失敗：{m}','bulk.jsonFail':'JSON 格式錯誤：{m}',
@@ -940,11 +944,16 @@ zh:{
   'demo.chip':'團長 DEMO','demo.mock':'MOCK試用','demo.title':'進度追蹤 (DEMO免登入)',
   'portal.chip':'進度追蹤 (Portal)','unreg':'此旅團未在系統登記，請聯絡管理員','troopFail':'無法取得旅團設定',
   'tmp.pw':'的臨時密碼：','tmp.hint':'請立即以安全方式轉交；用戶首次登入必須更改密碼。',
+  'tmp.leaderLoginMethod':'登入方式：電郵（{email}）＋ 臨時密碼','tmp.leaderLoginMethodShort':'登入方式：電郵 ＋ 臨時密碼',
   'appv.ok':'✅ 帳戶已建立','appv.as':'已按申請開立為 <b>{role}</b> 帳戶。','appv.old':'舊版後端已建立帳戶（團員）。如需 <b>{role}</b> 角色，請在「用戶管理」修改。',
   'appv.member':'帳戶角色：團員。','appv.fallback':'申請人要求 {want}，但你的權限層級未能設定該角色，已建立為 <b>團員</b>，請由團長在「用戶管理」調整。',
-  'appv.temp':'臨時密碼只在本次顯示，請安全地個別交給申請人：',
+  'appv.temp':'初始密碼預設為 1234（首次登入強制更改）：','appv.firstLoginNotice':'用戶首次登入時，系統會強制要求設定新密碼。',
   'review.confirmA':'確定要批准並開立帳戶嗎？','review.confirmR':'確定要拒絕嗎？','review.fail':'審批失敗：{m}',
   'role.updated':'角色已更新','role.fail':'角色更新失敗：{m}','tick.granted':'已授權勾選','tick.revoked':'已收回權限','tick.fail':'權限更新失敗：{m}',
+  'role.gslOccupied':'已有現任團長',
+  'role.gslExists':'團長只能有一位，全團已有現任團長（{name}）。如需更換，請先將現任團長轉為其他角色。',
+  'role.warnDemoteGsl':'⚠️ 警告：確定要將現任團長【{name}】轉為其他角色？此操作後全團將暫無團長，可隨後升任新團長。',
+  'role.warnDeactivateGsl':'⚠️ 警告：確定要停用現任團長【{name}】？停用後全團將暫無團長。',
   'offline':'⚠️ 離線模式：顯示快取資料','info.goto':'前往',
   'ymis.pwWrong':'密碼不正確，請再試一次',
   'ymis.pwPrompt':'此 PDF 有密碼保護，請輸入 YMIS 匯出密碼：',
@@ -1187,11 +1196,12 @@ en:{
   'apply.role':'Apply as *','apply.member':'Member (Venture Scout)','apply.exec':'Executive Committee','apply.leader':'Leader (Venture Scout Leader)',
   'apply.roleHint':'Members, execs and leaders may self-apply. GSL / admin accounts must be created by the current GSL under Users.',
   'apply.ymis':'YMIS (10 digits) *','apply.name':'Name *','apply.email':'Email ','apply.emailReq':'* required for exec / leader',
-  'apply.need':'Please enter a name and a 10-digit YMIS','apply.needMail':'Exec / leader applications require an email','apply.pickTroop':'Please select a Group first',
+  'apply.need':'Please enter a name and a 10-digit YMIS','apply.needName':'Please enter a name','apply.needMail':'Exec / leader applications require an email','apply.pickTroop':'Please select a Group first',
+  'apply.pwNotice':'💡 Upon approval, initial password defaults to 1234. Password change is required on first sign-in.',
   'apply.sent':'Application submitted','pw.title':'🔑 Change password','pw.hint':'New password must be at least 4 characters.','pw.old':'Current / temporary password *','pw.new':'New password *','pw.confirm':'Confirm new password *',
   'pw.save':'Save new password','pw.must':'<b style="color:var(--red)">First sign-in or after a reset: you must set your own new password.</b> At least 4 characters.',
   'pw.short':'New password must be at least 4 characters','pw.mismatch':'The two new passwords do not match','pw.saving':'Saving...','pw.ok':'Password updated','pw.fail':'Change password failed: {m}','pw.loginFirst':'Please sign in first',
-  'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name, 10-digit YMIS and a temporary password of at least 4 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
+  'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name and a temporary password of at least 4 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
   'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
   'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 4 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 4 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
   'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
@@ -1201,6 +1211,8 @@ en:{
   'bulk.auto':'Blank passwords default to 1234','bulk.none':'No file chosen yet','bulk.close':'Close','bulk.go':'🚀 Confirm bulk onboard',
   'bulk.noPrev':'Nothing to preview','bulk.sum':'{n} row(s); ','bulk.sep':'; ','bulk.okN':'{n} can be created','bulk.skipN':'{n} will be skipped','bulk.provided':'Provided','bulk.autoPw':'Default 1234','bulk.can':'✓ Ready',
   'bulk.errRoleNo':'Your role cannot create this role','bulk.errEmail':'Leaders / execs need an email','bulk.errEmailFmt':'Invalid email format','bulk.errPwMissing':'Missing temporary password','bulk.errDup':'YMIS already exists','bulk.errDupFile':'Duplicate YMIS in the file',
+  'bulk.errDupEmail':'Email already exists','bulk.errDupEmailFile':'Duplicate Email in file','bulk.autoId':'(Auto ID / No YMIS)',
+  'bulk.errGslExists':'There can only be one Group Scout Leader. An active GSL already exists.',
   'bulk.confirm':'Create {n} account(s)?','bulk.working':'Creating...','bulk.prog':'Creating {a}–{b} / {n}',
   'bulk.done':'Done: {ok} succeeded, {fail} failed','bulk.pwHint':'Temporary passwords are shown only this once. Download them and pass them on securely, separately.',
   'bulk.dl':'⬇️ Download successful accounts and temporary passwords','bulk.okToast':'Bulk onboard finished: {n} succeeded','bulk.fail':'Bulk onboard failed: {m}','bulk.csvFail':'CSV read failed: {m}','bulk.jsonFail':'JSON error: {m}',
@@ -1212,11 +1224,16 @@ en:{
   'demo.chip':'GSL DEMO','demo.mock':'MOCK','demo.title':'Progress (DEMO, no login)',
   'portal.chip':'Progress (Portal)','unreg':'This Group is not registered. Please contact an admin.','troopFail':'Could not load Group settings',
   'tmp.pw':' temporary password:','tmp.hint':'Pass it on securely now. The user must change it at first sign-in.',
+  'tmp.leaderLoginMethod':'Login method: Email ({email}) + Temporary password','tmp.leaderLoginMethodShort':'Login method: Email + Temporary password',
   'appv.ok':'✅ Account created','appv.as':'Opened as <b>{role}</b> as applied.','appv.old':'Legacy backend created a Member account. To make them <b>{role}</b>, change the role under Users.',
   'appv.member':'Role: Member.','appv.fallback':'They asked for {want}, but your level cannot set that role. Created as <b>Member</b>. Ask the GSL to adjust under Users.',
-  'appv.temp':'The temporary password is shown only this once. Pass it to the applicant securely:',
+  'appv.temp':'Initial password defaults to 1234 (must change on first sign-in):','appv.firstLoginNotice':'User will be forced to set a new password upon first sign-in.',
   'review.confirmA':'Approve and open the account?','review.confirmR':'Reject this application?','review.fail':'Review failed: {m}',
   'role.updated':'Role updated','role.fail':'Role update failed: {m}','tick.granted':'Ticking allowed','tick.revoked':'Ticking revoked','tick.fail':'Rights update failed: {m}',
+  'role.gslOccupied':'GSL already exists',
+  'role.gslExists':'There can only be one Group Scout Leader. Current GSL: {name}. To replace, change current GSL to another role first.',
+  'role.warnDemoteGsl':'⚠️ Warning: Are you sure you want to change current GSL [{name}] to another role? The troop will have no active GSL until a new one is promoted.',
+  'role.warnDeactivateGsl':'⚠️ Warning: Are you sure you want to deactivate current GSL [{name}]? The troop will have no active GSL.',
   'offline':'⚠️ Offline: showing cached data','info.goto':'Open',
   'ymis.pwWrong':'Incorrect password. Please try again.',
   'ymis.pwPrompt':'This PDF is password-protected. Enter the YMIS export password:',
@@ -2001,20 +2018,28 @@ function showAccountApplyModal(){
 function syncApplyRole(){
   const role=document.getElementById('applyRole')?.value||'member';
   const req=document.getElementById('applyEmailReq');
+  const ymisGroup=document.getElementById('applyYmisGroup');
   if(req) req.style.display=(role==='member')?'none':'inline';
+  if(ymisGroup) ymisGroup.style.display=(role==='branch_leader')?'none':'block';
 }
 async function submitAccountApply(){
+  const role=document.getElementById('applyRole')?.value||'member';
   const ymis=document.getElementById('applyYmis').value.trim();
   const name=document.getElementById('applyName').value.trim();
-  const role=document.getElementById('applyRole')?.value||'member';
   const email=document.getElementById('applyEmail').value.trim();
   const msg=document.getElementById('applyMsg'),btn=document.getElementById('btnAccountApply');
-  if(!/^\d{10}$/.test(ymis)||!name){ msg.textContent=i18n('apply.need'); msg.className='login-msg error'; return; }
-  if(role!=='member' && !email){ msg.textContent=i18n('apply.needMail'); msg.className='login-msg error'; return; }
+  if(!name){ msg.textContent=i18n('apply.needName'); msg.className='login-msg error'; return; }
+  if(role==='branch_leader'){
+    if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent=i18n('apply.needMail'); msg.className='login-msg error'; return; }
+  }else{
+    if(!/^\d{10}$/.test(ymis)){ msg.textContent=i18n('apply.need'); msg.className='login-msg error'; return; }
+    if(role==='exec_committee'&&(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){ msg.textContent=i18n('apply.needMail'); msg.className='login-msg error'; return; }
+    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent=i18n('bulk.errEmailFmt'); msg.className='login-msg error'; return; }
+  }
   btn.disabled=true; btn.textContent=i18n('req.sending');
   try{
-    // v8.2：不問支部／單位——支部固定深資童軍，單位自動帶入所選旅團名稱
-    const d=await apiRequest('apply',{ymis,name,email,branch:currentTroopName||'',requested_role:role});
+    // v8.2/v8.6：領袖免 YMIS，支部固定深資童軍，單位自動帶入所選旅團名稱
+    const d=await apiRequest('apply',{ymis:role==='branch_leader'?'':ymis,name,email,branch:currentTroopName||'',requested_role:role});
     if(!d.success) throw new Error(d.error||i18n('apply.fail'));
     msg.textContent=d.message||i18n('apply.sent'); msg.className='login-msg success';
     setTimeout(()=>closeModal('accountApplyModal'),1200);
@@ -3158,7 +3183,9 @@ async function renderRequestsTab(){
     }else{
       html+=userApplications.map(a=>{
         const reqRole=a.requested_role||'member';
-        return `<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">${i18n('req.applyRole')}<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">${i18n('req.decA')}</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">${i18n('req.decR')}</button></div></div>`;
+        const isL=String(a.ymis||'').startsWith('L');
+        const ymisDisplay=(a.ymis&&!isL)?`(${escapeHtmlText(a.ymis)}) `:'';
+        return `<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${ymisDisplay}${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">${i18n('req.applyRole')}<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">${i18n('req.decA')}</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">${i18n('req.decR')}</button></div></div>`;
       }).join('');
     }
     html+=`</div>`;
@@ -4016,14 +4043,29 @@ function renderUserAdminCard(u){
   const active=(u.status||'active')==='active',self=u.ymis===currentUser.ymis,manageable=!self&&canManageRoleFrontend(u.role);
   const encoded=encodeURIComponent(JSON.stringify({ymis:u.ymis,name:u.name||'',email:u.email||'',branch:u.branch||'',role:u.role||'member'}));
   const roleNames={member:i18n('role.member'),exec_committee:i18n('role.exec_committee'),branch_leader:i18n('role.branch_leader'),group_leader:i18n('role.group_leader'),admin:i18n('role.admin')};
-  const roleOptions=Object.keys(roleNames).filter(role=>role===u.role||canManageRoleFrontend(role)).map(role=>`<option value="${role}" ${u.role===role?'selected':''}>${roleNames[role]}</option>`).join('');
+  
+  // 團長鎖死一位：若全團已有現任活躍團長，非團長用戶不能選擇「團長」選項
+  const activeGsl = (adminUsersCache||[]).find(x => x.role === 'group_leader' && (x.status||'active') === 'active');
+  const hasOtherActiveGsl = activeGsl && activeGsl.ymis !== u.ymis;
+
+  const roleOptions=Object.keys(roleNames).filter(role=>role===u.role||canManageRoleFrontend(role)).map(role=>{
+    const isGslLocked = (role==='group_leader' && hasOtherActiveGsl && u.role!=='group_leader');
+    const label = roleNames[role] + (isGslLocked ? ` (${i18n('role.gslOccupied')})` : '');
+    return `<option value="${role}" ${u.role===role?'selected':''} ${isGslLocked?'disabled':''}>${escapeHtmlText(label)}</option>`;
+  }).join('');
   const roleSelect=`<select aria-label="${i18n('users.changeRoleAria')} ${escapeHtmlText(u.name)}" onchange="updateUserRole('${escapeAttr(u.ymis)}',this.value)">${roleOptions}</select>`;
   const tickButton=u.role==='member'?'':`<button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${escapeAttr(u.ymis)}',${!u.can_tick},'${escapeAttr(u.role)}')">${u.can_tick?i18n('users.revokeTick'):i18n('users.grantTick')}</button>`;
   const permissionButton=u.role==='member'?'':`<button class="btn btn-sm btn-warning" onclick="openPermissionModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}','${escapeAttr(u.role)}','${escapeAttr(u.allowed_badges||'')}')">${i18n('users.permBtn')}</button>`;
   let actions='';
   if(manageable&&active) actions=`${roleSelect}<button class="btn btn-sm btn-outline" onclick="openEditUserModal('${encoded}')">${i18n('users.edit')}</button>${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">${i18n('users.resetPw')}</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">${i18n('users.disable')}</button>`;
   if(manageable&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">${i18n('users.enable')}</button>`;
-  return `<div class="user-item" data-status="${active?'active':'inactive'}" data-search="${escapeHtmlText(((u.name||'')+(u.ymis||'')+(u.email||'')+(u.branch||'')).toLowerCase())}" style="${active?'':'opacity:.72'}"><div class="user-item-info"><b>${escapeHtmlText(u.name)}</b> <span>${escapeHtmlText(u.ymis)}</span>${u.email?`<br class="mobile-only"><span style="color:var(--text-light)"> · ${escapeHtmlText(u.email)}</span>`:''}<span class="role-badge role-${escapeHtmlText(u.role)}">${escapeHtmlText(getRoleName(u.role))}</span><span class="status-chip status-${active?'active':'inactive'}">${active?i18n('users.inUse'):i18n('users.disabled')}</span><br><small style="color:var(--text-light)">${i18n('users.branch')}${escapeHtmlText(u.branch||i18n('users.unset'))} · ${i18n('users.perm')}${escapeHtmlText(u.allowed_badges||(u.role==='member'?i18n('users.nonePerm'):i18n('users.allPerm')))}${u.force_change_password?i18n('users.forcePw'):''}</small></div><div class="user-item-actions">${actions}</div></div>`;
+  
+  // 領袖若使用內部 L 編號，不顯示 (Lxxxx)，只顯示姓名＋電郵＋角色
+  const isInternalLId = String(u.ymis||'').startsWith('L');
+  const ymisDisplay = isInternalLId ? '' : ` <span>${escapeHtmlText(u.ymis)}</span>`;
+  const emailDisplay = u.email ? `<span style="color:var(--text-light)">${isInternalLId?'':' · '}${escapeHtmlText(u.email)}</span>` : '';
+
+  return `<div class="user-item" data-status="${active?'active':'inactive'}" data-search="${escapeHtmlText(((u.name||'')+(u.ymis||'')+(u.email||'')+(u.branch||'')).toLowerCase())}" style="${active?'':'opacity:.72'}"><div class="user-item-info"><b>${escapeHtmlText(u.name)}</b>${ymisDisplay}${emailDisplay?`<br class="mobile-only"> ${emailDisplay}`:''}<span class="role-badge role-${escapeHtmlText(u.role)}">${escapeHtmlText(getRoleName(u.role))}</span><span class="status-chip status-${active?'active':'inactive'}">${active?i18n('users.inUse'):i18n('users.disabled')}</span><br><small style="color:var(--text-light)">${i18n('users.branch')}${escapeHtmlText(u.branch||i18n('users.unset'))} · ${i18n('users.perm')}${escapeHtmlText(u.allowed_badges||(u.role==='member'?i18n('users.nonePerm'):i18n('users.allPerm')))}${u.force_change_password?i18n('users.forcePw'):''}</small></div><div class="user-item-actions">${actions}</div></div>`;
 }
 function filterUsers(){
   const q=(document.getElementById('userSearch')?.value||'').toLowerCase(),status=document.getElementById('userStatusFilter')?.value||'active';
@@ -4035,23 +4077,90 @@ function generateTempPassword(){
 }
 function openCreateUserModal(){
   ['cuYmis','cuName','cuEmail','cuBranch'].forEach(id=>document.getElementById(id).value='');
-  const role=document.getElementById('cuRole'); role.value='member'; [...role.options].forEach(o=>o.hidden=!canCreateRoleFrontend(o.value));
+  const role=document.getElementById('cuRole'); role.value='member';
+  const hasActiveGsl = (adminUsersCache||[]).some(u=>u.role==='group_leader' && (u.status||'active')==='active');
+  [...role.options].forEach(o=>{
+    const canCreate = canCreateRoleFrontend(o.value);
+    const isGslBlocked = (o.value==='group_leader' && hasActiveGsl);
+    o.hidden = !canCreate;
+    o.disabled = isGslBlocked;
+  });
   document.getElementById('cuPassword').value=generateTempPassword(); document.getElementById('cuCanTick').checked=false; syncCreateUserRole();
   document.getElementById('createUserModal').classList.add('active');
 }
 function syncCreateUserRole(){
-  const role=document.getElementById('cuRole').value,cb=document.getElementById('cuCanTick'); cb.disabled=role==='member'; if(role==='member') cb.checked=false; else cb.checked=true;
+  const role=document.getElementById('cuRole').value,cb=document.getElementById('cuCanTick');
+  cb.disabled=role==='member';
+  if(role==='member') cb.checked=false; else cb.checked=true;
+  const isLeader = ['branch_leader','group_leader','admin'].includes(role);
+  const ymisInput = document.getElementById('cuYmis');
+  const ymisLabel = ymisInput?.previousElementSibling;
+  if(ymisLabel){
+    ymisLabel.textContent = isLeader ? (isEn()?'YMIS (Optional for leaders)':'YMIS（領袖可留空自動編號）') : (isEn()?'YMIS (10 digits) *':'YMIS（10 位）*');
+  }
 }
-function showTemporaryPasswordResult(title,ymis,name,password){
+function showTemporaryPasswordResult(title,ymis,name,password,email,role){
   document.getElementById('historyTitle').textContent=title;
-  document.getElementById('historyBody').innerHTML=`<div class="info-section"><p><b>${escapeHtmlText(name)}</b>（${escapeHtmlText(ymis)}）${i18n('tmp.pw')}</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(password)}</div><p style="font-size:11px;color:var(--text-light);margin-top:8px">${i18n('tmp.hint')}</p></div>`;
+  const isLeader = ['branch_leader','group_leader','admin'].includes(role) || String(ymis||'').startsWith('L');
+  let headerHtml = '';
+  if(isLeader){
+    headerHtml = `<p><b>${escapeHtmlText(name)}</b>${email?`（${escapeHtmlText(email)}）`:''}<br><span style="color:var(--blue);font-weight:600">🔑 ${i18n('tmp.leaderLoginMethodShort')}</span><br>${i18n('tmp.pw')}</p>`;
+  } else {
+    headerHtml = `<p><b>${escapeHtmlText(name)}</b>（${escapeHtmlText(ymis)}）${i18n('tmp.pw')}</p>`;
+  }
+  document.getElementById('historyBody').innerHTML=`<div class="info-section">${headerHtml}<div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(password)}</div><p style="font-size:11px;color:var(--text-light);margin-top:8px">${i18n('tmp.hint')}</p></div>`;
   document.getElementById('historyModal').classList.add('active');
 }
 async function submitCreateUser(){
-  const payload={action:'addUser',token:currentToken,ymis:document.getElementById('cuYmis').value.trim(),name:document.getElementById('cuName').value.trim(),email:document.getElementById('cuEmail').value.trim(),branch:document.getElementById('cuBranch').value.trim(),role:document.getElementById('cuRole').value,can_tick:document.getElementById('cuCanTick').checked,password:document.getElementById('cuPassword').value};
-  if(!/^\d{10}$/.test(payload.ymis)||!payload.name||payload.password.length<4){showToast(i18n('cu.need'),'error');return;}
-  const btn=document.getElementById('btnCreateUser');btn.disabled=true;btn.textContent=i18n('cu.creating');
-  try{const d=await apiRequest('addUser',payload);if(!d.success)throw new Error(d.error);closeModal('createUserModal');showTemporaryPasswordResult(i18n('cu.okTitle'),payload.ymis,payload.name,payload.password);showToast(i18n('cu.ok'),'success');await loadUsers();await loadItemsAndProgress();}catch(e){showToast(i18n('cu.fail',{m:e.message}),'error');}finally{btn.disabled=false;btn.textContent=i18n('cu.create');}
+  const role = document.getElementById('cuRole').value;
+  const isLeader = ['branch_leader','group_leader','admin'].includes(role);
+  const ymis = document.getElementById('cuYmis').value.trim();
+  const name = document.getElementById('cuName').value.trim();
+  const email = document.getElementById('cuEmail').value.trim();
+  const branch = document.getElementById('cuBranch').value.trim();
+  const can_tick = document.getElementById('cuCanTick').checked;
+  const password = document.getElementById('cuPassword').value;
+
+  if(!name || password.length < 4){
+    showToast(i18n('cu.need'),'error');
+    return;
+  }
+  if(isLeader){
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      showToast(i18n('bulk.errEmail'),'error');
+      return;
+    }
+    if(ymis && !/^\d{10}$/.test(ymis) && !/^L\d+$/i.test(ymis)){
+      showToast(i18n('bulk.errYmis'),'error');
+      return;
+    }
+  }else{
+    if(!/^\d{10}$/.test(ymis)){
+      showToast(i18n('bulk.errYmis'),'error');
+      return;
+    }
+    if(role==='exec_committee' && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
+      showToast(i18n('bulk.errEmail'),'error');
+      return;
+    }
+  }
+
+  const payload = {action:'addUser', token:currentToken, ymis, name, email, branch, role, can_tick, password};
+  const btn = document.getElementById('btnCreateUser');
+  btn.disabled = true; btn.textContent = i18n('cu.creating');
+  try{
+    const d = await apiRequest('addUser', payload);
+    if(!d.success) throw new Error(d.error);
+    closeModal('createUserModal');
+    showTemporaryPasswordResult(i18n('cu.okTitle'), ymis, name, password, email, role);
+    showToast(i18n('cu.ok'), 'success');
+    await loadUsers();
+    await loadItemsAndProgress();
+  }catch(e){
+    showToast(i18n('cu.fail',{m:e.message}), 'error');
+  }finally{
+    btn.disabled = false; btn.textContent = i18n('cu.create');
+  }
 }
 function openEditUserModal(encoded){
   const u=JSON.parse(decodeURIComponent(encoded)); document.getElementById('euYmis').value=u.ymis;document.getElementById('euYmisDisplay').value=u.ymis;document.getElementById('euName').value=u.name;document.getElementById('euEmail').value=u.email;document.getElementById('euBranch').value=u.branch;document.getElementById('editUserModal').classList.add('active');
@@ -4060,12 +4169,39 @@ async function submitEditUser(){
   const payload={action:'updateUserProfile',token:currentToken,target_ymis:document.getElementById('euYmis').value,name:document.getElementById('euName').value.trim(),email:document.getElementById('euEmail').value.trim(),branch:document.getElementById('euBranch').value.trim()};
   try{const d=await apiRequest('updateUserProfile',payload);if(!d.success)throw new Error(d.error);closeModal('editUserModal');showToast(i18n('eu.saved'),'success');loadUsers();}catch(e){showToast(i18n('eu.fail',{m:e.message}),'error');}
 }
-function openResetPasswordModal(ymis,name){document.getElementById('rpYmis').value=ymis;const rl=document.getElementById('rpUserLabel');rl.dataset.name=name;rl.textContent=`${name}（${ymis}）`;document.getElementById('rpPassword').value=generateTempPassword();document.getElementById('resetPasswordModal').classList.add('active');}
+function openResetPasswordModal(ymis,name){
+  document.getElementById('rpYmis').value=ymis;
+  const rl=document.getElementById('rpUserLabel');
+  rl.dataset.name=name;
+  const isL=String(ymis||'').startsWith('L');
+  const u=(adminUsersCache||[]).find(x=>x.ymis===ymis);
+  rl.textContent=isL ? `${name}${u?.email?`（${u.email}）`:''}` : `${name}（${ymis}）`;
+  document.getElementById('rpPassword').value=generateTempPassword();
+  document.getElementById('resetPasswordModal').classList.add('active');
+}
 async function submitResetPassword(){
-  const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;if(password.length<4){showToast(i18n('rp.short'),'error');return;}
-  try{const d=await apiRequest('resetPassword',{token:currentToken,target_ymis:ymis,new_password:password});if(!d.success)throw new Error(d.error);const name=document.getElementById('rpUserLabel').dataset.name||document.getElementById('rpUserLabel').textContent.split('（')[0];closeModal('resetPasswordModal');showTemporaryPasswordResult(i18n('rp.doneTitle'),ymis,name,password);showToast(i18n('rp.okToast'),'success');loadUsers();}catch(e){showToast(i18n('rp.fail',{m:e.message}),'error');}
+  const ymis=document.getElementById('rpYmis').value,password=document.getElementById('rpPassword').value;
+  if(password.length<4){showToast(i18n('rp.short'),'error');return;}
+  try{
+    const d=await apiRequest('resetPassword',{token:currentToken,target_ymis:ymis,new_password:password});
+    if(!d.success) throw new Error(d.error);
+    const u=(adminUsersCache||[]).find(x=>x.ymis===ymis);
+    const name=document.getElementById('rpUserLabel').dataset.name||u?.name||'';
+    closeModal('resetPasswordModal');
+    showTemporaryPasswordResult(i18n('rp.doneTitle'),ymis,name,password,u?.email,u?.role);
+    showToast(i18n('rp.okToast'),'success');
+    loadUsers();
+  }catch(e){showToast(i18n('rp.fail',{m:e.message}),'error');}
 }
 async function setUserStatus(ymis,status){
+  const targetUser = (adminUsersCache||[]).find(x => x.ymis === ymis);
+  if(status === 'inactive' && targetUser && targetUser.role === 'group_leader'){
+    if(!confirm(i18n('role.warnDeactivateGsl', { name: targetUser.name }))) return;
+  } else {
+    if(!confirm(status==='active'?i18n('st.enableQ'):i18n('st.disableQ'))) return;
+  }
+  try{const d=await apiRequest('setUserStatus',{token:currentToken,target_ymis:ymis,status});if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast(i18n('req.opFail',{m:e.message}),'error');}
+}
   if(!confirm(status==='active'?i18n('st.enableQ'):i18n('st.disableQ')))return;
   try{const d=await apiRequest('setUserStatus',{token:currentToken,target_ymis:ymis,status});if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast(i18n('req.opFail',{m:e.message}),'error');}
 }
@@ -4074,7 +4210,7 @@ async function loadAuditHistory(){
   try{const d=await apiRequest('getAuditLog',{token:currentToken});if(!d.success)throw new Error(d.error);const rows=(d.records||[]).slice().reverse();document.getElementById('historyBody').innerHTML=rows.length?`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>${i18n('hist.time')}</th><th>${i18n('hist.actor')}</th><th>${i18n('hist.act')}</th><th>${i18n('hist.target')}</th><th>${i18n('hist.detail')}</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtmlText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:('<p style="text-align:center;color:var(--text-light)">'+i18n('hist.empty')+'</p>');document.getElementById('historyModal').classList.add('active');}catch(e){showToast(i18n('hist.fail',{m:e.message}),'error');}
 }
 function downloadMembersTemplate(){
-  const csv=isEn()?'ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,Chan Tai Man,chan@example.org,Venture Scout Unit,member,false,,New member\r\n1234560002,Lee Siu Ming,lee@example.org,Venture Scout Unit,exec_committee,true,1234,Exec\r\n':'ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,1234,執委\r\n';
+  const csv=isEn()?'ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,Chan Tai Man,chan@example.org,Venture Scout Unit,member,false,,New member (10-digit YMIS)\r\n1234560002,Lee Siu Ming,lee@example.org,Venture Scout Unit,exec_committee,true,1234,Exec (10-digit YMIS + Email)\r\n,Leader Wong,wong.leader@example.org,Venture Scout Unit,branch_leader,true,1234,Branch Leader (No YMIS needed, login with Email)\r\n':'ymis,name,email,branch,role,can_tick,password,note\r\n1234560001,陳大文,chan@example.org,深資童軍支部,member,false,,新團員（填 10 位 YMIS）\r\n1234560002,李小明,lee@example.org,深資童軍支部,exec_committee,true,1234,執委（填 10 位 YMIS ＋ 電郵）\r\n,黃領袖,wong.leader@example.org,深資童軍支部,branch_leader,true,1234,支部領袖（免 YMIS，留空自動編號，用電郵登入）\r\n';
   downloadTextFile('vsbadge-members-template.csv','\ufeff'+csv,'text/csv;charset=utf-8');
 }
 function downloadTextFile(name,text,type){const url=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -4294,23 +4430,111 @@ async function importMembersFile(file){if(!file)return;try{bulkDraft=normalizeBu
 function showBulkJsonInput(){const t=document.getElementById('bulkJsonInput'),b=document.getElementById('bulkJsonParseBtn');t.style.display='block';b.style.display='inline-flex';t.focus();}
 function parseBulkJsonInput(){try{let rows=JSON.parse(document.getElementById('bulkJsonInput').value);if(!Array.isArray(rows))rows=[rows];bulkDraft=normalizeBulkRows(rows);renderBulkPreview();}catch(e){showToast('JSON 格式錯誤：'+e.message,'error');}}
 function validateBulkRow(u,index){
-  const errors=[],auto=document.getElementById('bulkAutoPassword').checked;
-  if(!/^\d{10}$/.test(u.ymis))errors.push(i18n('bulk.errYmis'));if(!u.name)errors.push(i18n('bulk.errName'));if(!['member','exec_committee','branch_leader','group_leader','admin'].includes(u.role))errors.push(i18n('bulk.errRole'));else if(!canCreateRoleFrontend(u.role))errors.push(i18n('bulk.errRoleNo'));if(u.role!=='member'&&!u.email)errors.push(i18n('bulk.errEmail'));if(u.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email))errors.push(i18n('bulk.errEmailFmt'));if(!u.password&&!auto)errors.push(i18n('bulk.errPwMissing'));if(u.password&&u.password.length<4)errors.push(i18n('bulk.errPw'));if(adminUsersCache.some(x=>x.ymis===u.ymis))errors.push(i18n('bulk.errDup'));if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis))errors.push(i18n('bulk.errDupFile'));return errors;
+  const errors=[],auto=document.getElementById('bulkAutoPassword')?.checked;
+  const isLeaderRole=['branch_leader','group_leader','admin'].includes(u.role);
+
+  // YMIS 驗證：領袖角色可留空（後端自動編配內部 L 編號）；團員／執委必須 10 位數字
+  if(!u.ymis){
+    if(!isLeaderRole) errors.push(i18n('bulk.errYmis'));
+  } else {
+    if(!/^\d{10}$/.test(u.ymis) && !/^L\d+$/i.test(u.ymis)) errors.push(i18n('bulk.errYmis'));
+  }
+
+  if(!u.name) errors.push(i18n('bulk.errName'));
+
+  if(!['member','exec_committee','branch_leader','group_leader','admin'].includes(u.role)){
+    errors.push(i18n('bulk.errRole'));
+  } else if(!canCreateRoleFrontend(u.role)){
+    errors.push(i18n('bulk.errRoleNo'));
+  }
+
+  // 團長鎖死一位：若已存在活躍團長，或同批內已有其他列設定為團長
+  if(u.role === 'group_leader'){
+    const hasActiveGsl = (adminUsersCache||[]).some(x => x.role === 'group_leader' && (x.status||'active') === 'active');
+    const earlierGslInBatch = bulkDraft.slice(0, index).some(x => x.role === 'group_leader');
+    if(hasActiveGsl || earlierGslInBatch){
+      errors.push(i18n('bulk.errGslExists'));
+    }
+  }
+
+  // 電郵驗證：領袖／執委必須填寫
+  if(u.role!=='member'&&!u.email) errors.push(i18n('bulk.errEmail'));
+  if(u.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email)) errors.push(i18n('bulk.errEmailFmt'));
+
+  if(!u.password&&!auto) errors.push(i18n('bulk.errPwMissing'));
+  if(u.password&&u.password.length<4) errors.push(i18n('bulk.errPw'));
+
+  // 重複檢查
+  if(u.ymis){
+    if(adminUsersCache.some(x=>x.ymis===u.ymis)) errors.push(i18n('bulk.errDup'));
+    if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis)) errors.push(i18n('bulk.errDupFile'));
+  }
+  if(u.email){
+    const emailLower=u.email.toLowerCase();
+    if(adminUsersCache.some(x=>x.email&&x.email.toLowerCase()===emailLower)) errors.push(i18n('bulk.errDupEmail'));
+    if(bulkDraft.slice(0,index).some(x=>x.email&&x.email.toLowerCase()===emailLower)) errors.push(i18n('bulk.errDupEmailFile'));
+  }
+  return errors;
 }
 function renderBulkPreview(){
-  const summary=document.getElementById('bulkSummary'),container=document.getElementById('bulkPreviewContainer'),btn=document.getElementById('btnExecuteBulk');if(!bulkDraft.length){summary.textContent=i18n('bulk.noPrev');container.innerHTML='';btn.disabled=true;return;}
-  let valid=0;const rows=bulkDraft.map((u,i)=>{const errors=validateBulkRow(u,i);u._errors=errors;if(!errors.length)valid++;return `<tr><td>${i+1}</td><td>${escapeHtmlText(u.ymis)}</td><td>${escapeHtmlText(u.name)}</td><td>${escapeHtmlText(u.email)}</td><td>${escapeHtmlText(getRoleName(u.role))}</td><td>${u.password?i18n('bulk.provided'):i18n('bulk.autoPw')}</td><td class="${errors.length?'bulk-error':'bulk-ok'}">${errors.length?escapeHtmlText(errors.join(' · ')):i18n('bulk.can')}</td></tr>`;}).join('');
-  summary.innerHTML=i18n('bulk.sum',{n:bulkDraft.length})+`<b style="color:var(--green)">`+i18n('bulk.okN',{n:valid})+`</b>`+i18n('bulk.sep')+`<b style="color:var(--red)">`+i18n('bulk.skipN',{n:bulkDraft.length-valid})+`</b>`;container.innerHTML=`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>#</th><th>YMIS</th><th>`+i18n('ymis.colName')+`</th><th>Email</th><th>`+i18n('cu.role')+`</th><th>`+i18n('cu.temp')+`</th><th>`+i18n('ymis.colStatus')+`</th></tr></thead><tbody>${rows}</tbody></table></div>`;btn.disabled=valid===0;
+  const summary=document.getElementById('bulkSummary'),container=document.getElementById('bulkPreviewContainer'),btn=document.getElementById('btnExecuteBulk');
+  if(!bulkDraft.length){summary.textContent=i18n('bulk.noPrev');container.innerHTML='';btn.disabled=true;return;}
+  let valid=0;
+  const rows=bulkDraft.map((u,i)=>{
+    const errors=validateBulkRow(u,i);
+    u._errors=errors;
+    if(!errors.length) valid++;
+    const isLeaderRole=['branch_leader','group_leader','admin'].includes(u.role);
+    const ymisText=u.ymis ? escapeHtmlText(u.ymis) : (isLeaderRole ? `<span style="color:var(--text-light);font-size:11px">${i18n('bulk.autoId')}</span>` : '');
+    return `<tr><td>${i+1}</td><td>${ymisText}</td><td>${escapeHtmlText(u.name)}</td><td>${escapeHtmlText(u.email)}</td><td>${escapeHtmlText(getRoleName(u.role))}</td><td>${u.password?i18n('bulk.provided'):i18n('bulk.autoPw')}</td><td class="${errors.length?'bulk-error':'bulk-ok'}">${errors.length?escapeHtmlText(errors.join(' · ')):i18n('bulk.can')}</td></tr>`;
+  }).join('');
+  summary.innerHTML=i18n('bulk.sum',{n:bulkDraft.length})+`<b style="color:var(--green)">`+i18n('bulk.okN',{n:valid})+`</b>`+i18n('bulk.sep')+`<b style="color:var(--red)">`+i18n('bulk.skipN',{n:bulkDraft.length-valid})+`</b>`;
+  container.innerHTML=`<div class="bulk-preview-wrap"><table class="bulk-preview"><thead><tr><th>#</th><th>YMIS</th><th>`+i18n('ymis.colName')+`</th><th>Email</th><th>`+i18n('cu.role')+`</th><th>`+i18n('cu.temp')+`</th><th>`+i18n('ymis.colStatus')+`</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  btn.disabled=valid===0;
 }
 async function executeBulkOnboard(){
-  const valid=bulkDraft.filter(u=>!u._errors?.length).map(u=>({...u,password:u.password||generateTempPassword()}));if(!valid.length)return;if(!confirm(i18n('bulk.confirm',{n:valid.length})))return;
-  const btn=document.getElementById('btnExecuteBulk');btn.disabled=true;btn.textContent=i18n('bulk.working');bulkResults=[];
-  try{for(let i=0;i<valid.length;i+=100){const chunk=valid.slice(i,i+100);btn.textContent=i18n('bulk.prog',{a:i+1,b:Math.min(i+100,valid.length),n:valid.length});const d=await apiRequest('bulkAddUsers',{token:currentToken,users:chunk});if(!d.success)throw new Error(d.error||i18n('bulk.fail',{m:''}));(d.results||[]).forEach((result,j)=>bulkResults.push({...result,password:chunk[j]?.password||''}));}
-    const ok=bulkResults.filter(x=>x.success),fail=bulkResults.filter(x=>!x.success);const result=document.getElementById('bulkResult');result.style.display='block';result.innerHTML=`<div class="info-section" style="border-left:4px solid ${fail.length?'var(--orange)':'var(--green)'}"><b>`+i18n('bulk.done',{ok:ok.length,fail:fail.length})+`</b><p style="font-size:11px;color:var(--text-light);margin-top:5px">`+i18n('bulk.pwHint')+`</p><button class="btn btn-sm btn-success" style="margin-top:8px" onclick="downloadBulkCredentials()">`+i18n('bulk.dl')+`</button>${fail.length?`<div class="bulk-error" style="margin-top:8px">${fail.map(x=>`${escapeHtmlText(x.ymis)}：${escapeHtmlText(x.error)}`).join('<br>')}</div>`:''}</div>`;showToast(i18n('bulk.okToast',{n:ok.length}),'success');await loadUsers();await loadItemsAndProgress();
-  }catch(e){showToast(i18n('bulk.fail',{m:e.message}),'error');}finally{btn.disabled=false;btn.textContent=i18n('bulk.go');}
+  const valid=bulkDraft.filter(u=>!u._errors?.length).map(u=>({...u,password:u.password||generateTempPassword()}));
+  if(!valid.length) return;
+  if(!confirm(i18n('bulk.confirm',{n:valid.length}))) return;
+  const btn=document.getElementById('btnExecuteBulk');
+  btn.disabled=true; btn.textContent=i18n('bulk.working');
+  bulkResults=[];
+  const resultBox=document.getElementById('bulkResult');
+  try{
+    for(let i=0;i<valid.length;i+=100){
+      const chunk=valid.slice(i,i+100);
+      btn.textContent=i18n('bulk.prog',{a:i+1,b:Math.min(i+100,valid.length),n:valid.length});
+      const d=await apiRequest('bulkAddUsers',{token:currentToken,users:chunk});
+      if(!d.success){
+        resultBox.style.display='block';
+        resultBox.innerHTML=`<div class="info-section bulk-error" style="border-left:4px solid var(--red);background:#FFF5F5;color:var(--red);padding:12px"><b>❌ ${i18n('bulk.fail',{m:escapeHtmlText(d.error||'後端拒絕')})}</b></div>`;
+        throw new Error(d.error||i18n('bulk.fail',{m:''}));
+      }
+      (d.results||[]).forEach((result,j)=>bulkResults.push({...result,password:chunk[j]?.password||''}));
+    }
+    const ok=bulkResults.filter(x=>x.success),fail=bulkResults.filter(x=>!x.success);
+    resultBox.style.display='block';
+    resultBox.innerHTML=`<div class="info-section" style="border-left:4px solid ${fail.length?'var(--orange)':'var(--green)'}"><b>`+i18n('bulk.done',{ok:ok.length,fail:fail.length})+`</b><p style="font-size:11px;color:var(--text-light);margin-top:5px">`+i18n('bulk.pwHint')+`</p><button class="btn btn-sm btn-success" style="margin-top:8px" onclick="downloadBulkCredentials()">`+i18n('bulk.dl')+`</button>${fail.length?`<div class="bulk-error" style="margin-top:8px">${fail.map(x=>`${escapeHtmlText(x.name||x.email||x.ymis||'')}：${escapeHtmlText(x.error||'失敗')}`).join('<br>')}</div>`:''}</div>`;
+    showToast(i18n('bulk.okToast',{n:ok.length}),'success');
+    await loadUsers();
+    await loadItemsAndProgress();
+  }catch(e){
+    if(resultBox.style.display!=='block'){
+      resultBox.style.display='block';
+      resultBox.innerHTML=`<div class="info-section bulk-error" style="border-left:4px solid var(--red);background:#FFF5F5;color:var(--red);padding:12px"><b>❌ ${escapeHtmlText(e.message)}</b></div>`;
+    }
+    showToast(i18n('bulk.fail',{m:e.message}),'error');
+  }finally{
+    btn.disabled=false;
+    btn.textContent=i18n('bulk.go');
+  }
 }
 function csvCell(v){let value=String(v??'');if(/^[=+\-@]/.test(value))value="'"+value;return '"'+value.replace(/"/g,'""')+'"';}
-function downloadBulkCredentials(){const ok=bulkResults.filter(x=>x.success);const lines=['ymis,name,temp_password',...ok.map(x=>[x.ymis,x.name,x.password].map(csvCell).join(','))];downloadTextFile(`vsbadge-temp-passwords-${todayISO()}.csv`,'\ufeff'+lines.join('\r\n'),'text/csv;charset=utf-8');}
+function downloadBulkCredentials(){
+  const ok=bulkResults.filter(x=>x.success);
+  const lines=['login_account,name,email,role,temp_password',...ok.map(x=>[x.email||x.ymis,x.name,x.email||'',x.role||'',x.password].map(csvCell).join(','))];
+  downloadTextFile(`vsbadge-temp-passwords-${todayISO()}.csv`,'\ufeff'+lines.join('\r\n'),'text/csv;charset=utf-8');
+}
 
 async function toggleAllowMemberViewOthers(checked){
   const val=checked?'true':'false';
@@ -4524,6 +4748,13 @@ function clearMockMembers(){
   showToast(i18n('demo.clearToast'),'warning');
 }
 async function updateUserRole(tid,nr){
+  const targetUser=(adminUsersCache||[]).find(x=>x.ymis===tid);
+  if(targetUser && targetUser.role==='group_leader' && nr!=='group_leader'){
+    if(!confirm(i18n('role.warnDemoteGsl',{name:targetUser.name}))){
+      loadUsers();
+      return;
+    }
+  }
   try{
     const d=await apiRequest('updateUserRole',{token:currentToken,target_ymis:tid,new_role:nr,can_tick:nr!=='member'});
     if(!d.success) throw new Error(d.error||i18n('eu.fail',{m:''})); showToast(i18n('role.updated'),'success'); loadUsers();
@@ -4545,7 +4776,9 @@ async function loadApplications(){
       if(d.applications.length===0) h+='<p style="color:var(--text-light)">'+i18n('appv.noPending')+'</p>';
       else d.applications.forEach(a=>{
         const reqRole=a.requested_role||'member';
-        h+=`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${a.ymis?`(${escapeHtmlText(a.ymis)})`:''} ${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">${i18n('req.applyRole')}<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">${i18n('req.decA')}</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">${i18n('req.decR')}</button></div></div>`;
+        const isL=String(a.ymis||'').startsWith('L');
+        const ymisDisplay=(a.ymis&&!isL)?`(${escapeHtmlText(a.ymis)}) `:'';
+        h+=`<div class="app-item"><div class="app-item-info"><b>${escapeHtmlText(a.name)}</b> ${ymisDisplay}${a.email?`- ${escapeHtmlText(a.email)}`:''}<br><span style="font-size:11px;color:var(--text-light)">${i18n('req.applyRole')}<span class="role-badge role-${escapeHtmlText(reqRole)}">${escapeHtmlText(getRoleName(reqRole))}</span> | ${escapeHtmlText(a.applied_at)}${a.branch?` | 📍 ${escapeHtmlText(a.branch)}`:''}</span></div><div class="app-item-actions"><button class="btn btn-sm btn-success" onclick="reviewApp('${escapeAttr(a.app_id)}','approved','${escapeAttr(reqRole)}')">${i18n('req.decA')}</button><button class="btn btn-sm btn-danger" onclick="reviewApp('${escapeAttr(a.app_id)}','rejected')">${i18n('req.decR')}</button></div></div>`;
       });
       c.innerHTML=h;
     }else c.innerHTML='<p style="color:var(--red)">'+i18n('common.loadFailShort')+'</p>';
@@ -4553,20 +4786,25 @@ async function loadApplications(){
 }
 async function reviewApp(id,dec,requestedRole){
   if(!confirm(dec==='approved'?i18n('review.confirmA'):i18n('review.confirmR'))) return;
-  const tempPassword=dec==='approved'?generateTempPassword():'';
+  const tempPassword=dec==='approved'?'1234':'';
   try{
     const d=await apiRequest('reviewApplication',{token:currentToken,app_id:id,decision:dec,review_note:'',temp_password:tempPassword});
     if(!d.success) throw new Error(d.error||i18n('review.fail',{m:''}));
     showToast(d.message,'success');
     if(dec==='approved'){
       const finalRole=d.final_role||'member';
+      const isLeader=['branch_leader','group_leader','admin'].includes(finalRole) || String(d.ymis||'').startsWith('L');
       let roleLine;
       if(d.final_role){ roleLine=i18n('appv.as',{role:escapeHtmlText(getRoleName(finalRole))}); }
       else if(requestedRole && requestedRole!=='member'){ roleLine=i18n('appv.old',{role:escapeHtmlText(getRoleName(requestedRole))}); }
       else{ roleLine=i18n('appv.member'); }
       if(requestedRole && d.final_role && d.final_role!==requestedRole){ roleLine=i18n('appv.fallback',{want:escapeHtmlText(getRoleName(requestedRole))}); }
+      
+      const loginMethodHtml=isLeader?`<br><span style="color:var(--blue);font-weight:600">🔑 ${i18n('tmp.leaderLoginMethodShort')}</span>`:'';
+      const nameMailHtml=d.name?`<b>${escapeHtmlText(d.name)}</b>${d.email?`（${escapeHtmlText(d.email)}）`:''}<br>`:'';
+
       document.getElementById('historyTitle').textContent=i18n('appv.ok');
-      document.getElementById('historyBody').innerHTML=`<div class="info-section"><p>${roleLine}<br>${i18n('appv.temp')}</p><div style="font-size:20px;font-family:monospace;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all">${escapeHtmlText(d.temp_password||tempPassword)}</div></div>`;
+      document.getElementById('historyBody').innerHTML=`<div class="info-section"><p>${nameMailHtml}${roleLine}${loginMethodHtml}<br>${i18n('appv.temp')}</p><div style="font-size:24px;font-family:monospace;font-weight:bold;text-align:center;padding:14px;background:var(--bg);border-radius:8px;margin-top:10px;user-select:all;letter-spacing:3px">${escapeHtmlText(d.temp_password||tempPassword||'1234')}</div><p style="font-size:12px;color:var(--text-light);margin-top:8px">${i18n('appv.firstLoginNotice')}</p></div>`;
       document.getElementById('historyModal').classList.add('active');
     }
     renderRequestsTab();

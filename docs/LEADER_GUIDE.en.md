@@ -41,9 +41,11 @@ Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same
 - If you see “backend not yet v8.1”, follow DEPLOY_GUIDE v8.1 upgrade; log claims additionally need the v8.4 upgrade (adds the pending-log sheet)
 
 ### 5. Users — front-end admin
-- Create one account or **📥 bulk onboard**
+- Create one account (Leaders do not need YMIS and sign in by email; members/execs require a 10-digit YMIS)
+- **🔒 Single Group Leader Lock**: only one active Group Leader per troop. Adding or promoting another GSL is blocked while an active GSL exists. Demote or deactivate the current GSL first to change leadership.
+- **📥 Bulk onboard**:
   - **Recommended:** YMIS custom-report PDF (columns: Scout ID → Name in Chinese → Email) → unlock / preview / edit in the browser → confirm. The PDF never leaves the device. See [YMIS_EXPORT.md](YMIS_EXPORT.md)
-  - **Fallback:** CSV → preview → write; blank passwords generated. JSON paste also works.
+  - **Fallback:** CSV → preview → write; leader YMIS can be left blank; blank passwords generated. JSON paste also works.
 - Edit, reset temporary password, deactivate / reactivate, audit log
 - First sign-in after create/reset forces a password change
 - Promote member → exec + allow ticking
@@ -54,6 +56,7 @@ Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same
 
 ### 7. Account applications
 - GSL / VSL → **✅ Approvals** → **👤 Accounts**
+- Leaders apply without YMIS using email; approved leaders sign in by email + temporary password.
 - Applied role and Group (filled in automatically) are shown
 - Approve opens the account in that role; if your level cannot set it, it opens as Member and the GSL can adjust under Users
 - A one-time temporary password is shown; the user must change it at first sign-in

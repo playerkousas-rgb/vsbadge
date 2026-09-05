@@ -62,7 +62,7 @@ function readRows() {
   for (var i = 1; i < data.length; i++) {
     var obj = {};
     headers.forEach(function (h, idx) { obj[h] = data[i][idx]; });
-    if (obj.ymis) rows.push(obj);
+    if (obj.ymis || obj.name) rows.push(obj);
   }
   return rows;
 }
@@ -161,6 +161,33 @@ function writeToMainSheet() {
     ? sh.getRange(2, ymisCol + 1, lastRow - 1, 1).getValues().map(function (r) { return String(r[0]).trim(); })
     : [];
 
+  // 檢查是否已有現任活躍團長
+  var hasGsl = false;
+  var gslCol = headers.indexOf('role');
+  var statusCol = headers.indexOf('status');
+  if (lastRow > 1 && gslCol >= 0) {
+    var allRows = sh.getRange(2, 1, lastRow - 1, headers.length).getValues();
+    allRows.forEach(function (r) {
+      var rRole = String(r[gslCol] || '').trim();
+      var rStatus = statusCol >= 0 ? String(r[statusCol] || '').trim() : 'active';
+      if (rRole === 'group_leader' && rStatus !== 'inactive') hasGsl = true;
+    });
+  }
+
+  // 計算現有最大的 L 編號
+  var maxL = 0;
+  existing.forEach(function (id) {
+    var m = String(id).match(/^L(\d+)$/i);
+    if (m) {
+      var num = parseInt(m[1], 10);
+      if (num > maxL) maxL = num;
+    }
+  });
+  function getNextLeaderId() {
+    maxL++;
+    return 'L' + ('0000' + maxL).slice(-4);
+  }
+
   // 讀取成員名單已有的 YMIS，避免重複寫入
   var mSheet = null, mExisting = {};
   try {
@@ -174,8 +201,16 @@ function writeToMainSheet() {
   var nowStr = Utilities.formatDate(new Date(), 'Asia/Hong_Kong', 'yyyy-MM-dd HH:mm:ss');
   var added = 0, dup = 0, skipped = 0;
   json.forEach(function (m) {
+    var isLeaderRole = ['group_leader', 'branch_leader'].indexOf(m.role) >= 0;
+    if (!m.ymis && isLeaderRole) {
+      m.ymis = getNextLeaderId();
+    }
+    if (m.role === 'group_leader') {
+      if (hasGsl) { skipped++; return; }
+      hasGsl = true;
+    }
     if (existing.indexOf(m.ymis) >= 0) { dup++; return; }
-    if (!/^\d{10}$/.test(m.ymis)) { skipped++; return; }
+    if (!/^\d{10}$/.test(m.ymis) && !/^L\d+$/i.test(m.ymis)) { skipped++; return; }
     if (VALID_ROLES.indexOf(m.role) < 0) { skipped++; return; }
     var row = new Array(headers.length).fill('');
     function set(name, val) { var c = headers.indexOf(name); if (c >= 0) row[c] = (val === undefined ? '' : val); }
@@ -195,11 +230,12 @@ function writeToMainSheet() {
     set('force_change_password', 'TRUE');
     set('created_at', nowStr);
     sh.appendRow(row);
+    existing.push(m.ymis);
     added++;
-    if (mSheet && !mExisting[m.ymis]) {
+    if (mSheet && !mExisting[m.ymis] && /^\d{10}$/.test(m.ymis)) {
       mSheet.appendRow([m.ymis, m.name, new Date(), m.branch, '']);
       mExisting[m.ymis] = true;
     }
   });
-  SpreadsheetApp.getUi().alert('寫入主資料表完成：新增 ' + added + ' 筆，略過重複 ' + dup + ' 筆' + (skipped ? '，跳過無效 ' + skipped + ' 筆' : '') + (info.needsHeader ? '（已自動建立 Users 表頭）' : ''));
+  SpreadsheetApp.getUi().alert('寫入主資料表完成：新增 ' + added + ' 筆，略過重複 ' + dup + ' 筆' + (skipped ? '，跳過無效／重複團長 ' + skipped + ' 筆' : '') + (info.needsHeader ? '（已自動建立 Users 表頭）' : ''));
 }
