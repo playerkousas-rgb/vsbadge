@@ -46,7 +46,10 @@ Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same
 - **📥 Bulk onboard**:
   - **Recommended:** YMIS custom-report PDF (columns: Scout ID → Name in Chinese → Email) → unlock / preview / edit in the browser → confirm. The PDF never leaves the device. See [YMIS_EXPORT.md](YMIS_EXPORT.md)
   - **Fallback:** CSV → preview → write; leader YMIS can be left blank; blank passwords generated. JSON paste also works.
-- Edit, reset temporary password, deactivate / reactivate, audit log
+- Accounts and roster-only members are shown together. A roster-only member can be edited, given a sign-in account, or removed from the roster.
+- **Unique YMIS / email:** the same YMIS or email (case-insensitive) cannot open another account. Deactivated/deleted account identifiers stay reserved to prevent identity reuse.
+- For a member with an account, use **🔑 Change / reset password** to issue a temporary password. Existing sessions are revoked and the member must change it at next sign-in.
+- Edit, deactivate / reactivate or delete, and view the audit log. Deleting keeps historical progress/activity records.
 - First sign-in after create/reset forces a password change
 - Promote member → exec + allow ticking
 - **⚙️ Rights**: leaders default `*`; members none; execs default Membership Badge + Activity Achievement Badge + OTHER. Higher roles may limit lower ones.
