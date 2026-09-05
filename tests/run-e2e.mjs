@@ -47,6 +47,7 @@ console.log('\n【1】起兩個 mock GAS 旅團後端（含 GAS 式 302 redirect
 const mockA = await startMockGas({
   port: PORT_A, name: '旅團A(0082)', apikey: 'KEY_A',
   users: [
+    { ymis: '1111111111', name: '系統管理員', role: 'admin', pass: 'AdminA!234567', can_tick: true, email: 'admin@example.org' },
     { ymis: '1234567890', name: '陳大文', role: 'group_leader', pass: 'PassA!234567', can_tick: true, email: 'a@example.org' },
     { ymis: '1234560001', name: '成員甲', role: 'member', pass: 'MemberA!234', can_tick: false }
   ]
@@ -150,7 +151,7 @@ console.log('\n【6】讀取資料（GET load → proxy → mock A，驗證 302 
 {
   const d = await apiA('load', { token: tokenA });
   check('load 成功（伺服器端 apikey 注入有效，前端不用帶）', d.success === true);
-  check('load 回傳成員列表', Array.isArray(d.members) && d.members.length === 2);
+  check('load 回傳成員列表', Array.isArray(d.members) && d.members.length >= 2);
 }
 
 // ---- 新增/修改/儲存 + 重新讀取 ----
@@ -317,7 +318,7 @@ console.log('\n【10b2】履歷申報：團員申報新增／修改 → 領袖�
 }
 
 // ---- v8.2 帳戶自助申請：毋須填支部／單位、領袖可申請、團長前端審批 ----
-console.log('\n【10c】帳戶申請：成員／執委／領袖自助申請 → 團長審批（v8.2）');
+console.log('\n【10c】帳戶申請：成員／執委／領袖自助申請 → 領袖批核（v8.2）');
 {
   // 成員申請（支部／單位由前端自動帶入旅團名）
   const ap1 = await apiA('apply', { ymis: '1234560020', name: '新成員乙', email: 'newmember@example.org', branch: '第 82 旅', requested_role: 'member' });
@@ -338,22 +339,133 @@ console.log('\n【10c】帳戶申請：成員／執委／領袖自助申請 → 
   const memberApp = apps.applications.find(a => a.ymis === '1234560020');
   check('申請帶有所要求角色（branch_leader）', leaderApp?.requested_role === 'branch_leader');
   check('申請自動帶旅團單位（第 82 旅）', leaderApp?.branch === '第 82 旅' && memberApp?.branch === '第 82 旅');
-  // 團長批准領袖申請 → 直接開立為支部領袖
-  const rev = await apiA('reviewApplication', { token: tokenA, app_id: leaderApp.app_id, decision: 'approved', review_note: '', temp_password: 'Vs!12345678' });
-  check('團長批准領袖申請（final_role=branch_leader）', rev.success === true && rev.final_role === 'branch_leader');
-  const loginNewLeader = await apiA('login', { login_id: '1234560021', password: 'Vs!12345678' });
-  check('新領袖可登入（角色=支部領袖, can_tick）', loginNewLeader.success === true && loginNewLeader.user.role === 'branch_leader' && loginNewLeader.user.can_tick === true);
-  // 團長批准成員申請 → 開立為團員
-  const rev2 = await apiA('reviewApplication', { token: tokenA, app_id: memberApp.app_id, decision: 'approved', review_note: '', temp_password: 'Vs!abcdefgh' });
-  check('團長批准成員申請（final_role=member）', rev2.success === true && rev2.final_role === 'member');
-  const loginNewMember = await apiA('login', { login_id: '1234560020', password: 'Vs!abcdefgh' });
-  check('新成員可登入（角色=member）', loginNewMember.success === true && loginNewMember.user.role === 'member');
+  // 團長批准領袖申請 → 直接開立為支部領袖（初始密碼 1234）
+  const rev = await apiA('reviewApplication', { token: tokenA, app_id: leaderApp.app_id, decision: 'approved', review_note: '', temp_password: '1234' });
+  check('團長批准領袖申請（final_role=branch_leader）', rev.success === true && rev.final_role === 'branch_leader' && rev.temp_password === '1234');
+  const loginNewLeader = await apiA('login', { login_id: '1234560021', password: '1234' });
+  check('新領袖以預設密碼 1234 登入成功（角色=支部領袖, can_tick）', loginNewLeader.success === true && loginNewLeader.user.role === 'branch_leader' && loginNewLeader.user.can_tick === true);
+  // 團長批准成員申請 → 開立為團員（留空預設 1234）
+  const rev2 = await apiA('reviewApplication', { token: tokenA, app_id: memberApp.app_id, decision: 'approved', review_note: '' });
+  check('團長批准成員申請（final_role=member, 預設 1234）', rev2.success === true && rev2.final_role === 'member' && rev2.temp_password === '1234');
+  const loginNewMember = await apiA('login', { login_id: '1234560020', password: '1234' });
+  check('新成員以預設密碼 1234 登入成功（角色=member）', loginNewMember.success === true && loginNewMember.user.role === 'member');
   // 批准後不再出現於待批列表
   const appsAfter = await apiA('getApplications', { token: tokenA });
   check('已處理申請不再待批', appsAfter.success === true && appsAfter.applications.length === 0);
   // 普通成員無權查看申請
   const memberSee = await apiA('getApplications', { token: loginNewMember.token });
   check('普通成員不可查看用戶申請', memberSee.success === false && /權限/.test(memberSee.error || ''));
+}
+
+// ---- v8.6 團長鎖死一位（後端硬鎖、顯示現任姓名、換人流程） ----
+console.log('\n【10d】團長鎖死一位：後端硬鎖（已有現任團長拒絕並顯示姓名）＋換人流程');
+{
+  const adminLogin = await apiA('login', { login_id: '1111111111', password: 'AdminA!234567' });
+  const adminToken = adminLogin.token;
+
+  // 1) 當前已有現任團長陳大文，管理員嘗試單加團長被拒
+  const addGslDup = await apiA('addUser', { token: adminToken, name: '第二團長', email: 'gsl2@example.org', role: 'group_leader', password: 'Password123' });
+  check('已有現任團長時新增團長被拒', addGslDup.success === false && /團長只能有一位/.test(addGslDup.error || ''));
+  check('錯誤訊息顯示現任團長姓名（陳大文）', /陳大文/.test(addGslDup.error || ''));
+
+  // 2) 嘗試將成員升為團長被拒
+  const promoteGslDup = await apiA('updateUserRole', { token: adminToken, target_ymis: '1234560001', new_role: 'group_leader' });
+  check('已有現任團長時升為團長被拒', promoteGslDup.success === false && /團長只能有一位/.test(promoteGslDup.error || '') && /陳大文/.test(promoteGslDup.error || ''));
+
+  // 3) 批量開戶嘗試新增團長被拒
+  const bulkGslDup = await apiA('bulkAddUsers', { token: adminToken, users: [{ name: '批量團長', email: 'bulkgsl@example.org', role: 'group_leader', password: 'Password123' }] });
+  check('批量開戶新增團長被拒', bulkGslDup.results?.[0]?.success === false && /團長只能有一位/.test(bulkGslDup.results?.[0]?.error || ''));
+
+  // 4) 換人流程：先將現任團長（陳大文）轉為支部領袖
+  const demoteCurrent = await apiA('updateUserRole', { token: adminToken, target_ymis: '1234567890', new_role: 'branch_leader' });
+  check('現任團長轉為其他角色成功（解鎖團長位）', demoteCurrent.success === true);
+
+  // 5) 現在全團無活躍團長，可將另一位領袖升為新團長
+  const promoteNew = await apiA('updateUserRole', { token: adminToken, target_ymis: '1234560021', new_role: 'group_leader' });
+  check('全團無團長時升任新團長成功', promoteNew.success === true);
+
+  // 6) 再次嘗試升任其他人為團長，被拒且顯示新團長姓名（新領袖丙）
+  const promoteAgain = await apiA('updateUserRole', { token: adminToken, target_ymis: '1234560001', new_role: 'group_leader' });
+  check('已有新團長時再次升任被拒並顯示新團長姓名', promoteAgain.success === false && /新領袖丙/.test(promoteAgain.error || ''));
+
+  // 7) 復原：轉回陳大文為團長
+  await apiA('updateUserRole', { token: adminToken, target_ymis: '1234560021', new_role: 'branch_leader' });
+  await apiA('updateUserRole', { token: adminToken, target_ymis: '1234567890', new_role: 'group_leader' });
+}
+
+// ---- v8.6 領袖免 YMIS，用電郵登入 ----
+console.log('\n【10e】領袖免 YMIS，用電郵登入（申請表免填 YMIS、自動編配 L 編號、電郵登入、批量開戶免 YMIS）');
+{
+  // 1) 申請表：領袖申請留空 YMIS
+  const apNoYmis = await apiA('apply', { ymis: '', name: '電郵領袖丁', email: 'leader_ding@example.org', branch: '第 82 旅', requested_role: 'branch_leader' });
+  check('領袖申請留空 YMIS 成功', apNoYmis.success === true);
+
+  // 2) 團長查看申請：已自動編配內部 L 編號
+  const apps = await apiA('getApplications', { token: tokenA });
+  const dingApp = apps.applications?.find(a => a.email === 'leader_ding@example.org');
+  check('後端自動編配內部 L 編號', !!dingApp && /^L\d+$/i.test(dingApp.ymis));
+
+  // 3) 團長批准申請
+  const revDing = await apiA('reviewApplication', { token: tokenA, app_id: dingApp.app_id, decision: 'approved' });
+  check('批准免 YMIS 領袖申請成功', revDing.success === true && revDing.final_role === 'branch_leader' && revDing.temp_password === '1234');
+
+  // 4) 領袖使用電郵＋臨時密碼成功登入
+  const loginDing = await apiA('login', { login_id: 'leader_ding@example.org', password: '1234' });
+  check('領袖使用電郵＋密碼登入成功', loginDing.success === true && loginDing.user.name === '電郵領袖丁');
+
+  // 5) 批量開戶：領袖列留空 YMIS
+  const bulkNoYmis = await apiA('bulkAddUsers', { token: tokenA, users: [
+    { ymis: '', name: '批量領袖戊', email: 'leader_wu@example.org', role: 'branch_leader', password: 'WuPass1234', can_tick: true }
+  ]});
+  check('批量開戶領袖列留空 YMIS 成功', bulkNoYmis.success === true && bulkNoYmis.created === 1);
+  const wuResult = bulkNoYmis.results?.[0];
+  check('批量開戶領袖自動取得 L 編號', wuResult?.success === true && /^L\d+$/i.test(wuResult.ymis));
+
+  // 6) 批量開戶的領袖使用電郵登入
+  const loginWu = await apiA('login', { login_id: 'leader_wu@example.org', password: 'WuPass1234' });
+  check('批量開戶領袖以電郵登入成功', loginWu.success === true && loginWu.user.name === '批量領袖戊');
+
+  // 7) 舊帳戶（已有 10 位 YMIS 的領袖陳大文）以 YMIS 及以電郵登入皆成功
+  const loginGslYmis = await apiA('login', { login_id: '1234567890', password: 'PassA!234567' });
+  check('舊領袖以 YMIS 登入成功', loginGslYmis.success === true);
+  const loginGslEmail = await apiA('login', { login_id: 'a@example.org', password: 'PassA!234567' });
+  check('舊領袖以電郵登入成功', loginGslEmail.success === true);
+}
+
+// ---- v8.6 權限漏洞收緊（支部領袖不可開出管理員／團長／支部領袖）及審批防篡改 ----
+console.log('\n【10f】權限漏洞收緊及審批防篡改');
+{
+  // 登入支部領袖（新領袖丙，密碼預設 1234）
+  const blLogin = await apiA('login', { login_id: 'newleader@example.org', password: '1234' });
+  const blToken = blLogin.token;
+
+  // 支部領袖嘗試批量開出 admin → 被拒
+  const blAddAdmin = await apiA('bulkAddUsers', { token: blToken, users: [{ ymis: '1234560099', name: '假管理員', email: 'fakeadmin@example.org', role: 'admin', password: 'Pass1234' }] });
+  check('支部領袖批量開戶 admin 被拒', blAddAdmin.results?.[0]?.success === false && /不可建立/.test(blAddAdmin.results?.[0]?.error || ''));
+
+  // 支部領袖嘗試批量開出 group_leader → 被拒
+  const blAddGsl = await apiA('bulkAddUsers', { token: blToken, users: [{ ymis: '1234560098', name: '假團長', email: 'fakegsl@example.org', role: 'group_leader', password: 'Pass1234' }] });
+  check('支部領袖批量開戶 group_leader 被拒', blAddGsl.results?.[0]?.success === false && /不可建立/.test(blAddGsl.results?.[0]?.error || ''));
+
+  // 支部領袖嘗試批量開出 branch_leader → 被拒
+  const blAddBl = await apiA('bulkAddUsers', { token: blToken, users: [{ ymis: '', name: '假支部領袖', email: 'fakebl@example.org', role: 'branch_leader', password: 'Pass1234' }] });
+  check('支部領袖批量開戶 branch_leader 被拒', blAddBl.results?.[0]?.success === false && /不可建立/.test(blAddBl.results?.[0]?.error || ''));
+
+  // 支部領袖開出 exec_committee / member → 允許
+  const blAddExec = await apiA('bulkAddUsers', { token: blToken, users: [{ ymis: '1234560030', name: '真執委', email: 'realexec@example.org', role: 'exec_committee', password: 'Pass1234' }] });
+  check('支部領袖批量開戶 exec_committee 成功', blAddExec.results?.[0]?.success === true);
+
+  // 支部領袖嘗試轉他人角色為 admin → 被拒
+  const blPromoteAdmin = await apiA('updateUserRole', { token: blToken, target_ymis: '1234560030', new_role: 'admin' });
+  check('支部領袖轉角色為 admin 被拒', blPromoteAdmin.success === false && /不可管理|權限/.test(blPromoteAdmin.error || ''));
+
+  // 審批造假防護：手改 Sheet 造假 requested_role=group_leader 或 admin 時，審批自動退回 member
+  const fakeApp = { ymis: '1234560035', name: '造假申請人', email: 'forged@example.org', branch: '第 82 旅', requested_role: 'group_leader' };
+  // 直接將偽造申請插入 mock state（模擬手改 Sheet）
+  mockA.state.applications.push({ app_id: 'APP_FORGED_1', ymis: fakeApp.ymis, name: fakeApp.name, email: fakeApp.email, requested_role: 'group_leader', branch: '第 82 旅', status: 'pending' });
+  const revForged = await apiA('reviewApplication', { token: tokenA, app_id: 'APP_FORGED_1', decision: 'approved', temp_password: 'ForgedPass123' });
+  check('審批造假角色（group_leader）退回團員（final_role=member）', revForged.success === true && revForged.final_role === 'member');
+  check('造假開出的帳號角色確實為 member', mockA.state.users['1234560035']?.role === 'member');
 }
 
 // ---- 多旅團隔離 ----
