@@ -10,6 +10,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
   const state = {
     name,
     users: {},                    // ymis -> {ymis,name,email,role,pass,can_tick,status}
+    members: {},                  // ymis -> {ymis,name,email,branch}; may include roster-only members
     tokens: {},                   // token -> ymis
     progress: {},                 // ymis -> {itemId:{date,confirmer}}
     otherBadges: {},              // ymis -> {badgeId:{name,date,cert}}
@@ -24,7 +25,13 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     lastExecPath: '',             // 观测上游實際被打的 URL（SSRF 测试用）
     execCount: 0
   };
-  for (const u of users) state.users[u.ymis] = { status: 'active', email: '', ...u };
+  for (const u of users) {
+    state.users[u.ymis] = { status: 'active', email: '', ...u };
+    state.members[u.ymis] = { ymis: u.ymis, name: u.name, email: u.email || '', branch: u.branch || '' };
+  }
+  const idKey = value => String(value || '').trim().toLowerCase();
+  const mailKey = value => String(value || '').trim().toLowerCase();
+  const findUserById = value => Object.values(state.users).find(u => idKey(u.ymis) === idKey(value));
 
   // 與 Code.gs 一致的角色層級及可管理範圍（v8.2 帳戶申請審批用）
   const ROLE_LEVEL = { super_admin: 100, admin: 80, group_leader: 60, branch_leader: 40, exec_committee: 20, member: 0 };
@@ -57,8 +64,8 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     const tokenYmis = body.token && state.tokens[body.token] ? state.tokens[body.token] : null;
     switch (action) {
       case 'login': {
-        const u = state.users[body.login_id] || Object.values(state.users).find(x => x.email && x.email.toLowerCase() === String(body.login_id || '').trim().toLowerCase());
-        if (!u || u.status === 'inactive') return { success: false, error: '找不到此帳號或帳號已停用' };
+        const u = findUserById(body.login_id) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(body.login_id));
+        if (!u || u.status !== 'active') return { success: false, error: '找不到此帳號或帳號已停用' };
         if (u.pass !== String(body.password || '')) return { success: false, error: '密碼錯誤' };
         const token = 'tok_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
         state.tokens[token] = u.ymis;
@@ -85,9 +92,10 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, error: 'Email 格式不正確' };
           if (reqRole === 'exec_committee' && !email) return { success: false, error: '執委申請必須填寫聯絡電郵' };
         }
-        if (state.users[ymis]) return { success: false, error: 'YMIS 已註冊或曾建立帳號，請聯絡領袖' };
-        if (email && Object.values(state.users).some(x => x.email && x.email.toLowerCase() === email.toLowerCase())) return { success: false, error: 'Email 已註冊' };
-        if (state.applications.some(a => a.status === 'pending' && ((ymis && a.ymis === ymis) || (email && a.email && a.email.toLowerCase() === email.toLowerCase()))))
+        if (findUserById(ymis)) return { success: false, error: 'YMIS 已註冊或曾建立帳號，請聯絡領袖' };
+        if (email && Object.values(state.users).some(x => x.email && mailKey(x.email) === mailKey(email))) return { success: false, error: 'Email 已註冊' };
+        if (email && Object.values(state.members).some(x => x.email && mailKey(x.email) === mailKey(email) && idKey(x.ymis) !== idKey(ymis))) return { success: false, error: 'Email 已由另一位成員使用' };
+        if (state.applications.some(a => a.status === 'pending' && ((ymis && idKey(a.ymis) === idKey(ymis)) || (email && a.email && mailKey(a.email) === mailKey(email)))))
           return { success: false, error: '已有待審批申請' };
 
         state.applications.push({
@@ -108,7 +116,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         }
         return {
           success: true,
-          members: Object.values(state.users).map(u => ({ ymis: u.ymis, name: u.name })),
+          members: Object.values(state.members).map(u => ({ ymis: u.ymis, name: u.name })),
           flatProgress: flat,
           pendingRequests: state.requests.filter(r => r.status === 'pending'),
           otherBadges: state.otherBadges,
@@ -172,9 +180,17 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         state.config[body.key] = body.value;
         return { success: true };
-      case 'getAllUsers':
+      case 'getAllUsers': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
-        return { success: true, users: Object.values(state.users).map(u => ({ ymis: u.ymis, name: u.name, email: u.email || '', role: u.role, can_tick: u.can_tick, status: u.status })) };
+        const accountIds = new Set(Object.values(state.users).map(u => idKey(u.ymis)));
+        const accounts = Object.values(state.users)
+          .filter(u => u.status !== 'deleted')
+          .map(u => ({ ymis: u.ymis, name: u.name, email: u.email || '', branch: u.branch || '', role: u.role, can_tick: u.can_tick, status: u.status, has_account: true }));
+        const rosterOnly = Object.values(state.members)
+          .filter(m => !accountIds.has(idKey(m.ymis)))
+          .map(m => ({ ymis: m.ymis, name: m.name, email: m.email || '', branch: m.branch || '', role: 'member', can_tick: false, status: 'active', has_account: false }));
+        return { success: true, users: [...accounts, ...rosterOnly] };
+      }
       case 'getApplications': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         const manager = state.users[tokenYmis];
@@ -193,10 +209,13 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         const reqRole = app.requested_role || 'member';
         // 審批申請最多開出支部領袖，連手改 Sheet 造假都退回成員；不允許開出團長
         const finalRole = (['member', 'exec_committee', 'branch_leader'].includes(reqRole) && canManageUser(manager, reqRole)) ? reqRole : 'member';
+        if (findUserById(app.ymis)) return { success: false, error: 'YMIS 已存在（包括停用或已刪除帳號）' };
+        if (app.email && Object.values(state.users).some(x => x.email && mailKey(x.email) === mailKey(app.email))) return { success: false, error: 'Email 已存在（包括停用或已刪除帳號）' };
         state.users[app.ymis] = {
           ymis: app.ymis, name: app.name, email: app.email || '', role: finalRole, pass: password,
           can_tick: finalRole !== 'member', status: 'active'
         };
+        state.members[app.ymis] = { ymis: app.ymis, name: app.name, email: app.email || '', branch: app.branch || '' };
         app.status = 'approved';
         return { success: true, message: '已批准並建立帳號', temp_password: password, final_role: finalRole, ymis: app.ymis, name: app.name, email: app.email || '' };
       }
@@ -236,8 +255,9 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           else if (uRole !== 'member' && !uEmail) err = '領袖／執委帳號須填 Email';
           else if (uEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uEmail)) err = 'Email 格式不正確';
           else if (uPass.length < 4) err = '臨時密碼至少 4 位';
-          else if (state.users[uYmis]) err = 'YMIS 已存在（包括停用帳號）';
-          else if (uEmail && Object.values(state.users).some(x => x.email && x.email.toLowerCase() === uEmail.toLowerCase())) err = 'Email 已存在';
+          else if (findUserById(uYmis) || results.some(x => x.success && idKey(x.ymis) === idKey(uYmis))) err = 'YMIS 已存在（包括停用或已刪除帳號）';
+          else if (uEmail && (Object.values(state.users).some(x => x.email && mailKey(x.email) === mailKey(uEmail)) || results.some(x => x.success && x.email && mailKey(x.email) === mailKey(uEmail)))) err = 'Email 已存在（包括停用或已刪除帳號）';
+          else if (uEmail && Object.values(state.members).some(x => x.email && mailKey(x.email) === mailKey(uEmail) && idKey(x.ymis) !== idKey(uYmis))) err = 'Email 已由另一位成員使用';
 
           if (err) {
             results.push({ ymis: uYmis, name: uName, email: uEmail, role: uRole, success: false, error: err });
@@ -246,10 +266,11 @@ export function startMockGas({ port, name, users, apikey = '' }) {
 
           if (uRole === 'group_leader') batchGslAssigned = true;
           state.users[uYmis] = {
-            ymis: uYmis, name: uName, email: uEmail, role: uRole, pass: uPass,
+            ymis: uYmis, name: uName, email: uEmail, branch: raw.branch || '', role: uRole, pass: uPass,
             can_tick: uRole !== 'member' && (raw.can_tick === true || raw.can_tick === 'true'),
             status: 'active'
           };
+          state.members[uYmis] = { ymis: uYmis, name: uName, email: uEmail, branch: raw.branch || '' };
           results.push({ ymis: uYmis, name: uName, email: uEmail, role: uRole, success: true });
           created++;
         }
@@ -316,13 +337,37 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         const manager = state.users[tokenYmis];
         if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足' };
-        const u = state.users[body.target_ymis];
-        if (!u) return { success: false, error: '找不到帳號' };
-        if (String(body.target_ymis) === String(tokenYmis) || !canManageUser(manager, u.role)) return { success: false, error: '權限不足，不能編輯此用戶' };
-        if (body.name) u.name = String(body.name).trim();
-        if (body.email !== undefined) u.email = String(body.email).trim();
-        if (body.branch !== undefined) u.branch = String(body.branch).trim();
+        const u = findUserById(body.target_ymis);
+        const member = Object.values(state.members).find(m => idKey(m.ymis) === idKey(body.target_ymis));
+        if (!u && !member) return { success: false, error: '找不到用戶或成員' };
+        const targetRole = u?.role || 'member';
+        if (idKey(body.target_ymis) === idKey(tokenYmis) || !canManageUser(manager, targetRole)) return { success: false, error: '權限不足，不能編輯此用戶' };
+        const nextEmail = String(body.email || '').trim();
+        if (nextEmail && Object.values(state.users).some(x => idKey(x.ymis) !== idKey(body.target_ymis) && x.email && mailKey(x.email) === mailKey(nextEmail))) return { success: false, error: 'Email 已存在（包括停用或已刪除帳號）' };
+        if (nextEmail && Object.values(state.members).some(x => idKey(x.ymis) !== idKey(body.target_ymis) && x.email && mailKey(x.email) === mailKey(nextEmail))) return { success: false, error: 'Email 已由另一位成員使用' };
+        for (const target of [u, member].filter(Boolean)) {
+          if (body.name) target.name = String(body.name).trim();
+          if (body.email !== undefined) target.email = nextEmail;
+          if (body.branch !== undefined) target.branch = String(body.branch).trim();
+        }
         return { success: true, message: '用戶資料已更新' };
+      }
+      case 'deleteUser': {
+        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
+        const manager = state.users[tokenYmis];
+        if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足' };
+        const u = findUserById(body.target_ymis);
+        const memberKey = Object.keys(state.members).find(k => idKey(k) === idKey(body.target_ymis));
+        if (!u && !memberKey) return { success: false, error: '找不到用戶或成員' };
+        if (idKey(body.target_ymis) === idKey(tokenYmis)) return { success: false, error: '不可刪除自己的帳號' };
+        if (!canManageUser(manager, u?.role || 'member')) return { success: false, error: '權限不足，不能刪除此角色' };
+        if (u) {
+          u.status = 'deleted';
+          u.can_tick = false;
+          for (const [token, owner] of Object.entries(state.tokens)) if (idKey(owner) === idKey(u.ymis)) delete state.tokens[token];
+        }
+        if (memberKey) delete state.members[memberKey];
+        return { success: true, message: u ? '帳戶及成員已刪除；歷史進度獲保留' : '成員已從名單刪除' };
       }
       case 'getLogRecords':
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };

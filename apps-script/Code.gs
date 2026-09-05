@@ -1,5 +1,5 @@
 // ============================================================
-// 深資童軍進度及行政平台 - Apps Script 後端 v8.3
+// 深資童軍進度及行政平台 - Apps Script 後端 v8.7
 // 全前端帳戶管理、批量開戶、首次登入改密碼、角色驗證及操作紀錄
 // v8.1 新增：活動履歷（服務紀錄／活動紀錄／訓練班紀錄）
 //   - 新工作表「活動履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
@@ -24,6 +24,10 @@
 //   - 不再寫入 Users 工作表，亦不會在「用戶管理」（USER 表單）出現
 //   - 登入／權限驗證／自助改密碼由後端直接處理（密碼存於 Script Properties）
 //   - initializeSheets() 會自動移除舊部署已寫入 Users 的超管列（只匹配 sheep / sheep@vsbadge.local）
+// v8.7 新增：用戶管理完整顯示及唯一身份保障
+//   - YMIS / Email 在單筆、批量、申請及編輯流程均由後端鎖內檢查，不可重複
+//   - getAllUsers 合併「Users」及「成員名單」，未開戶成員亦可在前端編輯、開戶或刪除
+//   - 領袖可在用戶管理修改／重設成員密碼；刪除後保留識別碼 tombstone 及歷史進度
 // ============================================================
 
 const ADMIN_YMIS = '1111111111';
@@ -135,20 +139,60 @@ function ensureSeedAccount(sheet,map,dataRows,acc){
   sheet.appendRow(row);
   return true;
 }
+function accountIdKey(v){ return String(v||'').trim().toLowerCase(); }
+function emailKey(v){ return String(v||'').trim().toLowerCase(); }
+function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim()); }
 function userFromRow(row,map){
   function v(name){ const i=map[name]; return i===undefined ? '' : row[i]; }
   return {
-    ymis:String(v('ymis')||''), name:String(v('name')||''), email:String(v('email')||''),
+    ymis:String(v('ymis')||'').trim(), name:String(v('name')||''), email:String(v('email')||'').trim(),
     role:String(v('role')||'member'), can_tick:isTrue(v('can_tick')), branch:String(v('branch')||''),
-    allowed_badges:String(v('allowed_badges')||''), status:String(v('status')||'active'),
-    force_change_password:isTrue(v('force_change_password'))
+    allowed_badges:String(v('allowed_badges')||''), status:String(v('status')||'active')||'active',
+    force_change_password:isTrue(v('force_change_password')), has_account:true
   };
 }
 function findUserRecord(ymis){
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
-  const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues();
-  for(let i=1;i<data.length;i++) if(String(data[i][map.ymis])===String(ymis)) return {sheet:sheet,row:i+1,map:map,data:data[i],user:userFromRow(data[i],map)};
+  const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const target=accountIdKey(ymis);
+  for(let i=1;i<data.length;i++) if(accountIdKey(data[i][map.ymis])===target) return {sheet:sheet,row:i+1,map:map,data:data[i],user:userFromRow(data[i],map)};
   return null;
+}
+function findMemberRecord(ymis){
+  const sheet=getSheet().getSheetByName('成員名單'); if(!sheet) return null;
+  const data=sheet.getDataRange().getValues(); const target=accountIdKey(ymis);
+  for(let i=1;i<data.length;i++){
+    if(accountIdKey(data[i][0])===target){
+      return {sheet:sheet,row:i+1,data:data[i],member:{
+        ymis:String(data[i][0]||'').trim(), name:String(data[i][1]||''),
+        branch:String(data[i][3]||''), contact:String(data[i][4]||'')
+      }};
+    }
+  }
+  return null;
+}
+// 檢查所有帳戶（包括停用／已刪除）及成員名單，確保 YMIS / Email 不會屬於兩個不同身份。
+function identifierConflict(ymis,email,excludeYmis){
+  const targetId=accountIdKey(ymis); const targetEmail=emailKey(email); const excluded=accountIdKey(excludeYmis);
+  const uSheet=getSheet().getSheetByName('Users');
+  if(uSheet){
+    const map=ensureUserColumns(uSheet); const data=uSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const rowId=accountIdKey(data[i][map.ymis]);
+      if(excluded && rowId===excluded) continue;
+      if(targetId && rowId===targetId) return 'YMIS 已存在（包括停用或已刪除帳號）';
+      if(targetEmail && emailKey(data[i][map.email])===targetEmail) return 'Email 已存在（包括停用或已刪除帳號）';
+    }
+  }
+  const mSheet=getSheet().getSheetByName('成員名單');
+  if(mSheet){
+    const data=mSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const rowId=accountIdKey(data[i][0]); const rowEmail=isEmail(data[i][4])?emailKey(data[i][4]):'';
+      // 同一位成員由名單開立帳戶時可沿用自己的 YMIS / Email；只阻止另一位身份使用。
+      if(targetEmail && rowEmail===targetEmail && rowId!==targetId && rowId!==excluded) return 'Email 已由另一位成員使用';
+    }
+  }
+  return '';
 }
 function defaultAllowedBadges(role){
   if(role==='member') return '';
@@ -205,8 +249,8 @@ function isSuperAdminId(id){
   return v===String(SUPER_ADMIN_ID).trim().toLowerCase() || v===String(SUPER_ADMIN_EMAIL).trim().toLowerCase();
 }
 function isSuperAdminReserved(ymis,email){
-  return String(ymis||'').trim()===String(SUPER_ADMIN_ID).trim() ||
-         (String(email||'').trim()!=='' && String(email).trim().toLowerCase()===String(SUPER_ADMIN_EMAIL).trim().toLowerCase());
+  return accountIdKey(ymis)===accountIdKey(SUPER_ADMIN_ID) ||
+         (emailKey(email)!=='' && emailKey(email)===emailKey(SUPER_ADMIN_EMAIL));
 }
 function getSuperAdminUser(){
   return {
@@ -357,7 +401,7 @@ function initializeSheets() {
   try{
     const ui=SpreadsheetApp.getUi();
     if(ui){
-      ui.alert('✅ v8.4 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（只存在於後端，不會在「用戶管理」看到；密碼可用「改密碼」自訂）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
+      ui.alert('✅ v8.7 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（只存在於後端，不會在「用戶管理」看到；密碼可用「改密碼」自訂）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
@@ -373,22 +417,41 @@ function getUser(ymis){
 function getUserByEmail(email){
   if(!email) return null;
   // v8.5：超管電郵由後端直接處理，不依靠 Users 工作表。
-  if(String(email).trim().toLowerCase()===String(SUPER_ADMIN_EMAIL).trim().toLowerCase()) return getSuperAdminUser();
+  if(emailKey(email)===emailKey(SUPER_ADMIN_EMAIL)) return getSuperAdminUser();
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
-  const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const target=String(email).trim().toLowerCase();
+  const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const target=emailKey(email);
   for(let i=1;i<data.length;i++){
     const user=userFromRow(data[i],map);
-    if(user.email.toLowerCase()===target && user.status==='active') return user;
+    if(emailKey(user.email)===target && user.status==='active') return user;
   }
   return null;
 }
 function getAllUsers(){
-  const sheet=getSheet().getSheetByName('Users'); if(!sheet) return [];
-  const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const users=[];
-  for(let i=1;i<data.length;i++){
-    const user=userFromRow(data[i],map);
-    // v8.5：超管不會出現在用戶列表（USER 表單）。
-    if(user.ymis && !isSuperAdminReserved(user.ymis,user.email)) users.push(user);
+  const users=[]; const accountIds={};
+  const sheet=getSheet().getSheetByName('Users');
+  if(sheet){
+    const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const user=userFromRow(data[i],map); const key=accountIdKey(user.ymis);
+      if(key) accountIds[key]=true; // 已刪除帳號也要保留識別碼，不能由成員名單重新浮現
+      // v8.5：超管不會出現在用戶列表；v8.7：已刪除帳號只留作唯一識別碼 tombstone。
+      if(user.ymis && user.status!=='deleted' && !isSuperAdminReserved(user.ymis,user.email)) users.push(user);
+    }
+  }
+  // 舊有「成員名單」可能只有進度身份、未在 Users 開立登入。合併顯示，讓領袖可編輯、刪除或直接開戶。
+  const mSheet=getSheet().getSheetByName('成員名單');
+  if(mSheet){
+    const data=mSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const ymis=String(data[i][0]||'').trim(); const key=accountIdKey(ymis);
+      if(!key || accountIds[key] || isSuperAdminId(ymis)) continue;
+      const contact=String(data[i][4]||'').trim();
+      users.push({
+        ymis:ymis, name:String(data[i][1]||''), email:isEmail(contact)?contact:'', contact:contact,
+        role:'member', can_tick:false, branch:String(data[i][3]||''), allowed_badges:'',
+        status:'active', force_change_password:false, has_account:false
+      });
+    }
   }
   return users;
 }
@@ -521,6 +584,10 @@ function doPost(e){
       if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
       return handleSetUserStatus(body.target_ymis,body.status,user);
     }
+    if(action==='deleteUser'){
+      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
+      return handleDeleteUser(body.target_ymis,user);
+    }
     if(action==='getApplications'){
       if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足，需支部領袖或以上'});
       return handleGetApplications();
@@ -598,36 +665,37 @@ function handleApply(ymis,name,email,role,branch){
   if(APPLY_ROLES.indexOf(role)<0) return jsonResponse({success:false,error:'無效的申請角色'});
   if(!name) return jsonResponse({success:false,error:'請填寫姓名'});
 
-  // 領袖角色免 YMIS，若未填寫則由系統自動編配內部 L 編號
   if(role==='branch_leader'){
     if(!email) return jsonResponse({success:false,error:'領袖申請必須填寫聯絡電郵'});
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
-    if(!ymis || !/^\d{10}$/.test(ymis)){
-      ymis = getNextLeaderId();
-    }
+    if(!isEmail(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
   }else{
     if(!/^\d{10}$/.test(ymis)) return jsonResponse({success:false,error:'YMIS 須為 10 位數字'});
-    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
+    if(email && !isEmail(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
     if(role!=='member' && !email) return jsonResponse({success:false,error:'執委申請必須填寫聯絡電郵'});
   }
 
-  if(isSuperAdminReserved(ymis,email)) return jsonResponse({success:false,error:'此帳號已被保留，請使用其他帳號'});
-  if(findUserRecord(ymis)) return jsonResponse({success:false,error:'YMIS 已註冊或曾建立帳號，請聯絡領袖'});
-  if(email){
-    const users=getAllUsers();
-    if(users.some(function(u){ return u.email && u.email.toLowerCase()===email.toLowerCase(); })) return jsonResponse({success:false,error:'Email 已註冊'});
-  }
-  const sheet=getSheet().getSheetByName('Applications');
-  if(!sheet) return jsonResponse({success:false,error:'Applications 工作表不存在，請先執行 initializeSheets()'});
-  const data=sheet.getDataRange().getValues();
-  for(let i=1;i<data.length;i++){
-    if(String(data[i][6])==='pending'){
-      if(String(data[i][1])===ymis) return jsonResponse({success:false,error:'此 YMIS 已有待審批申請'});
-      if(email && String(data[i][3]||'').toLowerCase()===email.toLowerCase()) return jsonResponse({success:false,error:'此 Email 已有待審批申請'});
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一個申請，請稍後重試'});
+  try{
+    // 領袖角色免 YMIS；在鎖內編號，避免兩個同時申請取得相同 L 編號。
+    if(role==='branch_leader' && (!ymis || !/^\d{10}$/.test(ymis))) ymis=getNextLeaderId();
+    if(isSuperAdminReserved(ymis,email)) return jsonResponse({success:false,error:'此帳號已被保留，請使用其他帳號'});
+    const conflict=identifierConflict(ymis,email,'');
+    // 成員名單內相同 YMIS 是同一身份，可申請其登入帳戶；identifierConflict 只會阻止 Users 或別人的 Email。
+    if(conflict) return jsonResponse({success:false,error:conflict});
+
+    const sheet=getSheet().getSheetByName('Applications');
+    if(!sheet) return jsonResponse({success:false,error:'Applications 工作表不存在，請先執行 initializeSheets()'});
+    const data=sheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      if(String(data[i][6])==='pending'){
+        if(accountIdKey(data[i][1])===accountIdKey(ymis)) return jsonResponse({success:false,error:'此 YMIS 已有待審批申請'});
+        if(email && emailKey(data[i][3])===emailKey(email)) return jsonResponse({success:false,error:'此 Email 已有待審批申請'});
+      }
     }
-  }
-  sheet.appendRow(['APP_'+Date.now(),ymis,name,email,role,branch||'b4','pending',now(),'','','']);
-  return jsonResponse({success:true,message:'申請已提交，請等待領袖在前端審批'});
+    sheet.appendRow(['APP_'+Date.now(),ymis,name,email,role,branch||'b4','pending',now(),'','','']);
+    return jsonResponse({success:true,message:'申請已提交，請等待領袖在前端審批'});
+  } finally { lock.releaseLock(); }
 }
 function handleGetApplications(){
   const sheet=getSheet().getSheetByName('Applications'); const apps=[];
@@ -709,9 +777,26 @@ function handleGetConfig(){
   return jsonResponse({success:true,config:cfg});
 }
 function getMembers(){
-  const mSheet=getSheet().getSheetByName('成員名單'); const members=[];
-  if(mSheet){ const data=mSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ if(data[i][0]) members.push({ymis:data[i][0].toString(),name:data[i][1]?data[i][1].toString():''}); } }
-  const uSheet=getSheet().getSheetByName('Users'); if(uSheet){ const data=uSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ const y=String(data[i][0]||''); if(data[i][11].toString()==='active' && y && !isSuperAdminId(y)){ if(!members.some(m=>m.ymis===y)){ members.push({ymis:y,name:String(data[i][1]||'')}); } } } }
+  const mSheet=getSheet().getSheetByName('成員名單'); const members=[]; const seen={};
+  if(mSheet){
+    const data=mSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      if(!data[i][0]) continue;
+      const y=String(data[i][0]).trim(); const key=accountIdKey(y);
+      if(!key || seen[key]) continue;
+      members.push({ymis:y,name:data[i][1]?String(data[i][1]):''}); seen[key]=true;
+    }
+  }
+  const uSheet=getSheet().getSheetByName('Users');
+  if(uSheet){
+    const map=ensureUserColumns(uSheet); const data=uSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const user=userFromRow(data[i],map); const key=accountIdKey(user.ymis);
+      if(user.status==='active' && key && !isSuperAdminId(user.ymis) && !seen[key]){
+        members.push({ymis:user.ymis,name:user.name}); seen[key]=true;
+      }
+    }
+  }
   return members;
 }
 function handleLoad(){
@@ -784,9 +869,9 @@ function createUsersBatch(rawUsers,manager){
     let activeGslName='';
     let maxLeaderNum=0;
     for(let i=1;i<data.length;i++){
-      const y=String(data[i][map.ymis]||'').trim(); const e=String(data[i][map.email]||'').trim().toLowerCase();
+      const y=String(data[i][map.ymis]||'').trim(); const e=emailKey(data[i][map.email]);
       const r=String(data[i][map.role]||'').trim(); const st=String(data[i][map.status]||'').trim();
-      if(y) existingYmis[y]=true; if(e) existingEmail[e]=true;
+      if(y) existingYmis[accountIdKey(y)]=true; if(e) existingEmail[e]=true;
       if(r==='group_leader' && st==='active' && !activeGslName){
         activeGslName=String(data[i][map.name]||'團長');
       }
@@ -804,10 +889,15 @@ function createUsersBatch(rawUsers,manager){
     }
     let mSheet=getSheet().getSheetByName('成員名單');
     if(!mSheet){ mSheet=getSheet().insertSheet('成員名單'); mSheet.appendRow(['YMIS','姓名','加入日期','支部','聯絡']); }
-    const mData=mSheet.getDataRange().getValues(); const memberYmis={};
-    for(let i=1;i<mData.length;i++) if(mData[i][0]) memberYmis[String(mData[i][0])]=true;
+    const mData=mSheet.getDataRange().getValues(); const memberYmis={}; const memberRowsByYmis={}; const memberEmailOwner={};
+    for(let i=1;i<mData.length;i++){
+      if(!mData[i][0]) continue;
+      const memberKey=accountIdKey(mData[i][0]);
+      memberYmis[memberKey]=true; memberRowsByYmis[memberKey]=i+1;
+      if(isEmail(mData[i][4])) memberEmailOwner[emailKey(mData[i][4])]=memberKey;
+    }
 
-    const results=[]; const userRows=[]; const memberRows=[]; const batchYmis={}; const batchEmail={};
+    const results=[]; const userRows=[]; const memberRows=[]; const memberUpdates=[]; const batchYmis={}; const batchEmail={};
     let batchGslAssigned=false;
     rawUsers.forEach(function(raw){
       const u=normalizeNewUser(raw); let error='';
@@ -832,8 +922,9 @@ function createUsersBatch(rawUsers,manager){
       else if(isSuperAdminReserved(u.ymis,u.email)) error='此帳號已被保留';
       else if(u.password.length<MIN_PASSWORD_LEN) error='臨時密碼至少 '+MIN_PASSWORD_LEN+' 位';
       else if(u.password.length>MAX_PASSWORD_LEN) error='臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位';
-      else if(existingYmis[u.ymis] || batchYmis[u.ymis]) error='YMIS 已存在（包括停用帳號）';
-      else if(u.email && (existingEmail[u.email.toLowerCase()] || batchEmail[u.email.toLowerCase()])) error='Email 已存在';
+      else if(existingYmis[accountIdKey(u.ymis)] || batchYmis[accountIdKey(u.ymis)]) error='YMIS 已存在（包括停用或已刪除帳號）';
+      else if(u.email && (existingEmail[emailKey(u.email)] || batchEmail[emailKey(u.email)])) error='Email 已存在（包括停用或已刪除帳號）';
+      else if(u.email && memberEmailOwner[emailKey(u.email)] && memberEmailOwner[emailKey(u.email)]!==accountIdKey(u.ymis)) error='Email 已由另一位成員使用';
       if(error){ results.push({ymis:u.ymis,name:u.name,email:u.email,role:u.role,success:false,error:error}); return; }
 
       if(u.role==='group_leader') batchGslAssigned=true;
@@ -845,12 +936,24 @@ function createUsersBatch(rawUsers,manager){
       row[map.auth_date]=now(); row[map.created_at]=now(); row[map.status]='active';
       row[map.allowed_badges]=defaultAllowedBadges(u.role); row[map.force_change_password]=true;
 
-      userRows.push(row); batchYmis[u.ymis]=true; if(u.email) batchEmail[u.email.toLowerCase()]=true;
-      if(!memberYmis[u.ymis]){ memberRows.push([u.ymis,u.name,new Date(),u.branch,'']); memberYmis[u.ymis]=true; }
+      const userKey=accountIdKey(u.ymis);
+      userRows.push(row); batchYmis[userKey]=true; if(u.email) batchEmail[emailKey(u.email)]=true;
+      if(!memberYmis[userKey]){
+        memberRows.push([u.ymis,u.name,new Date(),u.branch,u.email||'']); memberYmis[userKey]=true;
+      }else{
+        // 從既有成員名單開戶：同步名稱／支部／Email，不另建重複成員列。
+        memberUpdates.push({row:memberRowsByYmis[userKey],name:u.name,branch:u.branch,email:u.email});
+      }
       results.push({ymis:u.ymis,name:u.name,email:u.email,role:u.role,success:true});
     });
     if(userRows.length) uSheet.getRange(uSheet.getLastRow()+1,1,userRows.length,uSheet.getLastColumn()).setValues(userRows);
     if(memberRows.length) mSheet.getRange(mSheet.getLastRow()+1,1,memberRows.length,5).setValues(memberRows);
+    memberUpdates.forEach(function(u){
+      if(!u.row) return;
+      mSheet.getRange(u.row,2).setValue(u.name);
+      if(mSheet.getLastColumn()>=4) mSheet.getRange(u.row,4).setValue(u.branch);
+      if(mSheet.getLastColumn()>=5 && u.email) mSheet.getRange(u.row,5).setValue(u.email);
+    });
     writeAudit(manager.ymis,'bulk_add_users',userRows.length+' accounts','失敗 '+(rawUsers.length-userRows.length)+' 筆');
     return {success:true,created:userRows.length,failed:rawUsers.length-userRows.length,results:results};
   } finally { lock.releaseLock(); }
@@ -863,8 +966,8 @@ function handleAddUser(body,manager){
 function handleBulkAddUsers(users,manager){ return jsonResponse(createUsersBatch(users,manager)); }
 function handleResetPassword(targetYmis,newPassword,manager){
   const rec=findUserRecord(targetYmis); newPassword=String(newPassword||'');
-  if(!rec) return jsonResponse({success:false,error:'找不到帳號'});
-  if(String(targetYmis)===String(manager.ymis)) return jsonResponse({success:false,error:'請使用「更改密碼」修改自己的密碼'});
+  if(!rec || rec.user.status==='deleted') return jsonResponse({success:false,error:'找不到帳號'});
+  if(accountIdKey(targetYmis)===accountIdKey(manager.ymis)) return jsonResponse({success:false,error:'請使用「更改密碼」修改自己的密碼'});
   if(!canManageUser(manager,rec.user.role)) return jsonResponse({success:false,error:'權限不足，不能重設此角色'});
   if(newPassword.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newPassword.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
@@ -882,24 +985,41 @@ function destroyTokensForUser(ymis){
   for(let i=data.length-1;i>=1;i--) if(String(data[i][1])===String(ymis)) sh.deleteRow(i+1);
 }
 function handleUpdateUserProfile(body,manager){
-  const rec=findUserRecord(body.target_ymis); if(!rec) return jsonResponse({success:false,error:'找不到帳號'});
-  if(String(body.target_ymis)===String(manager.ymis) || !canManageUser(manager,rec.user.role)) return jsonResponse({success:false,error:'權限不足，不能編輯此用戶'});
+  const targetYmis=String(body.target_ymis||'').trim();
+  const rec=findUserRecord(targetYmis); const memberRec=findMemberRecord(targetYmis);
+  const targetRole=rec?rec.user.role:'member';
+  if(!rec && !memberRec) return jsonResponse({success:false,error:'找不到用戶或成員'});
+  if(accountIdKey(targetYmis)===accountIdKey(manager.ymis) || !canManageUser(manager,targetRole)) return jsonResponse({success:false,error:'權限不足，不能編輯此用戶'});
+  if(rec && rec.user.status==='deleted') return jsonResponse({success:false,error:'帳號已刪除，不能修改'});
   const name=safeSheetText(body.name,100); const email=String(body.email||'').trim().substring(0,160); const branch=safeSheetText(body.branch,100);
   if(!name) return jsonResponse({success:false,error:'姓名不可留空'});
-  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
+  if(rec && rec.user.role!=='member' && !email) return jsonResponse({success:false,error:'領袖／執委帳號須保留 Email'});
+  if(email && !isEmail(email)) return jsonResponse({success:false,error:'Email 格式不正確'});
   if(isSuperAdminReserved('',email)) return jsonResponse({success:false,error:'此 Email 已被保留'});
-  const users=getAllUsers();
-  if(email && users.some(function(u){ return u.ymis!==rec.user.ymis && u.email.toLowerCase()===email.toLowerCase(); })) return jsonResponse({success:false,error:'Email 已被使用'});
-  rec.sheet.getRange(rec.row,rec.map.name+1).setValue(name); rec.sheet.getRange(rec.row,rec.map.email+1).setValue(email); rec.sheet.getRange(rec.row,rec.map.branch+1).setValue(branch);
-  const mSheet=getSheet().getSheetByName('成員名單');
-  if(mSheet){ const md=mSheet.getDataRange().getValues(); for(let i=1;i<md.length;i++) if(String(md[i][0])===rec.user.ymis){ mSheet.getRange(i+1,2).setValue(name); if(mSheet.getLastColumn()>=4) mSheet.getRange(i+1,4).setValue(branch); break; } }
-  writeAudit(manager.ymis,'update_profile',rec.user.ymis,name);
-  return jsonResponse({success:true,message:'用戶資料已更新'});
+
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一項修改，請稍後重試'});
+  try{
+    const conflict=identifierConflict('',email,targetYmis);
+    if(conflict) return jsonResponse({success:false,error:conflict});
+    if(rec){
+      rec.sheet.getRange(rec.row,rec.map.name+1).setValue(name);
+      rec.sheet.getRange(rec.row,rec.map.email+1).setValue(email);
+      rec.sheet.getRange(rec.row,rec.map.branch+1).setValue(branch);
+    }
+    if(memberRec){
+      memberRec.sheet.getRange(memberRec.row,2).setValue(name);
+      if(memberRec.sheet.getLastColumn()>=4) memberRec.sheet.getRange(memberRec.row,4).setValue(branch);
+      if(memberRec.sheet.getLastColumn()>=5) memberRec.sheet.getRange(memberRec.row,5).setValue(email);
+    }
+    writeAudit(manager.ymis,'update_profile',targetYmis,name+(rec?'':'（成員名單）'));
+    return jsonResponse({success:true,message:'用戶資料已更新'});
+  } finally { lock.releaseLock(); }
 }
 function handleSetUserStatus(targetYmis,status,manager){
   status=status==='active'?'active':'inactive'; const rec=findUserRecord(targetYmis);
-  if(!rec) return jsonResponse({success:false,error:'找不到帳號'});
-  if(String(targetYmis)===String(manager.ymis)) return jsonResponse({success:false,error:'不可停用自己的帳號'});
+  if(!rec || rec.user.status==='deleted') return jsonResponse({success:false,error:'找不到帳號'});
+  if(accountIdKey(targetYmis)===accountIdKey(manager.ymis)) return jsonResponse({success:false,error:'不可停用自己的帳號'});
   if(!canManageUser(manager,rec.user.role)) return jsonResponse({success:false,error:'權限不足，不能管理此角色'});
 
   if(status==='active' && rec.user.role==='group_leader'){
@@ -913,6 +1033,33 @@ function handleSetUserStatus(targetYmis,status,manager){
   if(status==='inactive') destroyTokensForUser(targetYmis);
   writeAudit(manager.ymis,status==='active'?'reactivate_user':'deactivate_user',targetYmis,'帳號狀態='+status);
   return jsonResponse({success:true,message:status==='active'?'帳號已重新啟用':'帳號已停用，進度紀錄獲保留'});
+}
+function handleDeleteUser(targetYmis,manager){
+  targetYmis=String(targetYmis||'').trim();
+  const rec=findUserRecord(targetYmis); const memberRec=findMemberRecord(targetYmis);
+  const targetRole=rec?rec.user.role:'member';
+  if(!rec && !memberRec) return jsonResponse({success:false,error:'找不到用戶或成員'});
+  if(accountIdKey(targetYmis)===accountIdKey(manager.ymis)) return jsonResponse({success:false,error:'不可刪除自己的帳號'});
+  if(!canManageUser(manager,targetRole)) return jsonResponse({success:false,error:'權限不足，不能刪除此角色'});
+  if(rec && rec.user.status==='deleted') return jsonResponse({success:false,error:'帳號已刪除'});
+
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一項操作，請稍後重試'});
+  try{
+    // 帳戶採安全刪除：Users 列保留為 tombstone，確保相同 YMIS / Email 永遠不會被開成另一帳戶。
+    // 進度／履歷亦保留作團隊紀錄；成員名單列會移除，因此日常畫面不再顯示此人。
+    if(rec){
+      rec.sheet.getRange(rec.row,rec.map.status+1).setValue('deleted');
+      rec.sheet.getRange(rec.row,rec.map.can_tick+1).setValue(false);
+      rec.sheet.getRange(rec.row,rec.map.auth_by+1).setValue(manager.ymis);
+      rec.sheet.getRange(rec.row,rec.map.auth_date+1).setValue(now());
+      destroyTokensForUser(rec.user.ymis);
+    }
+    const latestMemberRec=findMemberRecord(targetYmis);
+    if(latestMemberRec) latestMemberRec.sheet.deleteRow(latestMemberRec.row);
+    writeAudit(manager.ymis,'delete_user',targetYmis,rec?'帳戶及成員名單已移除；識別碼及歷史紀錄保留':'成員名單已移除（未有登入帳戶）');
+    return jsonResponse({success:true,message:rec?'帳戶及成員已刪除；歷史進度獲保留':'成員已從名單刪除'});
+  } finally { lock.releaseLock(); }
 }
 function handleGetAuditLog(){
   const sh=getSheet().getSheetByName('操作紀錄'); const out=[];

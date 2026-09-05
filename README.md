@@ -1,4 +1,4 @@
-# 🔥 深資童軍進度及行政平台 v8.4
+# 🔥 深資童軍進度及行政平台 v8.7
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  
 > COPYRIGHT 2026 Scout System  
@@ -30,7 +30,7 @@ data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
 data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
-apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.4：進度/獎章/審批/帳戶/活動履歷/履歷申報/自助申請，含內置超管 sheep + 4位密碼）
+apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.7：進度/獎章/審批/帳戶/活動履歷/履歷申報/自助申請，含唯一身份、成員管理、領袖重設密碼）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
@@ -54,6 +54,15 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 ## 部署
 
 見 [DEPLOY_GUIDE_FOR_TROOPS.md](DEPLOY_GUIDE_FOR_TROOPS.md)
+
+## v8.7 用戶管理、唯一身份及密碼重設
+
+- **YMIS 及 Email 均為唯一身份欄位**：單筆開戶、批量開戶、自助申請、審批及編輯資料都會在後端再次檢查；Email 不分大小寫，停用或已刪除帳戶的識別碼亦不可開成另一帳戶
+- 「用戶管理」會合併顯示 `Users` 帳戶及「成員名單」內尚未開戶的成員；領袖可直接編輯、開立登入帳戶或刪除名單成員
+- 有登入帳戶的成員會顯示「🔑 修改／重設密碼」，支部領袖或以上可設定臨時密碼；舊登入會撤銷，下次登入必須立即改密碼
+- 刪除帳戶會停止登入並從成員名單移除，但保留歷史進度／履歷及 YMIS／Email tombstone，避免身份被另一帳戶冒用
+- 修正前端重複程式碼造成的 JavaScript 語法錯誤，並加入完整主程式語法測試
+- **旅團後端必須升級**：用最新 `apps-script/Code.gs` 覆蓋並重新部署「新版本」；本版沒有新增工作表，毋須執行 `initializeSheets()`
 
 ## v8.4 履歷申報（團員自行申報 → 領袖審批）
 

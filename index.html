@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>深資童軍進度及行政平台 v8.3</title>
+<title>深資童軍進度及行政平台 v8.7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 :root{
@@ -327,7 +327,7 @@ a:hover{text-decoration:underline}
       </div>
       <div style="text-align:left">
         <h1 data-i18n="app.homeTitle">深資童軍進度追蹤系統</h1>
-        <p data-i18n="app.homeSub">Venture Scout Progress &amp; Admin Platform v8.3 • 第11版綱要</p>
+        <p data-i18n="app.homeSub">Venture Scout Progress &amp; Admin Platform v8.7 • 第11版綱要</p>
       </div>
     </div>
     <div class="header-subtitle" data-i18n="app.homeTag">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶</div>
@@ -433,7 +433,7 @@ a:hover{text-decoration:underline}
       <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 版本更新紀錄（未來用於新版本後端GS及功能改動）</h2>
       <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
         <h3 style="color:var(--blue)">框架保留，內容已精簡（依你要求移除舊修復資訊）</h3>
-        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.3 已加入 YMIS 自訂報表 PDF 批量開戶（瀏覽器內解析，PDF 不上傳）</p>
+        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.7 已加強用戶管理：YMIS／Email 唯一、顯示未開戶成員、刪除及領袖修改／重設成員密碼</p>
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -457,7 +457,7 @@ a:hover{text-decoration:underline}
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
-      <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v8.3</h1></div>
+      <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v8.7</h1></div>
     </div>
     <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
@@ -768,7 +768,7 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div data-i18n="app.footer">COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.3</div>
+  <div data-i18n="app.footer">COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.7</div>
   <div style="margin-top:4px;font-size:11px" data-i18n="app.footer2">全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank" data-i18n="sahk">香港童軍總會</a></div>
 </footer>
@@ -780,12 +780,12 @@ const LANG_KEY='vsbadge_lang';
 let currentLang=(function(){ try{ const v=localStorage.getItem(LANG_KEY); return v==='en'?'en':'zh'; }catch(e){ return 'zh'; } })();
 const I18N={
 zh:{
-  'app.title':'深資童軍進度及行政平台 v8.3',
+  'app.title':'深資童軍進度及行政平台 v8.7',
   'app.homeTitle':'深資童軍進度追蹤系統',
-  'app.homeSub':'Venture Scout Progress & Admin Platform v8.3 • 第11版綱要',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v8.7 • 第11版綱要',
   'app.homeTag':'基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶',
   'app.track':'進度追蹤',
-  'app.footer':'COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.3',
+  'app.footer':'COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.7',
   'app.footer2':'全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm',
   'app.footer3':'Developed for 82 Troop • All rights reserved • 香港童軍總會',
   'nav.enter':'🏠 進入系統','nav.setup':'📋 新旅團部署','nav.guide':'📖 使用教學',
@@ -901,12 +901,12 @@ zh:{
   'users.loading':'載入用戶...','users.changeRoleAria':'更改','users.fail':'載入失敗：','users.settings':'🔒 前端系統設定',
   'users.settingsP':'日常帳戶、角色、權限、私隱及停用操作全部在本頁完成，不需開啟 Google Sheet。',
   'users.allowOthers':'允許成員互相查看進度（鼓勵模式）','users.center':'👥 用戶管理中心',
-  'users.centerP':'可在前端新增／批量開戶、編輯資料、設定角色與考核權限、重設密碼、停用及重新啟用帳號。停用只停止登入，既有進度仍會保留。',
+  'users.centerP':'帳戶及「成員名單」成員會一併顯示。領袖可編輯資料、為未開戶成員開立帳戶、修改／重設成員密碼、停用或刪除。YMIS 及 Email 均不可重複使用。',
   'users.create':'➕ 開立帳戶','users.bulk':'📥 批量開戶','users.audit':'🧾 操作紀錄',
-  'users.search':'搜尋姓名／YMIS／Email','users.active':'使用中','users.allSt':'全部狀態','users.inactive':'已停用','users.none':'沒有用戶',
+  'users.search':'搜尋姓名／YMIS／Email','users.active':'使用中','users.allSt':'全部狀態','users.inactive':'已停用','users.none':'沒有用戶或成員',
   'users.branch':'支部：','users.unset':'未設定','users.perm':'權限：','users.nonePerm':'無','users.allPerm':'全部 (*)','users.forcePw':' · 下次登入須改密碼',
-  'users.inUse':'使用中','users.disabled':'已停用','users.edit':'✏️ 編輯','users.grantTick':'授權勾選','users.revokeTick':'收回勾選',
-  'users.permBtn':'⚙️ 權限','users.resetPw':'🔑 重設密碼','users.disable':'⛔ 停用','users.enable':'♻️ 重新啟用',
+  'users.inUse':'使用中','users.disabled':'已停用','users.noAccount':'未開立登入帳戶','users.edit':'✏️ 編輯','users.grantTick':'授權勾選','users.revokeTick':'收回勾選',
+  'users.permBtn':'⚙️ 權限','users.resetPw':'🔑 修改／重設密碼','users.openAccount':'🔐 開立登入帳戶','users.disable':'⛔ 停用','users.enable':'♻️ 重新啟用','users.delete':'🗑️ 刪除',
   'perm.title':'⚙️ 設定可勾選權限 - ','perm.hint':'領袖默認全部 (*)，團長/管理員可更改。執委可按個別成員勾選可考核範圍。<br>成員改為執委後，可設定其可考核：會員章、活動段章(細項不用)、其他獎章逐個勾。',
   'perm.prog':'進度性獎章 (段章層級)','perm.other':'其他獎章 (逐個勾)','perm.all':'全選','perm.none':'全不選',
   'perm.execDef':'設為執委默認 (會員章+活動段章+其他部分)','perm.leaderAll':'設為領袖全部 (*)','perm.save':'💾 儲存權限','perm.saved':'✅ 權限已更新','perm.saveFail':'儲存失敗：{m}',
@@ -925,6 +925,7 @@ zh:{
   'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
   'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 4 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 4 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
   'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
+  'del.accountQ':'確定刪除「{name}」？帳戶會停止登入並從成員名單移除；歷史進度會保留。為免身份被冒用，其 YMIS／Email 不可再用於另一帳戶。','del.memberQ':'確定從成員名單刪除「{name}」？','del.ok':'已刪除','del.fail':'刪除失敗：{m}',
   'hist.title':'🧾 操作紀錄','hist.empty':'沒有操作紀錄','hist.fail':'讀取紀錄失敗：{m}','hist.time':'時間','hist.actor':'操作者','hist.act':'操作','hist.target':'對象','hist.detail':'詳情',
   'bulk.title':'📥 批量開戶','bulk.flow':'<b>完全前端流程：</b>下載 CSV → 填寫 → 上傳及預覽 → 確認開戶。資料會一次批量寫入後端，毋須進入 Google Sheet。空白密碼預設為 1234，完成後請下載臨時密碼清單。',
   'bulk.guide':'查看完整說明','bulk.csv':'⬇️ 下載 CSV 範本','bulk.pick':'📂 選擇 CSV','bulk.json':'{} 貼上 JSON','bulk.previewJson':'預覽 JSON',
@@ -1060,12 +1061,12 @@ zh:{
   'badgeFilter.L4ACT':'活動策劃金帶/多元技能金帶'
 },
 en:{
-  'app.title':'Venture Scout Progress & Admin Platform v8.3',
+  'app.title':'Venture Scout Progress & Admin Platform v8.7',
   'app.homeTitle':'Venture Scout Progress Tracker',
-  'app.homeSub':'Venture Scout Progress & Admin Platform v8.3 • 11th Edition Scheme',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v8.7 • 11th Edition Scheme',
   'app.homeTag':'Based on the 11th Edition (2026) Venture Scout Training Scheme • offline draft • bulk save • member claims • auto-filled forms • self-service account applications',
   'app.track':'Progress',
-  'app.footer':'COPYRIGHT 2026 Scout System • Venture Scout Progress & Admin Platform v8.3',
+  'app.footer':'COPYRIGHT 2026 Scout System • Venture Scout Progress & Admin Platform v8.7',
   'app.footer2':'Front-end account admin • bulk onboarding • activity log (service / events / courses) • mobile-friendly • offline draft • Safe from Harm',
   'app.footer3':'Developed for 82nd Group • All rights reserved • Scout Association of Hong Kong',
   'nav.enter':'🏠 Enter','nav.setup':'📋 New Group setup','nav.guide':'📖 How to use',
@@ -1181,12 +1182,12 @@ en:{
   'users.loading':'Loading users...','users.changeRoleAria':'Change role of','users.fail':'Load failed: ','users.settings':'🔒 Front-end settings',
   'users.settingsP':'Accounts, roles, permissions, privacy and deactivation are all done here. No need to open the Google Sheet.',
   'users.allowOthers':'Allow members to view one another’s progress (encouragement mode)','users.center':'👥 User admin',
-  'users.centerP':'Create or bulk-onboard accounts, edit profiles, set roles and assessment rights, reset passwords, deactivate and reactivate. Deactivation only blocks sign-in; progress is kept.',
+  'users.centerP':'Accounts and members from the member roster are shown together. Leaders can edit details, open an account for a roster-only member, change/reset member passwords, deactivate, or delete. YMIS and email must each be unique.',
   'users.create':'➕ Create account','users.bulk':'📥 Bulk onboard','users.audit':'🧾 Audit log',
-  'users.search':'Search name / YMIS / email','users.active':'Active','users.allSt':'All statuses','users.inactive':'Inactive','users.none':'No users',
+  'users.search':'Search name / YMIS / email','users.active':'Active','users.allSt':'All statuses','users.inactive':'Inactive','users.none':'No users or members',
   'users.branch':'Section / unit: ','users.unset':'Not set','users.perm':'Rights: ','users.nonePerm':'None','users.allPerm':'All (*)','users.forcePw':' · must change password next sign-in',
-  'users.inUse':'Active','users.disabled':'Inactive','users.edit':'✏️ Edit','users.grantTick':'Allow ticking','users.revokeTick':'Revoke ticking',
-  'users.permBtn':'⚙️ Rights','users.resetPw':'🔑 Reset password','users.disable':'⛔ Deactivate','users.enable':'♻️ Reactivate',
+  'users.inUse':'Active','users.disabled':'Inactive','users.noAccount':'No sign-in account','users.edit':'✏️ Edit','users.grantTick':'Allow ticking','users.revokeTick':'Revoke ticking',
+  'users.permBtn':'⚙️ Rights','users.resetPw':'🔑 Change / reset password','users.openAccount':'🔐 Create sign-in account','users.disable':'⛔ Deactivate','users.enable':'♻️ Reactivate','users.delete':'🗑️ Delete',
   'perm.title':'⚙️ Tick permissions — ','perm.hint':'Leaders default to all (*); GSL/admin may change. Execs can be limited per member.<br>After promoting a member to exec, set what they may assess: Membership Badge, Activity Achievement Badge (no need to tick every sub-item), other badges one by one.',
   'perm.prog':'Progressive badges (Achievement Badge level)','perm.other':'Other badges (tick each)','perm.all':'Select all','perm.none':'Select none',
   'perm.execDef':'Exec default (Membership + Activity Achievement Badge + some others)','perm.leaderAll':'Leader all (*)','perm.save':'💾 Save rights','perm.saved':'✅ Rights updated','perm.saveFail':'Save failed: {m}',
@@ -1205,6 +1206,7 @@ en:{
   'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
   'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 4 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 4 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
   'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
+  'del.accountQ':'Delete “{name}”? Sign-in will stop and the person will be removed from the member roster; historical progress is kept. To prevent identity reuse, the YMIS / email cannot be used for another account.','del.memberQ':'Remove “{name}” from the member roster?','del.ok':'Deleted','del.fail':'Delete failed: {m}',
   'hist.title':'🧾 Audit log','hist.empty':'No audit records','hist.fail':'Could not read the log: {m}','hist.time':'Time','hist.actor':'Actor','hist.act':'Action','hist.target':'Target','hist.detail':'Detail',
   'bulk.title':'📥 Bulk onboard','bulk.flow':'<b>All in the front end:</b> download CSV → fill in → upload and preview → confirm. Written to the backend in one batch. Blank passwords default to 1234. Download the temporary-password list afterwards.',
   'bulk.guide':'Full guide','bulk.csv':'⬇️ Download CSV template','bulk.pick':'📂 Choose CSV','bulk.json':'{} Paste JSON','bulk.previewJson':'Preview JSON',
@@ -1418,10 +1420,15 @@ const BACKEND_MSG_EN={
   'Email 已註冊':'Email already registered',
   'Email 已存在':'Email already exists',
   'Email 已被使用':'Email already in use',
+  'Email 已存在（包括停用或已刪除帳號）':'Email already exists (including deactivated or deleted accounts)',
+  'Email 已由另一位成員使用':'Email is already used by another member',
   '執委／領袖申請必須填寫聯絡電郵':'Exec / leader applications require an email',
+  '執委申請必須填寫聯絡電郵':'Exec applications require an email',
   'YMIS 已註冊或曾建立帳號，請聯絡領袖':'This YMIS already has (or had) an account. Please contact a leader.',
   'YMIS 已存在（包括停用帳號）':'YMIS already exists (including deactivated accounts)',
+  'YMIS 已存在（包括停用或已刪除帳號）':'YMIS already exists (including deactivated or deleted accounts)',
   '領袖／執委帳號須填 Email':'Leader / exec accounts require an email',
+  '領袖／執委帳號須保留 Email':'Leader / exec accounts must retain an email',
   '此 YMIS 已有待審批申請':'This YMIS already has a pending application',
   'Applications 工作表不存在，請先執行 initializeSheets()':'The Applications sheet is missing. Run initializeSheets() first.',
   '找不到 Applications 工作表':'Applications sheet not found',
@@ -1448,6 +1455,12 @@ const BACKEND_MSG_EN={
   '已設定臨時密碼並撤銷舊登入':'Temporary password set; existing sessions revoked',
   '帳號已停用，進度紀錄獲保留':'Account deactivated; progress records are kept',
   '帳號已重新啟用':'Account reactivated',
+  '帳戶及成員已刪除；歷史進度獲保留':'Account and member deleted; historical progress is kept',
+  '成員已從名單刪除':'Member removed from the roster',
+  '找不到用戶或成員':'User or member not found',
+  '不可刪除自己的帳號':'You cannot delete your own account',
+  '權限不足，不能刪除此角色':'Insufficient rights to delete this role',
+  '帳號已刪除':'Account already deleted',
   '用戶資料已更新':'User profile updated',
   '已批准並寫入進度':'Approved and written to progress',
   '已刪除紀錄':'Record deleted',
@@ -1583,7 +1596,7 @@ guide:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 Ho
 changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 Release notes (for future Code.gs versions and feature changes)</h2>
 <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
   <h3 style="color:var(--blue)">Framework kept, content streamlined (old fix notes removed as requested)</h3>
-  <p style="font-size:12px">This section is reserved for:<br>• New backend Code.gs downloads (your old data is kept — initializeSheets does not clear it)<br>• New features and changes in each version<br>• v8.3 adds YMIS custom-report PDF bulk onboarding (parsed in the browser; the PDF is never uploaded)</p>
+  <p style="font-size:12px">This section is reserved for:<br>• New backend Code.gs downloads (your old data is kept — initializeSheets does not clear it)<br>• New features and changes in each version<br>• v8.7 strengthens user admin with unique YMIS/email, roster-only members, deletion, and leader password resets</p>
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
@@ -4040,12 +4053,12 @@ function canManageRoleFrontend(role){
 }
 function canCreateRoleFrontend(role){ return canManageRoleFrontend(role)||(currentUser?.role==='admin'&&role==='admin'); }
 function renderUserAdminCard(u){
-  const active=(u.status||'active')==='active',self=u.ymis===currentUser.ymis,manageable=!self&&canManageRoleFrontend(u.role);
-  const encoded=encodeURIComponent(JSON.stringify({ymis:u.ymis,name:u.name||'',email:u.email||'',branch:u.branch||'',role:u.role||'member'}));
+  const hasAccount=u.has_account!==false;
+  const active=(u.status||'active')==='active',self=String(u.ymis)===String(currentUser.ymis),manageable=!self&&canManageRoleFrontend(u.role||'member');
   const roleNames={member:i18n('role.member'),exec_committee:i18n('role.exec_committee'),branch_leader:i18n('role.branch_leader'),group_leader:i18n('role.group_leader'),admin:i18n('role.admin')};
-  
+
   // 團長鎖死一位：若全團已有現任活躍團長，非團長用戶不能選擇「團長」選項
-  const activeGsl = (adminUsersCache||[]).find(x => x.role === 'group_leader' && (x.status||'active') === 'active');
+  const activeGsl = (adminUsersCache||[]).find(x => x.has_account!==false && x.role === 'group_leader' && (x.status||'active') === 'active');
   const hasOtherActiveGsl = activeGsl && activeGsl.ymis !== u.ymis;
 
   const roleOptions=Object.keys(roleNames).filter(role=>role===u.role||canManageRoleFrontend(role)).map(role=>{
@@ -4056,16 +4069,23 @@ function renderUserAdminCard(u){
   const roleSelect=`<select aria-label="${i18n('users.changeRoleAria')} ${escapeHtmlText(u.name)}" onchange="updateUserRole('${escapeAttr(u.ymis)}',this.value)">${roleOptions}</select>`;
   const tickButton=u.role==='member'?'':`<button class="btn btn-sm ${u.can_tick?'btn-danger':'btn-success'}" onclick="toggleCanTick('${escapeAttr(u.ymis)}',${!u.can_tick},'${escapeAttr(u.role)}')">${u.can_tick?i18n('users.revokeTick'):i18n('users.grantTick')}</button>`;
   const permissionButton=u.role==='member'?'':`<button class="btn btn-sm btn-warning" onclick="openPermissionModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}','${escapeAttr(u.role)}','${escapeAttr(u.allowed_badges||'')}')">${i18n('users.permBtn')}</button>`;
+  const editButton=`<button class="btn btn-sm btn-outline" onclick="openEditUserModal('${escapeAttr(u.ymis)}')">${i18n('users.edit')}</button>`;
+  const deleteButton=`<button class="btn btn-sm btn-danger" onclick="deleteUser('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}',${hasAccount})">${i18n('users.delete')}</button>`;
   let actions='';
-  if(manageable&&active) actions=`${roleSelect}<button class="btn btn-sm btn-outline" onclick="openEditUserModal('${encoded}')">${i18n('users.edit')}</button>${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">${i18n('users.resetPw')}</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">${i18n('users.disable')}</button>`;
-  if(manageable&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">${i18n('users.enable')}</button>`;
-  
+  if(manageable&&hasAccount&&active) actions=`${roleSelect}${editButton}${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">${i18n('users.resetPw')}</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">${i18n('users.disable')}</button>${deleteButton}`;
+  if(manageable&&hasAccount&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">${i18n('users.enable')}</button>${editButton}${deleteButton}`;
+  if(manageable&&!hasAccount) actions=`${editButton}<button class="btn btn-sm btn-primary" onclick="openCreateUserForMember('${escapeAttr(u.ymis)}')">${i18n('users.openAccount')}</button>${deleteButton}`;
+
   // 領袖若使用內部 L 編號，不顯示 (Lxxxx)，只顯示姓名＋電郵＋角色
-  const isInternalLId = String(u.ymis||'').startsWith('L');
+  const isInternalLId = /^L\d+$/i.test(String(u.ymis||''));
   const ymisDisplay = isInternalLId ? '' : ` <span>${escapeHtmlText(u.ymis)}</span>`;
   const emailDisplay = u.email ? `<span style="color:var(--text-light)">${isInternalLId?'':' · '}${escapeHtmlText(u.email)}</span>` : '';
+  const statusText=!hasAccount?i18n('users.noAccount'):(active?i18n('users.inUse'):i18n('users.disabled'));
+  const detail=!hasAccount
+    ? `${i18n('users.branch')}${escapeHtmlText(u.branch||i18n('users.unset'))}`
+    : `${i18n('users.branch')}${escapeHtmlText(u.branch||i18n('users.unset'))} · ${i18n('users.perm')}${escapeHtmlText(u.allowed_badges||(u.role==='member'?i18n('users.nonePerm'):i18n('users.allPerm')))}${u.force_change_password?i18n('users.forcePw'):''}`;
 
-  return `<div class="user-item" data-status="${active?'active':'inactive'}" data-search="${escapeHtmlText(((u.name||'')+(u.ymis||'')+(u.email||'')+(u.branch||'')).toLowerCase())}" style="${active?'':'opacity:.72'}"><div class="user-item-info"><b>${escapeHtmlText(u.name)}</b>${ymisDisplay}${emailDisplay?`<br class="mobile-only"> ${emailDisplay}`:''}<span class="role-badge role-${escapeHtmlText(u.role)}">${escapeHtmlText(getRoleName(u.role))}</span><span class="status-chip status-${active?'active':'inactive'}">${active?i18n('users.inUse'):i18n('users.disabled')}</span><br><small style="color:var(--text-light)">${i18n('users.branch')}${escapeHtmlText(u.branch||i18n('users.unset'))} · ${i18n('users.perm')}${escapeHtmlText(u.allowed_badges||(u.role==='member'?i18n('users.nonePerm'):i18n('users.allPerm')))}${u.force_change_password?i18n('users.forcePw'):''}</small></div><div class="user-item-actions">${actions}</div></div>`;
+  return `<div class="user-item" data-status="${active?'active':'inactive'}" data-search="${escapeHtmlText(((u.name||'')+(u.ymis||'')+(u.email||'')+(u.branch||'')).toLowerCase())}" style="${active?'':'opacity:.72'}"><div class="user-item-info"><b>${escapeHtmlText(u.name)}</b>${ymisDisplay}${emailDisplay?`<br class="mobile-only"> ${emailDisplay}`:''}<span class="role-badge role-${escapeHtmlText(u.role||'member')}">${escapeHtmlText(getRoleName(u.role||'member'))}</span><span class="status-chip status-${hasAccount&&active?'active':'inactive'}">${statusText}</span><br><small style="color:var(--text-light)">${detail}</small></div><div class="user-item-actions">${actions}</div></div>`;
 }
 function filterUsers(){
   const q=(document.getElementById('userSearch')?.value||'').toLowerCase(),status=document.getElementById('userStatusFilter')?.value||'active';
@@ -4139,10 +4159,22 @@ async function submitCreateUser(){
       showToast(i18n('bulk.errYmis'),'error');
       return;
     }
-    if(role==='exec_committee' && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
+    if(role==='exec_committee' && !email){
       showToast(i18n('bulk.errEmail'),'error');
       return;
     }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      showToast(i18n('bulk.errEmailFmt'),'error');
+      return;
+    }
+  }
+
+  // 前端先即時提示；後端仍會在鎖內再次驗證，防止同時開戶造成重複。
+  const ymisOwner=(adminUsersCache||[]).find(x=>String(x.ymis||'').trim().toLowerCase()===ymis.toLowerCase() && x.has_account!==false);
+  if(ymisOwner){ showToast(i18n('bulk.errDup'),'error'); return; }
+  if(email){
+    const emailOwner=(adminUsersCache||[]).find(x=>String(x.email||'').trim().toLowerCase()===email.toLowerCase() && String(x.ymis||'').trim().toLowerCase()!==ymis.toLowerCase());
+    if(emailOwner){ showToast(i18n('bulk.errDupEmail'),'error'); return; }
   }
 
   const payload = {action:'addUser', token:currentToken, ymis, name, email, branch, role, can_tick, password};
@@ -4162,8 +4194,26 @@ async function submitCreateUser(){
     btn.disabled = false; btn.textContent = i18n('cu.create');
   }
 }
-function openEditUserModal(encoded){
-  const u=JSON.parse(decodeURIComponent(encoded)); document.getElementById('euYmis').value=u.ymis;document.getElementById('euYmisDisplay').value=u.ymis;document.getElementById('euName').value=u.name;document.getElementById('euEmail').value=u.email;document.getElementById('euBranch').value=u.branch;document.getElementById('editUserModal').classList.add('active');
+function openCreateUserForMember(ymis){
+  const u=(adminUsersCache||[]).find(x=>String(x.ymis)===String(ymis));
+  if(!u || u.has_account!==false){ showToast(i18n('common.error'),'error'); return; }
+  openCreateUserModal();
+  document.getElementById('cuYmis').value=u.ymis||'';
+  document.getElementById('cuName').value=u.name||'';
+  document.getElementById('cuEmail').value=u.email||'';
+  document.getElementById('cuBranch').value=u.branch||'';
+  document.getElementById('cuRole').value='member';
+  syncCreateUserRole();
+}
+function openEditUserModal(ymis){
+  const u=(adminUsersCache||[]).find(x=>String(x.ymis)===String(ymis));
+  if(!u){ showToast(i18n('common.error'),'error'); return; }
+  document.getElementById('euYmis').value=u.ymis;
+  document.getElementById('euYmisDisplay').value=u.ymis;
+  document.getElementById('euName').value=u.name||'';
+  document.getElementById('euEmail').value=u.email||'';
+  document.getElementById('euBranch').value=u.branch||'';
+  document.getElementById('editUserModal').classList.add('active');
 }
 async function submitEditUser(){
   const payload={action:'updateUserProfile',token:currentToken,target_ymis:document.getElementById('euYmis').value,name:document.getElementById('euName').value.trim(),email:document.getElementById('euEmail').value.trim(),branch:document.getElementById('euBranch').value.trim()};
@@ -4202,8 +4252,16 @@ async function setUserStatus(ymis,status){
   }
   try{const d=await apiRequest('setUserStatus',{token:currentToken,target_ymis:ymis,status});if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast(i18n('req.opFail',{m:e.message}),'error');}
 }
-  if(!confirm(status==='active'?i18n('st.enableQ'):i18n('st.disableQ')))return;
-  try{const d=await apiRequest('setUserStatus',{token:currentToken,target_ymis:ymis,status});if(!d.success)throw new Error(d.error);showToast(d.message,'success');loadUsers();}catch(e){showToast(i18n('req.opFail',{m:e.message}),'error');}
+async function deleteUser(ymis,name,hasAccount){
+  const question=i18n(hasAccount?'del.accountQ':'del.memberQ',{name:name||ymis});
+  if(!confirm(question)) return;
+  try{
+    const d=await apiRequest('deleteUser',{token:currentToken,target_ymis:ymis});
+    if(!d.success) throw new Error(d.error||i18n('del.fail',{m:''}));
+    showToast(d.message||i18n('del.ok'),'success');
+    await loadUsers();
+    await loadItemsAndProgress();
+  }catch(e){ showToast(i18n('del.fail',{m:e.message}),'error'); }
 }
 async function loadAuditHistory(){
   document.getElementById('historyTitle').textContent=i18n('hist.title');
@@ -4243,8 +4301,8 @@ function fillYmisRoleOptions(){
 }
 function existingYmisSet(){
   const set=new Set();
-  (adminUsersCache||[]).forEach(u=>{ if(u&&u.ymis) set.add(String(u.ymis)); });
-  (members||[]).forEach(m=>{ if(m&&m.ymis) set.add(String(m.ymis)); });
+  // 成員名單內但尚未有登入帳戶的人仍可在此開戶；只把真正帳戶標示為「已存在」。
+  (adminUsersCache||[]).forEach(u=>{ if(u&&u.ymis&&u.has_account!==false) set.add(String(u.ymis).trim().toLowerCase()); });
   return set;
 }
 function loadPdfJs(){
@@ -4331,11 +4389,10 @@ function importYmisPastedText(){
 }
 function applyYmisParseResult(res){
   const existing=existingYmisSet();
-  ymisImportRows=(res.members||[]).map(m=>({
-    ymis:m.ymis, name:m.name, email:m.email,
-    exists:existing.has(m.ymis),
-    use:!existing.has(m.ymis)
-  }));
+  ymisImportRows=(res.members||[]).map(m=>{
+    const exists=existing.has(String(m.ymis||'').trim().toLowerCase());
+    return {ymis:m.ymis,name:m.name,email:m.email,exists,use:!exists};
+  });
   if(!ymisImportRows.length){ showToast(i18n('ymis.none'),'warning'); renderYmisPreview(); return; }
   if(res.pages>1) showToast(i18n('ymis.parsedPages',{n:ymisImportRows.length,pages:res.pages,skip:(res.skipped||[]).length}),'success');
   else showToast(i18n('ymis.parsed',{n:ymisImportRows.length,skip:(res.skipped||[]).length}),'success');
@@ -4464,14 +4521,15 @@ function validateBulkRow(u,index){
   if(!u.password&&!auto) errors.push(i18n('bulk.errPwMissing'));
   if(u.password&&u.password.length<4) errors.push(i18n('bulk.errPw'));
 
-  // 重複檢查
+  // 重複檢查：成員名單內同一 YMIS 可直接開立登入帳戶；其他身份的 Email 不可沿用。
+  const ymisKey=String(u.ymis||'').trim().toLowerCase();
   if(u.ymis){
-    if(adminUsersCache.some(x=>x.ymis===u.ymis)) errors.push(i18n('bulk.errDup'));
-    if(bulkDraft.slice(0,index).some(x=>x.ymis===u.ymis)) errors.push(i18n('bulk.errDupFile'));
+    if(adminUsersCache.some(x=>String(x.ymis||'').trim().toLowerCase()===ymisKey&&x.has_account!==false)) errors.push(i18n('bulk.errDup'));
+    if(bulkDraft.slice(0,index).some(x=>String(x.ymis||'').trim().toLowerCase()===ymisKey)) errors.push(i18n('bulk.errDupFile'));
   }
   if(u.email){
     const emailLower=u.email.toLowerCase();
-    if(adminUsersCache.some(x=>x.email&&x.email.toLowerCase()===emailLower)) errors.push(i18n('bulk.errDupEmail'));
+    if(adminUsersCache.some(x=>x.email&&x.email.toLowerCase()===emailLower&&String(x.ymis||'').trim().toLowerCase()!==ymisKey)) errors.push(i18n('bulk.errDupEmail'));
     if(bulkDraft.slice(0,index).some(x=>x.email&&x.email.toLowerCase()===emailLower)) errors.push(i18n('bulk.errDupEmailFile'));
   }
   return errors;

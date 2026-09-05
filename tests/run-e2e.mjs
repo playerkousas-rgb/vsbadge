@@ -468,6 +468,43 @@ console.log('\n【10f】權限漏洞收緊及審批防篡改');
   check('造假開出的帳號角色確實為 member', mockA.state.users['1234560035']?.role === 'member');
 }
 
+// ---- v8.7 用戶管理：唯一識別、成員名單合併、領袖改密碼及刪除 ----
+console.log('\n【10g】用戶管理：YMIS／Email 唯一、顯示成員、修改密碼及刪除');
+{
+  const leaderLogin = await apiA('login', { login_id: 'newleader@example.org', password: '1234' });
+  const leaderToken = leaderLogin.token;
+  mockA.state.members['1234560060'] = { ymis: '1234560060', name: '名單成員己', email: 'roster@example.org', branch: '深資童軍支部' };
+
+  const before = await apiA('getAllUsers', { token: leaderToken });
+  const rosterMember = before.users?.find(u => u.ymis === '1234560060');
+  check('用戶管理合併顯示未開戶的成員名單成員', rosterMember?.has_account === false && rosterMember?.name === '名單成員己');
+
+  const editRoster = await apiA('updateUserProfile', { token: leaderToken, target_ymis: '1234560060', name: '名單成員己（已改）', email: 'roster@example.org', branch: '深資童軍支部' });
+  check('領袖可在用戶管理修改未開戶成員資料', editRoster.success === true && mockA.state.members['1234560060']?.name.includes('已改'));
+
+  const openAccount = await apiA('addUser', { token: leaderToken, ymis: '1234560060', name: '名單成員己（已改）', email: 'roster@example.org', branch: '深資童軍支部', role: 'member', password: '1234' });
+  check('可為名單內同一身份開立登入帳戶（不建立重複成員）', openAccount.success === true && mockA.state.users['1234560060']?.email === 'roster@example.org');
+
+  const duplicateYmis = await apiA('addUser', { token: leaderToken, ymis: '1234560060', name: '冒用 YMIS', email: 'other0060@example.org', role: 'member', password: '1234' });
+  check('相同 YMIS 不可開第二個帳戶', duplicateYmis.success === false && /YMIS 已存在/.test(duplicateYmis.error || ''));
+  const duplicateEmail = await apiA('addUser', { token: leaderToken, ymis: '1234560061', name: '冒用 Email', email: 'ROSTER@EXAMPLE.ORG', role: 'member', password: '1234' });
+  check('相同 Email（不分大小寫）不可開第二個帳戶', duplicateEmail.success === false && /Email 已存在/.test(duplicateEmail.error || ''));
+  const duplicateEdit = await apiA('updateUserProfile', { token: leaderToken, target_ymis: '1234560001', name: '成員甲', email: 'ROSTER@example.org', branch: '' });
+  check('編輯資料亦不可把 Email 改成另一帳戶正在使用的 Email', duplicateEdit.success === false && /Email 已存在/.test(duplicateEdit.error || ''));
+
+  const reset = await apiA('resetPassword', { token: leaderToken, target_ymis: '1234560060', new_password: '5678' });
+  const relogin = await apiA('login', { login_id: '1234560060', password: '5678' });
+  check('領袖可修改／重設成員密碼，成員可用新密碼登入', reset.success === true && relogin.success === true);
+
+  const del = await apiA('deleteUser', { token: leaderToken, target_ymis: '1234560060' });
+  const after = await apiA('getAllUsers', { token: leaderToken });
+  const deletedLogin = await apiA('login', { login_id: '1234560060', password: '5678' });
+  check('領袖可刪除成員，刪除後不再出現在用戶管理', del.success === true && !after.users?.some(u => u.ymis === '1234560060'));
+  check('已刪除帳戶不能登入', deletedLogin.success === false);
+  const reuseDeleted = await apiA('addUser', { token: leaderToken, ymis: '1234560062', name: '冒用已刪除 Email', email: 'roster@example.org', role: 'member', password: '1234' });
+  check('已刪除帳戶的 YMIS／Email 仍不可被另一帳戶重用', reuseDeleted.success === false && /Email 已存在/.test(reuseDeleted.error || ''));
+}
+
 // ---- 多旅團隔離 ----
 console.log('\n【11】多旅團隔離：旅團 B 獨立寫入、token 不串用');
 {
@@ -524,7 +561,10 @@ console.log('\n【13】真實 apiRequest() 前端封裝錯誤路徑');
 // ---- 前端靜態安全檢查 ----
 console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network 檢查）');
 {
-  const jsOnly = html.split('<script>')[1] || '';
+  const jsOnly = (html.split('<script>')[1] || '').split('</script>')[0];
+  let syntaxError = '';
+  try { new Function(jsOnly); } catch (e) { syntaxError = e.message; }
+  check('前端主程式 JavaScript 語法正確', !syntaxError, syntaxError);
   check('無 fetch(currentBackend / gasUrl / scriptUrl', !/fetch\(\s*(currentBackend|gasUrl|scriptUrl)/.test(jsOnly));
   check('無具體 GAS 部署 URL 硬編碼', !/script\.google\.com\/macros\/s\/AKfyc/.test(jsOnly));
   check('無 .catch(()=>{}) 靜默錯誤', !/\.catch\(\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/.test(jsOnly));
@@ -532,7 +572,7 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   const badFetch = fetches.filter(f => !/^['"]?(API_ENDPOINT|'\/api\/troops|'data\/)/.test(f) && !/^'data\//.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
-  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
+  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','deleteUser','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
   const missing = need.filter(a => !apiCalls.includes(a));
   check(need.length+' 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
   check('活動履歷 tab 已註冊', html.includes("id=\"tab-logs\"") && html.includes('renderLogsTab'));
