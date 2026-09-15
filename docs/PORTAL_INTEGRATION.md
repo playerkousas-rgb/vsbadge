@@ -60,48 +60,42 @@ https://vsbadge.vercel.app/?u=0082&role=exec_committee&ymis=PORTAL-0082-EXCO&nam
 
 ---
 
-## 3. 旅團要登記的兩個欄位（`data/troops.json` 或 env）
+## 3. 設定（得一份：全域 env）
 
-```jsonc
-"0082": {
-  "name": "第 82 旅",
-  "en": "82nd Group",
-  "backend": "https://script.google.com/macros/s/…/exec",
-  "portalOrigin": "https://82venture.vercel.app",
-  "portalRoles": ["exec_committee", "branch_leader", "group_leader"]
-}
-```
-
-env 寫法（優先於 `troops.json`，改名唔使 redeploy git）：
-
-```
-TROOP_0082_PORTALORIGIN = https://82venture.vercel.app
-TROOP_0082_PORTALROLES  = exec_committee,branch_leader,group_leader
-```
-
-（`TROOP_82_…` 去前導零變體一樣支援；`portalRoles` 冇設就預設只接受 `exec_committee`。）
-
-> ⚠️ `portalOrigin` 要逐個 origin 登記：production、preview（`*.vercel.app` branch URL）、
-> 本機 `http://localhost:3000` 都係唔同 origin。
-
-### 3.1 所有旅團共用同一個主系統 → 用全域預設 env
-
-如果（大部份）旅團都係由**同一個** hub app 帶人入嚟，逐個旅團填 `portalOrigin` 就多餘，
-改主系統地址又要改 N 次。可以改為只設兩個 env（Vercel Project Settings → Environment Variables）：
+對接**只有一個共用嘅主系統前端**，所以 portal 設定亦只有一份 —— 喺 Vercel
+Project Settings → Environment Variables 設兩條，**所有旅團一齊生效**：
 
 ```
 PORTAL_DEFAULT_ORIGIN = https://82venture.vercel.app
 PORTAL_DEFAULT_ROLES  = exec_committee,branch_leader,group_leader
 ```
 
-- 優先次序：**`TROOP_{ID}_*` env → `troops.json` 欄位 → 全域 `PORTAL_DEFAULT_*` env**
-- 個別旅團想用另一個網址／另一組角色，照樣喺自己嗰個 entry 設，會**覆寫**全域預設
-- **未設全域預設（出廠狀態）= 唔開放 portal，維持 fail closed**
-- ⚠️ 一設咗 `PORTAL_DEFAULT_ORIGIN`，所有已登記旅團都會即時開放 portal
-  （角色仍然受 `PORTAL_DEFAULT_ROLES` 或旅團自己嘅白名單限制），請確定呢個係你想要嘅
-- 改主系統地址：只改呢一個 env → Vercel redeploy 即生效，唔使改 code、唔使逐個旅團改
+- **新旅團零設定**：旅團只要照常登記 `u` + `backend`（+ `apikey`）就自動可以經主系統入，
+  唔使再為 portal 加任何嘢
+- **改主系統地址**：改 `PORTAL_DEFAULT_ORIGIN` 一條 → redeploy 即生效，唔使改 code、唔使逐個旅團改
+- **冇設 `PORTAL_DEFAULT_ORIGIN`（出廠狀態）= 全部旅團都唔開放 portal**（fail closed）
+- ⚠️ 一設咗，所有已登記旅團都會即時開放 portal（角色仍然受白名單限制）
+- ⚠️ `portalOrigin` 係 **origin**（protocol + host + port），唔包 path：
+  production、preview（`*.vercel.app` branch URL）、本機 `http://localhost:3000`
+  全部都係唔同 origin，要分開設定
 
-**呢兩個欄位同 `backend` / `apikey` 一樣只放伺服器端**，`/api/troops` 唔會公開。
+呢啲設定同 `backend` / `apikey` 一樣**只放伺服器端**，`/api/troops` 唔會公開。
+
+### 3.1 逃生門（個別旅團例外）
+
+正常唔需要用。只有當某個旅團要「同其他旅團唔同」時，先至喺嗰個旅團身上加設定：
+
+| 用途 | env | `troops.json` 欄位 |
+|---|---|---|
+| 用第二個 hub／另一組角色（**覆寫**全域預設） | `TROOP_{ID}_PORTALORIGIN` / `TROOP_{ID}_PORTALROLES` | `"portalOrigin"` / `"portalRoles"` |
+| 明明設咗全域預設，但呢個旅團**唔想**開放 portal | `TROOP_{ID}_PORTALDISABLED=1` | `"portalEnabled": false` |
+
+優先次序：**`TROOP_{ID}_*` env → `troops.json` 欄位 → 全域 `PORTAL_DEFAULT_*` env**
+
+（`TROOP_82_…` 去前導零變體一樣支援；`portalRoles` 冇設就預設只接受 `exec_committee`。）
+
+> 💡 唔好喺 `troops.json` 入面重複填 `portalOrigin` 做同一個 hub 網址：
+> 個別設定優先，日後改全域 env 會改唔到呢個旅團。交畀全域 env 統一管理就得。
 
 ---
 

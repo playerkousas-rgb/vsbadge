@@ -585,14 +585,15 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
 // ================== 15. Portal（主系統免登入）伺服器端驗證 ==================
 console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補「淨係信 URL 參數」漏洞');
 {
-  const HUB = 'http://127.0.0.1:3955';   // 模擬已登記主系統（82venture）origin
+  const HUB = 'http://127.0.0.1:3955';   // 模擬共用 hub（82venture）origin —— 所有旅團共用同一個
   const OTHER = 'http://evil.example.com';
-  const REGISTERED_IN_JSON = 'https://82venture.vercel.app'; // data/troops.json 內登記的 portalOrigin
-  // getRegistry() 每次都讀 process.env，測試期間設定即可生效
-  process.env.TROOP_0082_PORTALORIGIN = HUB;
-  delete process.env.TROOP_0082_PORTALROLES;   // 用 data/troops.json 的 portalRoles
-  delete process.env.PORTAL_DEFAULT_ORIGIN;    // 測試期間唔設全域預設（保持最嚴格）
-  delete process.env.PORTAL_DEFAULT_ROLES;
+
+  // 做法 A（唯一做法）：兩個全域 env，所有旅團共用同一個主系統前端
+  delete process.env.TROOP_0082_PORTALORIGIN;
+  delete process.env.TROOP_0082_PORTALROLES;
+  delete process.env.TROOP_0082_PORTALDISABLED;
+  process.env.PORTAL_DEFAULT_ORIGIN = HUB;
+  process.env.PORTAL_DEFAULT_ROLES = 'exec_committee,branch_leader,group_leader';
 
   const portal = async (qs, headers = {}) => {
     const r = await fetch(`${APP_BASE}/api/portal?${qs}`, { headers });
@@ -604,108 +605,93 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
 
   check('測試環境為嚴格模式（未開 VSBADGE_PORTAL_TEST）', !(process.env.VSBADGE_PORTAL_TEST === '1' && process.env.VERCEL !== '1'));
 
-  // 1. 由已登記主系統帶入允許角色（Referer + src 皆正確）→ 免登入
+  // ---- A. 全域預設（所有旅團共用一個 hub）----
   let r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('已登記主系統 + 白名單角色 → ok:true（免登入，有勾選權）',
+  check('0082：白名單角色 + 已登記來源 → ok:true（免登入，有勾選權）',
     r.status === 200 && r.json?.ok === true && r.json?.role === 'exec_committee' && r.json?.troop === '0082');
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('1001 冇任何 portal 設定，都靠全域 env 入到（多旅團共用一個 hub）', r.status === 200 && r.json?.ok === true);
 
-  // 2. 只靠 Referer（主系統冇送 src）
   r = await portal('u=0082&role=group_leader', fromHub);
   check('只靠 Referer（冇 src）→ ok:true', r.status === 200 && r.json?.ok === true);
-
-  // 3. 只靠 src（新視窗開啟冇 Referer）
   r = await portal(`u=0082&role=branch_leader&src=${encodeURIComponent(HUB)}`);
   check('只靠 src（冇 Referer）→ ok:true', r.status === 200 && r.json?.ok === true);
 
-  // 4. ❌ 舊漏洞重現：直接砌 role=super_admin（唔喺 portalRoles 白名單）
+  // ---- B. 舊漏洞：自己砌 URL 攞超管 ----
   r = await portal(`u=0082&role=super_admin&ymis=x&src=${encodeURIComponent(HUB)}`, fromHub);
   check('❌漏洞：role=super_admin（唔喺白名單）→ 拒絕 role_not_allowed',
     r.status === 403 && r.json?.ok === false && r.json?.reason === 'role_not_allowed');
   r = await portal('u=0082&role=super_admin&ymis=x', { Referer: OTHER + '/x' });
   check('❌漏洞：隨便砌 URL 亦攞唔到 super_admin', r.json?.ok === false);
 
-  // 5. 未登記來源
+  // ---- C. 來源驗證 ----
   r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(OTHER)}`, { Referer: OTHER + '/' });
   check('未登記來源 → 拒絕，並回傳 expected（正確來源）',
     r.status === 403 && r.json?.ok === false &&
     ['origin_not_allowed', 'referer_mismatch'].includes(r.json?.reason) && r.json?.expected === HUB);
-
-  // 6. curl 直接打（冇 Referer、src 亂填）
   r = await portal('u=0082&role=exec_committee&src=http://attacker.example');
   check('curl 直打（冇 Referer、src 亂填）→ 拒絕 origin_not_allowed',
     r.json?.ok === false && r.json?.reason === 'origin_not_allowed');
   r = await portal('u=0082&role=exec_committee');
   check('完全冇 Referer / src → 拒絕 no_origin', r.json?.ok === false && r.json?.reason === 'no_origin');
 
-  // 7. 未登記旅團
+  // ---- D. 旅團層面 ----
   r = await portal(`u=9999&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('未登記旅團 → 拒絕 unknown_troop（HTTP 404）',
-    r.status === 404 && r.json?.reason === 'unknown_troop');
-
-  // 8. 未開放 portal 嘅旅團（1001 冇 portalOrigin）→ fail closed
-  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('未開放 portal 嘅旅團 → 拒絕 troop_not_portal_enabled（fail closed）',
-    r.status === 403 && r.json?.reason === 'troop_not_portal_enabled');
-
-  // 9. 非 GET
+  check('未登記旅團 → 拒絕 unknown_troop（HTTP 404）', r.status === 404 && r.json?.reason === 'unknown_troop');
   {
     const pr = await fetch(`${APP_BASE}/api/portal?u=0082&role=exec_committee`, { method: 'POST', headers: fromHub });
     check('非 GET → 405', pr.status === 405);
   }
 
-  // 10. env 覆寫 portalRoles
+  // ---- E. 逃生門 1：個別旅團覆寫（例如某旅團要用另一個 hub）----
+  process.env.TROOP_0082_PORTALORIGIN = OTHER;
+  r = await portal('u=0082&role=exec_committee', fromHub);
+  check('個別旅團 portalOrigin 覆寫全域預設 → 原 Hub 已被拒', r.json?.ok === false);
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(OTHER)}`, { Referer: OTHER + '/' });
+  check('個別旅團 portalOrigin 覆寫 → 新網址入到', r.json?.ok === true);
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('其他旅團唔受影響，繼續用全域預設', r.json?.ok === true);
+  delete process.env.TROOP_0082_PORTALORIGIN;
+
+  // ---- F. 逃生門 2：個別旅團閂門（設咗全域預設都唔開放）----
+  process.env.TROOP_1001_PORTALDISABLED = '1';
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('TROOP_1001_PORTALDISABLED=1 → 拒絕 troop_not_portal_enabled', r.json?.reason === 'troop_not_portal_enabled');
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('其他旅團唔受影響', r.json?.ok === true);
+  delete process.env.TROOP_1001_PORTALDISABLED;
+
+  // ---- G. 冇設全域 env → fail closed ----
+  delete process.env.PORTAL_DEFAULT_ORIGIN;
+  delete process.env.PORTAL_DEFAULT_ROLES;
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('冇設 PORTAL_DEFAULT_ORIGIN → 0082 唔開放 portal（fail closed）', r.json?.reason === 'troop_not_portal_enabled');
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('冇設 PORTAL_DEFAULT_ORIGIN → 1001 唔開放 portal（fail closed）', r.json?.reason === 'troop_not_portal_enabled');
+  // 用 env 覆寫做白名單測試
+  process.env.TROOP_0082_PORTALORIGIN = HUB;
   process.env.TROOP_0082_PORTALROLES = 'group_leader';
   r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
   check('TROOP_0082_PORTALROLES env 覆寫生效 → exec_committee 被拒',
     r.json?.ok === false && r.json?.reason === 'role_not_allowed' && Array.isArray(r.json?.allowed));
   r = await portal(`u=0082&role=group_leader&src=${encodeURIComponent(HUB)}`, fromHub);
   check('env 白名單內嘅 group_leader → 通過', r.json?.ok === true);
+  delete process.env.TROOP_0082_PORTALORIGIN;
   delete process.env.TROOP_0082_PORTALROLES;
 
-  // 11. troops.json 內登記嘅 portalOrigin（唔靠 env）都有效；之後移除 env 即時 fail closed
-  delete process.env.TROOP_0082_PORTALORIGIN;
-  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { Referer: REGISTERED_IN_JSON + '/dash' });
-  check('data/troops.json 登記嘅 portalOrigin 生效', r.status === 200 && r.json?.ok === true);
-  r = await portal('u=0082&role=exec_committee', fromHub);
-  check('冇喺 troops.json 登記嘅來源 → 即時拒絕（fail closed）', r.json?.ok === false);
-
-  // 12. 唔洩漏設定 + 同源限定
+  // ---- H. 唔洩漏設定 + 同源限定 ----
   {
     const tj = await (await fetch(`${APP_BASE}/api/troops`)).json();
     const raw = JSON.stringify(tj);
     check('/api/troops 唔洩漏 portalOrigin / portalRoles',
-      !raw.includes('portalOrigin') && !raw.includes('portalRoles') &&
-      !raw.includes(REGISTERED_IN_JSON) && !raw.includes('exec_committee'));
-    const pr = await fetch(`${APP_BASE}/api/portal?u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { headers: { Referer: REGISTERED_IN_JSON + '/dash' } });
+      !raw.includes('portalOrigin') && !raw.includes('portalRoles') && !raw.includes(HUB) && !raw.includes('exec_committee'));
+    process.env.PORTAL_DEFAULT_ORIGIN = HUB;
+    const pr = await fetch(`${APP_BASE}/api/portal?u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, { headers: fromHub });
     check('回應唔帶 Access-Control-Allow-Origin（同源限定）', !pr.headers.get('access-control-allow-origin'));
     check('回應帶 Cache-Control: no-store', /no-store/.test(pr.headers.get('cache-control') || ''));
   }
 
-  // 14. 全域預設 env（所有旅團共用同一個主系統時，唔使逐個旅團填 portalOrigin）
-  delete process.env.TROOP_0082_PORTALORIGIN;
-  delete process.env.PORTAL_DEFAULT_ORIGIN;
-  delete process.env.PORTAL_DEFAULT_ROLES;
-  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('冇設 PORTAL_DEFAULT_ORIGIN → 旅團 1001 依然唔開放 portal（fail closed）',
-    r.json?.reason === 'troop_not_portal_enabled');
-
-  process.env.PORTAL_DEFAULT_ORIGIN = HUB;   // 只設一個 env，全部未個別設定嘅旅團即時生效
-  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('設咗 PORTAL_DEFAULT_ORIGIN → 唔使逐個旅團填 portalOrigin', r.status === 200 && r.json?.ok === true);
-  r = await portal(`u=1001&role=super_admin&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('全域預設都唔會放行白名單外嘅角色（預設只係 exec_committee）', r.json?.reason === 'role_not_allowed');
-  process.env.PORTAL_DEFAULT_ROLES = 'exec_committee,group_leader';
-  r = await portal(`u=1001&role=group_leader&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('PORTAL_DEFAULT_ROLES 生效', r.json?.ok === true);
-  // 個別旅團設定永遠優先於全域預設（0082 喺 troops.json 登記咗另一個網址）
-  r = await portal('u=0082&role=exec_committee', fromHub);
-  check('個別旅團 portalOrigin 優先於全域預設', r.json?.ok === false);
-  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { Referer: REGISTERED_IN_JSON + '/dash' });
-  check('個別旅團仍然只用自己登記嗰個網址', r.json?.ok === true);
-  delete process.env.PORTAL_DEFAULT_ORIGIN;
-  delete process.env.PORTAL_DEFAULT_ROLES;
-
-  // 13. 前端靜態：portal 分支一定要先問伺服器，唔可以淨係睇 URL 參數
+  // ---- I. 前端靜態：portal 分支一定要先問伺服器，唔可以淨係睇 URL 參數 ----
   {
     const s0 = html.indexOf('async function handlePortalParams(');
     const s1 = html.indexOf('\nfunction ', s0 + 10);
@@ -725,6 +711,8 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
     check('7 個拒絕原因都有中文訊息', missingZh.length === 0, missingZh.join(','));
     check('7 個拒絕原因都有英文訊息', missingEn.length === 0, missingEn.join(','));
   }
+  delete process.env.PORTAL_DEFAULT_ORIGIN;
+  delete process.env.PORTAL_DEFAULT_ROLES;
 }
 
 // ---- 清理 ----

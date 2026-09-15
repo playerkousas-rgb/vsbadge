@@ -75,8 +75,9 @@ export default function handler(req, res) {
     return sendJson(res, 404, { ok: false, reason: 'unknown_troop' });
   }
 
-  // ---- 2. 旅團必須已登記 portalOrigin（沒登記 = 不開放 portal）----
-  if (!troop.portalOrigin) {
+  // ---- 2. 旅團必須已開放 portal：有 portalOrigin（多半來自全域 PORTAL_DEFAULT_ORIGIN）
+  //        且冇被個別旅團閂門（TROOP_{ID}_PORTALDISABLED / portalEnabled:false）----
+  if (!troop.portalOrigin || troop.portalEnabled === false) {
     safeLog({ result: 'troop_not_portal_enabled', troopId: troop.id, ms: Date.now() - t0 });
     return sendJson(res, 403, { ok: false, reason: 'troop_not_portal_enabled' });
   }

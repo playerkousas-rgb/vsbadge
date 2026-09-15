@@ -3,9 +3,7 @@
     "0082": {
       "name": "第 82 旅",
       "en": "82nd Group",
-      "backend": "https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec",
-      "portalOrigin": "https://82venture.vercel.app",
-      "portalRoles": ["exec_committee", "branch_leader", "group_leader"]
+      "backend": "https://script.google.com/macros/s/AKfycbxqQ3JnEdSRnxlhoSEasa6-wX5F58p3dMqBiQRj1zg-SDn7YtFLBKykN5LiWcadgRdCBg/exec"
     }
   }
 }

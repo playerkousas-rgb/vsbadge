@@ -96,10 +96,11 @@ Vercel /api/proxy（api/proxy.js）
 |---|---|---|
 | `TROOP_{ID}_BACKEND` | 如旅團不在 troops.json | 旅團 GAS /exec URL（env 優先於 troops.json） |
 | `TROOP_{ID}_APIKEY` | 可選 | 旅團 API Key；Proxy 伺服器端注入（防爬蟲第一層 + apikey 模式寫入） |
-| `TROOP_{ID}_PORTALORIGIN` | 軌道 B 必填（或用全域預設） | 允許帶身份進入嘅主系統網址（origin）。冇設 = 唔開放 portal；env 優先於 `troops.json` |
-| `TROOP_{ID}_PORTALROLES` | 可選 | 主系統可帶入嘅角色白名單（逗號分隔，預設 `exec_committee`） |
-| `PORTAL_DEFAULT_ORIGIN` | 可選 | **全域預設**主系統網址：所有旅團共用同一個 hub 時設一個就夠（改地址只改一處）。個別旅團設定永遠優先。未設 = 各旅團各自決定（fail closed） |
-| `PORTAL_DEFAULT_ROLES` | 可選 | **全域預設**角色白名單（逗號分隔），只喺旅團冇自己設定時生效 |
+| `PORTAL_DEFAULT_ORIGIN` | 軌道 B 必填 | **全域**主系統網址（origin）：所有旅團共用同一個 hub frontend，設一條就全部生效；改地址只改一處。冇設 = 全部旅團唔開放 portal（fail closed） |
+| `PORTAL_DEFAULT_ROLES` | 可選 | **全域**角色白名單（逗號分隔），只喺旅團冇自己設定時生效（最終後備 `exec_committee`） |
+| `TROOP_{ID}_PORTALORIGIN` | 可選（例外才用） | 個別旅團用第二個 hub，**覆寫**全域預設 |
+| `TROOP_{ID}_PORTALROLES` | 可選（例外才用） | 個別旅團嘅角色白名單，**覆寫**全域預設 |
+| `TROOP_{ID}_PORTALDISABLED` | 可選（例外才用） | 設 `1` = 即使有全域預設，呢個旅團都**唔開放** portal |
 | `SCOUT_ADMIN_API` | 可選 | 新旅團接入申請的中央收件匣 GAS URL（預設內建值） |
 | `VSBADGE_PROXY_TIMEOUT_MS` | 可選 | 上游逾時（預設 45000，範圍 1000–55000） |
 

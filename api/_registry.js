@@ -23,6 +23,16 @@ export function normalizeOrigin(v){
   }catch(e){ return ''; }
 }
 
+// TROOP_{ID}_PORTALDISABLED 開關判定：設咗呢個變數就當「停用」，
+// 除非明確寫 0 / false / no / off（方便管理員臨時開返）。
+function isDisabledFlag(v){
+  if(v===true) return true;
+  if(typeof v!=='string') return false;
+  const s=v.trim().toLowerCase();
+  if(!s) return false;
+  return !['0','false','no','off'].includes(s);
+}
+
 // 把 "a, b ,c" / ["a","b"] 轉成乾淨的字串陣列
 function parseRoleList(v){
   if(Array.isArray(v)) return v.map(x=>String(x||'').trim()).filter(Boolean);
@@ -75,7 +85,7 @@ export function getRegistry() {
   const fileTroops = readFileTroops();
   const idsFromEnv = new Set();
   for (const k of Object.keys(process.env)) {
-    const m = k.match(/^TROOP_([0-9A-Za-z]+)_(BACKEND|APIKEY|PORTALORIGIN|PORTALROLES)$/i);
+    const m = k.match(/^TROOP_([0-9A-Za-z]+)_(BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED)$/i);
     if (m) idsFromEnv.add(m[1]);
   }
 
@@ -116,6 +126,10 @@ export function getRegistry() {
       fileEntry.portalRoles || ''
     );
     const portalRoles = ownRoles.length ? ownRoles : defaultPortalRoles;
+    // 個別旅團可以明確閂門（即使設咗全域預設都唔開放 portal）
+    const portalDisabled =
+      isDisabledFlag(envVar(`TROOP_${id}_PORTALDISABLED`, `TROOP_${idUpper}_PORTALDISABLED`, `TROOP_${idNoZero}_PORTALDISABLED`)) ||
+      fileEntry.portalEnabled === false;
     out[id] = {
       id,
       name,
@@ -124,7 +138,8 @@ export function getRegistry() {
       apikey,
       backendTrusted: isTrustedExecUrl(backend),
       portalOrigin,
-      portalRoles
+      portalRoles,
+      portalEnabled: !portalDisabled
     };
   }
   return out;
@@ -143,7 +158,8 @@ export function getTrustedTroop(id) {
     backend: t.backend.trim(),
     apikey: (t.apikey || '').trim(),
     portalOrigin: t.portalOrigin || '',
-    portalRoles: t.portalRoles || []
+    portalRoles: t.portalRoles || [],
+    portalEnabled: t.portalEnabled !== false
   };
 }
 

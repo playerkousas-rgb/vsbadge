@@ -133,25 +133,23 @@
 
 v3.1 起 Portal 免登入**必須**由 vsbadge 伺服器驗證來源，唔再淨係信 URL 參數
 （舊版任何人砌 `?u=0082&from=portal&role=super_admin&ymis=x` 即可取得超管身份，已被修補）。
-請把以下兩項交給 vsbadge 管理員，加到 `data/troops.json`（或用 Vercel env 覆寫）：
 
-| 欄位 | 例子 | 說明 |
-|---|---|---|
-| `portalOrigin` | `"https://82venture.vercel.app"` | 只接受由這個網址（origin）帶人入來。冇設 = 唔開放 portal |
-| `portalRoles` | `["exec_committee","branch_leader","group_leader"]` | 主系統可以帶入嘅角色白名單。冇設 = 只接受 `exec_committee` |
+**你要做嘅好簡單**：把你個主系統（82venture）嘅網址話俾 vsbadge 管理員知就得。
+管理員會喺 Vercel 設一條全域 env，**所有旅團一齊生效**：
 
-env 寫法（優先於 `troops.json`，唔使改 code / redeploy git）：
-`TROOP_0082_PORTALORIGIN` = `https://82venture.vercel.app`
-`TROOP_0082_PORTALROLES` = `exec_committee,branch_leader,group_leader`
+```
+PORTAL_DEFAULT_ORIGIN = https://82venture.vercel.app
+PORTAL_DEFAULT_ROLES  = exec_committee,branch_leader,group_leader
+```
 
-> 主系統嘅 development / preview 網址（例如 `*.vercel.app` 的 preview 分支）origin 唔同，
-> 要逐個登記，或者乾脆用正式網址測試。
+- 你唔使喺 `troops.json` 加任何嘢，旅團只要照常登記 `u` + `backend`（+ `apikey`）就得
+- 第時改主系統地址：管理員改一條 env → redeploy 即生效
+- 冇設呢條 env（出廠狀態）= 全部旅團都唔開放 portal（fail closed）
+- ⚠️ 係 **origin**（`https://82venture.vercel.app`，唔包 path）；preview／本機網址係唔同
+  origin，要另外講
 
-**所有旅團都用同一個主系統？** 管理員可以唔使逐個旅團填，改為只設兩個 Vercel env：
-`PORTAL_DEFAULT_ORIGIN` = `https://82venture.vercel.app`、
-`PORTAL_DEFAULT_ROLES` = `exec_committee,branch_leader,group_leader`。
-（優先次序：`TROOP_{ID}_*` env → `troops.json` → 全域 `PORTAL_DEFAULT_*`；
-未設全域預設時，冇 `portalOrigin` 嘅旅團仍然係唔開放 portal。）
+> 個別旅團要用第二個主系統、或者想閂門，管理員可以喺嗰個旅團加
+> `TROOP_{ID}_PORTALORIGIN` / `TROOP_{ID}_PORTALDISABLED=1` 覆寫，正常唔需要。
 
 ### 第 7 步 (僅軌道 B)：主系統自動帶入身份
 
