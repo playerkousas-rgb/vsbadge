@@ -67,6 +67,7 @@ const control = async (m, c) => (await fetch(m.url.replace('/exec', '/__control'
 console.log('\n【2】起本機 app server，掛載真實 api/proxy.js + api/troops.js');
 const { default: proxyHandler } = await import('../api/proxy.js');
 const { default: troopsHandler } = await import('../api/troops.js');
+const { default: portalHandler } = await import('../api/portal.js');
 const { isTrustedExecUrl } = await import('../api/_registry.js');
 
 function vercelize(res) {
@@ -80,6 +81,7 @@ const appServer = http.createServer((req, res) => {
   const u = new URL(req.url, APP_BASE);
   if (u.pathname === '/api/proxy') return proxyHandler(req, vercelize(res));
   if (u.pathname === '/api/troops') return troopsHandler(req, vercelize(res));
+  if (u.pathname === '/api/portal') return portalHandler(req, vercelize(res));
   if (u.pathname === '/__hang') return; // 永不回應（前端逾時測試）
   let p = u.pathname === '/' ? '/index.html' : decodeURIComponent(u.pathname);
   const fp = path.join(ROOT, p);
@@ -569,7 +571,8 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   check('無具體 GAS 部署 URL 硬編碼', !/script\.google\.com\/macros\/s\/AKfyc/.test(jsOnly));
   check('無 .catch(()=>{}) 靜默錯誤', !/\.catch\(\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/.test(jsOnly));
   const fetches = [...jsOnly.matchAll(/fetch\(([^,)]*)/g)].map(m => m[1].trim());
-  const badFetch = fetches.filter(f => !/^['"]?(API_ENDPOINT|'\/api\/troops|'data\/)/.test(f) && !/^'data\//.test(f));
+  const ALLOWED_FETCH = /^(API_ENDPOINT|['"]?\/?api\/(troops|portal)|'data\/)/;
+  const badFetch = fetches.filter(f => !ALLOWED_FETCH.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
   const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','deleteUser','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
@@ -577,6 +580,125 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   check(need.length+' 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
   check('活動履歷 tab 已註冊', html.includes("id=\"tab-logs\"") && html.includes('renderLogsTab'));
   check('舊後端升級提示存在', html.includes('v8.1') && html.includes('logRecordsSupported'));
+}
+
+// ================== 15. Portal（主系統免登入）伺服器端驗證 ==================
+console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補「淨係信 URL 參數」漏洞');
+{
+  const HUB = 'http://127.0.0.1:3955';   // 模擬已登記主系統（82venture）origin
+  const OTHER = 'http://evil.example.com';
+  const REGISTERED_IN_JSON = 'https://82venture.vercel.app'; // data/troops.json 內登記的 portalOrigin
+  // getRegistry() 每次都讀 process.env，測試期間設定即可生效
+  process.env.TROOP_0082_PORTALORIGIN = HUB;
+  delete process.env.TROOP_0082_PORTALROLES;   // 用 data/troops.json 的 portalRoles
+
+  const portal = async (qs, headers = {}) => {
+    const r = await fetch(`${APP_BASE}/api/portal?${qs}`, { headers });
+    let json = null;
+    try { json = await r.json(); } catch (e) { /* non-json */ }
+    return { status: r.status, json, headers: r.headers };
+  };
+  const fromHub = { Referer: HUB + '/dashboard' }; // 瀏覽器只送 origin，取 origin 後應等於 HUB
+
+  check('測試環境為嚴格模式（未開 VSBADGE_PORTAL_TEST）', !(process.env.VSBADGE_PORTAL_TEST === '1' && process.env.VERCEL !== '1'));
+
+  // 1. 由已登記主系統帶入允許角色（Referer + src 皆正確）→ 免登入
+  let r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('已登記主系統 + 白名單角色 → ok:true（免登入，有勾選權）',
+    r.status === 200 && r.json?.ok === true && r.json?.role === 'exec_committee' && r.json?.troop === '0082');
+
+  // 2. 只靠 Referer（主系統冇送 src）
+  r = await portal('u=0082&role=group_leader', fromHub);
+  check('只靠 Referer（冇 src）→ ok:true', r.status === 200 && r.json?.ok === true);
+
+  // 3. 只靠 src（新視窗開啟冇 Referer）
+  r = await portal(`u=0082&role=branch_leader&src=${encodeURIComponent(HUB)}`);
+  check('只靠 src（冇 Referer）→ ok:true', r.status === 200 && r.json?.ok === true);
+
+  // 4. ❌ 舊漏洞重現：直接砌 role=super_admin（唔喺 portalRoles 白名單）
+  r = await portal(`u=0082&role=super_admin&ymis=x&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('❌漏洞：role=super_admin（唔喺白名單）→ 拒絕 role_not_allowed',
+    r.status === 403 && r.json?.ok === false && r.json?.reason === 'role_not_allowed');
+  r = await portal('u=0082&role=super_admin&ymis=x', { Referer: OTHER + '/x' });
+  check('❌漏洞：隨便砌 URL 亦攞唔到 super_admin', r.json?.ok === false);
+
+  // 5. 未登記來源
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(OTHER)}`, { Referer: OTHER + '/' });
+  check('未登記來源 → 拒絕，並回傳 expected（正確來源）',
+    r.status === 403 && r.json?.ok === false &&
+    ['origin_not_allowed', 'referer_mismatch'].includes(r.json?.reason) && r.json?.expected === HUB);
+
+  // 6. curl 直接打（冇 Referer、src 亂填）
+  r = await portal('u=0082&role=exec_committee&src=http://attacker.example');
+  check('curl 直打（冇 Referer、src 亂填）→ 拒絕 origin_not_allowed',
+    r.json?.ok === false && r.json?.reason === 'origin_not_allowed');
+  r = await portal('u=0082&role=exec_committee');
+  check('完全冇 Referer / src → 拒絕 no_origin', r.json?.ok === false && r.json?.reason === 'no_origin');
+
+  // 7. 未登記旅團
+  r = await portal(`u=9999&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('未登記旅團 → 拒絕 unknown_troop（HTTP 404）',
+    r.status === 404 && r.json?.reason === 'unknown_troop');
+
+  // 8. 未開放 portal 嘅旅團（1001 冇 portalOrigin）→ fail closed
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('未開放 portal 嘅旅團 → 拒絕 troop_not_portal_enabled（fail closed）',
+    r.status === 403 && r.json?.reason === 'troop_not_portal_enabled');
+
+  // 9. 非 GET
+  {
+    const pr = await fetch(`${APP_BASE}/api/portal?u=0082&role=exec_committee`, { method: 'POST', headers: fromHub });
+    check('非 GET → 405', pr.status === 405);
+  }
+
+  // 10. env 覆寫 portalRoles
+  process.env.TROOP_0082_PORTALROLES = 'group_leader';
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('TROOP_0082_PORTALROLES env 覆寫生效 → exec_committee 被拒',
+    r.json?.ok === false && r.json?.reason === 'role_not_allowed' && Array.isArray(r.json?.allowed));
+  r = await portal(`u=0082&role=group_leader&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('env 白名單內嘅 group_leader → 通過', r.json?.ok === true);
+  delete process.env.TROOP_0082_PORTALROLES;
+
+  // 11. troops.json 內登記嘅 portalOrigin（唔靠 env）都有效；之後移除 env 即時 fail closed
+  delete process.env.TROOP_0082_PORTALORIGIN;
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { Referer: REGISTERED_IN_JSON + '/dash' });
+  check('data/troops.json 登記嘅 portalOrigin 生效', r.status === 200 && r.json?.ok === true);
+  r = await portal('u=0082&role=exec_committee', fromHub);
+  check('冇喺 troops.json 登記嘅來源 → 即時拒絕（fail closed）', r.json?.ok === false);
+
+  // 12. 唔洩漏設定 + 同源限定
+  {
+    const tj = await (await fetch(`${APP_BASE}/api/troops`)).json();
+    const raw = JSON.stringify(tj);
+    check('/api/troops 唔洩漏 portalOrigin / portalRoles',
+      !raw.includes('portalOrigin') && !raw.includes('portalRoles') &&
+      !raw.includes(REGISTERED_IN_JSON) && !raw.includes('exec_committee'));
+    const pr = await fetch(`${APP_BASE}/api/portal?u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { headers: { Referer: REGISTERED_IN_JSON + '/dash' } });
+    check('回應唔帶 Access-Control-Allow-Origin（同源限定）', !pr.headers.get('access-control-allow-origin'));
+    check('回應帶 Cache-Control: no-store', /no-store/.test(pr.headers.get('cache-control') || ''));
+  }
+
+  // 13. 前端靜態：portal 分支一定要先問伺服器，唔可以淨係睇 URL 參數
+  {
+    const s0 = html.indexOf('async function handlePortalParams(');
+    const s1 = html.indexOf('\nfunction ', s0 + 10);
+    const src = html.slice(s0, s1 > 0 ? s1 : s0 + 6000);
+    const iVerify = src.indexOf('/api/portal?');
+    const iGrant = src.indexOf('isPortal: true');
+    check('handlePortalParams 會呼叫 /api/portal 做伺服器驗證', iVerify > 0);
+    check('次序正確：先問伺服器，先至設定 currentUser（未驗唔俾權）', iVerify > 0 && iGrant > iVerify);
+    check('失敗時呼叫 showPortalError（明確顯示原因，唔係無聲跌落登入頁）', src.includes('showPortalError('));
+    check('portal 分支唔再要求 ymis（ymis 可省略）', !/from==='portal'\s*&&\s*ymis\s*&&\s*role/.test(html));
+    check('ymis 缺省時自動用 PORTAL-<u>-<role>', /PORTAL-\$\{u\}-\$/.test(html));
+    // 每個 reason 都要有中英文訊息
+    const dict = new Function('return ' + dictLiteral)();
+    const reasons = ['unknown_troop', 'troop_not_portal_enabled', 'referer_mismatch', 'origin_not_allowed', 'role_not_allowed', 'no_origin', 'no_response'];
+    const missingZh = reasons.filter(k => !dict.zh['portal.err.' + k]);
+    const missingEn = reasons.filter(k => !dict.en['portal.err.' + k]);
+    check('7 個拒絕原因都有中文訊息', missingZh.length === 0, missingZh.join(','));
+    check('7 個拒絕原因都有英文訊息', missingEn.length === 0, missingEn.join(','));
+  }
 }
 
 // ---- 清理 ----

@@ -42,6 +42,7 @@
 軌道 B：有主系統並想接上 (進階)
   → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json / env Registry)
   → v3.0 起：主系統卡片只需帶 u=旅團編號，**不需要**再填/傳 backend + apikey
+  → **v3.1 起（必須）**：管理員要為旅團登記 portalOrigin = 主系統網址，並設定 portalRoles（可帶入的角色）
   → 用法：主系統 Dashboard 點「深資童軍進度追蹤」卡片 → 自動帶入身份 (from=portal&embed=1) → 直接用
   → 優點：單一登入、自動帶身份、介面嵌入、成員唔使記多個密碼
   → 注意：領袖經 Portal 免登入**寫入**時，旅團 API Key 必須已登記在 vsbadge Registry（troops.json 的 apikey 或 TROOP_{ID}_APIKEY env），由伺服器端注入
@@ -128,21 +129,52 @@
 
 主系統卡片設定只需保證點卡時 URL 帶有你的旅團編號 `u` 參數即可。
 
+### 第 6.5 步 (僅軌道 B)：告訴 vsbadge 管理員你的主系統網址（v3.1 必須）
+
+v3.1 起 Portal 免登入**必須**由 vsbadge 伺服器驗證來源，唔再淨係信 URL 參數
+（舊版任何人砌 `?u=0082&from=portal&role=super_admin&ymis=x` 即可取得超管身份，已被修補）。
+請把以下兩項交給 vsbadge 管理員，加到 `data/troops.json`（或用 Vercel env 覆寫）：
+
+| 欄位 | 例子 | 說明 |
+|---|---|---|
+| `portalOrigin` | `"https://82venture.vercel.app"` | 只接受由這個網址（origin）帶人入來。冇設 = 唔開放 portal |
+| `portalRoles` | `["exec_committee","branch_leader","group_leader"]` | 主系統可以帶入嘅角色白名單。冇設 = 只接受 `exec_committee` |
+
+env 寫法（優先於 `troops.json`，唔使改 code / redeploy git）：
+`TROOP_0082_PORTALORIGIN` = `https://82venture.vercel.app`
+`TROOP_0082_PORTALROLES` = `exec_committee,branch_leader,group_leader`
+
+> 主系統嘅 development / preview 網址（例如 `*.vercel.app` 的 preview 分支）origin 唔同，
+> 要逐個登記，或者乾脆用正式網址測試。
+
 ### 第 7 步 (僅軌道 B)：主系統自動帶入身份
 
 之後成員/領袖在主系統 Dashboard 點「深資童軍進度追蹤」卡片，URL 會自動變成：
 
 ```
-https://vsbadge.vercel.app/?u=0082&role=leader&ymis=1234567890&name=陳大文&from=portal&embed=1
+https://vsbadge.vercel.app/?u=0082&role=exec_committee&ymis=PORTAL-0082-EXCO&name=執行委員會&from=portal&src=https://82venture.vercel.app&ts=1789449435427&embed=1
 ```
 
 - `u` 旅團編號（vsbadge 用它從伺服器端 Registry 查找你旅團的 GAS，前端接觸不到 URL）
-- `role` / `ymis` / `name` 自動帶入，無需再登入
+- `role` / `name` 自動帶入，無需再登入；**`ymis` 已變成可省略**（冇帶會自動用 `PORTAL-<u>-<role>`）
+- `src` 主系統自己的 origin（由主系統送出；非瀏覽器 client 亦可偽造，所以伺服器仲會核對瀏覽器嘅 Referer）
+- `ts` 毫秒時間戳（現時只作紀錄／除錯用，未設有效期）
 - `from=portal` 標記主系統信任模式，免密碼
 - `embed=1` 精簡介面，隱藏大Header，適合 iframe 600-750px 高
 - （舊連結附带的 `backend` / `apikey` 參數會被安全忽略）
 
 **結果**：點卡片即入，身份已帶入，進度、批量、審批、表格功能完全一致。
+
+**如果入唔到**：v3.1 起畫面會明確講邊一關過唔到（唔會再無聲跌落登入頁）：
+
+| 顯示原因 | 意思 | 點解決 |
+|---|---|---|
+| `referer_mismatch` | 唔係由已登記嘅主系統網址進入 | 由主系統卡片／連結開啟，唔好直接貼網址 |
+| `origin_not_allowed` | `src` 參數唔係已登記主系統 | 主系統要送正確 `src`；管理員檢查 `portalOrigin` |
+| `role_not_allowed` | 呢個旅團未開放呢個角色 | 管理員把角色加入 `portalRoles` |
+| `troop_not_portal_enabled` | 旅團未登記 `portalOrigin` | 管理員補登記 |
+| `unknown_troop` | 旅團未登記或後端 URL 無效 | 管理員檢查 Registry |
+| `no_origin` | 冇 Referer 又冇 `src`（例如 curl 直接打） | 由主系統卡片開啟 |
 
 ---
 
