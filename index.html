@@ -393,14 +393,14 @@ a:hover{text-decoration:underline}
         <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>重點：有主系統 ≠ 一定要接上本系統</b>，可自由選擇獨立用或接上，兩條路並存不衝突。藉此告訴用家有更大平台可用。</p>
       </div>
 
-      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&embed=1 → 直接用</p></div>
+      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ <b>v3.1 起必須由管理員登記 portalOrigin（主系統網址）+ portalRoles（可帶入角色）</b>，Portal 免登入改由 vsbadge 伺服器驗證來源 → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&src=主系統網址&embed=1 → 直接用（ymis 已可省略）</p></div>
 
       <div class="tutorial">
         <div class="steps">
           <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 troops.json，Vercel自動部署後獨立可用</p></div></div>
-          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 主系統卡片只需帶旅團編號</h4><p>v3.0 起採用同源 Proxy：主系統卡片點擊時 URL 只需帶 ?u=0082&role=&ymis=&from=portal&embed=1，無需密碼；旅團 GAS URL 由 vsbadge 伺服器端 Registry 安全解析，不經瀏覽器</p></div></div>
+          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 主系統卡片只需帶旅團編號</h4><p>v3.0 起採用同源 Proxy：主系統卡片點擊時 URL 只需帶 ?u=0082&role=&from=portal&src=主系統網址&embed=1，無需密碼；旅團 GAS URL 由 vsbadge 伺服器端 Registry 安全解析，不經瀏覽器。<b>v3.1 起 Portal 免登入必須經 /api/portal 驗證來源（portalOrigin）及角色白名單（portalRoles）</b>，唔再淨係信 URL 參數；ymis 已可省略（自動用 PORTAL-&lt;u&gt;-&lt;role&gt;）</p></div></div>
           <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>有主系統不等於一定要接，可自由選擇獨立用。若旅團重私隱，成員預設只看自己；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
         </div>
       </div>
@@ -1009,6 +1009,18 @@ zh:{
   'portal.unregP':'請聯絡 vsbadge 管理員將此旅團（編號 {id}）加入 troops.json，然後重新整理。',
   'portal.preset':'Portal預選','portal.fallbackErr':'載入出錯，已顯示後備 0082：{m}','portal.warnIgnored':'已忽略 URL 中的 backend/apikey 參數',
   'portal.tryDemo':'👀 試用 MOCK 效果','portal.backHome':'← 返回首頁',
+  'portal.errTitle':'🚫 未能以主系統身份進入',
+  'portal.errLead':'為保障旅團資料，Portal 免登入身份必須由伺服器核實來源及角色。以下原因導致未能進入：',
+  'portal.err.unknown_troop':'旅團 {id} 尚未在 vsbadge 登記，或後端設定無效。請聯絡 vsbadge 管理員將此旅團加入 Registry。',
+  'portal.err.troop_not_portal_enabled':'旅團 {id} 尚未開放主系統接入（未登記 portalOrigin）。請聯絡 vsbadge 管理員為此旅團登記主系統網址。',
+  'portal.err.referer_mismatch':'呢個旅團只接受由 <b>{origin}</b> 進入。請由主系統的卡片／連結開啟，唔好直接貼上或分享呢條網址。',
+  'portal.err.origin_not_allowed':'連結的來源網址未獲授權。呢個旅團只接受由 <b>{origin}</b> 帶入身份。',
+  'portal.err.role_not_allowed':'呢個旅團未開放 <b>{role}</b> 身份經主系統接入。已開放身份：{allowed}。',
+  'portal.err.no_origin':'未能確認來源網址（缺少 Referer 及 src 參數）。請由主系統的卡片／連結開啟。',
+  'portal.err.no_response':'未能連接 vsbadge 驗證服務（/api/portal）。請檢查網絡後重試，或聯絡管理員。',
+  'portal.err.method_not_allowed':'驗證請求格式不正確（method_not_allowed）。',
+  'portal.errCode':'錯誤代碼：<code>{code}</code>',
+  'portal.retry':'🔄 重試',
   'contact.namePh':'第 82 旅',
   'apply.fail':'提交失敗',
   'overview.noItems':'無項目',
@@ -1290,6 +1302,18 @@ en:{
   'portal.unregP':'Please ask a vsbadge admin to add this Group (no. {id}) to troops.json, then refresh.',
   'portal.preset':'pre-selected','portal.fallbackErr':'Could not load Groups — showing the 0082 fallback: {m}','portal.warnIgnored':'backend/apikey parameters in the URL were ignored',
   'portal.tryDemo':'👀 Try MOCK demo','portal.backHome':'← Home',
+  'portal.errTitle':'🚫 Could not sign you in from the main platform',
+  'portal.errLead':'To protect Group data, portal sign-in must be verified by the server (source and role). It failed because:',
+  'portal.err.unknown_troop':'Group {id} is not registered in vsbadge, or its backend setup is invalid. Ask a vsbadge admin to add this Group to the Registry.',
+  'portal.err.troop_not_portal_enabled':'Group {id} has not enabled main-platform access yet (no portalOrigin registered). Ask a vsbadge admin to register the main platform URL for this Group.',
+  'portal.err.referer_mismatch':'This Group only accepts entry from <b>{origin}</b>. Open it from the card/link on the main platform instead of pasting the URL directly.',
+  'portal.err.origin_not_allowed':'The source of this link is not authorised. This Group only accepts identities from <b>{origin}</b>.',
+  'portal.err.role_not_allowed':'This Group does not allow the <b>{role}</b> role from the main platform. Allowed roles: {allowed}.',
+  'portal.err.no_origin':'Could not confirm the source (no Referer and no src parameter). Please open it from the card/link on the main platform.',
+  'portal.err.no_response':'Could not reach the vsbadge verification service (/api/portal). Check your connection and retry, or contact an admin.',
+  'portal.err.method_not_allowed':'The verification request was malformed (method_not_allowed).',
+  'portal.errCode':'Error code: <code>{code}</code>',
+  'portal.retry':'🔄 Retry',
   'contact.namePh':'82nd Group',
   'apply.fail':'Submit failed',
   'overview.noItems':'No items',
@@ -1568,12 +1592,12 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
   </ul>
   <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>Having the main platform ≠ you must connect this system.</b> Use it standalone or connected; both paths work.</p>
 </div>
-<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to troops.json → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). Use: Dashboard → card → from=portal&embed=1.</p></div>
+<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to troops.json → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). <b>From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles)</b> — portal sign-in is then verified server-side. Use: Dashboard → card → from=portal&src=main-platform-origin&embed=1 (ymis is now optional).</p></div>
 <div class="tutorial"><div class="steps">
   <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (single file)</h4><p>Pending claims, other badges, bulk, PNG, privacy switch</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy API Key<br><b>2.4</b> Deploy as web app (execute as me, access anyone), copy the /exec URL</p></div></div>
   <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Path A: no main platform — submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add troops.json. After Vercel deploys, use it standalone.</p></div></div>
-  <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Path B: main platform card only needs the Group number</h4><p>From v3.0, same-origin proxy: the card URL is ?u=0082&role=&ymis=&from=portal&embed=1. The GAS URL stays in the vsbadge server Registry.</p></div></div>
+  <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Path B: main platform card only needs the Group number</h4><p>From v3.0, same-origin proxy: the card URL is ?u=0082&role=&from=portal&src=main-platform-origin&embed=1. The GAS URL stays in the vsbadge server Registry. <b>From v3.1 portal sign-in must be verified by /api/portal (source origin portalOrigin + role allow-list portalRoles)</b> instead of trusting URL parameters; ymis is now optional (falls back to PORTAL-&lt;u&gt;-&lt;role&gt;).</p></div></div>
   <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Privacy</h4><p>You may stay standalone. Members see only themselves by default. To encourage one another, the GSL can turn on “Allow members to view one another’s progress” under Users → settings.</p></div></div>
 </div></div>
 <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 After that</h3><p style="font-size:11px">Standalone: send to a vsbadge admin<br>Connect the main platform: the same Registry registration (the card only sends u)<br>Both paths can run together</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 One-click connection request to a vsbadge admin</button></div>`,
@@ -1782,13 +1806,34 @@ async function handlePortalParams(){
     }
   }
 
-  // 若由 Portal 帶入身份，直接免登入進入
-  if(from==='portal' && ymis && role){
+  // 若由 Portal 帶入身份：v3.1 起必須先經伺服器驗證，唔可以再淨係信 URL 參數。
+  // （舊版漏洞：任何人砌 ?u=0082&from=portal&role=super_admin&ymis=x 即可取得超管身份）
+  // 伺服器會核實：旅團是否已登記 → 有冇開放 portal → 來源網址（Referer/src）→ 角色白名單。
+  if(from==='portal' && role){
+    let v={ ok:false, reason:'no_response' };
+    try{
+      const qs=new URLSearchParams({ u:u||'', role:role||'', src:params.get('src')||'' });
+      const rp=await fetch('/api/portal?'+qs.toString(),{ headers:{ 'Accept':'application/json' } });
+      const txt=await rp.text();
+      try{ v=JSON.parse(txt); }catch(e){ v={ ok:false, reason:'no_response' }; }
+      if(!v || typeof v!=='object') v={ ok:false, reason:'no_response' };
+    }catch(e){
+      console.warn('portal verify failed',e);
+      v={ ok:false, reason:'no_response' };
+    }
+    if(!v.ok){
+      // 唔好靜靜地跌返登入頁 —— 要明確話俾用戶知邊一關過唔到（之前連通失敗睇唔出原因嘅根源）
+      console.warn('portal verification rejected:', v.reason);
+      showPortalError(v.reason||'no_response', { troopId:u, role:role, expected:v.expected, allowed:v.allowed, src:params.get('src')||'' });
+      return;
+    }
+    // v.ok：伺服器已確認來源 + 角色。ymis 屬可省略參數（主系統自己派身份，旅團零設定）
+    try{ hidePortalError(); }catch(e){}
     currentUser={
-      ymis: ymis,
+      ymis: ymis || `PORTAL-${u}-${(v.role||role)}`,
       name: nameParam,
-      role: role,
-      can_tick: ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(role),
+      role: v.role||role,
+      can_tick: ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(v.role||role),
       allowed_badges: '*',
       email: params.get('email')||'',
       isPortal: true
@@ -1834,6 +1879,57 @@ async function handlePortalParams(){
   // 預設獨立使用
   loadTroops();
   checkSavedSession();
+}
+
+/* ================== Portal 驗證失敗（v3.1） ================== */
+// 由主系統帶身份進入時，若伺服器拒絕，必須明確顯示原因（邊一關過唔到），
+// 唔好靜靜跌返登入頁 —— 之前連通失敗睇唔出原因就係因為次次都無聲跌落登入頁。
+function hidePortalError(){
+  const el=document.getElementById('portalErrorPage');
+  if(el) el.style.display='none';
+}
+function goHomeFromPortalError(){
+  try{ hidePortalError(); }catch(e){}
+  try{ location.href=location.pathname; }catch(e){ location.reload(); }
+}
+function showPortalError(reason, info){
+  info=info||{};
+  const code=String(reason||'no_response');
+  const allowed=Array.isArray(info.allowed)?info.allowed:[];
+  const vars={
+    id: escapeHtmlText(info.troopId||currentTroopId||'-'),
+    origin: escapeHtmlText(info.expected||'—'),
+    role: escapeHtmlText(info.role||'—'),
+    allowed: escapeHtmlText(allowed.length?allowed.join(' / '):'—'),
+    src: escapeHtmlText(info.src||'—')
+  };
+  // i18n() 找不到 key 會原樣回傳 key → 後備做 no_response
+  let msg=i18n('portal.err.'+code, vars);
+  if(msg===('portal.err.'+code)) msg=i18n('portal.err.no_response', vars);
+
+  ['homePage','loginPage','mainApp'].forEach(id=>{
+    const p=document.getElementById(id); if(p) p.style.display='none';
+  });
+  let el=document.getElementById('portalErrorPage');
+  if(!el){
+    el=document.createElement('div');
+    el.id='portalErrorPage';
+    document.body.appendChild(el);
+  }
+  el.style.display='block';
+  el.innerHTML=`
+  <div class="container" style="max-width:640px;padding-top:32px">
+    <div class="login-container">
+      <h2>${i18n('portal.errTitle')}</h2>
+      <p style="font-size:12px;color:var(--text-light);margin-bottom:12px">${i18n('portal.errLead')}</p>
+      <div class="troop-info-box" style="background:#FFF3F3;border-color:var(--red);color:var(--text);text-align:left;line-height:1.7">${msg}</div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:10px;text-align:left">${i18n('portal.errCode',{code:escapeHtmlText(code)})}</div>
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1;min-width:140px" onclick="location.reload()">${i18n('portal.retry')}</button>
+        <button class="btn btn-secondary" style="flex:1;min-width:140px" onclick="goHomeFromPortalError()">${i18n('portal.backHome')}</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ================== Welcome ================== */

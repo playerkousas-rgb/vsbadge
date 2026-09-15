@@ -13,6 +13,7 @@ const PORT = parseInt(process.argv[2] || process.env.PORT || '3000', 10);
 
 const { default: proxyHandler } = await import('../api/proxy.js');
 const { default: troopsHandler } = await import('../api/troops.js');
+const { default: portalHandler } = await import('../api/portal.js');
 
 function vercelize(res) {
   res.status = (code) => { res.statusCode = code; return res; };
@@ -25,6 +26,7 @@ const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://local');
   if (u.pathname === '/api/proxy' || u.pathname === '/api/proxy.js') return proxyHandler(req, vercelize(res));
   if (u.pathname === '/api/troops' || u.pathname === '/api/troops.js') return troopsHandler(req, vercelize(res));
+  if (u.pathname === '/api/portal' || u.pathname === '/api/portal.js') return portalHandler(req, vercelize(res));
   let p = u.pathname === '/' ? '/index.html' : decodeURIComponent(u.pathname);
   const fp = path.join(ROOT, p);
   if (!fp.startsWith(ROOT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) {

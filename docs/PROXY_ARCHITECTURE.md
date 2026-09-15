@@ -51,11 +51,39 @@ Vercel /api/proxy（api/proxy.js）
 ## Portal / 主系統整合變更
 
 - **v3.0 起 URL 參數 `backend` / `apikey` 一律被忽略**（防止任意後端注入）
-- 主系統卡片只需帶 `u=<troopId>`（及選用的 `from=portal&role&ymis&embed=1` 等身份參數）
+- 主系統卡片只需帶 `u=<troopId>`（及選用的 `from=portal&role&ymis&src&ts&embed=1` 等身份參數）
 - 旅團必須先在 vsbadge Registry 登記（提交 URL+Key 給 vsbadge 管理員的流程不變）
 - 領袖經 Portal 進入後若要**寫入**，旅團的 API Key 須登記在 Registry
   （`troops.json` 的 `apikey` 欄位或 `TROOP_{ID}_APIKEY` env），由 Proxy 伺服器端注入。
   帳號密碼登入軌道（軌道 A）不需要 API Key。
+
+### v3.1：Portal 免登入改由伺服器驗證（安全修補）
+
+**舊版漏洞**：`index.html` 的 `handlePortalParams()` 只信 URL 參數，
+任何人砌 `?u=0082&from=portal&role=super_admin&ymis=x` 即可取得超管身份
+（`can_tick:true`、`allowed_badges:'*'`、用戶管理／審批中心），唔使密碼、唔使來自指定網站。
+
+**v3.1 做法**：前端取得身份前必須先問同源 `GET /api/portal`，由伺服器四關把守：
+
+| 關卡 | 拒絕 reason | HTTP |
+|---|---|---|
+| 旅團在 Registry 登記且 backend 可信 | `unknown_troop` | 404 |
+| 旅團有設 `portalOrigin`（冇設 = 唔開放） | `troop_not_portal_enabled` | 403 |
+| 瀏覽器 Referer/Origin **或** `src` 參數對得上 `portalOrigin` | `referer_mismatch` / `origin_not_allowed` / `no_origin` | 403 |
+| 角色在旅團 `portalRoles` 白名單內（且屬系統可勾選角色） | `role_not_allowed` | 403 |
+
+- `Referer`/`Origin` 由瀏覽器強制、前端 JS 改唔到；`src` 可以由非瀏覽器 client 偽造，
+  所以**兩個只要有就一定要對**，兩個都冇就當 `no_origin`（例如 curl 直接打）
+- **唔加 CORS header**：只畀同源前端用，跨站讀唔到結果（同 `/api/proxy` 一樣）
+- 回應 `Cache-Control: no-store`；log 只記 troopId / role / result
+- `ymis` 變成**可省略**：冇帶就用 `PORTAL-<u>-<role>`（主系統自己派身份 → 旅團零設定接入）。
+  身份核對靠 `portalOrigin`（邊個網站可以帶人入嚟），**唔係**靠 `ymis` 存唔存在
+- 拒絕時前端顯示 `showPortalError(reason)`，明確講邊一關過唔到（附錯誤代碼），
+  **唔會**再無聲跌落登入頁
+- 只決定「顯唔顯示免登入介面」：任何寫入仍然經 `/api/proxy` 由旅團 GAS 驗證 token／權限
+
+本機／預覽環境想略過來源檢查試 portal 流程，可設 `VSBADGE_PORTAL_TEST=1`；
+只要跑在 Vercel（`VERCEL=1`，正式及 Preview 部署皆然）就必定失效，唔會喺生產環境開洞。
 
 ## 不需改動 GAS
 
@@ -68,6 +96,11 @@ Vercel /api/proxy（api/proxy.js）
 |---|---|---|
 | `TROOP_{ID}_BACKEND` | 如旅團不在 troops.json | 旅團 GAS /exec URL（env 優先於 troops.json） |
 | `TROOP_{ID}_APIKEY` | 可選 | 旅團 API Key；Proxy 伺服器端注入（防爬蟲第一層 + apikey 模式寫入） |
+| `PORTAL_DEFAULT_ORIGIN` | 軌道 B 必填 | **全域**主系統網址（origin）：所有旅團共用同一個 hub frontend，設一條就全部生效；改地址只改一處。冇設 = 全部旅團唔開放 portal（fail closed） |
+| `PORTAL_DEFAULT_ROLES` | 可選 | **全域**角色白名單（逗號分隔），只喺旅團冇自己設定時生效（最終後備 `exec_committee`） |
+| `TROOP_{ID}_PORTALORIGIN` | 可選（例外才用） | 個別旅團用第二個 hub，**覆寫**全域預設 |
+| `TROOP_{ID}_PORTALROLES` | 可選（例外才用） | 個別旅團嘅角色白名單，**覆寫**全域預設 |
+| `TROOP_{ID}_PORTALDISABLED` | 可選（例外才用） | 設 `1` = 即使有全域預設，呢個旅團都**唔開放** portal |
 | `SCOUT_ADMIN_API` | 可選 | 新旅團接入申請的中央收件匣 GAS URL（預設內建值） |
 | `VSBADGE_PROXY_TIMEOUT_MS` | 可選 | 上游逾時（預設 45000，範圍 1000–55000） |
 

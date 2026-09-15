@@ -10,6 +10,36 @@ import path from 'path';
 // 已登記的 GAS /exec URL 白名單格式（只接受 HTTPS 正式部署 URL，不接受 /dev）
 const EXEC_URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{10,}\/exec\/?$/i;
 
+// 正規化 origin：只接受 http/https，並用 URL.origin 統一（小寫 host、去掉 path / query / hash）
+// 用於 portalOrigin（主系統網址）比對，容許管理員填 "https://hub.example/app/" 這類寫法。
+export function normalizeOrigin(v){
+  if(typeof v!=='string') return '';
+  const s=v.trim();
+  if(!s) return '';
+  try{
+    const u=new URL(s);
+    if(u.protocol!=='http:' && u.protocol!=='https:') return '';
+    return u.origin;
+  }catch(e){ return ''; }
+}
+
+// TROOP_{ID}_PORTALDISABLED 開關判定：設咗呢個變數就當「停用」，
+// 除非明確寫 0 / false / no / off（方便管理員臨時開返）。
+function isDisabledFlag(v){
+  if(v===true) return true;
+  if(typeof v!=='string') return false;
+  const s=v.trim().toLowerCase();
+  if(!s) return false;
+  return !['0','false','no','off'].includes(s);
+}
+
+// 把 "a, b ,c" / ["a","b"] 轉成乾淨的字串陣列
+function parseRoleList(v){
+  if(Array.isArray(v)) return v.map(x=>String(x||'').trim()).filter(Boolean);
+  if(typeof v!=='string') return [];
+  return v.split(',').map(x=>x.trim()).filter(Boolean);
+}
+
 // 本機測試專用：設 VSBADGE_PROXY_TEST=1 時允許 http://127.0.0.1|localhost 的 mock GAS。
 // 絕對不會影響 Vercel 正式環境（正式環境不會設定此變數）。
 const TEST_LOCAL_RE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/[A-Za-z0-9._~\-/?=&%]*)?$/;
@@ -55,9 +85,19 @@ export function getRegistry() {
   const fileTroops = readFileTroops();
   const idsFromEnv = new Set();
   for (const k of Object.keys(process.env)) {
-    const m = k.match(/^TROOP_([0-9A-Za-z]+)_(BACKEND|APIKEY)$/i);
+    const m = k.match(/^TROOP_([0-9A-Za-z]+)_(BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED)$/i);
     if (m) idsFromEnv.add(m[1]);
   }
+
+  // 全域預設（可選）：所有旅團共用同一個主系統（hub）時，管理員只需設一個 env，
+  // 唔使逐個旅團填 portalOrigin / portalRoles，改主系統地址亦只改一處。
+  // 未設（預設）= 唔開放 portal，維持 fail closed；個別旅團自己的設定永遠優先，可覆寫。
+  const defaultPortalOrigin = normalizeOrigin(
+    envVar('PORTAL_DEFAULT_ORIGIN', 'VSBADGE_PORTAL_ORIGIN') || ''
+  );
+  const defaultPortalRoles = parseRoleList(
+    envVar('PORTAL_DEFAULT_ROLES', 'VSBADGE_PORTAL_ROLES') || ''
+  );
 
   const allIds = new Set([...Object.keys(fileTroops), ...idsFromEnv]);
   const out = {};
@@ -72,11 +112,34 @@ export function getRegistry() {
       envVar(`TROOP_${id}_APIKEY`, `TROOP_${idUpper}_APIKEY`, `TROOP_${idNoZero}_APIKEY`) ||
       fileEntry.apikey || '';
     const name = fileEntry.name || `第 ${id} 旅`;
+    // v3.1 Portal 主系統接入設定（只供伺服器端 /api/portal 使用，永不對前端公開）
+    //   portalOrigin：允許帶身份進入的主系統網址（origin，例如 https://82venture.vercel.app）
+    //   portalRoles ：該旅團接受由主系統帶入的角色白名單
+    // 優先次序：TROOP_{ID}_* env → troops.json 欄位 → 全域 PORTAL_DEFAULT_* env
+    const portalOrigin =
+      normalizeOrigin(
+        envVar(`TROOP_${id}_PORTALORIGIN`, `TROOP_${idUpper}_PORTALORIGIN`, `TROOP_${idNoZero}_PORTALORIGIN`) ||
+        fileEntry.portalOrigin || ''
+      ) || defaultPortalOrigin;
+    const ownRoles = parseRoleList(
+      envVar(`TROOP_${id}_PORTALROLES`, `TROOP_${idUpper}_PORTALROLES`, `TROOP_${idNoZero}_PORTALROLES`) ||
+      fileEntry.portalRoles || ''
+    );
+    const portalRoles = ownRoles.length ? ownRoles : defaultPortalRoles;
+    // 個別旅團可以明確閂門（即使設咗全域預設都唔開放 portal）
+    const portalDisabled =
+      isDisabledFlag(envVar(`TROOP_${id}_PORTALDISABLED`, `TROOP_${idUpper}_PORTALDISABLED`, `TROOP_${idNoZero}_PORTALDISABLED`)) ||
+      fileEntry.portalEnabled === false;
     out[id] = {
+      id,
       name,
+      en: fileEntry.en || '',
       backend,
       apikey,
-      backendTrusted: isTrustedExecUrl(backend)
+      backendTrusted: isTrustedExecUrl(backend),
+      portalOrigin,
+      portalRoles,
+      portalEnabled: !portalDisabled
     };
   }
   return out;
@@ -88,7 +151,16 @@ export function getTrustedTroop(id) {
   const reg = getRegistry();
   const t = reg[id];
   if (!t || !t.backend || !t.backendTrusted) return null;
-  return { id, name: t.name, backend: t.backend.trim(), apikey: (t.apikey || '').trim() };
+  return {
+    id,
+    name: t.name,
+    en: t.en || '',
+    backend: t.backend.trim(),
+    apikey: (t.apikey || '').trim(),
+    portalOrigin: t.portalOrigin || '',
+    portalRoles: t.portalRoles || [],
+    portalEnabled: t.portalEnabled !== false
+  };
 }
 
 // 前端旅團選擇器專用：只暴露 id + name，任何情況都不回傳 backend / apikey
@@ -97,6 +169,7 @@ export function listPublicTroops() {
   const out = {};
   for (const [id, t] of Object.entries(reg)) {
     // 只有後端設定有效才列出（與舊版 /api/troops「有 backend 才算有效旅團」一致）
+    // 白名單輸出：只給 id + 顯示名稱。backend / apikey / portalOrigin / portalRoles 一律不外洩。
     if (t.backend) out[id] = { name: t.name, en: t.en || '' };
   }
   return out;
