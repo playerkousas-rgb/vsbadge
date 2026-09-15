@@ -84,6 +84,23 @@ TROOP_0082_PORTALROLES  = exec_committee,branch_leader,group_leader
 > ⚠️ `portalOrigin` 要逐個 origin 登記：production、preview（`*.vercel.app` branch URL）、
 > 本機 `http://localhost:3000` 都係唔同 origin。
 
+### 3.1 所有旅團共用同一個主系統 → 用全域預設 env
+
+如果（大部份）旅團都係由**同一個** hub app 帶人入嚟，逐個旅團填 `portalOrigin` 就多餘，
+改主系統地址又要改 N 次。可以改為只設兩個 env（Vercel Project Settings → Environment Variables）：
+
+```
+PORTAL_DEFAULT_ORIGIN = https://82venture.vercel.app
+PORTAL_DEFAULT_ROLES  = exec_committee,branch_leader,group_leader
+```
+
+- 優先次序：**`TROOP_{ID}_*` env → `troops.json` 欄位 → 全域 `PORTAL_DEFAULT_*` env**
+- 個別旅團想用另一個網址／另一組角色，照樣喺自己嗰個 entry 設，會**覆寫**全域預設
+- **未設全域預設（出廠狀態）= 唔開放 portal，維持 fail closed**
+- ⚠️ 一設咗 `PORTAL_DEFAULT_ORIGIN`，所有已登記旅團都會即時開放 portal
+  （角色仍然受 `PORTAL_DEFAULT_ROLES` 或旅團自己嘅白名單限制），請確定呢個係你想要嘅
+- 改主系統地址：只改呢一個 env → Vercel redeploy 即生效，唔使改 code、唔使逐個旅團改
+
 **呢兩個欄位同 `backend` / `apikey` 一樣只放伺服器端**，`/api/troops` 唔會公開。
 
 ---

@@ -79,6 +79,16 @@ export function getRegistry() {
     if (m) idsFromEnv.add(m[1]);
   }
 
+  // 全域預設（可選）：所有旅團共用同一個主系統（hub）時，管理員只需設一個 env，
+  // 唔使逐個旅團填 portalOrigin / portalRoles，改主系統地址亦只改一處。
+  // 未設（預設）= 唔開放 portal，維持 fail closed；個別旅團自己的設定永遠優先，可覆寫。
+  const defaultPortalOrigin = normalizeOrigin(
+    envVar('PORTAL_DEFAULT_ORIGIN', 'VSBADGE_PORTAL_ORIGIN') || ''
+  );
+  const defaultPortalRoles = parseRoleList(
+    envVar('PORTAL_DEFAULT_ROLES', 'VSBADGE_PORTAL_ROLES') || ''
+  );
+
   const allIds = new Set([...Object.keys(fileTroops), ...idsFromEnv]);
   const out = {};
   for (const id of allIds) {
@@ -95,14 +105,17 @@ export function getRegistry() {
     // v3.1 Portal 主系統接入設定（只供伺服器端 /api/portal 使用，永不對前端公開）
     //   portalOrigin：允許帶身份進入的主系統網址（origin，例如 https://82venture.vercel.app）
     //   portalRoles ：該旅團接受由主系統帶入的角色白名單
-    const portalOrigin = normalizeOrigin(
-      envVar(`TROOP_${id}_PORTALORIGIN`, `TROOP_${idUpper}_PORTALORIGIN`, `TROOP_${idNoZero}_PORTALORIGIN`) ||
-      fileEntry.portalOrigin || ''
-    );
-    const portalRoles = parseRoleList(
+    // 優先次序：TROOP_{ID}_* env → troops.json 欄位 → 全域 PORTAL_DEFAULT_* env
+    const portalOrigin =
+      normalizeOrigin(
+        envVar(`TROOP_${id}_PORTALORIGIN`, `TROOP_${idUpper}_PORTALORIGIN`, `TROOP_${idNoZero}_PORTALORIGIN`) ||
+        fileEntry.portalOrigin || ''
+      ) || defaultPortalOrigin;
+    const ownRoles = parseRoleList(
       envVar(`TROOP_${id}_PORTALROLES`, `TROOP_${idUpper}_PORTALROLES`, `TROOP_${idNoZero}_PORTALROLES`) ||
       fileEntry.portalRoles || ''
     );
+    const portalRoles = ownRoles.length ? ownRoles : defaultPortalRoles;
     out[id] = {
       id,
       name,

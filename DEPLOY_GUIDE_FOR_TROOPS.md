@@ -147,6 +147,12 @@ env 寫法（優先於 `troops.json`，唔使改 code / redeploy git）：
 > 主系統嘅 development / preview 網址（例如 `*.vercel.app` 的 preview 分支）origin 唔同，
 > 要逐個登記，或者乾脆用正式網址測試。
 
+**所有旅團都用同一個主系統？** 管理員可以唔使逐個旅團填，改為只設兩個 Vercel env：
+`PORTAL_DEFAULT_ORIGIN` = `https://82venture.vercel.app`、
+`PORTAL_DEFAULT_ROLES` = `exec_committee,branch_leader,group_leader`。
+（優先次序：`TROOP_{ID}_*` env → `troops.json` → 全域 `PORTAL_DEFAULT_*`；
+未設全域預設時，冇 `portalOrigin` 嘅旅團仍然係唔開放 portal。）
+
 ### 第 7 步 (僅軌道 B)：主系統自動帶入身份
 
 之後成員/領袖在主系統 Dashboard 點「深資童軍進度追蹤」卡片，URL 會自動變成：

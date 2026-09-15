@@ -591,6 +591,8 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
   // getRegistry() 每次都讀 process.env，測試期間設定即可生效
   process.env.TROOP_0082_PORTALORIGIN = HUB;
   delete process.env.TROOP_0082_PORTALROLES;   // 用 data/troops.json 的 portalRoles
+  delete process.env.PORTAL_DEFAULT_ORIGIN;    // 測試期間唔設全域預設（保持最嚴格）
+  delete process.env.PORTAL_DEFAULT_ROLES;
 
   const portal = async (qs, headers = {}) => {
     const r = await fetch(`${APP_BASE}/api/portal?${qs}`, { headers });
@@ -678,6 +680,30 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
     check('回應唔帶 Access-Control-Allow-Origin（同源限定）', !pr.headers.get('access-control-allow-origin'));
     check('回應帶 Cache-Control: no-store', /no-store/.test(pr.headers.get('cache-control') || ''));
   }
+
+  // 14. 全域預設 env（所有旅團共用同一個主系統時，唔使逐個旅團填 portalOrigin）
+  delete process.env.TROOP_0082_PORTALORIGIN;
+  delete process.env.PORTAL_DEFAULT_ORIGIN;
+  delete process.env.PORTAL_DEFAULT_ROLES;
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('冇設 PORTAL_DEFAULT_ORIGIN → 旅團 1001 依然唔開放 portal（fail closed）',
+    r.json?.reason === 'troop_not_portal_enabled');
+
+  process.env.PORTAL_DEFAULT_ORIGIN = HUB;   // 只設一個 env，全部未個別設定嘅旅團即時生效
+  r = await portal(`u=1001&role=exec_committee&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('設咗 PORTAL_DEFAULT_ORIGIN → 唔使逐個旅團填 portalOrigin', r.status === 200 && r.json?.ok === true);
+  r = await portal(`u=1001&role=super_admin&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('全域預設都唔會放行白名單外嘅角色（預設只係 exec_committee）', r.json?.reason === 'role_not_allowed');
+  process.env.PORTAL_DEFAULT_ROLES = 'exec_committee,group_leader';
+  r = await portal(`u=1001&role=group_leader&src=${encodeURIComponent(HUB)}`, fromHub);
+  check('PORTAL_DEFAULT_ROLES 生效', r.json?.ok === true);
+  // 個別旅團設定永遠優先於全域預設（0082 喺 troops.json 登記咗另一個網址）
+  r = await portal('u=0082&role=exec_committee', fromHub);
+  check('個別旅團 portalOrigin 優先於全域預設', r.json?.ok === false);
+  r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(REGISTERED_IN_JSON)}`, { Referer: REGISTERED_IN_JSON + '/dash' });
+  check('個別旅團仍然只用自己登記嗰個網址', r.json?.ok === true);
+  delete process.env.PORTAL_DEFAULT_ORIGIN;
+  delete process.env.PORTAL_DEFAULT_ROLES;
 
   // 13. 前端靜態：portal 分支一定要先問伺服器，唔可以淨係睇 URL 參數
   {
