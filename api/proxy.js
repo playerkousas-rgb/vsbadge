@@ -171,7 +171,10 @@ export default async function handler(req, res) {
   delete data.action;
   const superLogin = action === 'login' && isSuperId(data.login_id);
   if (superLogin) {
-    if (!superConfigured()) return sendJson(res, 503, { success: false, error: '登入服務暫時無法使用，請聯絡管理員' });
+    if (!superConfigured()) {
+      safeLog({ result: 'super_auth_misconfig', troopId, ms: Date.now() - t0 });
+      return sendJson(res, 503, { success: false, error: '登入服務暫時無法使用，請聯絡管理員' });
+    }
     if (!checkSuperPassword(data.password)) return sendJson(res, 401, { success: false, error: '帳號或密碼錯誤' });
     data.login_id = accountId;
     delete data.password;
