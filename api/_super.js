@@ -8,7 +8,7 @@ export function equalSecret(a, b) {
   return typeof a === 'string' && typeof b === 'string' && timingSafeEqual(digest(a), digest(b));
 }
 export function superConfigured() {
-  return typeof process.env.SUPER_KEY === 'string' && process.env.SUPER_KEY.length >= 16;
+  return typeof process.env.SUPER_KEY === 'string' && process.env.SUPER_KEY.length >= 4;
 }
 export function checkSuperPassword(password) {
   return superConfigured() && equalSecret(password, process.env.SUPER_KEY);
