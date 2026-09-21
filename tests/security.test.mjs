@@ -56,6 +56,51 @@ test('Missing configuration fails closed; tickets are encrypted, purpose-bound, 
   process.env.SUPER_KEY = key;
 });
 
+test('Proxy rejects missing or sub-four-character key before fetch; four-character and ordinary login work', async () => {
+  const savedKey = process.env.SUPER_KEY;
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs = []; let calls = 0;
+  console.log = line => logs.push(JSON.parse(line));
+  globalThis.fetch = async () => {
+    calls++;
+    return { status: 200, text: async () => JSON.stringify({ success: true, token: 'vs-super-v1-short-key-test', user: { role: 'super_admin' } }) };
+  };
+  try {
+    for (const key of [undefined, '', 'x'.repeat(3)]) {
+      if (key === undefined) delete process.env.SUPER_KEY;
+      else process.env.SUPER_KEY = key;
+      const result = await call(proxy, request('login', { login_id: accountId, password: 'private-input-password' }));
+      assert.equal(result.code, 503);
+      assert.deepEqual(result.body, { success: false, error: '登入服務暫時無法使用，請聯絡管理員' });
+      assert.equal(result.headers['Cache-Control'], 'no-store');
+    }
+    assert.equal(calls, 0);
+    assert.equal(logs.length, 3);
+    for (const log of logs) {
+      assert.equal(log.result, 'super_auth_misconfig');
+      assert.deepEqual(Object.keys(log).sort(), ['ms', 'result', 'svc', 'troopId']);
+    }
+    assert(!JSON.stringify(logs).includes('private-input-password'));
+    assert.equal((await call(proxy, request('login', { login_id: 'member', password: 'ordinary-password' }))).code, 200);
+    assert.equal(calls, 1);
+    process.env.SUPER_KEY = 'x'.repeat(4);
+    assert(checkSuperPassword(process.env.SUPER_KEY));
+    assert.equal((await call(proxy, request('login', { login_id: accountId, password: 'wrong' }))).code, 401);
+    assert.equal(calls, 1);
+    const login = await call(proxy, request('login', { login_id: accountId, password: process.env.SUPER_KEY }));
+    assert.equal(login.code, 200);
+    assert.equal(login.body.success, true);
+    assert.equal(calls, 2);
+    assert.equal(openSuper('session', login.body.token).token, 'vs-super-v1-short-key-test');
+  } finally {
+    if (savedKey === undefined) delete process.env.SUPER_KEY;
+    else process.env.SUPER_KEY = savedKey;
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+});
+
 test('Verification endpoint binds ticket to registered backend and API key; returns no secrets', async () => {
   const ticket = sealSuper('login', { troopId: '0082', backend, apikey: 'secret-api-key' }, 60);
   const good = await call(verify, { ticket, backend, apikey: 'secret-api-key' });

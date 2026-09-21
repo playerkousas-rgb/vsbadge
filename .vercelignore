@@ -18,3 +18,4 @@ dist/
 build/
 .next/
 tests/
+operations/

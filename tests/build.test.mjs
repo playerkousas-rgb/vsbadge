@@ -11,7 +11,7 @@ test('Build Output API contains only intended static files and four runnable fun
   const config = JSON.parse(fs.readFileSync(path.join(out, 'config.json')));
   assert.equal(config.version, 3);
   const files = fs.readdirSync(out, { recursive: true });
-  assert(!files.some(f => /(^|\/)(tests|node_modules|scripts|\.git)(\/|$)|troops\.json|\.env/.test(f)));
+  assert(!files.some(f => /(^|\/)(tests|operations|node_modules|scripts|\.git)(\/|$)|troops\.json|\.env/.test(f)));
   assert.equal(files.filter(f => f.endsWith('.vc-config.json')).length, 4);
   assert(fs.existsSync(path.join(out, 'static/apps-script/Code.gs')));
   assert(fs.existsSync(path.join(out, 'static/data/mock_members.json')));
