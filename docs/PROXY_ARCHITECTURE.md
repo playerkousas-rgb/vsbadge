@@ -11,8 +11,7 @@
 Vercel /api/proxy（api/proxy.js）
   │  1. 驗證 method=POST、action 白名單、payload 大小、token 存在
   │  2. 用 troopId 查伺服器端可信 Registry（api/_registry.js）
-  │     - data/troops.json（Git 公開 Registry）
-  │     - Vercel env：TROOP_{ID}_BACKEND / TROOP_{ID}_APIKEY（優先）
+  │     - Vercel env：TROOP_{ID}_NAME / TROOP_{ID}_BACKEND / TROOP_{ID}_APIKEY
   │  3. 拒絕：未知旅團 / 非 HTTPS GAS /exec URL（防 SSRF、Open Proxy）
   │  4. 伺服器端注入 apikey（如有），redirect:'follow' 轉發到旅團 GAS
   ▼
@@ -22,8 +21,7 @@ Vercel /api/proxy（api/proxy.js）
 ## 多旅團支援
 
 - Proxy **不寫死任何單一 GAS URL**：完全按 troopId 從 Registry 動態解析
-- 加新旅團流程不變：管理員把旅團 GAS URL 加入 `data/troops.json`，或設
-  `TROOP_{ID}_BACKEND` / `TROOP_{ID}_APIKEY` 環境變數 → Redeploy 即生效
+- 加新旅團：管理員設定 `TROOP_{ID}_NAME` / `TROOP_{ID}_BACKEND` / `TROOP_{ID}_APIKEY` → Redeploy 即生效
 - `api/troops.js` 只向前端回傳 `{id: {name}}`，GAS URL 與 API Key 不再離開伺服器
 
 ## 安全規則（Proxy 強制執行）
@@ -54,14 +52,10 @@ Vercel /api/proxy（api/proxy.js）
 - 主系統卡片只需帶 `u=<troopId>`（及選用的 `from=portal&role&ymis&src&ts&embed=1` 等身份參數）
 - 旅團必須先在 vsbadge Registry 登記（提交 URL+Key 給 vsbadge 管理員的流程不變）
 - 領袖經 Portal 進入後若要**寫入**，旅團的 API Key 須登記在 Registry
-  （`troops.json` 的 `apikey` 欄位或 `TROOP_{ID}_APIKEY` env），由 Proxy 伺服器端注入。
-  帳號密碼登入軌道（軌道 A）不需要 API Key。
+  （`TROOP_{ID}_APIKEY` env），由 Proxy 伺服器端注入。
+  所有旅團登記均須 API Key；前端用戶不需要知道它。
 
 ### v3.1：Portal 免登入改由伺服器驗證（安全修補）
-
-**舊版漏洞**：`index.html` 的 `handlePortalParams()` 只信 URL 參數，
-任何人砌 `?u=0082&from=portal&role=super_admin&ymis=x` 即可取得超管身份
-（`can_tick:true`、`allowed_badges:'*'`、用戶管理／審批中心），唔使密碼、唔使來自指定網站。
 
 **v3.1 做法**：前端取得身份前必須先問同源 `GET /api/portal`，由伺服器四關把守：
 
@@ -85,17 +79,13 @@ Vercel /api/proxy（api/proxy.js）
 本機／預覽環境想略過來源檢查試 portal 流程，可設 `VSBADGE_PORTAL_TEST=1`；
 只要跑在 Vercel（`VERCEL=1`，正式及 Preview 部署皆然）就必定失效，唔會喺生產環境開洞。
 
-## 不需改動 GAS
-
-- `Code.gs` doGet/doPost、request schema、Sheet 結構、現有部署 URL、API Key、帳號及 token 全部不變
-- **不需要重新部署任何旅團的 Apps Script**
-
 ## 環境變數總覽
 
 | 變數 | 必填 | 用途 |
 |---|---|---|
-| `TROOP_{ID}_BACKEND` | 如旅團不在 troops.json | 旅團 GAS /exec URL（env 優先於 troops.json） |
-| `TROOP_{ID}_APIKEY` | 可選 | 旅團 API Key；Proxy 伺服器端注入（防爬蟲第一層 + apikey 模式寫入） |
+| `TROOP_{ID}_NAME` | 必填 | 旅團顯示名稱 |
+| `TROOP_{ID}_BACKEND` | 必填 | 旅團 GAS /exec URL |
+| `TROOP_{ID}_APIKEY` | 必填 | 旅團 API Key；Proxy 伺服器端注入（防爬蟲第一層 + apikey 模式寫入） |
 | `PORTAL_DEFAULT_ORIGIN` | 軌道 B 必填 | **全域**主系統網址（origin）：所有旅團共用同一個 hub frontend，設一條就全部生效；改地址只改一處。冇設 = 全部旅團唔開放 portal（fail closed） |
 | `PORTAL_DEFAULT_ROLES` | 可選 | **全域**角色白名單（逗號分隔），只喺旅團冇自己設定時生效（最終後備 `exec_committee`） |
 | `TROOP_{ID}_PORTALORIGIN` | 可選（例外才用） | 個別旅團用第二個 hub，**覆寫**全域預設 |

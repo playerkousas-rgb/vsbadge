@@ -7,6 +7,7 @@ const MOCK_PORT = 3901;
 process.env.VSBADGE_PROXY_TEST = '1';
 process.env.TROOP_0082_BACKEND = `http://127.0.0.1:${MOCK_PORT}/exec`;
 process.env.TROOP_0082_APIKEY = 'KEY_A';
+process.env.TROOP_0082_NAME = '第 82 旅';
 
 await startMockGas({
   port: MOCK_PORT, name: '旅團A(0082)', apikey: 'KEY_A',

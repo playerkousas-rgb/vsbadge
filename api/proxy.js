@@ -5,14 +5,14 @@
 //
 // 安全原則：
 //   1. 前端只提交 troopId，永不提交後端 URL（杜絕 SSRF / Open Proxy）
-//   2. GAS URL 全部由伺服器端可信 Registry（data/troops.json + TROOP_* env）解析
+//   2. GAS URL 全部由伺服器端可信 Registry（TROOP_* env）解析
 //   3. 只接受白名單 HTTPS GAS /exec URL（見 api/_registry.js isTrustedExecUrl）
 //   4. 只接受 action 白名單；寫入／讀取類 action 必須附帶 token 字串（真偽由 GAS 驗證）
 //   5. 永不在 log 記錄 token／密碼／apikey／payload 內容
 //
-// GAS request schema 完全保留（action + 原欄位），不需要修改任何 Code.gs。
 
 import { getTrustedTroop, isTrustedExecUrl } from './_registry.js';
+import { accountId, isSuperId, checkSuperPassword, superConfigured, sealSuper, openSuper } from './_super.js';
 
 export const config = { maxDuration: 60 };
 
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
   }
 
   const action = String(body.action || '');
-  const data = (body.data && typeof body.data === 'object' && !Array.isArray(body.data)) ? body.data : {};
+  const data = (body.data && typeof body.data === 'object' && !Array.isArray(body.data)) ? { ...body.data } : {};
   const troopId = String(body.troopId || '').trim();
 
   // 輸入驗證：action 白名單
@@ -166,16 +166,29 @@ export default async function handler(req, res) {
     return sendJson(res, 404, { success: false, error: '找不到此旅團，或旅團後端設定無效，請聯絡管理員' });
   }
 
-  // 需要 token 的 action：字串必須存在（真偽仍由 GAS 驗證）
+  // 不接受用戶自行夾帶驗證票據或覆寫頂層 action。
+  delete data.super_ticket;
+  delete data.action;
+  const superLogin = action === 'login' && isSuperId(data.login_id);
+  if (superLogin) {
+    if (!superConfigured()) return sendJson(res, 503, { success: false, error: '登入服務暫時無法使用，請聯絡管理員' });
+    if (!checkSuperPassword(data.password)) return sendJson(res, 401, { success: false, error: '帳號或密碼錯誤' });
+    data.login_id = accountId;
+    delete data.password;
+    data.super_ticket = sealSuper('login', { troopId, backend: troop.backend, apikey: troop.apikey }, 60);
+  }
   if (TOKEN_ACTIONS.has(action)) {
-    if (typeof data.token !== 'string' || data.token.length < 4 || data.token.length > 200) {
+    if (typeof data.token !== 'string' || data.token.length < 4 || data.token.length > 4096) {
       return sendJson(res, 401, { success: false, error: '未登入或登入已過期，請重新登入' });
     }
+    if (data.token.startsWith('vs1.')) {
+      const session = openSuper('session', data.token);
+      if (!session || session.troopId !== troopId) return sendJson(res, 401, { success: false, error: '登入已過期，請重新登入' });
+      if (action === 'changePassword') return sendJson(res, 403, { success: false, error: '此帳號不支援在此更改密碼，請聯絡管理員' });
+      data.token = session.token;
+    }
   }
-
-  // apikey 注入：伺服器端 Registry 有就用伺服器的（覆寫前端值）；
-  // 沒有就讓前端舊值通過（向後兼容 apikey 模式的舊部署）；兩者皆無則不帶。
-  const effectiveApikey = troop.apikey || (typeof data.apikey === 'string' ? data.apikey : '');
+  const effectiveApikey = troop.apikey;
 
   try {
     let up;
@@ -185,7 +198,7 @@ export default async function handler(req, res) {
         params: { action, apikey: effectiveApikey || undefined, token: data.token }
       });
     } else {
-      const payload = { action, ...data };
+      const payload = { ...data, action };
       if (effectiveApikey) payload.apikey = effectiveApikey;
       up = await callUpstream(troop.backend, { method: 'POST', payload });
     }
@@ -199,6 +212,12 @@ export default async function handler(req, res) {
       return sendJson(res, 502, { success: false, error: msg });
     }
 
+    if (superLogin && up.json.success) {
+      if (!up.json.token?.startsWith('vs-super-v1-') || up.json.user?.role !== 'super_admin') {
+        return sendJson(res, 502, { success: false, error: '旅團後端版本需要更新，請聯絡管理員' });
+      }
+      up.json.token = sealSuper('session', { troopId, token: up.json.token }, 30 * 24 * 60 * 60);
+    }
     safeLog({ result: 'ok', troopId, action, status: up.status, ms: Date.now() - t0 });
     // GAS 業務錯誤（success:false）照原樣回傳，前端按語意顯示
     return sendJson(res, 200, up.json);

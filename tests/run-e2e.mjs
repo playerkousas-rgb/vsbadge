@@ -18,6 +18,9 @@ process.env.VSBADGE_PROXY_TEST = '1';            // 允許 localhost mock（只�
 process.env.VSBADGE_PROXY_TIMEOUT_MS = '3000';   // 測試用短 timeout
 process.env.TROOP_0082_BACKEND = `http://127.0.0.1:${PORT_A}/exec`;
 process.env.TROOP_0082_APIKEY = 'KEY_A';
+process.env.TROOP_0082_NAME = '第 82 旅';
+process.env.TROOP_1001_NAME = '第 1001 旅';
+process.env.TROOP_1001_APIKEY = 'KEY_B';
 process.env.TROOP_1001_BACKEND = `http://127.0.0.1:${PORT_B}/exec`;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -617,12 +620,12 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
   r = await portal(`u=0082&role=branch_leader&src=${encodeURIComponent(HUB)}`);
   check('只靠 src（冇 Referer）→ ok:true', r.status === 200 && r.json?.ok === true);
 
-  // ---- B. 舊漏洞：自己砌 URL 攞超管 ----
+  // ---- B. 非白名單角色不可藉 URL 參數取得權限 ----
   r = await portal(`u=0082&role=super_admin&ymis=x&src=${encodeURIComponent(HUB)}`, fromHub);
-  check('❌漏洞：role=super_admin（唔喺白名單）→ 拒絕 role_not_allowed',
+  check('非白名單角色 → 拒絕 role_not_allowed',
     r.status === 403 && r.json?.ok === false && r.json?.reason === 'role_not_allowed');
   r = await portal('u=0082&role=super_admin&ymis=x', { Referer: OTHER + '/x' });
-  check('❌漏洞：隨便砌 URL 亦攞唔到 super_admin', r.json?.ok === false);
+  check('非白名單角色不能藉 URL 參數取得權限', r.json?.ok === false);
 
   // ---- C. 來源驗證 ----
   r = await portal(`u=0082&role=exec_committee&src=${encodeURIComponent(OTHER)}`, { Referer: OTHER + '/' });

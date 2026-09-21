@@ -1,12 +1,4 @@
-// 伺服器端可信旅團 Registry（只供 /api 內部使用，不會作為 endpoint 公開）
-// 資料來源（全部在伺服器端解析，前端永遠看不到 GAS URL）：
-//   1. data/troops.json ／ troops.json（存放在 Git 的公開 Registry）
-//   2. Vercel 環境變數 TROOP_{ID}_BACKEND / TROOP_{ID}_APIKEY（優先於檔案）
-// safety: backend 必須通過 isTrustedExecUrl() 驗證，否則視為未登記。
-
-import fs from 'fs';
-import path from 'path';
-
+// 伺服器端環境變數 Registry；不讀取或公開旅團 JSON。
 // 已登記的 GAS /exec URL 白名單格式（只接受 HTTPS 正式部署 URL，不接受 /dev）
 const EXEC_URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{10,}\/exec\/?$/i;
 
@@ -47,30 +39,8 @@ const TEST_LOCAL_RE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/[A-Za-z0-9.
 export function isTrustedExecUrl(url) {
   if (typeof url !== 'string' || url.length > 300) return false;
   if (EXEC_URL_RE.test(url.trim())) return true;
-  if (process.env.VSBADGE_PROXY_TEST === '1' && TEST_LOCAL_RE.test(url.trim())) return true;
+  if (process.env.VSBADGE_PROXY_TEST === '1' && process.env.VERCEL !== '1' && TEST_LOCAL_RE.test(url.trim())) return true;
   return false;
-}
-
-function readFileTroops() {
-  const candidates = [
-    path.join(process.cwd(), 'data', 'troops.json'),
-    path.join(process.cwd(), 'troops.json')
-  ];
-  const merged = {};
-  for (const p of candidates) {
-    try {
-      if (fs.existsSync(p)) {
-        const json = JSON.parse(fs.readFileSync(p, 'utf8'));
-        if (json && json.troops && typeof json.troops === 'object') {
-          Object.assign(merged, json.troops);
-        }
-      }
-    } catch (e) {
-      // 檔案壞了不影響 env 來源；只在伺服器 log 提示
-      console.warn('[registry] read troops file failed:', p);
-    }
-  }
-  return merged;
 }
 
 function envVar(...names) {
@@ -80,66 +50,26 @@ function envVar(...names) {
   return '';
 }
 
-// 合併檔案 + 環境變數，回傳 { [id]: {name, backend, apikey, backendTrusted} }
+// 每旅團三個必填變數：NAME / BACKEND / APIKEY；ID 保留前導零。
 export function getRegistry() {
-  const fileTroops = readFileTroops();
-  const idsFromEnv = new Set();
-  for (const k of Object.keys(process.env)) {
-    const m = k.match(/^TROOP_([0-9A-Za-z]+)_(BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED)$/i);
-    if (m) idsFromEnv.add(m[1]);
+  const ids = new Set();
+  for (const key of Object.keys(process.env)) {
+    const m = key.match(/^TROOP_([0-9A-Za-z_-]{1,32})_(NAME|EN|BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED)$/);
+    if (m) ids.add(m[1]);
   }
-
-  // 全域預設（可選）：所有旅團共用同一個主系統（hub）時，管理員只需設一個 env，
-  // 唔使逐個旅團填 portalOrigin / portalRoles，改主系統地址亦只改一處。
-  // 未設（預設）= 唔開放 portal，維持 fail closed；個別旅團自己的設定永遠優先，可覆寫。
-  const defaultPortalOrigin = normalizeOrigin(
-    envVar('PORTAL_DEFAULT_ORIGIN', 'VSBADGE_PORTAL_ORIGIN') || ''
-  );
-  const defaultPortalRoles = parseRoleList(
-    envVar('PORTAL_DEFAULT_ROLES', 'VSBADGE_PORTAL_ROLES') || ''
-  );
-
-  const allIds = new Set([...Object.keys(fileTroops), ...idsFromEnv]);
-  const out = {};
-  for (const id of allIds) {
-    const fileEntry = fileTroops[id] || {};
-    const idUpper = String(id).toUpperCase();
-    const idNoZero = String(id).replace(/^0+/, '') || String(id);
-    const backend =
-      envVar(`TROOP_${id}_BACKEND`, `TROOP_${idUpper}_BACKEND`, `TROOP_${idNoZero}_BACKEND`) ||
-      fileEntry.backend || '';
-    const apikey =
-      envVar(`TROOP_${id}_APIKEY`, `TROOP_${idUpper}_APIKEY`, `TROOP_${idNoZero}_APIKEY`) ||
-      fileEntry.apikey || '';
-    const name = fileEntry.name || `第 ${id} 旅`;
-    // v3.1 Portal 主系統接入設定（只供伺服器端 /api/portal 使用，永不對前端公開）
-    //   portalOrigin：允許帶身份進入的主系統網址（origin，例如 https://82venture.vercel.app）
-    //   portalRoles ：該旅團接受由主系統帶入的角色白名單
-    // 優先次序：TROOP_{ID}_* env → troops.json 欄位 → 全域 PORTAL_DEFAULT_* env
-    const portalOrigin =
-      normalizeOrigin(
-        envVar(`TROOP_${id}_PORTALORIGIN`, `TROOP_${idUpper}_PORTALORIGIN`, `TROOP_${idNoZero}_PORTALORIGIN`) ||
-        fileEntry.portalOrigin || ''
-      ) || defaultPortalOrigin;
-    const ownRoles = parseRoleList(
-      envVar(`TROOP_${id}_PORTALROLES`, `TROOP_${idUpper}_PORTALROLES`, `TROOP_${idNoZero}_PORTALROLES`) ||
-      fileEntry.portalRoles || ''
-    );
-    const portalRoles = ownRoles.length ? ownRoles : defaultPortalRoles;
-    // 個別旅團可以明確閂門（即使設咗全域預設都唔開放 portal）
-    const portalDisabled =
-      isDisabledFlag(envVar(`TROOP_${id}_PORTALDISABLED`, `TROOP_${idUpper}_PORTALDISABLED`, `TROOP_${idNoZero}_PORTALDISABLED`)) ||
-      fileEntry.portalEnabled === false;
+  const defaultOrigin = normalizeOrigin(envVar('PORTAL_DEFAULT_ORIGIN', 'VSBADGE_PORTAL_ORIGIN'));
+  const defaultRoles = parseRoleList(envVar('PORTAL_DEFAULT_ROLES', 'VSBADGE_PORTAL_ROLES'));
+  const out = Object.create(null);
+  for (const id of ids) {
+    const get = suffix => envVar(`TROOP_${id}_${suffix}`).trim();
+    const backend = get('BACKEND');
+    const roles = parseRoleList(get('PORTALROLES'));
     out[id] = {
-      id,
-      name,
-      en: fileEntry.en || '',
-      backend,
-      apikey,
+      id, name: get('NAME'), en: get('EN'), backend, apikey: get('APIKEY'),
       backendTrusted: isTrustedExecUrl(backend),
-      portalOrigin,
-      portalRoles,
-      portalEnabled: !portalDisabled
+      portalOrigin: normalizeOrigin(get('PORTALORIGIN')) || defaultOrigin,
+      portalRoles: roles.length ? roles : defaultRoles,
+      portalEnabled: !isDisabledFlag(get('PORTALDISABLED'))
     };
   }
   return out;
@@ -150,12 +80,12 @@ export function getTrustedTroop(id) {
   if (typeof id !== 'string' || !/^[0-9A-Za-z_-]{1,32}$/.test(id)) return null;
   const reg = getRegistry();
   const t = reg[id];
-  if (!t || !t.backend || !t.backendTrusted) return null;
+  if (!t || !t.name || !t.apikey || !t.backend || !t.backendTrusted) return null;
   return {
     id,
     name: t.name,
     en: t.en || '',
-    backend: t.backend.trim(),
+    backend: t.backend.trim().replace(/\/$/, ''),
     apikey: (t.apikey || '').trim(),
     portalOrigin: t.portalOrigin || '',
     portalRoles: t.portalRoles || [],
@@ -166,11 +96,11 @@ export function getTrustedTroop(id) {
 // 前端旅團選擇器專用：只暴露 id + name，任何情況都不回傳 backend / apikey
 export function listPublicTroops() {
   const reg = getRegistry();
-  const out = {};
+  const out = Object.create(null);
   for (const [id, t] of Object.entries(reg)) {
-    // 只有後端設定有效才列出（與舊版 /api/troops「有 backend 才算有效旅團」一致）
+    // 三項必填設定齊備，並通過後端 URL 白名單才列出
     // 白名單輸出：只給 id + 顯示名稱。backend / apikey / portalOrigin / portalRoles 一律不外洩。
-    if (t.backend) out[id] = { name: t.name, en: t.en || '' };
+    if (t.name && t.apikey && t.backendTrusted) out[id] = { name: t.name, en: t.en || '' };
   }
   return out;
 }

@@ -25,8 +25,7 @@ A blue `Portal` badge appears at the top right.
 - You do not need a `ymis`: it falls back to `PORTAL-<group>-<role>` automatically
 - **Always open it from the main platform card/link.** Since v3.1 vsbadge verifies the source
   origin, so pasting the URL straight into a browser — or arriving from any other site — is refused
-  with a reason on screen. This is what stops anyone from hand-crafting `?role=super_admin`
-  to gain admin rights.
+  with a reason on screen.
 
 Common refusal codes:
 

@@ -1,4 +1,4 @@
-# 👨‍💼 領袖使用教學 (Branch Leader / Group Leader / Admin / 超管)
+# 👨‍💼 領袖使用教學 (Branch Leader / Group Leader / Admin)
 
 > 你擁有全部權限，負責審批、授權、批量操作
 
@@ -78,7 +78,6 @@
 - 第11版新綱要對照、訓練計劃、保護兒童 Safe from Harm 連結、佩戴指引、表格下載
 
 ## 測試
-- 超管登入用戶管理有 🧪測試工具，可一鍵載入10個MOCK成員測試批量
 
 ---
 COPYRIGHT 2026 Scout System

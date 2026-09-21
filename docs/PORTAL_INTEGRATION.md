@@ -85,27 +85,23 @@ PORTAL_DEFAULT_ROLES  = exec_committee,branch_leader,group_leader
 
 正常唔需要用。只有當某個旅團要「同其他旅團唔同」時，先至喺嗰個旅團身上加設定：
 
-| 用途 | env | `troops.json` 欄位 |
-|---|---|---|
-| 用第二個 hub／另一組角色（**覆寫**全域預設） | `TROOP_{ID}_PORTALORIGIN` / `TROOP_{ID}_PORTALROLES` | `"portalOrigin"` / `"portalRoles"` |
-| 明明設咗全域預設，但呢個旅團**唔想**開放 portal | `TROOP_{ID}_PORTALDISABLED=1` | `"portalEnabled": false` |
+| 用途 | env |
+|---|---|
+| 用第二個 hub／另一組角色（覆寫全域預設） | `TROOP_{ID}_PORTALORIGIN` / `TROOP_{ID}_PORTALROLES` |
+| 個別旅團停用 portal | `TROOP_{ID}_PORTALDISABLED=1` |
 
-優先次序：**`TROOP_{ID}_*` env → `troops.json` 欄位 → 全域 `PORTAL_DEFAULT_*` env**
-
-（`TROOP_82_…` 去前導零變體一樣支援；`portalRoles` 冇設就預設只接受 `exec_committee`。）
-
-> 💡 唔好喺 `troops.json` 入面重複填 `portalOrigin` 做同一個 hub 網址：
-> 個別設定優先，日後改全域 env 會改唔到呢個旅團。交畀全域 env 統一管理就得。
+優先次序：**個別旅團 env → 全域 `PORTAL_DEFAULT_*` env**，不再讀取 JSON。
+ID 必須完全一致：`0082` 與 `82` 是不同旅團，保留前導零。角色預設 `exec_committee`。
+共用主系統只設全域 env，避免重複設定。
 
 ---
 
 ## 4. 接受嘅角色
 
-系統可勾選角色（`TICK_ROLES`）：
-`admin`、`group_leader`、`branch_leader`、`exec_committee`、`super_admin`
+一般接入角色：
+`admin`、`group_leader`、`branch_leader`、`exec_committee`
 
-角色必須**同時**喺旅團 `portalRoles` 白名單內先會放行 —— 所以即使 `super_admin` 屬
-系統角色，只要旅團冇把它列入白名單，砌 URL 都入唔到（呢個正係 v3.1 修補嘅漏洞）。
+角色必須同時在旅團 `portalRoles` 白名單內才會放行。
 
 ---
 
