@@ -1,8 +1,16 @@
-# 🔥 深資童軍進度及行政平台 v8.7
+# 🔥 深資童軍進度及行政平台 v8.8
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  
 > COPYRIGHT 2026 Scout System  
 > 支援全前端帳戶管理、批量開戶、手機版介面、離線暫存、批量進度寫入、帳戶自助申請→團長前端審批、官方表格自動填寫、活動履歷（服務／活動／訓練班紀錄）、履歷自行申報→領袖審批
+
+## v8.8：環境變數登記及部署瘦身
+
+- 每個旅團只需 `TROOP_{ID}_NAME`、`TROOP_{ID}_BACKEND`、`TROOP_{ID}_APIKEY`，不再讀取旅團 JSON。
+- **現有 Sheet 不改動、不初始化**；須同步更新 Code.gs 的既有部署。
+- [必讀：環境變數及無資料遷移升級步驟](docs/ENV_MIGRATION.md)
+- [長期防增肥、圖片格式及緊急任務規範](docs/DEPLOYMENT_POLICY.md)
+- 驗證：`npm run check`、`npm run lint`、`npm test`、`npm run build`（零 npm 依賴）。
 
 ## 中／英一鍵切換（英語旅團）
 
@@ -28,11 +36,10 @@ data/items.json         — 考核項目定義（第11版修正版）
 data/mock_members.json  — 10 MOCK 成員測試數據
 data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
-data/troops.json        — 旅團 Registry（id/name/backend/apikey）
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
 apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.7：進度/獎章/審批/帳戶/活動履歷/履歷申報/自助申請，含唯一身份、成員管理、領袖重設密碼）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
-api/_registry.js        — 伺服器端可信旅團 Registry（troops.json + env 合併、URL 白名單）
+api/_registry.js        — 伺服器端可信旅團 Registry（僅 Vercel 環境變數、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
 tests/                  — e2e 測試（雙 mock GAS 旅團）+ YMIS 解析單元測試 + 本機 dev server
 vercel.json             — 部署設定
@@ -101,13 +108,12 @@ docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY
 - 手機底部彈窗、安全區、44px 觸控目標、響應式卡片及管理工具列
 - 後端再次驗證角色層級，帳戶管理不能只靠 API Key
 
-## v8.3 密碼及超管帳號
+## v8.3 密碼原則
 
 - 密碼最短 **4 位**（不再強制 8 位），適用於更改密碼、開立帳戶、重設密碼及批量開戶。
 - 批量開戶／審批的初始密碼統一預設為 **1234**；首次登入仍會要求更改。
-- 內置超管 `sheep`／密碼 `0728` 為**只在後端（GS/Apps Script）存在的虛擬帳號**：不會寫入 Users 工作表，亦不會在「用戶管理」（USER 表單）出現；可直接以 `sheep` 或 `sheep@vsbadge.local` 登入，密碼可於登入後經「改密碼」自訂（存於後端，不會寫入 Sheet）。舊部署已把 sheep 寫入 Users 的，`initializeSheets()` 會自動移除該列（只匹配 `sheep`／`sheep@vsbadge.local`，不會誤刪其他帳號）。
 
-批量開戶說明見 [`docs/BULK_ONBOARD.md`](docs/BULK_ONBOARD.md)。部署新後端或升級既有後端後，請再次執行 `initializeSheets()` 以補上新欄位及「操作紀錄」工作表。
+批量開戶說明見 [`docs/BULK_ONBOARD.md`](docs/BULK_ONBOARD.md)。只有全新後端或缺少舊版工作表才按相應舊版指南初始化；本次 v8.7 → v8.8 不執行初始化。
 
 ## v7.0 修正（對照總會第11版綱要）
 

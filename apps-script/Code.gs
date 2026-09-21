@@ -1,5 +1,5 @@
 // ============================================================
-// 深資童軍進度及行政平台 - Apps Script 後端 v8.7
+// 深資童軍進度及行政平台 - Apps Script 後端 v8.8
 // 全前端帳戶管理、批量開戶、首次登入改密碼、角色驗證及操作紀錄
 // v8.1 新增：活動履歷（服務紀錄／活動紀錄／訓練班紀錄）
 //   - 新工作表「活動履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
@@ -13,17 +13,12 @@
 // v8.3 新增：
 //   - 密碼最短 4 位（原 8 位）；批量／審批初始密碼統一為 1234
 //   - 重新覆蓋 Code.gs 並部署後，執行 initializeSheets() 一次即可套用新原則
-// v8.5 起：內置超管改制為「只在後端（GS）存在」的虛擬帳號，不再寫入 Users 工作表、不會在用戶管理出現。
 // v8.4 新增：活動履歷「團員自行申報 → 領袖審批」
 //   - 新工作表「待批履歷」（執行 initializeSheets() 自動補建，不影響既有資料）
 //   - 新 action：requestLogRecord（團員申報新增／修改）/ getLogRequests / reviewLogRequest / cancelLogRequest
 //   - 團員只可為自己申報；「修改申報」只限自己的紀錄，批准後以同一 record_id 更新（需領袖重批）
 //   - 進度待批（待批完成）及其他獎章流程不變：批准後只有領袖可改
 //   - handleLoad 回應新增 logRequests + logRequestsSupported
-// v8.5 新增：內置超管（sheep）改為「只在 GS 後端存在」的虛擬帳號
-//   - 不再寫入 Users 工作表，亦不會在「用戶管理」（USER 表單）出現
-//   - 登入／權限驗證／自助改密碼由後端直接處理（密碼存於 Script Properties）
-//   - initializeSheets() 會自動移除舊部署已寫入 Users 的超管列（只匹配 sheep / sheep@vsbadge.local）
 // v8.7 新增：用戶管理完整顯示及唯一身份保障
 //   - YMIS / Email 在單筆、批量、申請及編輯流程均由後端鎖內檢查，不可重複
 //   - getAllUsers 合併「Users」及「成員名單」，未開戶成員亦可在前端編輯、開戶或刪除
@@ -34,16 +29,16 @@ const ADMIN_YMIS = '1111111111';
 const ADMIN_NAME = '管理員';
 const ADMIN_EMAIL = 'admin@example.com';
 const ADMIN_PASS = 'changeme';
-// v8.5：後端（GS）內置超管帳號 —— 只存在於程式碼／Script Properties，不寫入 Users 工作表。
-// 可直接以登入帳號 sheep 或 sheep@vsbadge.local 登入；密碼可經「改密碼」自訂（存於 Script Properties）。
+// 自架網站時改成自己的正式 Vercel 網址，不能從登入請求讀取此 URL。
+const SUPER_VERIFY_URL = 'https://vsbadge.vercel.app/api/super';
 const SUPER_ADMIN_ID = 'sheep';
-const SUPER_ADMIN_NAME = 'Sheep 超管';
-const SUPER_ADMIN_EMAIL = 'sheep@vsbadge.local';
-const SUPER_ADMIN_PASS = '0728';
+const SUPER_ADMIN_NAME = '管理員';
+const SUPER_ADMIN_EMAIL = SUPER_ADMIN_ID + '@vsbadge.local';
 const MIN_PASSWORD_LEN = 4;
 const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
 
+// 升級 v8.8 只須更新既有部署版本，不要重跑 initializeSheets()，不改 Sheet 結構或資料。
 // ===== 工具 =====
 function getSheet() { return SpreadsheetApp.getActiveSpreadsheet(); }
 function getApiKey() {
@@ -241,9 +236,6 @@ function getNextLeaderId(){
   return 'L'+String(maxNum+1).padStart(4,'0');
 }
 
-// ===== 超管（v8.5：只存在於後端／GS 的虛擬帳號）=====
-// 超管不再寫入 Users 工作表，故所有查詢都在「程式碼層」處理：
-// getUser()/getUserByEmail() 會回傳虛擬超管；getAllUsers()/getMembers() 會排除它。
 function isSuperAdminId(id){
   const v=String(id||'').trim().toLowerCase();
   return v===String(SUPER_ADMIN_ID).trim().toLowerCase() || v===String(SUPER_ADMIN_EMAIL).trim().toLowerCase();
@@ -259,19 +251,33 @@ function getSuperAdminUser(){
     status:'active', force_change_password:false
   };
 }
-// 超管密碼：預設 SUPER_ADMIN_PASS；若曾自行更改，存於 Script Properties（不會寫進 Users 工作表）。
-const SUPER_PASS_HASH_PROP='SUPER_ADMIN_PASSWORD_HASH';
-function getSuperAdminPasswordHash(){
-  const h=PropertiesService.getScriptProperties().getProperty(SUPER_PASS_HASH_PROP);
-  return h || hashPassword(SUPER_ADMIN_PASS);
+// 升級後在編輯器執行一次，只授權 UrlFetch，不讀寫 Sheet。
+function authorizeConnection(){
+  const response=UrlFetchApp.fetch(SUPER_VERIFY_URL,{muteHttpExceptions:true});
+  if(response.getResponseCode()!==405) throw new Error('連線服務未就緒，請檢查部署設定');
+  return '連線正常，請更新 Apps Script 既有部署至新版本';
 }
-function setSuperAdminPasswordHash(plain){
-  PropertiesService.getScriptProperties().setProperty(SUPER_PASS_HASH_PROP, hashPassword(plain));
+function verifySuperTicket(ticket){
+  if(typeof ticket!=='string' || ticket.length>4096) return false;
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) return false;
+  try{
+    const cache=CacheService.getScriptCache();
+    const cacheKey='super-ticket:'+hashPassword(ticket);
+    if(cache.get(cacheKey)) return false;
+    const response=UrlFetchApp.fetch(SUPER_VERIFY_URL, {
+      method:'post', contentType:'application/json', muteHttpExceptions:true,
+      payload:JSON.stringify({ticket:ticket, apikey:getApiKey(), backend:ScriptApp.getService().getUrl()})
+    });
+    if(response.getResponseCode()!==200 || JSON.parse(response.getContentText()).ok!==true) return false;
+    cache.put(cacheKey,'used',120);
+    return true;
+  }catch(e){ return false; }
+  finally{ lock.releaseLock(); }
 }
 function setSuperAdminLastLogin(){
   PropertiesService.getScriptProperties().setProperty('SUPER_ADMIN_LAST_LOGIN', now());
 }
-// 移除舊部署已寫入 Users 工作表的超管列（只匹配 sheep / sheep@vsbadge.local，不會誤刪其他帳號）
 function removeSuperAdminFromSheet(sheet,map,dataRows){
   if(!sheet || !map || map.ymis===undefined) return;
   for(let i=dataRows.length-1;i>=1;i--){
@@ -311,9 +317,6 @@ function initializeSheets() {
     uSheet.setFrozenRows(1);
   }
   // 確保 Users 欄位完整，並補回內置管理員帳號。
-  // v8.5：內置超管改為「只在 GS 後端存在」的虛擬帳號，不再寫入 Users 工作表，
-  // 也不會在「用戶管理」（USER 表單）出現。若舊部署已把超管寫入 Users，
-  // 此處會自動移除該列（只匹配 SUPER_ADMIN_ID / SUPER_ADMIN_EMAIL，不會誤刪其他帳號）。
   const userMap=ensureUserColumns(uSheet);
   removeSuperAdminFromSheet(uSheet,userMap,uSheet.getDataRange().getValues());
   const userRows=uSheet.getDataRange().getValues();
@@ -401,7 +404,7 @@ function initializeSheets() {
   try{
     const ui=SpreadsheetApp.getUi();
     if(ui){
-      ui.alert('✅ v8.7 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n👑 超管帳號: '+SUPER_ADMIN_ID+' / 密碼 '+SUPER_ADMIN_PASS+'（只存在於後端，不會在「用戶管理」看到；密碼可用「改密碼」自訂）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
+      ui.alert('✅ v8.8 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl);
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
@@ -409,14 +412,12 @@ function initializeSheets() {
 
 // ===== 用戶查詢 =====
 function getUser(ymis){
-  // v8.5：超管為後端虛擬帳號，任何登入／權限驗證都當作有效的 active 用戶。
   if(isSuperAdminId(ymis)) return getSuperAdminUser();
   const rec=findUserRecord(ymis);
   return rec && rec.user.status==='active' ? rec.user : null;
 }
 function getUserByEmail(email){
   if(!email) return null;
-  // v8.5：超管電郵由後端直接處理，不依靠 Users 工作表。
   if(emailKey(email)===emailKey(SUPER_ADMIN_EMAIL)) return getSuperAdminUser();
   const sheet=getSheet().getSheetByName('Users'); if(!sheet) return null;
   const map=ensureUserColumns(sheet); const data=sheet.getDataRange().getValues(); const target=emailKey(email);
@@ -434,7 +435,6 @@ function getAllUsers(){
     for(let i=1;i<data.length;i++){
       const user=userFromRow(data[i],map); const key=accountIdKey(user.ymis);
       if(key) accountIds[key]=true; // 已刪除帳號也要保留識別碼，不能由成員名單重新浮現
-      // v8.5：超管不會出現在用戶列表；v8.7：已刪除帳號只留作唯一識別碼 tombstone。
       if(user.ymis && user.status!=='deleted' && !isSuperAdminReserved(user.ymis,user.email)) users.push(user);
     }
   }
@@ -463,6 +463,7 @@ function validateToken(token){
   const data=sheet.getDataRange().getValues();
   for(let i=1;i<data.length;i++){
     if(data[i][0]===token){
+      if(isSuperAdminId(String(data[i][1])) && !String(token).startsWith('vs-super-v1-')) return null;
       if(new Date()>new Date(data[i][3])){ sheet.deleteRow(i+1); return null; }
       return data[i][1].toString();
     }
@@ -471,7 +472,7 @@ function validateToken(token){
 }
 function createToken(ymis){
   const sheet=getSheet().getSheetByName('Tokens'); if(!sheet) return null;
-  const token=generateToken(); const exp=new Date(); exp.setHours(exp.getHours()+24*30);
+  const token=(isSuperAdminId(ymis)?'vs-super-v1-':'')+generateToken(); const exp=new Date(); exp.setHours(exp.getHours()+24*30);
   sheet.appendRow([token,ymis,now(),Utilities.formatDate(exp,'Asia/Hong_Kong','yyyy-MM-dd HH:mm:ss')]);
   return token;
 }
@@ -486,7 +487,7 @@ function destroyToken(token){
 function doGet(e){
   const action=e.parameter.action;
   if(action==='load'){
-    // v4: allow load without apikey for backwards compatibility (troops.json may not have apikey), but if apikey provided, must validate
+    // Legacy load compatibility: if an API key is provided, it must validate.
     const reqKey=e.parameter.apikey;
     if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
     return handleLoad();
@@ -498,7 +499,7 @@ function doPost(e){
   try{
     const body=JSON.parse(e.postData.contents||'{}');
     const action=String(body.action||'');
-    if(action==='login') return handleLogin(body.login_id,body.password);
+    if(action==='login') return handleLogin(body.login_id,body.password,body.super_ticket);
     if(action==='logout'){ destroyToken(body.token); return jsonResponse({success:true}); }
     // v8.2：公開入口接受成員／執委／領袖申請（角色在 handleApply 內嚴格驗證）；
     // 支部／單位由前端自動帶入所屬旅團名稱，毋須申請人填寫。
@@ -618,14 +619,13 @@ function doPost(e){
 }
 
 // ===== 邏輯 =====
-function handleLogin(loginId,password){
+function handleLogin(loginId,password,superTicket){
   loginId=String(loginId||'').trim();
-  if(!loginId||!password) return jsonResponse({success:false,error:'請填寫帳號和密碼'});
+  if(!loginId||(!password&&!superTicket)) return jsonResponse({success:false,error:'請填寫帳號和密碼'});
   const user=getUser(loginId)||getUserByEmail(loginId);
   if(!user) return jsonResponse({success:false,error:'找不到此帳號或帳號已停用'});
-  // v8.5：超管為只存在於後端（GS）的虛擬帳號，不存放在 Users 工作表。
   if(isSuperAdminId(user.ymis)){
-    if(hashPassword(String(password))!==getSuperAdminPasswordHash()) return jsonResponse({success:false,error:'密碼錯誤'});
+    if(!verifySuperTicket(superTicket)) return jsonResponse({success:false,error:'帳號或密碼錯誤'});
     setSuperAdminLastLogin();
     const token=createToken(user.ymis);
     return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password});
@@ -642,14 +642,7 @@ function handleChangePassword(ymis,oldP,newP){
   if(newP.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newP.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
   if(newP===String(oldP||'')) return jsonResponse({success:false,error:'新密碼不可與原密碼相同'});
-  // v8.5：超管為後端虛擬帳號，密碼存於 Script Properties（不會寫入 Users 工作表）。
-  if(isSuperAdminId(ymis)){
-    if(hashPassword(String(oldP||''))!==getSuperAdminPasswordHash()) return jsonResponse({success:false,error:'原密碼錯誤'});
-    setSuperAdminPasswordHash(newP);
-    setSuperAdminLastLogin();
-    writeAudit(ymis,'change_password',ymis,'用戶自行更改密碼（超管虛擬帳號）');
-    return jsonResponse({success:true,message:'密碼已更新'});
-  }
+  if(isSuperAdminId(ymis)) return jsonResponse({success:false,error:'此帳號不支援在此更改密碼，請聯絡管理員'});
   const rec=findUserRecord(ymis);
   if(!rec || rec.user.status!=='active') return jsonResponse({success:false,error:'找不到用戶'});
   if(String(rec.data[rec.map.password_hash]||'')!==hashPassword(String(oldP||''))) return jsonResponse({success:false,error:'原密碼錯誤'});

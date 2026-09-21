@@ -1,10 +1,4 @@
-// Vercel Serverless Function - 旅團清單 API v3.0
-// v3.0 變更（配合 /api/proxy 架構）：
-//   - 只回傳 {id: {name}}，不再公開 backend URL / apikey
-//   - GAS URL 統一由伺服器端 Registry（api/_registry.js）保管，前端不再需要
-//   - 旅團資料來源不變：data/troops.json + TROOP_{ID}_BACKEND / TROOP_{ID}_APIKEY 環境變數
-// 旅團註冊流程不變：旅團提交 URL+APIKEY 給管理員 → 管理員改 troops.json / 加 env → Redeploy
-
+// 只公開已完成三項環境變數設定的旅團名稱；不讀 JSON。
 import { listPublicTroops } from './_registry.js';
 
 export default function handler(req, res) {

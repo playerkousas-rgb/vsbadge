@@ -393,13 +393,13 @@ a:hover{text-decoration:underline}
         <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>重點：有主系統 ≠ 一定要接上本系統</b>，可自由選擇獨立用或接上，兩條路並存不衝突。藉此告訴用家有更大平台可用。</p>
       </div>
 
-      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 troops.json → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ <b>v3.1 起必須由管理員登記 portalOrigin（主系統網址）+ portalRoles（可帶入角色）</b>，Portal 免登入改由 vsbadge 伺服器驗證來源 → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&src=主系統網址&embed=1 → 直接用（ymis 已可省略）</p></div>
+      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 Vercel 環境變數 → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ <b>v3.1 起必須由管理員登記 portalOrigin（主系統網址）+ portalRoles（可帶入角色）</b>，Portal 免登入改由 vsbadge 伺服器驗證來源 → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&src=主系統網址&embed=1 → 直接用（ymis 已可省略）</p></div>
 
       <div class="tutorial">
         <div class="steps">
           <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
-          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 troops.json，Vercel自動部署後獨立可用</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 主系統卡片只需帶旅團編號</h4><p>v3.0 起採用同源 Proxy：主系統卡片點擊時 URL 只需帶 ?u=0082&role=&from=portal&src=主系統網址&embed=1，無需密碼；旅團 GAS URL 由 vsbadge 伺服器端 Registry 安全解析，不經瀏覽器。<b>v3.1 起 Portal 免登入必須經 /api/portal 驗證來源（portalOrigin）及角色白名單（portalRoles）</b>，唔再淨係信 URL 參數；ymis 已可省略（自動用 PORTAL-&lt;u&gt;-&lt;role&gt;）</p></div></div>
           <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>有主系統不等於一定要接，可自由選擇獨立用。若旅團重私隱，成員預設只看自己；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
         </div>
@@ -812,7 +812,7 @@ zh:{
   'save.writing':'正在寫入雲端...','save.prep':'準備寫入 {n} 項','save.ok':'✅ 寫入成功！','save.done':'已處理 {n} 項',
   'save.wait':'請稍候，切勿關閉頁面','save.fail':'❌ 寫入失敗','save.cloudOk':'✅ 已成功寫入雲端',
   'save.cloudFail':'寫入失敗：{m}，已保留於瀏覽器可重試','save.discardConfirm':'確定捨棄 {n} 項未保存變更？','save.discarded':'已捨棄未保存變更',
-  'role.super_admin':'超管','role.admin':'管理員','role.group_leader':'團長','role.branch_leader':'支部領袖','role.exec_committee':'執委','role.member':'團員',
+  'role.super_admin':'管理員','role.admin':'管理員','role.group_leader':'團長','role.branch_leader':'支部領袖','role.exec_committee':'執委','role.member':'團員',
   'toast.memberMode':'成員模式：只能查看自己進度，其他獎章及申請',
   'progress.viewMember':'檢視成員：','progress.pick':'-- 選擇成員 --','progress.self':'看自己','progress.now':'目前：',
   'progress.completion':'完成度','progress.selfChip':'自己',
@@ -1006,7 +1006,7 @@ zh:{
   'api.badJson':'伺服器回應格式異常 (HTTP {s})，請稍後重試','api.badJson2':'伺服器回應異常 (HTTP {s})',
   'api.proxyFallback':'⚠️ 同源 Proxy 不可用，已切換直接連線（僅限本機開發）',
   'portal.unregTitle':'⚠️ Portal 模式：旅團未在 Registry 登記',
-  'portal.unregP':'請聯絡 vsbadge 管理員將此旅團（編號 {id}）加入 troops.json，然後重新整理。',
+  'portal.unregP':'請聯絡 vsbadge 管理員將此旅團（編號 {id}）加入 Vercel 環境變數，然後重新整理。',
   'portal.preset':'Portal預選','portal.fallbackErr':'載入出錯，已顯示後備 0082：{m}','portal.warnIgnored':'已忽略 URL 中的 backend/apikey 參數',
   'portal.tryDemo':'👀 試用 MOCK 效果','portal.backHome':'← 返回首頁',
   'portal.errTitle':'🚫 未能以主系統身份進入',
@@ -1105,7 +1105,7 @@ en:{
   'save.writing':'Saving to cloud...','save.prep':'Preparing {n} item(s)','save.ok':'✅ Saved!','save.done':'Processed {n} item(s)',
   'save.wait':'Please wait. Do not close this page.','save.fail':'❌ Save failed','save.cloudOk':'✅ Saved to cloud',
   'save.cloudFail':'Save failed: {m}. Kept in this browser so you can retry.','save.discardConfirm':'Discard {n} unsaved change(s)?','save.discarded':'Unsaved changes discarded',
-  'role.super_admin':'Super admin','role.admin':'Admin','role.group_leader':'Group Scout Leader','role.branch_leader':'Venture Scout Leader','role.exec_committee':'Exec','role.member':'Member',
+  'role.super_admin':'Admin','role.admin':'Admin','role.group_leader':'Group Scout Leader','role.branch_leader':'Venture Scout Leader','role.exec_committee':'Exec','role.member':'Member',
   'toast.memberMode':'Member mode: you only see your own progress, other badges and applications',
   'progress.viewMember':'View member:','progress.pick':'-- Select member --','progress.self':'Myself','progress.now':'Now:',
   'progress.completion':'Completion','progress.selfChip':'You',
@@ -1299,7 +1299,7 @@ en:{
   'api.badJson':'Unexpected server response (HTTP {s}). Please try again later.','api.badJson2':'Unexpected server response (HTTP {s})',
   'api.proxyFallback':'⚠️ Same-origin proxy unavailable — switched to direct connection (local development only)',
   'portal.unregTitle':'⚠️ Portal mode: this Group is not registered',
-  'portal.unregP':'Please ask a vsbadge admin to add this Group (no. {id}) to troops.json, then refresh.',
+  'portal.unregP':'Please ask a vsbadge admin to add this Group (no. {id}) to Vercel environment variables, then refresh.',
   'portal.preset':'pre-selected','portal.fallbackErr':'Could not load Groups — showing the 0082 fallback: {m}','portal.warnIgnored':'backend/apikey parameters in the URL were ignored',
   'portal.tryDemo':'👀 Try MOCK demo','portal.backHome':'← Home',
   'portal.errTitle':'🚫 Could not sign you in from the main platform',
@@ -1411,6 +1411,11 @@ function troopDisplayName(t, id){
 function isEn(){ return currentLang==='en'; }
 /* ===== 後端（Code.gs）中文訊息 → 英文（EN 模式即時翻譯，毋須重新部署後端） ===== */
 const BACKEND_MSG_EN={
+  '帳號或密碼錯誤':'Incorrect account or password.',
+  '登入服務暫時無法使用，請聯絡管理員':'Sign-in is temporarily unavailable. Please contact an administrator.',
+  '登入已過期，請重新登入':'Session expired. Please sign in again.',
+  '此帳號不支援在此更改密碼，請聯絡管理員':'Password changes are not available here for this account. Please contact an administrator.',
+  '旅團後端版本需要更新，請聯絡管理員':'This Group’s backend needs an update. Please contact an administrator.',
   '未授權 - 請重新登入':'Unauthorised — please sign in again',
   '未授權，請重新登入':'Unauthorised. Please sign in again.',
   '帳號沒有直接寫入進度權限':'This account is not allowed to write progress directly',
@@ -1592,11 +1597,11 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
   </ul>
   <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>Having the main platform ≠ you must connect this system.</b> Use it standalone or connected; both paths work.</p>
 </div>
-<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to troops.json → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). <b>From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles)</b> — portal sign-in is then verified server-side. Use: Dashboard → card → from=portal&src=main-platform-origin&embed=1 (ymis is now optional).</p></div>
+<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to Vercel environment variables → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). <b>From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles)</b> — portal sign-in is then verified server-side. Use: Dashboard → card → from=portal&src=main-platform-origin&embed=1 (ymis is now optional).</p></div>
 <div class="tutorial"><div class="steps">
   <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (single file)</h4><p>Pending claims, other badges, bulk, PNG, privacy switch</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy API Key<br><b>2.4</b> Deploy as web app (execute as me, access anyone), copy the /exec URL</p></div></div>
-  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Path A: no main platform — submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add troops.json. After Vercel deploys, use it standalone.</p></div></div>
+  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Path A: no main platform — submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add Vercel environment variables. After Vercel deploys, use it standalone.</p></div></div>
   <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Path B: main platform card only needs the Group number</h4><p>From v3.0, same-origin proxy: the card URL is ?u=0082&role=&from=portal&src=main-platform-origin&embed=1. The GAS URL stays in the vsbadge server Registry. <b>From v3.1 portal sign-in must be verified by /api/portal (source origin portalOrigin + role allow-list portalRoles)</b> instead of trusting URL parameters; ymis is now optional (falls back to PORTAL-&lt;u&gt;-&lt;role&gt;).</p></div></div>
   <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Privacy</h4><p>You may stay standalone. Members see only themselves by default. To encourage one another, the GSL can turn on “Allow members to view one another’s progress” under Users → settings.</p></div></div>
 </div></div>
@@ -1774,7 +1779,7 @@ async function handlePortalParams(){
   const from=params.get('from');
 
   // 安全（v3.0）：URL 參數中的 backend/apikey 一律忽略，杜絕任意後端注入（SSRF/Open Proxy 風險）。
-  // 旅團的 GAS URL 只由伺服器端可信 Registry（troops.json + env）解析。
+  // 旅團的 GAS URL 只由伺服器端可信 Registry（Vercel env）解析。
   if(params.get('backend')||params.get('apikey')){
     console.warn('已忽略 URL 中的 backend/apikey 參數：v3.0 起由伺服器端 Registry 解析旅團後端');
   }
@@ -1794,20 +1799,10 @@ async function handlePortalParams(){
         if(t2){ troopRegistered=true; currentTroopName=troopDisplayName(t2,u)||troopNameParam; }
       }
     }catch(e){ console.warn('api/troops lookup failed',e); }
-    if(!troopRegistered){
-      try{
-        const r=await fetch('data/troops.json?_='+Date.now());
-        if(r.ok){
-          const d=await r.json();
-          const t=d.troops[u];
-          if(t && (t.name||t.en)){ troopRegistered=true; currentTroopName=troopDisplayName(t,u); }
-        }
-      }catch(e){ console.warn('portal troops.json lookup failed',e); }
-    }
+
   }
 
   // 若由 Portal 帶入身份：v3.1 起必須先經伺服器驗證，唔可以再淨係信 URL 參數。
-  // （舊版漏洞：任何人砌 ?u=0082&from=portal&role=super_admin&ymis=x 即可取得超管身份）
   // 伺服器會核實：旅團是否已登記 → 有冇開放 portal → 來源網址（Referer/src）→ 角色白名單。
   if(from==='portal' && role){
     let v={ ok:false, reason:'no_response' };
@@ -1850,7 +1845,7 @@ async function handlePortalParams(){
     if(troopRegistered){
       loadItemsAndProgress();
     }else{
-      document.getElementById('tab-progress').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>${i18n('portal.unregTitle')}</p><p style="font-size:11px">${isEn()?'u='+u+' was not found in the server-side troops.json / env':'u='+u+' 未在伺服器端 troops.json / env 找到'}</p><p style="font-size:11px">${isEn()?'Please ask a vsbadge admin to register this Group’s backend URL in the Registry (the portal card only needs to pass u; no backend/apikey needed).':'請聯絡 vsbadge 管理員將旅團 GAS URL 加入 Registry（主系統卡片只需傳 u 參數，不需再傳 backend/apikey）'}</p></div>`;
+      document.getElementById('tab-progress').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)"><p>${i18n('portal.unregTitle')}</p><p style="font-size:11px">${isEn()?'u='+u+' was not found in the server-side Vercel env':'u='+u+' 未在伺服器端 Vercel env 找到'}</p><p style="font-size:11px">${isEn()?'Please ask a vsbadge admin to register this Group’s backend URL in the Registry (the portal card only needs to pass u; no backend/apikey needed).':'請聯絡 vsbadge 管理員將旅團 GAS URL 加入 Registry（主系統卡片只需傳 u 參數，不需再傳 backend/apikey）'}</p></div>`;
     }
     return;
   }
@@ -1949,30 +1944,23 @@ function backToHome(){
 async function loadTroops(){
   const grid=document.getElementById('troopGrid');
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px">'+i18n('home.loading')+'</p>';
-  // 後備（不含任何後端 URL）：確保即使資料源 404 都顯示 0082；真正後端由伺服器端 Registry 解析
-  const fallbackTroops={ "0082": { name:"第 82 旅", en:"82nd Group" } };
   try{
-    let troops={};
-    try{
-      let r2=await fetch('/api/troops?_='+Date.now());
-      if(!r2.ok) r2=await fetch('/api/troops.js?_='+Date.now());
-      if(r2.ok){ const d2=await r2.json(); if(d2.troops){ for(const [id,t] of Object.entries(d2.troops)) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; } }
-    }catch(e){ console.warn('api/troops failed',e); }
-    try{ const r=await fetch('data/troops.json?_='+Date.now()); if(r.ok){ const d=await r.json(); if(d.troops){ for(const [id,t] of Object.entries(d.troops)){ if(!troops[id]) troops[id]={name:t.name||('第'+id+'旅'), en:t.en||''}; else if(t.en&&!troops[id].en) troops[id].en=t.en; } } } }catch(e){ console.warn('data/troops.json failed',e); }
-    const fromSource=Object.keys(troops).length>0;
-    // 合併後備，確保0082一定可見
-    troops={...fallbackTroops, ...troops};
-    grid.innerHTML=Object.entries(troops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${troopDisplayName(t,id)}</div></div>`).join('');
-    // 若只有後備，提示
-    if(!fromSource){
-      grid.innerHTML+=`<div style="grid-column:1/-1;text-align:center;padding:8px;background:#FFF3CD;border-radius:8px;font-size:11px;margin-top:8px">${isEn()?'⚠️ Showing Group 0082 from fallback data. If data/troops.json is not deployed on Vercel, check that it has been pushed to GitHub.':'⚠️ 正使用後備資料顯示 0082，若 Vercel 上 data/troops.json 未部署，請檢查 GitHub 是否已推送 data/troops.json'}</div>`;
+    let r=await fetch('/api/troops?_='+Date.now());
+    if(!r.ok) r=await fetch('/api/troops.js?_='+Date.now());
+    if(!r.ok) throw new Error(isEn()?'Unable to load Groups. Please retry.':'無法載入旅團，請稍後重新整理。');
+    const d=await r.json();
+    const troops=d.troops||{};
+    grid.innerHTML='';
+    for(const [id,t] of Object.entries(troops)){
+      const card=document.createElement('div'); card.className='troop-card';
+      const number=document.createElement('div'); number.className='troop-id'; number.textContent=id;
+      const name=document.createElement('div'); name.className='troop-name'; name.textContent=troopDisplayName(t,id);
+      card.append(number,name); card.onclick=()=>selectTroop(id); grid.append(card);
     }
-  }catch(e){
-    console.error(e);
-    // 即使出錯也顯示後備
-    grid.innerHTML=Object.entries(fallbackTroops).map(([id,t])=>`<div class="troop-card" onclick="selectTroop('${id}')"><div class="troop-id">${id}</div><div class="troop-name">${troopDisplayName(t,id)}</div></div>`).join('') + `<p style="grid-column:1/-1;text-align:center;color:var(--red);font-size:11px">${i18n('portal.fallbackErr',{m:e.message})}</p>`;
-  }
+    if(!Object.keys(troops).length) grid.textContent=isEn()?'No registered Groups. Ask an admin to check Vercel environment variables.':'暫無已登記旅團，請管理員檢查 Vercel 環境變數。';
+  }catch(e){ grid.textContent=e.message; }
 }
+
 async function selectTroop(id){
   try{
     let tr=null;
@@ -1982,9 +1970,6 @@ async function selectTroop(id){
       const d2=await r2.json();
       tr=(d2.troops||{})[id];
     }catch(e){}
-    if(!tr){
-      try{ const r=await fetch('data/troops.json'); const d=await r.json(); const f=(d.troops||{})[id]; if(f) tr={name:f.name,en:f.en||''}; }catch(e){}
-    }
     if(!tr){ showToast(i18n('unreg'),'error'); return; }
     currentTroopId=id; currentTroopName=troopDisplayName(tr,id);
     document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
@@ -2088,7 +2073,6 @@ function canUserTickRole(role){
 }
 
 function canCurrentUserTickItem(itemId){
-  // 超管全部可勾
   if(!currentUser) return false;
   if(currentUser.role==='super_admin') return true;
   // 若沒有 allowed_badges 欄位或為 * 或空且為領袖，默認全部
@@ -2157,6 +2141,7 @@ async function submitAccountApply(){
 }
 function showChangePasswordModal(required=false){
   if(!currentUser||!currentToken){ showToast(i18n('pw.loginFirst'),'warning'); return; }
+  if(currentUser.role==='super_admin'){ showToast(isEn()?'Password changes are not available here for this account. Please contact an administrator.':'此帳號不支援在此更改密碼，請聯絡管理員','warning'); return; }
   document.getElementById('oldPassword').value=''; document.getElementById('newPassword').value=''; document.getElementById('confirmNewPassword').value='';
   document.getElementById('changePasswordCancel').style.display=required?'none':'';
   document.getElementById('changePasswordHint').innerHTML=required?i18n('pw.must'):i18n('pw.hint');

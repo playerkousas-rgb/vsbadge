@@ -1,10 +1,5 @@
 // Vercel Serverless Function — Portal 免登入身份驗證（v3.1）
 //
-// 背景：v3.0 及之前，index.html 的 handlePortalParams() 只信 URL 參數
-//   ?u=0082&from=portal&role=super_admin&ymis=x
-// 任何人砌這條網址即可取得超管身份（can_tick:true、allowed_badges:'*'、用戶管理／審批中心）。
-// v3.1 起：前端必須先問這個 endpoint，由伺服器決定「這個旅團允不允許、從哪個網站、用哪個角色」。
-//
 // 安全原則（與 /api/proxy 一致）：
 //   1. 只接受 GET；不加任何 CORS header（只給同源前端用，跨站讀不到結果）
 //   2. 旅團必須在伺服器端 Registry 登記，且 backend 通過 isTrustedExecUrl()

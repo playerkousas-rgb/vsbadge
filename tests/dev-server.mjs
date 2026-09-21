@@ -13,6 +13,7 @@ const PORT = parseInt(process.argv[2] || process.env.PORT || '3000', 10);
 
 const { default: proxyHandler } = await import('../api/proxy.js');
 const { default: troopsHandler } = await import('../api/troops.js');
+const { default: superHandler } = await import('../api/super.js');
 const { default: portalHandler } = await import('../api/portal.js');
 
 function vercelize(res) {
@@ -27,9 +28,10 @@ const server = http.createServer((req, res) => {
   if (u.pathname === '/api/proxy' || u.pathname === '/api/proxy.js') return proxyHandler(req, vercelize(res));
   if (u.pathname === '/api/troops' || u.pathname === '/api/troops.js') return troopsHandler(req, vercelize(res));
   if (u.pathname === '/api/portal' || u.pathname === '/api/portal.js') return portalHandler(req, vercelize(res));
+  if (u.pathname === '/api/super' || u.pathname === '/api/super.js') return superHandler(req, vercelize(res));
   let p = u.pathname === '/' ? '/index.html' : decodeURIComponent(u.pathname);
   const fp = path.join(ROOT, p);
-  if (!fp.startsWith(ROOT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) {
+  if (!fp.startsWith(ROOT + path.sep) || !/^\/(index\.html|assets\/|data\/|docs\/|apps-script\/|README\.md|DEPLOY_GUIDE_FOR_TROOPS\.md)/.test(p) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) {
     res.writeHead(404); res.end('not found'); return;
   }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream', 'Cache-Control': 'no-store' });

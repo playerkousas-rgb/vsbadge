@@ -1,0 +1,10 @@
+node_modules/
+.vercel/
+.env*
+!.env.example
+*.log
+*.bak*
+*.tmp
+*.old
+coverage/
+uploads/

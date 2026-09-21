@@ -1,3 +1,6 @@
+> **v8.8 現有系統升級請先看 [ENV_MIGRATION.md](docs/ENV_MIGRATION.md)**：不重建 Sheet、不執行 initializeSheets()。下方建立 Sheet／初始化步驟只適用於全新安裝。
+> 旅團登記只用三個 Vercel 環境變數 NAME / BACKEND / APIKEY，設定後須手動 Redeploy。
+
 # 🗺️ 旅團部署指南 v8.2 - 有主系統 / 無主系統 兩條路
 
 > 10分鐘完成。支援 **獨立使用** 及 **接入主系統 (scoutsystem-2.0)**，有主系統不等於一定要接上，可自由選擇
@@ -35,17 +38,17 @@
 分叉：
 
 軌道 A：無主系統 / 有主系統但想獨立用 (推薦新手)
-  → 將 URL + API Key 交給 vsbadge 管理員 → 加入 troops.json → 完成
+  → 將 URL + API Key 交給 vsbadge 管理員 → 加入 Vercel 環境變數 → 完成
   → 用法：打開 vsbadge.vercel.app → 選 0082 → 登入
   → 優點：簡單，唔使搞主系統
 
 軌道 B：有主系統並想接上 (進階)
-  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 troops.json / env Registry)
+  → 同樣將 URL + API Key 交給 vsbadge 管理員 (加入 Vercel 環境變數 Registry)
   → v3.0 起：主系統卡片只需帶 u=旅團編號，**不需要**再填/傳 backend + apikey
   → **v3.1 起（必須）**：管理員要為旅團登記 portalOrigin = 主系統網址，並設定 portalRoles（可帶入的角色）
   → 用法：主系統 Dashboard 點「深資童軍進度追蹤」卡片 → 自動帶入身份 (from=portal&embed=1) → 直接用
   → 優點：單一登入、自動帶身份、介面嵌入、成員唔使記多個密碼
-  → 注意：領袖經 Portal 免登入**寫入**時，旅團 API Key 必須已登記在 vsbadge Registry（troops.json 的 apikey 或 TROOP_{ID}_APIKEY env），由伺服器端注入
+  → 注意：領袖經 Portal 免登入**寫入**時，旅團 API Key 必須已登記在 vsbadge Registry（TROOP_{ID}_APIKEY env），由伺服器端注入
 
 兩條路可同時用：領袖從主系統卡片入(自動身份)，成員 bookmark 獨立連結
 ```
@@ -102,7 +105,7 @@
 
 ### 第 5 步：提交給 vsbadge 管理員 (獨立用必要)
 
-將以下交給 vsbadge 管理員 (GitHub `troops.json` 維護者)：
+將以下交給 vsbadge 管理員 (Vercel 環境變數管理員)：
 
 | 資訊 | 範例 |
 |------|------|
@@ -111,7 +114,7 @@
 | Apps Script URL | https://script.google.com/.../exec |
 | API Key | vs_xxxxxxxxxxxxxxxx |
 
-管理員加入 `troops.json` 後 Vercel 自動部署，之後 `vsbadge.vercel.app` 就會有你旅團，你的成員可獨立使用。
+管理員加入 Vercel 環境變數 後在 Vercel 按 Redeploy，之後 `vsbadge.vercel.app` 就會有你旅團，你的成員可獨立使用。
 
 **到此，軌道 A (無主系統/獨立用) 已完成！可跳到首次登入。**
 
@@ -131,8 +134,7 @@
 
 ### 第 6.5 步 (僅軌道 B)：告訴 vsbadge 管理員你的主系統網址（v3.1 必須）
 
-v3.1 起 Portal 免登入**必須**由 vsbadge 伺服器驗證來源，唔再淨係信 URL 參數
-（舊版任何人砌 `?u=0082&from=portal&role=super_admin&ymis=x` 即可取得超管身份，已被修補）。
+v3.1 起 Portal 免登入**必須**由 vsbadge 伺服器驗證來源，唔再淨係信 URL 參數。
 
 **你要做嘅好簡單**：把你個主系統（82venture）嘅網址話俾 vsbadge 管理員知就得。
 管理員會喺 Vercel 設一條全域 env，**所有旅團一齊生效**：
@@ -142,7 +144,7 @@ PORTAL_DEFAULT_ORIGIN = https://82venture.vercel.app
 PORTAL_DEFAULT_ROLES  = exec_committee,branch_leader,group_leader
 ```
 
-- 你唔使喺 `troops.json` 加任何嘢，旅團只要照常登記 `u` + `backend`（+ `apikey`）就得
+- 你唔使喺 Vercel 環境變數 加任何嘢，旅團只要照常登記 `u` + `backend`（+ `apikey`）就得
 - 第時改主系統地址：管理員改一條 env → redeploy 即生效
 - 冇設呢條 env（出廠狀態）= 全部旅團都唔開放 portal（fail closed）
 - ⚠️ 係 **origin**（`https://82venture.vercel.app`，唔包 path）；preview／本機網址係唔同
@@ -189,7 +191,6 @@ https://vsbadge.vercel.app/?u=0082&role=exec_committee&ymis=PORTAL-0082-EXCO&nam
 系統初始化時會自動建立兩個帳號：
 
 - 管理員：YMIS `1111111111` / 密碼 `changeme` / 角色 admin（首次登入必須更改）
-- 超管：登入帳號 `sheep`／電郵 `sheep@vsbadge.local` / 密碼 `0728` / 角色 super_admin —— **只在後端（GS）存在**，不會寫入 Users 工作表，亦不會在「用戶管理」看到；可直接登入，密碼可於登入後經「改密碼」自訂（存於後端）。
 
 用任一帳號登入後完成首次設定：
 
@@ -206,7 +207,7 @@ https://vsbadge.vercel.app/?u=0082&role=exec_committee&ymis=PORTAL-0082-EXCO&nam
 
 > 公開申請只限 **團員／執委／支部領袖** 三個身份；**團長／管理員** 角色必須由現任團長在「用戶管理」直接開立。
 >
-> 🔢 密碼原則（v8.3）：密碼最短 **4 位**；批量開戶／審批初始密碼預設為 **1234**（首次登入仍會要求更改）。內置超管 `sheep` 為**只在後端（GS）存在**的虛擬帳號——即使重建 Sheet 也不會消失，但**不會出現在 Users 工作表／用戶管理**；覆蓋 `Code.gs` 並重新部署（可再執行一次 `initializeSheets()`）即會套用新行為並自動移除舊部署已寫入 Users 的 sheep 列。
+> 🔢 密碼原則（v8.3）：密碼最短 **4 位**；批量開戶／審批初始密碼預設為 **1234**（首次登入仍會要求更改）。
 
 ---
 
@@ -231,7 +232,7 @@ A: 不用。有主系統不等於一定要接。你可以繼續獨立用 vsbadge
 A: 能，雙軌並存。領袖從主系統卡片入(自動身份)，成員直接開 vsbadge.vercel.app。
 
 **Q: 顯示「無法連接旅團後端／找不到此旅團」？**
-A: 確認 Apps Script 部署存取權為「任何人」（執行身分：我；存取權：任何人），且旅團已加入 vsbadge Registry（troops.json 或 Vercel env）。v3.0 起主系統卡片的 backend/apikey 欄位不再是後端來源。
+A: 確認 Apps Script 部署存取權為「任何人」（執行身分：我；存取權：任何人），且旅團已加入 vsbadge Registry（Vercel env）。v3.0 起主系統卡片的 backend/apikey 欄位不再是後端來源。
 
 **Q: 忘記 API Key？**
 A: Apps Script 編輯器選 `showApiKey` 函數執行，會再次顯示。
