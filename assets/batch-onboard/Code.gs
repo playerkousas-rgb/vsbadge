@@ -76,7 +76,7 @@ function toJson(rows) {
       branch: String(r.branch || r.squad || '').trim(),
       role: String(r.role || 'member').trim(),
       can_tick: ['true', '1', 'yes', 'y', '是'].indexOf(String(r.can_tick || '').trim().toLowerCase()) >= 0,
-      // v8.3：留空時預設初始密碼 1234
+      // 留空時預設初始密碼 1234
       password: String(r.password || '').trim() || '1234'
     };
   });
@@ -220,7 +220,7 @@ function writeToMainSheet() {
     set('role', m.role);
     set('branch', m.branch);
     set('can_tick', (m.role !== 'member' && m.can_tick) ? 'TRUE' : 'FALSE');
-    // v8.3：留空時預設初始密碼 1234（仍在首次登入強制更改）
+    // 留空時預設初始密碼 1234（仍在首次登入強制更改）
     var pass = String(m.password || '').trim() || '1234';
     set('password_hash', hashPassword(pass));
     set('auth_by', 'bulk_onboard');
