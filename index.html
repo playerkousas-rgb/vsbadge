@@ -110,13 +110,11 @@ a:hover{text-decoration:underline}
 .user-info{font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .user-chip{background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:999px;font-size:11px}
 
-/* Nav Tabs：兩行架構（第一行主要／第二行常用），按鈕平分，不再橫向滾動
-   桌面：第一行 = 📊我的進度 ＋ 領袖專屬（👥全團總覽／👥用戶管理）
-   手機：常用按鈕在上方，領袖才有的按鈕移至下方（見 @media(max-width:768px)） */
+/* Nav Tabs：所有按鈕一行過（桌面螢幕大，一行放得晒），不再橫向滾動
+   手機：轉直向堆疊（主要在上／常用中段／領袖專屬最下），並整列固定置頂（見 @media(max-width:768px)） */
 .nav-tabs{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:54px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
 .nav-row{display:contents} /* 桌面：各組按鈕攤平到同一行，用 order 決定左右次序 */
-.nav-break{order:3;flex:0 0 100%;width:100%;height:0;border-top:1px solid var(--border)} /* 第一行／第二行分隔線 */
-.nav-tab{order:9;flex:1 1 0;min-width:0;max-width:320px;padding:12px 12px;text-align:center;cursor:pointer;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-tab{order:9;flex:1 1 auto;min-width:100px;max-width:320px;padding:12px 12px;text-align:center;cursor:pointer;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-tab:hover{background:var(--bg);color:var(--text)}
 .nav-tab.active{color:var(--maroon);border-bottom-color:var(--maroon);background:var(--maroon-light)}
 .nav-group-main .nav-tab{order:1} /* 📊我的進度（＋全團總覽，如團長開放成員互相查看） */
@@ -292,11 +290,11 @@ a:hover{text-decoration:underline}
   .main-app-header .left{min-width:0;flex:1}.main-app-header h1{font-size:14px;line-height:1.35;white-space:normal}
   .user-info{width:100%;justify-content:space-between}.user-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
   .user-info .btn{min-height:40px}
-  /* 手機：主要按鈕（我嘅進度）在最上，常用按鈕平分中段，領袖才有的按鈕移去最下方；行數變多故不再固定置頂 */
-  .nav-tabs{flex-direction:column;position:static;z-index:120;justify-content:normal}
+  /* 手機：主要按鈕（我嘅進度）在最上，常用按鈕平分中段，領袖才有的按鈕移去最下方；整個導覽固定置頂，拉到幾低都唔會唔見 */
+  .nav-tabs{flex-direction:column;position:sticky;top:0;z-index:120;justify-content:normal;max-height:60dvh;overflow-y:auto;scrollbar-width:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
   .nav-row{display:flex;flex-wrap:wrap}
-  .nav-break{display:none}
-  .nav-tab{max-width:none;min-height:44px;padding:10px 6px;font-size:12px}
+  .nav-tab{max-width:none;min-width:0;min-height:44px;padding:10px 6px;font-size:12px}
   .nav-group-main{order:1;font-size:13px;font-weight:700}
   .nav-group-main .nav-tab{flex:1 1 calc(50% - 1px)} /* 1 個＝整行；2 個＝左右平分 */
   .nav-group-shared{order:2;border-top:1px solid var(--border)}
@@ -520,9 +518,9 @@ a:hover{text-decoration:underline}
       <button class="btn btn-sm btn-secondary" onclick="doLogout()" data-i18n="btn.logout">登出</button>
     </div>
   </div>
-  <!-- v8.8 導覽兩層架構：主要（我嘅進度／全團總覽）＋常用（5 個）在上，領袖才有的（用戶管理）另成一行
-       桌面：第一行＝主要＋領袖專屬（中間分隔線），第二行＝常用平分一行
-       手機：第一行＝主要（平分），第二行＝常用（3＋2 平分，唔會被切走），最底＝領袖專屬 -->
+  <!-- v8.8 導覽架構：三組按鈕（主要／領袖專屬／常用）
+       桌面：全部攤平一行過（大螢幕放得晒，用 order 排先後）
+       手機：直向堆疊（主要在上，常用 3＋2 平分中段，領袖專屬最底），整列固定置頂唔會被拉走 -->
   <div class="nav-tabs" id="mainNavTabs">
     <div class="nav-row nav-group-main">
       <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)" data-i18n="nav.progress">📊 我的進度</button>
@@ -531,7 +529,6 @@ a:hover{text-decoration:underline}
     <div class="nav-row nav-group-manage">
       <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none" data-i18n="nav.users">👥 用戶管理</button>
     </div>
-    <div class="nav-break" aria-hidden="true"></div>
     <div class="nav-row nav-group-shared">
       <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)"><span data-i18n="nav.requests">✅ 審批中心</span> <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
       <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)" data-i18n="nav.logs">📅 活動履歷</button>
