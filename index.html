@@ -110,12 +110,19 @@ a:hover{text-decoration:underline}
 .user-info{font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .user-chip{background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:999px;font-size:11px}
 
-/* Nav Tabs */
-.nav-tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:54px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
-.nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{flex:0 0 auto;min-width:100px;padding:14px 16px;text-align:center;cursor:pointer;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
+/* Nav Tabs：兩行架構（第一行主要／第二行常用），按鈕平分，不再橫向滾動
+   桌面：第一行 = 📊我的進度 ＋ 領袖專屬（👥全團總覽／👥用戶管理）
+   手機：常用按鈕在上方，領袖才有的按鈕移至下方（見 @media(max-width:768px)） */
+.nav-tabs{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:54px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+.nav-row{display:contents} /* 桌面：各組按鈕攤平到同一行，用 order 決定左右次序 */
+.nav-break{order:3;flex:0 0 100%;width:100%;height:0;border-top:1px solid var(--border)} /* 第一行／第二行分隔線 */
+.nav-tab{order:9;flex:1 1 0;min-width:0;max-width:320px;padding:12px 12px;text-align:center;cursor:pointer;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--text-light);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-tab:hover{background:var(--bg);color:var(--text)}
 .nav-tab.active{color:var(--maroon);border-bottom-color:var(--maroon);background:var(--maroon-light)}
+.nav-group-main .nav-tab{order:1} /* 📊我的進度（＋全團總覽，如團長開放成員互相查看） */
+.nav-group-manage .nav-tab{order:2} /* 領袖專屬：👥用戶管理（桌面與第一行同列） */
+.nav-group-manage .nav-tab:first-child{border-left:1px solid var(--border)} /* 中間分隔線 */
+.nav-group-shared .nav-tab{order:4} /* 常用：審批、履歷、列印、教學、資料庫（平分一行） */
 .tab-content{display:none;padding:18px}
 .tab-content.active{display:block;animation:fadeIn .25s ease}
 
@@ -285,7 +292,18 @@ a:hover{text-decoration:underline}
   .main-app-header .left{min-width:0;flex:1}.main-app-header h1{font-size:14px;line-height:1.35;white-space:normal}
   .user-info{width:100%;justify-content:space-between}.user-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
   .user-info .btn{min-height:40px}
-  .nav-tabs{top:0;z-index:120;scroll-snap-type:x proximity}.nav-tab{min-width:96px;min-height:46px;padding:11px 10px;font-size:12px;scroll-snap-align:start}
+  /* 手機：主要按鈕（我嘅進度）在最上，常用按鈕平分中段，領袖才有的按鈕移去最下方；行數變多故不再固定置頂 */
+  .nav-tabs{flex-direction:column;position:static;z-index:120;justify-content:normal}
+  .nav-row{display:flex;flex-wrap:wrap}
+  .nav-break{display:none}
+  .nav-tab{max-width:none;min-height:44px;padding:10px 6px;font-size:12px}
+  .nav-group-main{order:1;font-size:13px;font-weight:700}
+  .nav-group-main .nav-tab{flex:1 1 calc(50% - 1px)} /* 1 個＝整行；2 個＝左右平分 */
+  .nav-group-shared{order:2;border-top:1px solid var(--border)}
+  .nav-group-shared .nav-tab{flex:1 1 calc(33.333% - 1px)} /* 5 個＝3＋2 平分 */
+  .nav-group-manage{order:3;border-top:1px solid var(--border);background:var(--bg)}
+  .nav-group-manage .nav-tab:first-child{border-left:none}
+  .nav-group-manage .nav-tab{flex:1 1 50%}
   .tab-content{padding:12px}
   .badge-header{padding:12px;align-items:flex-start;gap:8px}.badge-header h3{font-size:14px;line-height:1.45;display:block}
   .segment-header{padding:10px 12px;align-items:flex-start;gap:8px}.items-container{padding:6px 10px}
@@ -310,6 +328,7 @@ a:hover{text-decoration:underline}
   .toast{bottom:calc(16px + env(safe-area-inset-bottom));border-radius:10px;width:calc(100% - 24px);max-width:520px}
 }
 @media(max-width:420px){
+  .nav-tab{font-size:11.5px;padding:9px 4px;min-height:42px}.nav-group-main{font-size:12.5px}
   .troop-grid{grid-template-columns:1fr}.welcome-nav button{flex-basis:100%}.level-box{padding:10px 6px}.level-box .level-num{font-size:18px}.tab-content{padding:10px}.badge-header h3 small{display:block;margin-top:2px}
   .user-item-actions,.app-item-actions{grid-template-columns:1fr}.modal-actions{flex-direction:column}
 }
@@ -501,15 +520,25 @@ a:hover{text-decoration:underline}
       <button class="btn btn-sm btn-secondary" onclick="doLogout()" data-i18n="btn.logout">登出</button>
     </div>
   </div>
+  <!-- v8.8 導覽兩層架構：主要（我嘅進度／全團總覽）＋常用（5 個）在上，領袖才有的（用戶管理）另成一行
+       桌面：第一行＝主要＋領袖專屬（中間分隔線），第二行＝常用平分一行
+       手機：第一行＝主要（平分），第二行＝常用（3＋2 平分，唔會被切走），最底＝領袖專屬 -->
   <div class="nav-tabs" id="mainNavTabs">
-    <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)" data-i18n="nav.progress">📊 我的進度</button>
-    <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)" data-i18n="nav.overview">👥 全團總覽</button>
-    <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)"><span data-i18n="nav.requests">✅ 審批中心</span> <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
-    <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)" data-i18n="nav.logs">📅 活動履歷</button>
-    <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)" data-i18n="nav.forms">🖨️ 表格列印</button>
-    <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)" data-i18n="nav.help">❓ 教學</button>
-    <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)" data-i18n="nav.info">📚 資料庫</button>
-    <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none" data-i18n="nav.users">👥 用戶管理</button>
+    <div class="nav-row nav-group-main">
+      <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)" data-i18n="nav.progress">📊 我的進度</button>
+      <button class="nav-tab" id="btn-tab-overview" onclick="switchTab('overview', this)" style="display:none" data-i18n="nav.overview">👥 全團總覽</button>
+    </div>
+    <div class="nav-row nav-group-manage">
+      <button class="nav-tab" id="btn-tab-users" onclick="switchTab('users', this)" style="display:none" data-i18n="nav.users">👥 用戶管理</button>
+    </div>
+    <div class="nav-break" aria-hidden="true"></div>
+    <div class="nav-row nav-group-shared">
+      <button class="nav-tab" id="btn-tab-requests" onclick="switchTab('requests', this)"><span data-i18n="nav.requests">✅ 審批中心</span> <span id="badgeRequestsCount" style="background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;display:none">0</span></button>
+      <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)" data-i18n="nav.logs">📅 活動履歷</button>
+      <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)" data-i18n="nav.forms">🖨️ 表格列印</button>
+      <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)" data-i18n="nav.help">❓ 教學</button>
+      <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)" data-i18n="nav.info">📚 資料庫</button>
+    </div>
     <!-- 已合併：審批申請已併入審批中心，按項目及按項目已併入全團總覽，其他獎章已併入我的進度，版本更新框架保留 -->
     <button class="nav-tab" id="btn-tab-apps" onclick="switchTab('apps', this)" style="display:none">📋 審批申請(舊-已合併)</button>
     <button class="nav-tab" id="btn-tab-byitem" onclick="switchTab('byitem', this)" style="display:none">🔍 按項目(舊)</button>
@@ -2042,7 +2071,9 @@ function checkSavedSession(){
     if(currentUser.force_change_password) setTimeout(()=>showChangePasswordModal(true),250);
   }catch(e){ console.error(e); }
 }
-function setupTabsByRole(){
+/* v8.8：按角色／系統設定決定導覽按鈕顯示，之後同步導覽行（冇可見按鈕嘅行唔會剩低空白格） */
+function applyNavVisibility(){
+  if(!currentUser) return;
   const isLeader = ['admin','group_leader','branch_leader','exec_committee','super_admin'].includes(currentUser.role);
   const isManage = ['admin','group_leader','branch_leader','super_admin'].includes(currentUser.role);
   const isMember = currentUser.role==='member';
@@ -2054,8 +2085,20 @@ function setupTabsByRole(){
   document.getElementById('btn-tab-users').style.display=isManage?'block':'none';
   // 審批申請已合併到審批中心，不再獨立顯示
   document.getElementById('btn-tab-apps').style.display='none';
+  syncNavRows();
+}
+/* 導覽行收合：行內全部按鈕都隱藏時整行收起（例如成員沒有「用戶管理」行） */
+function syncNavRows(){
+  document.querySelectorAll('#mainNavTabs .nav-row').forEach(row=>{
+    const visible=[...row.querySelectorAll('.nav-tab')].some(b=>b.style.display!=='none');
+    row.style.display=visible?'':'none';
+  });
+}
+function setupTabsByRole(){
+  const isMember = currentUser.role==='member';
   // 成員的待批頁顯示自己申請，保留
   // 其他獎章頁合併進進度，但保留獨立頁供領袖編輯，成員只讀自己
+  applyNavVisibility();
   // restore pending from local
   try{
     const p=localStorage.getItem(LS.pending(currentTroopId));
@@ -2192,6 +2235,7 @@ async function loadAppConfig(){
     if(d.success && d.config){
       appConfig=d.config;
       if(!appConfig.allow_member_view_others) appConfig.allow_member_view_others='false';
+      applyNavVisibility(); // 私隱開關可影響導覽（成員可否看全團總覽）
     }
   }catch(e){ console.warn('load config failed',e); }
 }
