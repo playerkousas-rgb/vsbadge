@@ -228,25 +228,96 @@ test('直接入口掣：未設定時現有旅團行為完全不變', () => {
   assert.ok(String(login.token).length > 10);
   const load = g.doGet({ parameter: { action: 'load' } });
   assert.equal(load.success, true);
+  const mode = g.doGet({ parameter: { action: 'getLoginMode' } });
+  assert.equal(mode.local_login, undefined, '公開登入模式不暴露入口閘門狀態');
   assert.equal(g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'getAllUsers', token: login.token }) } }).success, true);
 });
 
 test('閂口後：直接登入／申請／load 全部拒絕，只收 sig', () => {
   const { down } = buildPair();
   const g = down.context;
+  const existingUser = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'login', login_id: '1111111111', password: 'changeme' }) } });
+  assert.equal(existingUser.success, true, '關門前一般用戶可正常登入');
   g.setLocalLoginAllowed(false, 'test');
   assert.equal(g.localLoginAllowed(), false);
   assert.equal(String(down.props.get('ALLOW_LOCAL_LOGIN')), 'false', '掣寫在下游 Script Properties');
   const login = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'login', login_id: '1111111111', password: 'changeme' }) } });
   assert.equal(login.success, false);
-  assert.equal(login.upstream_only, true);
-  assert.match(login.error, /ALLOW_LOCAL_LOGIN/);
+  assert.equal(login.local_login, undefined);
+  assert.equal(login.upstream_only, undefined);
+  assert.match(login.error, /登入服務暫時無法使用/);
+  assert.doesNotMatch(login.error, /ALLOW_LOCAL_LOGIN|sig|閂口/);
+  const existingSession = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'getAllUsers', token: existingUser.token }) } });
+  assert.equal(existingSession.success, false, '關門後一般既有 session 亦被鎖住');
+  assert.doesNotMatch(existingSession.error, /ALLOW_LOCAL_LOGIN|sig|閂口/);
   const apply = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'apply', ymis: '1234567890', name: '測試', requested_role: 'member' }) } });
   assert.equal(apply.success, false);
   assert.equal(g.doGet({ parameter: { action: 'load' } }).success, false, '閂口後 GET load 亦拒絕');
   // 舊 API key 路徑（save）喺閂口後唔再生效
   const save = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'save', apikey: DOWNSTREAM_KEY, changes: [{ ymis: '1234567890', itemId: 'L1', date: '2026-01-01' }] }) } });
   assert.equal(save.success, false, '閂口後只收 sig，apikey 直接寫入要被拒');
+});
+
+test('關門後超管仍可救援登入；無狀態超管與任何 Sheet 紀錄隔離', () => {
+  const { down } = buildPair();
+  const g = down.context;
+  g.setLocalLoginAllowed(false, 'test');
+  const superUser = g.getSuperAdminUser();
+  // 舊版可能曾留下超管資料；只在明確執行初始化升級清理，不在超管登入時讀寫 Sheet。
+  const usersSheet=down.ss.getSheetByName('Users');
+  usersSheet.appendRow([superUser.ymis,superUser.name,'', 'super_admin','','',true,'','','','', 'active','*',false]);
+  usersSheet.appendRow(['1234567891','舊版帳戶','','member','hash','',false,superUser.ymis,'','','','active','',false]);
+  down.ss.getSheetByName('Tokens').appendRow(['vs-super-v1-legacy',superUser.ymis,'','2099-01-01']);
+  down.ss.getSheetByName('操作紀錄').appendRow([new Date(),superUser.ymis,'legacy_login',superUser.ymis,'legacy']);
+  down.ss.getSheetByName('進度追蹤').appendRow([superUser.ymis,'legacy-item','2024-01-01',new Date(),superUser.ymis,'']);
+  down.ss.getSheetByName('成員名單').appendRow([superUser.ymis,superUser.name,'','','']);
+  down.ss.getSheetByName('活動履歷').appendRow(['legacy-log','activity','1234567890','Member','2024-01-01','Legacy','','','','',superUser.ymis,new Date(),'']);
+  g.initializeSheets();
+  assert.equal(sheetRows(down, 'Users').some(row => String(row[0]) === superUser.ymis || String(row[3]) === 'super_admin'), false, '升級清理會移除舊 Users 超管列');
+  assert.equal(sheetRows(down, 'Users').find(row => String(row[0])==='1234567891')[7], 'system', '升級清理匿名化普通帳戶中留下的超管操作者欄');
+  assert.equal(sheetRows(down, 'Tokens').some(row => String(row[0]).startsWith('vs-super-v1-') || String(row[1]) === superUser.ymis), false, '升級清理會移除舊 Tokens 超管列');
+  assert.equal(sheetRows(down, '操作紀錄').some(row => String(row[1]) === superUser.ymis || String(row[3]) === superUser.ymis), false, '升級清理會移除舊超管審計痕跡');
+  assert.equal(sheetRows(down, '進度追蹤').some(row => String(row[0]) === superUser.ymis), false, '升級清理會移除超管成員進度列');
+  assert.equal(sheetRows(down, '成員名單').some(row => String(row[0]) === superUser.ymis), false, '升級清理會移除超管名單列');
+  assert.equal(sheetRows(down, '活動履歷').some(row => String(row[2]) === superUser.ymis || String(row[10]) === superUser.ymis), false, '升級清理移除或匿名化超管活動履歷痕跡');
+
+  g.verifySuperTicket = ticket => ticket === 'verified-ticket';
+  const beforeLogin = allSheetText(down);
+  const result = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({
+    action: 'login', login_id: superUser.ymis, super_ticket: 'verified-ticket'
+  }) } });
+  assert.equal(result.success, true, '有效中央票據在閘門關閉後仍可登入');
+  assert.equal(g.validateToken(result.token), superUser.ymis);
+  assert.equal(result.token, g.superAdminSessionToken(), '登入 token 為無狀態 HMAC，不依賴 Cache TTL');
+  assert.equal(allSheetText(down), beforeLogin, '超管登入本身完全不讀寫 Sheet');
+  assert.equal(Object.keys(Object.fromEntries(down.props)).some(key => /SUPER_ADMIN_LAST_LOGIN/.test(key)), false, '不記錄超管登入時間');
+  assert.equal(g.doGet({ parameter: { action: 'load', token: result.token } }).success, true, '關門後有效超管可用 GET 載入資料');
+  const superList = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'getAllUsers', token: result.token }) } });
+  assert.equal(superList.success, true, '關門後有效超管仍可在 APP 內操作：'+JSON.stringify(superList));
+  const reset = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'resetPassword', token: result.token, target_ymis: '1111111111', new_password: 'rescue-temp' }) } });
+  assert.equal(reset.success, true, '超管可在閉閘後救援成員帳戶');
+  assert.equal(sheetRows(down, 'Users').find(row => String(row[0])==='1111111111')[7], 'system', '救援操作不把超管身份寫入 Users.auth_by');
+  assert.equal(allSheetText(down).includes(superUser.ymis), false, '超管救援後沒有任何 Sheet 身份痕跡');
+
+  // 後端與前端皆無論登入者角色，都不列出超管殘留帳戶。
+  usersSheet.appendRow(['legacy-super-row','舊版保留帳號','','super_admin','','',true,'','','','', 'active','*',false]);
+  down.ss.getSheetByName('成員名單').appendRow([superUser.ymis,superUser.name,'','','']);
+  assert.equal(g.getAllUsers().some(user => user.role==='super_admin' || String(user.ymis)===superUser.ymis), false, '後端用戶清單不回傳超管');
+  assert.equal(g.getMembers().some(member => String(member.ymis)===superUser.ymis), false, '合併成員名單不回傳超管');
+  assert.equal(g.buildUsersExport().users.some(user => user.role==='super_admin' || String(user.ymis)===superUser.ymis), false, '帳戶匯出不帶超管殘留列');
+  const indexHtml=fs.readFileSync('index.html','utf8');
+  assert.match(indexHtml,/adminUsersCache=\(d\.users\|\|\[\]\)\.filter\(u=>u\.role!=='super_admin'/, '前端一律隱藏 super_admin 列');
+  assert.doesNotMatch(indexHtml,/setAllowLocalLogin|ALLOW_LOCAL_LOGIN/, '下游 APP 不提供直接入口開關或狀態');
+
+  const audit = sheetRows(down, '操作紀錄');
+  const count = audit.length;
+  g.writeAudit(superUser.ymis, 'rescue_action', 'target', 'details');
+  assert.equal(audit.length, count, '超管操作不寫入操作紀錄');
+  const normal = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({
+    action: 'login', login_id: '1111111111', password: 'changeme', super_ticket: 'verified-ticket'
+  }) } });
+  assert.equal(normal.success, false, '一般帳號不能借用救援票據繞過閘門');
+  assert.doesNotMatch(normal.error, /ALLOW_LOCAL_LOGIN|sig|閂口/);
 });
 
 test('上游登記下游 SHEET KEY 後，sig 請求可讀可寫下游', () => {

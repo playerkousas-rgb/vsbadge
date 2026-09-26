@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>深資童軍進度及行政平台 v8.7</title>
+<title>深資童軍進度及行政平台 v4.0.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 :root{
@@ -344,7 +344,7 @@ a:hover{text-decoration:underline}
       </div>
       <div style="text-align:left">
         <h1 data-i18n="app.homeTitle">深資童軍進度追蹤系統</h1>
-        <p data-i18n="app.homeSub">Venture Scout Progress &amp; Admin Platform v8.7 • 第11版綱要</p>
+        <p data-i18n="app.homeSub">Venture Scout Progress &amp; Admin Platform v4.0.0 • 第11版綱要</p>
       </div>
     </div>
     <div class="header-subtitle" data-i18n="app.homeTag">基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶</div>
@@ -450,7 +450,7 @@ a:hover{text-decoration:underline}
       <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 版本更新紀錄（未來用於新版本後端GS及功能改動）</h2>
       <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
         <h3 style="color:var(--blue)">框架保留，內容已精簡（依你要求移除舊修復資訊）</h3>
-        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• 目前 v8.7 已加強用戶管理：YMIS／Email 唯一、顯示未開戶成員、刪除及領袖修改／重設成員密碼</p>
+        <p style="font-size:12px">此區未來用於：<br>• 新版本後端 Code.gs 下載（記得保有舊資料 - initializeSheets 不會清舊資料）<br>• 新版本新增功能和改動說明<br>• Apps Script 後端 v8.7 已加強用戶管理：YMIS／Email 唯一、顯示未開戶成員、刪除及領袖修改／重設成員密碼</p>
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -474,7 +474,7 @@ a:hover{text-decoration:underline}
   <div class="app-header-common" style="padding:14px">
     <div class="logo-row" style="margin-bottom:0">
       <div class="logo-svg-wrap"><img src="assets/vs-logo-256.png" alt="Logo" onerror="this.style.display='none'"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px"><path d="M30 85 L50 38 L70 85" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/><rect x="47" y="42" width="6" height="34" fill="#8B0000" rx="2"/><ellipse cx="50" cy="42" rx="9" ry="2.5" fill="none" stroke="#FFD700" stroke-width="1.2"/><path d="M45 46 Q42 36 48 28 Q50 24 50 20 Q50 16 52 13 Q55 18 54 24 Q53 28 55 32 Q58 38 55 46" fill="#FFA000"/></svg></div>
-      <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v8.7</h1></div>
+      <div><h1 style="font-size:18px" data-i18n="app.title">深資童軍進度及行政平台 v4.0.0</h1></div>
     </div>
     <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
@@ -498,6 +498,7 @@ a:hover{text-decoration:underline}
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
         <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px" data-i18n="login.apply">🆕 申請帳戶（成員／執委／領袖）</a>
         <a href="#" onclick="showContactModal();return false" style="font-size:12px" data-i18n="login.register">新旅團登記</a>
+        <a href="#" onclick="showFeedbackModal();return false" style="font-size:12px" data-i18n="support.open">🆘 回報問題／意見</a>
         <a href="#" onclick="backToHome();return false" style="font-size:12px" data-i18n="login.back">← 返回首頁</a>
       </div>
     </div>
@@ -534,6 +535,7 @@ a:hover{text-decoration:underline}
       <button class="nav-tab" id="btn-tab-logs" onclick="switchTab('logs', this)" data-i18n="nav.logs">📅 活動履歷</button>
       <button class="nav-tab" id="btn-tab-forms" onclick="switchTab('forms', this)" data-i18n="nav.forms">🖨️ 表格列印</button>
       <button class="nav-tab" id="btn-tab-help" onclick="switchTab('help', this)" data-i18n="nav.help">❓ 教學</button>
+      <button class="nav-tab" type="button" onclick="showFeedbackModal()" data-i18n="support.nav">🆘 求助</button>
       <button class="nav-tab" id="btn-tab-info" onclick="switchTab('info', this)" data-i18n="nav.info">📚 資料庫</button>
     </div>
     <!-- 已合併：審批申請已併入審批中心，按項目及按項目已併入全團總覽，其他獎章已併入我的進度，版本更新框架保留 -->
@@ -576,6 +578,22 @@ a:hover{text-decoration:underline}
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeContactModal()" data-i18n="btn.cancel">取消</button>
       <button class="btn btn-primary" id="btnSubmitContact" onclick="submitRegistration()" data-i18n="contact.submit">提交申請</button>
+    </div>
+  </div>
+</div>
+
+<div id="feedbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+  <div class="modal-content" style="max-width:560px">
+    <h3 id="feedbackTitle" data-i18n="support.title">🆘 回報問題／意見</h3>
+    <p style="font-size:12px;color:var(--text-light);margin:6px 0 12px" data-i18n="support.hint">請簡單說明遇到的問題或想法，並留下聯絡方式。送出後請等待通知。</p>
+    <div class="form-group"><label for="feedbackType" data-i18n="support.kind">回報類型</label><select id="feedbackType" onchange="syncFeedbackType()"><option value="issue" data-i18n="support.kindIssue">問題／需要協助</option><option value="feedback" data-i18n="support.kindFeedback">意見／建議</option></select></div>
+    <div class="form-group" id="feedbackCategoryGroup" style="display:none"><label for="feedbackCategory" data-i18n="support.category">意見類型</label><select id="feedbackCategory"><option value="建議" data-i18n="support.categorySuggestion">建議</option><option value="讚" data-i18n="support.categoryPraise">讚</option><option value="批評" data-i18n="support.categoryCriticism">批評</option><option value="其他" data-i18n="support.categoryOther">其他</option></select></div>
+    <div class="form-group"><label id="feedbackMessageLabel" for="feedbackMessage" data-i18n="support.message">你需要什麼協助？ *</label><textarea id="feedbackMessage" rows="4" maxlength="2000" data-i18n-placeholder="support.messagePh" placeholder="簡單描述問題或希望改善的地方"></textarea></div>
+    <div class="form-group"><label for="feedbackContact" data-i18n="support.contact">聯絡方式（電郵／電話） *</label><input id="feedbackContact" type="text" maxlength="120" autocomplete="email" data-i18n-placeholder="support.contactPh" placeholder="方便回覆你的電郵或電話"></div>
+    <div id="feedbackMsg" class="login-msg" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('feedbackModal')" data-i18n="btn.cancel">取消</button>
+      <button class="btn btn-primary" id="btnSubmitFeedback" onclick="submitFeedback()" data-i18n="support.submit">送出</button>
     </div>
   </div>
 </div>
@@ -794,9 +812,11 @@ a:hover{text-decoration:underline}
 <div id="toast" class="toast"></div>
 
 <footer style="text-align:center;padding:20px 16px;margin-top:20px;border-top:2px solid var(--border);font-size:12px;color:var(--text-light);background:var(--card)">
-  <div data-i18n="app.footer">COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.7</div>
+  <div data-i18n="app.footer">COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v4.0.0</div>
   <div style="margin-top:4px;font-size:11px" data-i18n="app.footer2">全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm</div>
   <div style="margin-top:4px;font-size:10px">Developed for 82 Troop • All rights reserved • <a href="https://www.scout.org.hk" target="_blank" data-i18n="sahk">香港童軍總會</a></div>
+  <div style="max-width:900px;margin:8px auto 0;font-size:10px" data-i18n="app.disclaimer">本平台為非官方工具，並非香港童軍總會提供或認可；正式制度及要求請以總會公布為準。</div>
+  <button type="button" class="btn btn-sm btn-outline" style="margin-top:8px" onclick="showFeedbackModal()" data-i18n="support.open">🆘 回報問題／意見</button>
 </footer>
 
 <script src="assets/ymis-parse.js"></script>
@@ -806,13 +826,23 @@ const LANG_KEY='vsbadge_lang';
 let currentLang=(function(){ try{ const v=localStorage.getItem(LANG_KEY); return v==='en'?'en':'zh'; }catch(e){ return 'zh'; } })();
 const I18N={
 zh:{
-  'app.title':'深資童軍進度及行政平台 v8.7',
+  'app.title':'深資童軍進度及行政平台 v4.0.0',
   'app.homeTitle':'深資童軍進度追蹤系統',
-  'app.homeSub':'Venture Scout Progress & Admin Platform v8.7 • 第11版綱要',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v4.0.0 • 第11版綱要',
   'app.homeTag':'基於 2026年第11版《深資童軍訓練綱要》• 支援離線暫存•批量寫入•成員申請確認•表格自動填寫•成員／領袖自助申請開戶',
   'app.track':'進度追蹤',
-  'app.footer':'COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v8.7',
+  'app.footer':'COPYRIGHT 2026 Scout System • 深資童軍進度及行政平台 v4.0.0',
   'app.footer2':'全前端帳戶管理 • 批量開戶 • 活動履歷（服務/活動/訓練班） • 手機友善 • 離線暫存 • 保護兒童 Safe from Harm',
+  'app.disclaimer':'本平台為非官方工具，並非香港童軍總會提供或認可；正式制度及要求請以總會公布為準。',
+  'support.open':'🆘 回報問題／意見','support.nav':'🆘 求助','support.title':'🆘 回報問題／意見',
+  'support.hint':'請簡單說明遇到的問題或想法，並留下聯絡方式。送出後請等待通知。',
+  'support.kind':'回報類型','support.kindIssue':'問題／需要協助','support.kindFeedback':'意見／建議',
+  'support.category':'意見類型','support.categorySuggestion':'建議','support.categoryPraise':'讚','support.categoryCriticism':'批評','support.categoryOther':'其他',
+  'support.message':'你需要什麼協助？ *','support.feedbackMessage':'你想提供什麼意見？ *','support.messagePh':'簡單描述問題或希望改善的地方',
+  'support.contact':'聯絡方式（電郵／電話） *','support.contactPh':'方便回覆你的電郵或電話',
+  'support.submit':'送出','support.need':'請描述需要協助的事，並留下聯絡方式。',
+  'support.ok':'已傳送給開發者，請等待通知。','support.fail':'回報未能送出，請稍後重試。',
+
   'app.footer3':'Developed for 82 Troop • All rights reserved • 香港童軍總會',
   'nav.enter':'🏠 進入系統','nav.setup':'📋 新旅團部署','nav.guide':'📖 使用教學',
   'nav.progress':'📊 我的進度','nav.overview':'👥 全團總覽','nav.requests':'✅ 審批中心',
@@ -1099,13 +1129,23 @@ zh:{
   'badgeFilter.L4ACT':'活動策劃金帶/多元技能金帶'
 },
 en:{
-  'app.title':'Venture Scout Progress & Admin Platform v8.7',
+  'app.title':'Venture Scout Progress & Admin Platform v4.0.0',
   'app.homeTitle':'Venture Scout Progress Tracker',
-  'app.homeSub':'Venture Scout Progress & Admin Platform v8.7 • 11th Edition Scheme',
+  'app.homeSub':'Venture Scout Progress & Admin Platform v4.0.0 • 11th Edition Scheme',
   'app.homeTag':'Based on the 11th Edition (2026) Venture Scout Training Scheme • offline draft • bulk save • member claims • auto-filled forms • self-service account applications',
   'app.track':'Progress',
-  'app.footer':'COPYRIGHT 2026 Scout System • Venture Scout Progress & Admin Platform v8.7',
+  'app.footer':'COPYRIGHT 2026 Scout System • Venture Scout Progress & Admin Platform v4.0.0',
   'app.footer2':'Front-end account admin • bulk onboarding • activity log (service / events / courses) • mobile-friendly • offline draft • Safe from Harm',
+  'app.disclaimer':'This is an unofficial tool. It is not provided or endorsed by The Scout Association of Hong Kong. Refer to the Association for official rules and requirements.',
+  'support.open':'🆘 Report a problem / feedback','support.nav':'🆘 Help','support.title':'🆘 Report a problem / feedback',
+  'support.hint':'Briefly describe the problem or feedback and leave a way to contact you. After sending, please wait for a notification.',
+  'support.kind':'Report type','support.kindIssue':'Problem / need help','support.kindFeedback':'Feedback / suggestion',
+  'support.category':'Feedback type','support.categorySuggestion':'Suggestion','support.categoryPraise':'Praise','support.categoryCriticism':'Criticism','support.categoryOther':'Other',
+  'support.message':'What help do you need? *','support.feedbackMessage':'What feedback would you like to share? *','support.messagePh':'Briefly describe the problem or suggestion',
+  'support.contact':'How can we reach you? (email / phone) *','support.contactPh':'An email address or phone number for our reply',
+  'support.submit':'Send','support.need':'Please describe what help you need and leave a contact method.',
+  'support.ok':'Sent to the developer. Please wait for a notification.','support.fail':'Could not send your report. Please try again later.',
+
   'app.footer3':'Developed for 82nd Group • All rights reserved • Scout Association of Hong Kong',
   'nav.enter':'🏠 Enter','nav.setup':'📋 New Group setup','nav.guide':'📖 How to use',
   'nav.progress':'📊 My progress','nav.overview':'👥 Unit overview','nav.requests':'✅ Approvals',
@@ -1587,6 +1627,7 @@ function setLang(lang){
   try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
   document.documentElement.lang=currentLang==='en'?'en':'zh-Hant';
   applyStaticI18n();
+  if(document.getElementById('feedbackType')) syncFeedbackType();
   localizeLongWelcome();
   // Re-render live views (same backend IDs; display language only)
   try{
@@ -1651,7 +1692,7 @@ guide:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 Ho
 changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📦 Release notes (for future Code.gs versions and feature changes)</h2>
 <div class="info-card" style="border-left-color:var(--blue);background:var(--blue-light)">
   <h3 style="color:var(--blue)">Framework kept, content streamlined (old fix notes removed as requested)</h3>
-  <p style="font-size:12px">This section is reserved for:<br>• New backend Code.gs downloads (your old data is kept — initializeSheets does not clear it)<br>• New features and changes in each version<br>• v8.7 strengthens user admin with unique YMIS/email, roster-only members, deletion, and leader password resets</p>
+  <p style="font-size:12px">This section is reserved for:<br>• New backend Code.gs downloads (your old data is kept — initializeSheets does not clear it)<br>• New features and changes in each version<br>• Apps Script backend v8.7 strengthens user admin with unique YMIS/email, roster-only members, deletion, and leader password resets</p>
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
@@ -2139,6 +2180,55 @@ function isMember(){ return currentUser.role==='member'; }
 /* ================== Contact ================== */
 function showContactModal(){ document.getElementById('contactModal').classList.add('active'); }
 function closeContactModal(){ document.getElementById('contactModal').classList.remove('active'); }
+function syncFeedbackType(){
+  const kind=document.getElementById('feedbackType').value;
+  const isFeedback=kind==='feedback';
+  document.getElementById('feedbackCategoryGroup').style.display=isFeedback?'':'none';
+  document.getElementById('feedbackMessageLabel').textContent=i18n(isFeedback?'support.feedbackMessage':'support.message');
+}
+function showFeedbackModal(){
+  const message=document.getElementById('feedbackMessage'),contact=document.getElementById('feedbackContact'),status=document.getElementById('feedbackMsg');
+  if(message) message.value='';
+  document.getElementById('feedbackType').value='issue';
+  document.getElementById('feedbackCategory').value='建議';
+  syncFeedbackType();
+  // 系統救援帳號不把任何帳號名稱或識別碼帶入回報內容。
+  if(contact) contact.value=(currentUser&&currentUser.role!=='super_admin'&&currentUser.email)?currentUser.email:'';
+  if(status){ status.textContent=''; status.className='login-msg'; }
+  document.getElementById('feedbackModal').classList.add('active');
+}
+async function submitFeedback(){
+  const message=document.getElementById('feedbackMessage').value.trim();
+  const contact=document.getElementById('feedbackContact').value.trim();
+  const kind=document.getElementById('feedbackType').value;
+  const status=document.getElementById('feedbackMsg'),btn=document.getElementById('btnSubmitFeedback');
+  status.textContent=''; status.className='login-msg';
+  if(message.length<5||contact.length<3){ status.textContent=i18n('support.need'); status.className='login-msg error'; return; }
+  btn.disabled=true; btn.textContent=i18n('req.sending');
+  try{
+    const payload={
+      type:kind,
+      contact,
+      troopId:currentTroopId&&currentTroopId!=='DEMO'?currentTroopId:'',
+      name:currentUser&&currentUser.role!=='super_admin'?(currentUser.name||''):''
+    };
+    if(kind==='issue'){
+      payload.title=(message.split(/\r?\n/)[0].trim().substring(0,120)||'使用協助');
+      payload.desc=message;
+      payload.severity='中';
+    }else{
+      payload.fbType=document.getElementById('feedbackCategory').value;
+      payload.content=message;
+    }
+    const result=await apiRequest('submitFeedback',payload);
+    if(!result.success) throw new Error(result.error||i18n('support.fail'));
+    status.textContent=i18n('support.ok'); status.className='login-msg success';
+    document.getElementById('feedbackMessage').value='';
+    setTimeout(()=>closeModal('feedbackModal'),1200);
+  }catch(error){ status.textContent=error.message||i18n('support.fail'); status.className='login-msg error'; }
+  finally{ btn.disabled=false; btn.textContent=i18n('support.submit'); }
+}
+
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 function showAccountApplyModal(){
   if(!currentTroopId){ showToast(i18n('apply.pickTroop'),'warning'); return; }
@@ -4150,7 +4240,7 @@ async function loadUsers(){
   try{
     const d=await apiRequest('getAllUsers',{token:currentToken});
     if(!d.success) throw new Error(d.error||i18n('common.loadFailShort'));
-    adminUsersCache=(d.users||[]).filter(u=>currentUser.role==='super_admin'||u.role!=='super_admin');
+    adminUsersCache=(d.users||[]).filter(u=>u.role!=='super_admin' && !(currentUser.role==='super_admin' && String(u.ymis||'').trim().toLowerCase()===String(currentUser.ymis||'').trim().toLowerCase()));
     const allowOthers=appConfig.allow_member_view_others==='true';
     const settings=['group_leader','admin','super_admin'].includes(currentUser.role)?`<div class="info-section" style="border-left:4px solid var(--green);background:#F0FFF4">
       <h3>${i18n('users.settings')}</h3><p style="font-size:12px;color:var(--text-light)">${i18n('users.settingsP')}</p>

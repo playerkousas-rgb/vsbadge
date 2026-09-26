@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import { createHash } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { getRegistry, getTrustedTroop, listPublicTroops, isTrustedExecUrl } from '../api/_registry.js';
 import { accountId, checkSuperPassword, sealSuper, openSuper } from '../api/_super.js';
 import proxy from '../api/proxy.js';
@@ -92,7 +92,9 @@ test('Proxy rejects missing or sub-four-character key before fetch; four-charact
     assert.equal(login.code, 200);
     assert.equal(login.body.success, true);
     assert.equal(calls, 2);
-    assert.equal(openSuper('session', login.body.token).token, 'vs-super-v1-short-key-test');
+    const session = openSuper('session', login.body.token);
+    assert.equal(session.token, 'vs-super-v1-short-key-test');
+    assert(session.exp - Date.now() <= 30 * 24 * 60 * 60 * 1000, 'proxy session envelope matches RoverBadge lifetime');
   } finally {
     if (savedKey === undefined) delete process.env.SUPER_KEY;
     else process.env.SUPER_KEY = savedKey;
@@ -123,6 +125,8 @@ test('Proxy blocks incorrect password before fetch; never forwards password; wra
     assert.equal(calls, 0);
     const login = await call(proxy, request('login', { login_id: accountId, password: process.env.SUPER_KEY, action: 'deleteUser' }));
     assert.equal(login.body.success, true); assert.equal(sent.action, 'login'); assert(!('password' in sent));
+    assert.equal(login.body.user.ymis, '', 'super identity is not exposed to browser storage');
+    assert.equal(login.body.user.email, '');
     const ticket = openSuper('login', sent.super_ticket); assert.equal(ticket.troopId, '0082');
     const token = login.body.token;
     assert.equal(openSuper('session', token).token, 'vs-super-v1-test-token');
@@ -137,9 +141,66 @@ test('Proxy blocks incorrect password before fetch; never forwards password; wra
   } finally { globalThis.fetch = originalFetch; }
 });
 
+test('Feedback relay uses the Scout Admin v1 contract and keeps reports private', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs = []; let sent; let inboxAccepts = true;
+  console.log = line => logs.push(JSON.parse(line));
+  globalThis.fetch = async (url, init) => {
+    assert.match(url, /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
+    sent = JSON.parse(init.body);
+    return { status: 200, text: async () => JSON.stringify({ status: inboxAccepts ? 'success' : 'error' }) };
+  };
+  try {
+    const responseOk = await call(proxy, {
+      action: 'submitFeedback', data: {
+        type: 'issue', title: '=help with login', desc: '=cannot sign in', severity: '高',
+        contact: 'member@example.org', troopId: '0082', name: '團員', ymis: accountId
+      }
+    });
+    assert.equal(responseOk.code, 200);
+    assert.equal(responseOk.body.success, true);
+    assert.deepEqual(Object.keys(sent).sort(), ['contact', 'desc', 'name', 'severity', 'sourceApp', 'title', 'troopId', 'type'].sort());
+    assert.equal(sent.type, 'issue');
+    assert.equal(sent.sourceApp, 'vsbadge');
+    assert.equal(sent.title, "'=help with login", 'sheet-targeted text is protected from formula injection');
+    assert.equal(sent.desc, "'=cannot sign in");
+    assert.equal(sent.contact, 'member@example.org');
+    assert.equal(sent.troopId, '0082');
+    assert(!JSON.stringify(sent).includes(accountId), 'identity keys are excluded from the Admin contract');
+    assert(!JSON.stringify(logs).includes('member@example.org'));
+    assert(!JSON.stringify(logs).includes('cannot sign in'));
+
+    const feedback = await call(proxy, { action: 'submitFeedback', data: {
+      type: 'feedback', fbType: '建議', content: 'Please improve the calendar.', contact: 'member@example.org', troopId: '0082'
+    } });
+    assert.equal(feedback.code, 200);
+    assert.deepEqual(Object.keys(sent).sort(), ['contact', 'content', 'fbType', 'name', 'sourceApp', 'troopId', 'type'].sort());
+    assert.equal(sent.type, 'feedback');
+    assert.equal(sent.fbType, '建議');
+    assert.equal(sent.content, 'Please improve the calendar.');
+    assert.equal(sent.sourceApp, 'vsbadge');
+
+    inboxAccepts = false;
+    const rejected = await call(proxy, { action: 'submitFeedback', data: {
+      type: 'issue', title: 'Login help', desc: 'Unable to sign in', contact: 'member@example.org'
+    } });
+    assert.equal(rejected.code, 502, 'user is not told a report was received unless the inbox confirms it');
+    assert.equal(rejected.body.success, false);
+
+    const invalid = await call(proxy, { action: 'submitFeedback', data: { type: 'unknown', content: 'Something', contact: 'member@example.org' } });
+    assert.equal(invalid.code, 400);
+    assert.equal(invalid.body.success, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+});
+
 function gasContext() {
   const used = new Map(); let verified = false; let fetches = 0;
   const context = vm.createContext({
+    Utilities: { computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(String(message)).digest()) },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
     CacheService: { getScriptCache: () => ({ get: k => used.get(k), put: (k, v) => used.set(k, v) }) },
     ScriptApp: { getService: () => ({ getUrl: () => backend }) },
@@ -152,9 +213,8 @@ function gasContext() {
   vm.runInContext(fs.readFileSync('apps-script/Code.gs', 'utf8'), context);
   context.jsonResponse = obj => obj;
   context.getApiKey = () => 'secret-api-key';
+  context.getSheet = () => ({ getSheetByName: () => null });
   context.hashPassword = value => createHash('sha256').update(String(value)).digest('hex');
-  context.setSuperAdminLastLogin = () => {};
-  context.createToken = () => 'vs-super-v1-test-token';
   return { context, accept: () => { verified = true; }, fetches: () => fetches };
 }
 
@@ -165,6 +225,8 @@ test('Actual Code.gs credential validation rejects direct password, verifies tic
   gas.accept();
   const login = g.handleLogin(`${accountId.toUpperCase()}@vsbadge.local`, null, 'valid-ticket');
   assert.equal(login.success, true); assert.equal(login.user.role, 'super_admin');
+  assert.equal(login.token, g.superAdminSessionToken(), 'super session is a deterministic stateless HMAC token');
+  assert.equal(g.validateToken(login.token), accountId, 'super session has no Cache/SHEET expiry');
   assert.equal(g.handleLogin(accountId, null, 'valid-ticket').success, false);
   assert.equal(g.handleChangePassword(accountId, 'old', 'new-password').success, false);
 });
@@ -176,5 +238,6 @@ test('Actual Code.gs invalidates legacy sessions without deleting or migrating S
   ] }) }) });
   assert.equal(g.validateToken('old-token'), null);
   assert.equal(g.validateToken('member-token'), '1234567890');
-  assert.equal(g.validateToken('vs-super-v1-new'), accountId);
+  assert.equal(g.validateToken('vs-super-v1-new'), null, 'legacy random/cache-backed super sessions are invalidated');
+  assert.equal(g.validateToken(g.superAdminSessionToken()), accountId, 'valid super HMAC session is independent of Sheet rows');
 });

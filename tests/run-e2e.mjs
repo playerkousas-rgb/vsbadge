@@ -578,7 +578,7 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   const badFetch = fetches.filter(f => !ALLOWED_FETCH.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
-  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','deleteUser','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration'];
+  const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','deleteUser','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration','submitFeedback'];
   const missing = need.filter(a => !apiCalls.includes(a));
   check(need.length+' 個 GAS action 全部經 apiRequest', missing.length === 0, 'missing: ' + missing.join(','));
   check('活動履歷 tab 已註冊', html.includes("id=\"tab-logs\"") && html.includes('renderLogsTab'));
