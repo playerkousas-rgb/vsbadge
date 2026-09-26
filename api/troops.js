@@ -13,6 +13,6 @@ export default function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.status(200).json({
     troops,
-    _note: 'v3.0：backend/apikey 不再對前端公開，所有 GAS 存取請經同源 /api/proxy'
+    _note: 'v4.0.0：backend/apikey 不再對前端公開，所有 GAS 存取請經同源 /api/proxy'
   });
 }
