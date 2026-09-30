@@ -160,6 +160,7 @@ test('Feedback relay uses the Scout Admin v1 contract and keeps reports private'
     });
     assert.equal(responseOk.code, 200);
     assert.equal(responseOk.body.success, true);
+    assert.equal(responseOk.body.deliveryStatus, 'confirmed');
     assert.deepEqual(Object.keys(sent).sort(), ['contact', 'desc', 'name', 'severity', 'sourceApp', 'title', 'troopId', 'type'].sort());
     assert.equal(sent.type, 'issue');
     assert.equal(sent.sourceApp, 'vsbadge');
@@ -187,10 +188,20 @@ test('Feedback relay uses the Scout Admin v1 contract and keeps reports private'
     } });
     assert.equal(rejected.code, 502, 'user is not told a report was received unless the inbox confirms it');
     assert.equal(rejected.body.success, false);
+    assert.equal(rejected.body.deliveryStatus, 'rejected', 'an explicit inbox rejection is distinguishable from a network ambiguity');
 
     const invalid = await call(proxy, { action: 'submitFeedback', data: { type: 'unknown', content: 'Something', contact: 'member@example.org' } });
     assert.equal(invalid.code, 400);
     assert.equal(invalid.body.success, false);
+    assert.equal(invalid.body.deliveryStatus, 'not_sent');
+
+    globalThis.fetch = async () => { throw new Error('connection reset after request'); };
+    const unknown = await call(proxy, { action: 'submitFeedback', data: {
+      type: 'issue', title: 'Login help', desc: 'Unable to sign in', contact: 'member@example.org'
+    } });
+    assert.equal(unknown.code, 502);
+    assert.equal(unknown.body.success, false);
+    assert.equal(unknown.body.deliveryStatus, 'unknown', 'transport failures must not falsely claim the report was not received');
   } finally {
     globalThis.fetch = originalFetch;
     console.log = originalLog;

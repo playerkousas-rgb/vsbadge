@@ -81,6 +81,9 @@ a:hover{text-decoration:underline}
 .login-msg{padding:10px;border-radius:8px;margin-bottom:12px;font-size:12px;display:none;text-align:center}
 .login-msg.error{display:block;background:#FFF5F5;color:var(--red);border:1px solid #F5C6CB}
 .login-msg.success{display:block;background:#F0FFF4;color:var(--green);border:1px solid #C3E6CB}
+.login-msg.pending{display:block;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.login-msg.warning{display:block;background:#FFFBEB;color:#92400E;border:1px solid #FDE68A}
+.login-msg{white-space:pre-line}
 .form-group{margin-bottom:12px}
 .form-group label{display:block;margin-bottom:5px;font-weight:600;font-size:12px;color:var(--text)}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;transition:.2s;background:#fff}
@@ -146,9 +149,34 @@ a:hover{text-decoration:underline}
 .item-name .sub-count{font-size:11px;color:var(--text-light);margin-left:6px;background:var(--bg);padding:2px 7px;border-radius:999px}
 .item-meta{font-size:12.5px;color:var(--text-light);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
 .item-detail{font-size:12.5px;color:#6B7280;margin-top:5px;line-height:1.7;background:#FAFAFA;padding:8px 10px;border-radius:6px;border-left:2px solid var(--border)}
+.activity-detail-editor{margin-top:6px;font-size:11px;background:#F8FAFC;border:1px solid var(--border);border-radius:7px;padding:5px 8px}
+.activity-detail-editor summary{cursor:pointer;color:var(--blue);font-weight:600}
+.activity-detail-fields{display:grid;grid-template-columns:minmax(130px,1fr) minmax(180px,2fr);gap:6px;margin-top:6px}
+.activity-detail-fields.free-text textarea{grid-column:1/-1}
+.activity-detail-fields input,.activity-detail-fields select,.activity-detail-fields textarea{width:100%;min-width:0;padding:7px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;font-family:inherit}
+.activity-detail-fields textarea{resize:vertical;min-height:38px;line-height:1.45}
+.activity-detail-fields small{grid-column:1/-1;color:var(--text-light);line-height:1.5}
+.activity-detail-readonly{font-size:11px;margin-top:5px;color:#555;background:#F8FAFC;border-left:2px solid var(--blue);border-radius:5px;padding:5px 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.legacy-transition{border-left:4px solid var(--gold-dark);background:#FFFEF7}
+.legacy-transition>summary{cursor:pointer;font-weight:700;color:var(--maroon);font-size:14px;list-style-position:inside}
+.legacy-policy{font-size:11px;line-height:1.7;margin:9px 0;background:#FFF7E6;border-left:3px solid var(--gold-dark);padding:9px 10px;border-radius:5px}
+.legacy-crosswalk-wrap{width:100%;overflow-x:auto;margin:7px 0 12px}
+.legacy-crosswalk{width:100%;min-width:720px;border-collapse:collapse;font-size:11px;line-height:1.55;background:#fff}
+.legacy-crosswalk th,.legacy-crosswalk td{border:1px solid var(--border);padding:7px 8px;text-align:left;vertical-align:top}
+.legacy-crosswalk th{background:var(--maroon-light);color:var(--maroon);position:sticky;top:0}
+.legacy-detail-list{margin:6px 0 12px;padding:7px 9px;background:#fff;border:1px solid var(--border);border-radius:7px}
+.legacy-detail-list>summary{cursor:pointer;color:var(--blue);font-size:11px;font-weight:600}
+.legacy-transfer-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px;margin:8px 0}
+.legacy-transfer-row{background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px;display:grid;grid-template-columns:24px minmax(0,1fr);gap:7px;align-items:start}
+.legacy-transfer-row input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--maroon)}
+.legacy-transfer-row .legacy-date{grid-column:2;width:100%;max-width:200px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px}
+.legacy-transfer-row .legacy-status{grid-column:2;font-size:10px;color:var(--text-light)}
+.activity-legacy-link{white-space:nowrap}
 .item-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .item-actions input[type="date"]{padding:6px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;width:135px}
 .checkbox{width:20px;height:20px;accent-color:var(--maroon);cursor:pointer;flex-shrink:0}
+.checkbox-placeholder{display:inline-block;width:20px;height:20px;flex:0 0 20px}
+.parent-no-direct{color:var(--orange);font-weight:500}
 .info-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-light);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-btn:hover{background:var(--maroon);color:#fff;border-color:var(--maroon)}
 .sub-items{padding-left:26px;margin-top:4px;border-left:2px dashed var(--border);margin-left:9px}
@@ -212,6 +240,8 @@ a:hover{text-decoration:underline}
 .other-card:hover{box-shadow:var(--shadow-hover);border-color:var(--maroon)}
 .other-card h4{font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .other-card p{font-size:11px;color:var(--text-light);line-height:1.6}
+.other-legacy-note{margin-top:6px;padding:7px 8px;background:#FFF7E6;border-left:3px solid var(--gold-dark);border-radius:5px;white-space:pre-wrap}
+.other-badge-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:7px;font-size:11px;line-height:1.5}
 
 /* Forms printable */
 .print-area{background:#fff;padding:20px;border-radius:10px;box-shadow:var(--shadow);border:1px solid var(--border)}
@@ -311,6 +341,7 @@ a:hover{text-decoration:underline}
   .item-actions{width:100%;margin-left:32px;gap:6px}.item-actions .btn{min-height:40px;flex:1 1 auto}.info-btn{width:40px;height:40px;font-size:14px}
   .item-actions input[type="date"],.item-actions input[type="text"],.progress-note{width:100%!important;min-height:42px;font-size:16px!important}
   .item-detail{font-size:12.5px;line-height:1.65;margin-top:8px;padding:8px}.sub-items{padding-left:10px!important;margin-left:2px}
+  .activity-detail-fields{grid-template-columns:1fr}.legacy-crosswalk{min-width:620px}.legacy-transfer-list{grid-template-columns:1fr}.legacy-transfer-row .legacy-date{max-width:none;min-height:42px;font-size:16px}
   .filter-bar,.admin-toolbar{gap:7px}.filter-bar input,.filter-bar select,.filter-bar .btn,.admin-toolbar>*{flex:1 1 100%;min-height:42px}
   .admin-toolbar .btn,.admin-toolbar label.btn{min-height:42px}.admin-toolbar .search-grow{min-width:0}
   [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
@@ -590,10 +621,10 @@ a:hover{text-decoration:underline}
     <div class="form-group" id="feedbackCategoryGroup" style="display:none"><label for="feedbackCategory" data-i18n="support.category">意見類型</label><select id="feedbackCategory"><option value="建議" data-i18n="support.categorySuggestion">建議</option><option value="讚" data-i18n="support.categoryPraise">讚</option><option value="批評" data-i18n="support.categoryCriticism">批評</option><option value="其他" data-i18n="support.categoryOther">其他</option></select></div>
     <div class="form-group"><label id="feedbackMessageLabel" for="feedbackMessage" data-i18n="support.message">你需要什麼協助？ *</label><textarea id="feedbackMessage" rows="4" maxlength="2000" data-i18n-placeholder="support.messagePh" placeholder="簡單描述問題或希望改善的地方"></textarea></div>
     <div class="form-group"><label for="feedbackContact" data-i18n="support.contact">聯絡方式（電郵／電話） *</label><input id="feedbackContact" type="text" maxlength="120" autocomplete="email" data-i18n-placeholder="support.contactPh" placeholder="方便回覆你的電郵或電話"></div>
-    <div id="feedbackMsg" class="login-msg" aria-live="polite"></div>
+    <div id="feedbackMsg" class="login-msg" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('feedbackModal')" data-i18n="btn.cancel">取消</button>
-      <button class="btn btn-primary" id="btnSubmitFeedback" onclick="submitFeedback()" data-i18n="support.submit">送出</button>
+      <button type="button" class="btn btn-secondary" id="btnCloseFeedback" onclick="closeModal('feedbackModal')" data-i18n="btn.cancel">取消</button>
+      <button type="button" class="btn btn-primary" id="btnSubmitFeedback" aria-describedby="feedbackMsg" onclick="submitFeedback()" data-i18n="support.submit">送出</button>
     </div>
   </div>
 </div>
@@ -840,7 +871,7 @@ zh:{
   'support.message':'你需要什麼協助？ *','support.feedbackMessage':'你想提供什麼意見？ *','support.messagePh':'簡單描述問題或希望改善的地方',
   'support.contact':'聯絡方式（電郵／電話） *','support.contactPh':'方便回覆你的電郵或電話',
   'support.submit':'送出','support.need':'請描述需要協助的事，並留下聯絡方式。',
-  'support.ok':'已傳送給開發者，請等待通知。','support.fail':'回報未能送出，請稍後重試。',
+  'support.ok':'已成功送出；收件系統已確認收到。請等待開發者通知。此視窗不會自動關閉。','support.fail':'回報未能送出，請稍後重試。','support.sendingHint':'⏳ 正在傳送回報，請勿重複按「送出」。收到回覆後會在此清楚顯示結果。','support.confirmed':'✅ 已成功送出；收件系統已確認收到。請等待開發者通知。此視窗不會自動關閉。','support.notAccepted':'收件系統表示未接收這次回報；內容已保留，請稍後再試。','support.unknown':'⚠️ 連線中斷，暫時未能確認收件系統是否收到。請先不要重複提交，稍後查看通知；如仍未收到，可按「確認重送」。重送可能造成重複回報。','support.sending':'傳送中…','support.sentButton':'已送出 ✓','support.retryUnknown':'確認重送','support.retryUnknownConfirm':'目前未能確認上一筆回報是否送達。重送可能產生重複回報；你確定要再傳送一次嗎？','support.close':'關閉',
 
   'nav.enter':'🏠 進入系統','nav.setup':'📋 新旅團部署','nav.guide':'📖 使用教學',
   'nav.progress':'📊 我的進度','nav.overview':'👥 全團總覽','nav.requests':'✅ 審批中心',
@@ -877,6 +908,9 @@ zh:{
   'progress.certNo':'證書編號','progress.apply':'📝 申請','progress.done':'✅ 已完成','progress.expand':'▶ 展開','progress.collapse':'▼ 收合',
   'progress.mandatory':'必修','progress.noData':'資料未載入','progress.loading':'載入訓練綱要及進度...',
   'progress.fail':'載入失敗','item.noDetail':'暫無詳細說明，請參考訓練綱要。','item.detailTitle':'考驗說明',
+  'legacy.title':'🧭 第十版 → 第十一版過渡對照','legacy.summary':'查閱總會過渡安排；由領袖核實及自行選擇是否記錄等同，系統不會自動轉換或勾選新細項。','legacy.policy':'適用於2026年8月15日前宣誓的深資童軍：可選新制，或在2029年8月14日或以前完成整個適用舊制考核；逾期未完成的獎章或項目須循新制考核。','legacy.from':'第十版（2017）','legacy.to':'第十一版（2026）','legacy.source':'總會通告 P022/2026 附件一','legacy.sourceLink':'查看官方過渡安排','legacy.newSchemeLink':'查看第十一版官方綱要','legacy.oldSchemeLink':'查看第十版官方綱要',
+  'legacy.mappingScopeTitle':'對照範圍及重要限制','legacy.crosswalkTitle':'總會列明的章級／範疇級對照','legacy.categoryTitle':'舊活動獎章：只作大類對照，並非逐項等同','legacy.unmatchedTitle':'第十版有、但第十一版沒有直接對應的舊內容','legacy.newRequirementsTitle':'選用第十一版時須留意的新增／修訂要求','legacy.historyTitle':'已保存的舊清單紀錄 ID（僅供歷史查閱）','legacy.historyHint':'既有舊進度仍保留；這些舊 ID 不計入新制完成百分比，也不會自動視為新細項完成。','legacy.historyProgress':'已保存的舊進度','legacy.historyDone':'有完成紀錄','legacy.historyNoRecord':'未找到完成紀錄','legacy.detailTitle':'細項比對參考（不代表總會逐項兌換）','legacy.expandDetails':'展開 {n} 項細項比對參考','legacy.old':'第十版舊內容','legacy.new':'第十一版／對應說明','legacy.notes':'限制及領袖處理方式','legacy.manual':'只作參考，須由領袖核實','legacy.transferTitle':'領袖自行選擇記錄已核實的舊章等同','legacy.transferHint':'只在成員符合資格、舊章／金帶已完成並由領袖核實後才選取。選取只新增獨立的「過渡等同紀錄」；不刪除或覆寫舊進度、不勾選任何新版細項，也不代表每個新版細項已完成。日期可留白。','legacy.dateOptional':'舊章日期（選填）','legacy.submit':'加入所選過渡紀錄','legacy.confirm':'確定為「{member}」加入 {n} 項舊章過渡紀錄？\n只會新增等同紀錄，不會改動新舊清單進度。','legacy.noneSelected':'請先選擇已考獲並核實的舊章／金帶。','legacy.queued':'✅ 已加入 {n} 項過渡紀錄；按底部「確認寫入雲端」保存。','legacy.recorded':'已記錄','legacy.pending':'待寫入','legacy.unknownDate':'未提供日期','legacy.remove':'撤回紀錄','legacy.removeConfirm':'確定撤回「{member}」的這項舊章過渡紀錄？不會更改任何清單細項。','legacy.removeQueued':'已將撤回過渡紀錄加入待寫入清單。','legacy.noPermission':'你沒有此段章的直接寫入權限，請聯絡團長。','legacy.memberAction':'⇄ 舊章轉換','legacy.noTransfers':'目前沒有可轉換的舊章紀錄。','legacy.eligibilityConfirm':'我確認此成員於2026年8月15日前宣誓，並已核實所選舊章／金帶確已完成。','legacy.help':'此工具參考總會 P022/2026；資格、舊章完成狀態或等同關係未核實前，請勿記錄。','legacy.activityNote':'過渡等同紀錄不計入新制完成百分比；新版細項須另行逐項核實及勾選。','legacy.equivalent':'已記錄舊章過渡等同','item.parentNoDirect':'只可逐項勾選下方已核實的細項',
+  'activity.detailTitle':'📝 填寫／選擇活動細項','activity.detailHint':'可快選活動類型，再輸入實際項目、活動名稱或證書資料。內容會存於既有「備註」欄，毋須新增工作表。','activity.detailPlaceholder':'例如：A-301 羽毛球；訓練／活動名稱；證書編號','activity.choose':'常見類型（選填）','activity.choosePlaceholder':'— 選擇類型，或直接輸入 —','activity.recorded':'📝 活動細項：','activity.completeFirst':'請先勾選此項已完成，再記錄活動細項。','activity.noPermission':'你沒有此項的寫入權限。','activity.queued':'✅ 活動細項已加入待寫入清單，確認後保存。',
   'overview.batchTitle':'🚀 考驗營 / 集體活動 批量完成 (領袖專用)',
   'overview.batchDesc':'例如剛去完考驗營，可一鍵幫有去的成員全剔。先暫存瀏覽器，底部按確認才寫入。',
   'overview.allMembers':'全選成員','overview.noMembers':'取消全選','overview.allItems':'全選項目','overview.noItems':'取消全選',
@@ -993,8 +1027,8 @@ zh:{
   'bulk.dl':'⬇️ 下載成功帳戶及臨時密碼','bulk.okToast':'批量開戶完成：成功 {n} 筆','bulk.fail':'批量開戶失敗：{m}','bulk.csvFail':'CSV 讀取失敗：{m}','bulk.jsonFail':'JSON 格式錯誤：{m}',
   'cfg.ok':'已{on}成員互看進度 (鼓勵/私隱模式)','cfg.on':'開啟','cfg.off':'關閉','cfg.fail':'設定失敗：{m}',
   'tick.noPerm':'你沒有勾選權限，請使用申請功能','tick.noItem':'你的權限不可勾選此項目 ({id})，請聯絡團長/管理員設定',
-  'tick.noOther':'無權限勾選此其他獎章','other.ok':'✅ 其他獎章已更新','other.fail':'⚠️ 即時寫入失敗：{m}。變更已保留在下方待寫入清單，可按「確認寫入」重試',
-  'other.syncFail':'⚠️ 其他獎章同步失敗：{m}。已暫存於待寫入清單，可按「確認寫入」重試','other.writing':'寫入中，請稍候','other.update':'更新','other.complete':'完成','other.done':'已完成',
+  'tick.noOther':'無權限勾選此其他獎章','other.ok':'✅ 其他獎章已更新','other.fail':'⚠️ 即時寫入失敗：{m}。畫面已還原，請檢查網絡後重試',
+  'other.syncFail':'⚠️ 其他獎章同步失敗：{m}。畫面已還原，請檢查網絡後重試','other.markFirst':'請先勾選完成獎章，再輸入證書編號','other.writing':'寫入中，請稍候','other.update':'更新','other.complete':'完成','other.done':'已完成',
   'demo.loading':'載入 MOCK 中...','demo.ok':'✅ 已進入 MOCK 試用模式，10個成員進度、批量剔、表格等皆可用，數據僅在瀏覽器','demo.fail':'MOCK試用載入失敗：{m}',
   'demo.chip':'團長 DEMO','demo.mock':'MOCK試用','demo.title':'進度追蹤 (DEMO免登入)',
   'portal.chip':'進度追蹤 (Portal)','unreg':'此旅團未在系統登記，請聯絡管理員','troopFail':'無法取得旅團設定',
@@ -1141,7 +1175,7 @@ en:{
   'support.message':'What help do you need? *','support.feedbackMessage':'What feedback would you like to share? *','support.messagePh':'Briefly describe the problem or suggestion',
   'support.contact':'How can we reach you? (email / phone) *','support.contactPh':'An email address or phone number for our reply',
   'support.submit':'Send','support.need':'Please describe what help you need and leave a contact method.',
-  'support.ok':'Sent to the developer. Please wait for a notification.','support.fail':'Could not send your report. Please try again later.',
+  'support.ok':'Sent successfully; the receiving system confirmed receipt. Please wait for a reply. This dialog will stay open.','support.fail':'Could not send your report. Please try again later.','support.sendingHint':'⏳ Sending your report. Please do not press Send again; the result will appear here.','support.confirmed':'✅ Sent successfully; the receiving system confirmed receipt. Please wait for a reply. This dialog will stay open.','support.notAccepted':'The receiving system did not accept this report. Your text is still here; please try again later.','support.unknown':'⚠️ The connection ended before we could confirm receipt. Please do not submit again yet. Check for a notification later; if none arrives, choose “Resend anyway”. Resending may create a duplicate report.','support.sending':'Sending…','support.sentButton':'Sent ✓','support.retryUnknown':'Resend anyway','support.retryUnknownConfirm':'We could not confirm whether the previous report was received. Resending may create a duplicate. Do you still want to send it again?','support.close':'Close',
 
   'nav.enter':'🏠 Enter','nav.setup':'📋 New Group setup','nav.guide':'📖 How to use',
   'nav.progress':'📊 My progress','nav.overview':'👥 Unit overview','nav.requests':'✅ Approvals',
@@ -1178,6 +1212,10 @@ en:{
   'progress.certNo':'Certificate no.','progress.apply':'📝 Claim','progress.done':'✅ Done','progress.expand':'▶ Expand','progress.collapse':'▼ Collapse',
   'progress.mandatory':'Required','progress.noData':'Data not loaded','progress.loading':'Loading the Training Scheme and progress...',
   'progress.fail':'Load failed','item.noDetail':'No extra notes. Please refer to the Training Scheme.','item.detailTitle':'Assessment notes',
+  'legacy.title':'🧭 10th → 11th Edition transition crosswalk','legacy.summary':'Review SAHK transition rules. Leaders verify each old award and choose whether to record an equivalence; the app never auto-converts or ticks new items.','legacy.policy':'For Venture Scouts invested before 15 August 2026: choose the new scheme, or complete the entire applicable old-scheme assessment by 14 August 2029. Any unfinished badge or item after the deadline must be assessed under the new scheme.','legacy.from':'10th Edition (2017)','legacy.to':'11th Edition (2026)','legacy.source':'SAHK Circular P022/2026, Annex 1','legacy.sourceLink':'View official transition arrangements','legacy.newSchemeLink':'View the official 11th Edition syllabus','legacy.oldSchemeLink':'View the official 10th Edition syllabus',
+  'legacy.mappingScopeTitle':'Scope of mappings and important limits','legacy.crosswalkTitle':'Official badge/category-level mappings','legacy.categoryTitle':'Old Activity Badge: category-level mapping only, not item-by-item equivalence','legacy.unmatchedTitle':'10th Edition content with no direct 11th Edition equivalent','legacy.newRequirementsTitle':'New/revised requirements to check when choosing the 11th Edition','legacy.historyTitle':'Preserved old checklist IDs (historical reference only)','legacy.historyHint':'Existing old progress is retained. These legacy IDs do not count towards the new-scheme percentage or automatically complete a new item.','legacy.historyProgress':'Preserved old progress','legacy.historyDone':'Completion record found','legacy.historyNoRecord':'No completion record found','legacy.detailTitle':'Item comparison references (not an official item-by-item conversion)','legacy.expandDetails':'Expand {n} comparison references','legacy.old':'10th Edition content','legacy.new':'11th Edition / comparison','legacy.notes':'Limits and leader action','legacy.manual':'Reference only; leader must verify','legacy.transferTitle':'Leader-selected equivalence for verified old awards','legacy.transferHint':'Select only when the member is eligible, the old badge/Bar is fully earned, and the leader has verified it. Selection adds a separate transition-equivalence record only; it never deletes or overwrites old progress, ticks a new-scheme item, or proves every new item complete. Date is optional.','legacy.dateOptional':'Old award date (optional)','legacy.submit':'Add selected transition records','legacy.confirm':'Add {n} old-award transition-equivalence record(s) for “{member}”?\nOnly equivalence records are added; neither checklist is changed.','legacy.noneSelected':'Select a verified old badge / Bar that has been earned.','legacy.queued':'✅ Added {n} transition record(s) to the save queue. Tap “Save to cloud” to finish.','legacy.recorded':'Recorded','legacy.pending':'Pending save','legacy.unknownDate':'Date not provided','legacy.remove':'Remove record','legacy.removeConfirm':'Remove this transition-equivalence record for “{member}”? No checklist items will change.','legacy.removeQueued':'Transition-record removal added to the save queue.','legacy.noPermission':'You do not have write access to this badge. Ask the Group Scout Leader.','legacy.memberAction':'⇄ Old badge transfer','legacy.noTransfers':'No selectable old-award records are available.','legacy.eligibilityConfirm':'I confirm this member was invested before 15 August 2026 and the selected old badge / Bar has been earned and verified.','legacy.help':'This tool reflects SAHK Circular P022/2026. Do not record an equivalence until eligibility, old-award completion, and the mapping have been verified.','legacy.activityNote':'Transition equivalence records do not count towards new-scheme completion. Verify and tick each applicable new item separately.','legacy.equivalent':'Legacy award equivalence recorded','item.parentNoDirect':'Complete only individually verified items below',
+  'activity.detailTitle':'📝 Fill in / choose activity details','activity.detailHint':'Choose a common activity type, then enter the exact item, activity name or certificate details. Saved in the existing Notes column; no sheet is added.','activity.detailPlaceholder':'e.g. A-301 badminton; course / activity name; certificate no.','activity.choose':'Common type (optional)','activity.choosePlaceholder':'— Choose a type or enter details —','activity.recorded':'📝 Activity details: ','activity.completeFirst':'Mark this item complete before recording activity details.','activity.noPermission':'You do not have write access to this item.','activity.queued':'✅ Activity details added to the save queue; confirm to save.',
+  'users.legacyTransfer':'⇄ Old badge transfer',
   'overview.batchTitle':'🚀 Assessment camp / group activity — bulk complete (leaders)',
   'overview.batchDesc':'After a camp, tick everyone who took part in one go. Drafts stay in the browser until you confirm at the bottom.',
   'overview.allMembers':'Select all members','overview.noMembers':'Clear members','overview.allItems':'Select all items','overview.noItems':'Clear items',
@@ -1294,8 +1332,8 @@ en:{
   'bulk.dl':'⬇️ Download successful accounts and temporary passwords','bulk.okToast':'Bulk onboard finished: {n} succeeded','bulk.fail':'Bulk onboard failed: {m}','bulk.csvFail':'CSV read failed: {m}','bulk.jsonFail':'JSON error: {m}',
   'cfg.ok':'Member-to-member progress view {on}','cfg.on':'turned on','cfg.off':'turned off','cfg.fail':'Setting failed: {m}',
   'tick.noPerm':'You cannot tick items. Please use Claim.','tick.noItem':'You may not tick this item ({id}). Ask the GSL/admin to set rights.',
-  'tick.noOther':'You may not tick this other badge','other.ok':'✅ Other badge updated','other.fail':'⚠️ Instant save failed: {m}. Kept in the queue below — tap “Save to cloud” to retry.',
-  'other.syncFail':'⚠️ Other-badge sync failed: {m}. Drafted in the queue — tap “Save to cloud” to retry.','other.writing':'Saving, please wait','other.update':'Update','other.complete':'Complete','other.done':'Done',
+  'tick.noOther':'You may not tick this other badge','other.ok':'✅ Other badge updated','other.fail':'⚠️ Instant save failed: {m}. The view was rolled back; check the connection and retry.',
+  'other.syncFail':'⚠️ Other-badge sync failed: {m}. The view was rolled back; check the connection and retry.','other.markFirst':'Mark the badge complete before entering a certificate number.','other.writing':'Saving, please wait','other.update':'Update','other.complete':'Complete','other.done':'Done',
   'demo.loading':'Loading MOCK...','demo.ok':'✅ MOCK demo: 10 members, bulk tick, forms and more. Data stays in this browser.','demo.fail':'MOCK demo failed: {m}',
   'demo.chip':'GSL DEMO','demo.mock':'MOCK','demo.title':'Progress (DEMO, no login)',
   'portal.chip':'Progress (Portal)','unreg':'This Group is not registered. Please contact an admin.','troopFail':'Could not load Group settings',
@@ -1723,6 +1761,7 @@ let API_ENDPOINT='/api/proxy';
 let currentTroopId='',currentTroopName='';
 let currentUser=null,currentToken='',loginType='member';
 let itemsData=null,progressFlat={},progressRich={},members=[],pendingChanges=[],pendingRequestsQueue=[],otherBadgesMap={},currentRequestItem=null;
+let feedbackSubmitState='idle'; // idle / sending / sent / failed / unknown
 let logRecords=[],logRecordsSupported=false,logFilterType='all'; // v8.1 活動履歷
 let logRequests=[],logRequestsSupported=false; // v8.4 履歷申報（團員自行申報 → 領袖審批）
 let selectedProgressYmis=null; // 領袖查看他人進度
@@ -2077,10 +2116,13 @@ async function doLogin(){
   finally{ btn.disabled=false; btn.textContent=i18n('login.submit'); }
 }
 function doLogout(){
+  if(feedbackSubmitState==='sending'){ showToast(i18n('support.sendingHint'),'warning'); return; }
   // 通知後端註銷 token（best-effort）：失敗只在 console 提示，不阻塞本機登出，亦不靜默
   if(currentTroopId&&currentTroopId!=='DEMO'&&currentToken) apiRequest('logout',{token:currentToken}).then(d=>{ if(!d.success) console.warn('[logout] 後端 token 註銷失敗:',d.error); }).catch(e=>console.warn('[logout] 後端 token 註銷失敗（已在本機登出）:',e.message||e));
   localStorage.removeItem(LS.session);
   currentUser=null; currentToken=''; currentTroopId=''; currentTroopName='';
+  feedbackSubmitState='idle';
+  ['feedbackMessage','feedbackContact'].forEach(id=>{ const field=document.getElementById(id); if(field) field.value=''; });
   document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
   document.getElementById('mainApp').style.display='none';
   document.getElementById('homePage').style.display='block';
@@ -2181,8 +2223,32 @@ function syncFeedbackType(){
   document.getElementById('feedbackCategoryGroup').style.display=isFeedback?'':'none';
   document.getElementById('feedbackMessageLabel').textContent=i18n(isFeedback?'support.feedbackMessage':'support.message');
 }
+function setFeedbackControlsDisabled(disabled){
+  ['feedbackType','feedbackCategory','feedbackMessage','feedbackContact'].forEach(id=>{
+    const control=document.getElementById(id);
+    if(control) control.disabled=disabled;
+  });
+}
 function showFeedbackModal(){
-  const message=document.getElementById('feedbackMessage'),contact=document.getElementById('feedbackContact'),status=document.getElementById('feedbackMsg');
+  const modal=document.getElementById('feedbackModal');
+  const status=document.getElementById('feedbackMsg'),btn=document.getElementById('btnSubmitFeedback'),closeBtn=document.getElementById('btnCloseFeedback');
+  if(feedbackSubmitState==='sending'){
+    status.textContent=i18n('support.sendingHint'); status.className='login-msg pending';
+    btn.disabled=true; btn.textContent=i18n('support.sending'); closeBtn.disabled=true;
+    setFeedbackControlsDisabled(true);
+    modal.classList.add('active'); return;
+  }
+  if(feedbackSubmitState==='unknown'){
+    status.textContent=i18n('support.unknown'); status.className='login-msg warning';
+    btn.disabled=false; btn.textContent=i18n('support.retryUnknown'); closeBtn.disabled=false;
+    setFeedbackControlsDisabled(false);
+    modal.classList.add('active'); return;
+  }
+  if(feedbackSubmitState==='failed'){
+    modal.classList.add('active'); return;
+  }
+  feedbackSubmitState='idle';
+  const message=document.getElementById('feedbackMessage'),contact=document.getElementById('feedbackContact');
   if(message) message.value='';
   document.getElementById('feedbackType').value='issue';
   document.getElementById('feedbackCategory').value='建議';
@@ -2190,41 +2256,70 @@ function showFeedbackModal(){
   // 系統救援帳號不把任何帳號名稱或識別碼帶入回報內容。
   if(contact) contact.value=(currentUser&&currentUser.role!=='super_admin'&&currentUser.email)?currentUser.email:'';
   if(status){ status.textContent=''; status.className='login-msg'; }
-  document.getElementById('feedbackModal').classList.add('active');
+  setFeedbackControlsDisabled(false);
+  btn.disabled=false; btn.textContent=i18n('support.submit');
+  closeBtn.disabled=false; closeBtn.textContent=i18n('btn.cancel');
+  modal.classList.add('active');
 }
 async function submitFeedback(){
+  if(feedbackSubmitState==='sending'||feedbackSubmitState==='sent') return;
   const message=document.getElementById('feedbackMessage').value.trim();
   const contact=document.getElementById('feedbackContact').value.trim();
   const kind=document.getElementById('feedbackType').value;
-  const status=document.getElementById('feedbackMsg'),btn=document.getElementById('btnSubmitFeedback');
-  status.textContent=''; status.className='login-msg';
+  const status=document.getElementById('feedbackMsg'),btn=document.getElementById('btnSubmitFeedback'),closeBtn=document.getElementById('btnCloseFeedback');
   if(message.length<5||contact.length<3){ status.textContent=i18n('support.need'); status.className='login-msg error'; return; }
-  btn.disabled=true; btn.textContent=i18n('req.sending');
+  if(feedbackSubmitState==='unknown'&&!confirm(i18n('support.retryUnknownConfirm'))) return;
+
+  const payload={
+    type:kind,
+    contact,
+    troopId:currentTroopId&&currentTroopId!=='DEMO'?currentTroopId:'',
+    name:currentUser&&currentUser.role!=='super_admin'?(currentUser.name||''):''
+  };
+  if(kind==='issue'){
+    payload.title=(message.split(/\r?\n/)[0].trim().substring(0,120)||'使用協助');
+    payload.desc=message;
+    payload.severity='中';
+  }else{
+    payload.fbType=document.getElementById('feedbackCategory').value;
+    payload.content=message;
+  }
+
+  feedbackSubmitState='sending';
+  status.textContent=i18n('support.sendingHint'); status.className='login-msg pending';
+  btn.disabled=true; btn.textContent=i18n('support.sending'); closeBtn.disabled=true;
+  setFeedbackControlsDisabled(true);
   try{
-    const payload={
-      type:kind,
-      contact,
-      troopId:currentTroopId&&currentTroopId!=='DEMO'?currentTroopId:'',
-      name:currentUser&&currentUser.role!=='super_admin'?(currentUser.name||''):''
-    };
-    if(kind==='issue'){
-      payload.title=(message.split(/\r?\n/)[0].trim().substring(0,120)||'使用協助');
-      payload.desc=message;
-      payload.severity='中';
+    const result=await apiRequest('submitFeedback',payload,{timeout:58000});
+    if(result&&result.success){
+      feedbackSubmitState='sent';
+      status.textContent=i18n('support.confirmed'); status.className='login-msg success';
+    }else if(!result||!['not_sent','rejected'].includes(result.deliveryStatus)){
+      // Older proxies may not return deliveryStatus; stay conservative during a rolling deploy.
+      feedbackSubmitState='unknown';
+      status.textContent=i18n('support.unknown'); status.className='login-msg warning';
     }else{
-      payload.fbType=document.getElementById('feedbackCategory').value;
-      payload.content=message;
+      feedbackSubmitState='failed';
+      status.textContent=result&&result.deliveryStatus==='rejected'?i18n('support.notAccepted'):(result?.error||i18n('support.fail'));
+      status.className='login-msg error';
     }
-    const result=await apiRequest('submitFeedback',payload);
-    if(!result.success) throw new Error(result.error||i18n('support.fail'));
-    status.textContent=i18n('support.ok'); status.className='login-msg success';
-    document.getElementById('feedbackMessage').value='';
-    setTimeout(()=>closeModal('feedbackModal'),1200);
-  }catch(error){ status.textContent=error.message||i18n('support.fail'); status.className='login-msg error'; }
-  finally{ btn.disabled=false; btn.textContent=i18n('support.submit'); }
+  }catch(error){
+    // Timeout/network errors can happen after the receiver got the request; never claim definite failure.
+    feedbackSubmitState='unknown';
+    status.textContent=i18n('support.unknown'); status.className='login-msg warning';
+  }finally{
+    setFeedbackControlsDisabled(feedbackSubmitState==='sent');
+    btn.disabled=feedbackSubmitState==='sent';
+    btn.textContent=feedbackSubmitState==='sent'?i18n('support.sentButton'):(feedbackSubmitState==='unknown'?i18n('support.retryUnknown'):i18n('support.submit'));
+    closeBtn.disabled=false;
+    closeBtn.textContent=feedbackSubmitState==='sent'?i18n('support.close'):i18n('btn.cancel');
+  }
 }
 
-function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function closeModal(id){
+  if(id==='feedbackModal'&&feedbackSubmitState==='sending') return;
+  document.getElementById(id).classList.remove('active');
+}
 function showAccountApplyModal(){
   if(!currentTroopId){ showToast(i18n('apply.pickTroop'),'warning'); return; }
   ['applyYmis','applyName','applyEmail'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -2336,18 +2431,26 @@ async function loadItemsAndProgress(){
     }catch(e){ console.warn('backend load fail',e); backendData={success:false}; }
     if(backendData.success){
       members=backendData.members||[];
-      // compat: progress may be flat or rich
-      if(backendData.flatProgress){ progressFlat=backendData.flatProgress; }
-      else if(backendData.progress){ // old or new rich?
-        // check if values are object or string
-        progressFlat={}; progressRich={};
-        for(const ymis in backendData.progress){
-          progressFlat[ymis]={}; progressRich[ymis]={};
-          for(const itemId in backendData.progress[ymis]){
-            const v=backendData.progress[ymis][itemId];
-            if(typeof v==='object'){ progressRich[ymis][itemId]=v; progressFlat[ymis][itemId]=v.date||''; }
-            else{ progressRich[ymis][itemId]={date:v}; progressFlat[ymis][itemId]=v; }
-          }
+      // 相容舊／新 GAS：同時正規化 flatProgress 與 rich progress，保留既有「備註」欄的細項內容。
+      progressFlat=backendData.flatProgress||{};
+      progressRich={};
+      const richSource=backendData.progress||{};
+      for(const ymis in richSource){
+        if(!progressFlat[ymis]) progressFlat[ymis]={};
+        progressRich[ymis]={};
+        for(const itemId in richSource[ymis]){
+          const value=richSource[ymis][itemId];
+          const record=(value&&typeof value==='object')?{...value}:{date:value||''};
+          if(record.date==null) record.date=progressFlat[ymis][itemId]||'';
+          if(!Object.prototype.hasOwnProperty.call(progressFlat[ymis],itemId)) progressFlat[ymis][itemId]=record.date||'';
+          progressRich[ymis][itemId]=record;
+        }
+      }
+      // 舊後端可能只回傳 flatProgress；仍為每條紀錄建立 rich row，確保頁面可讀取舊資料。
+      for(const ymis in progressFlat){
+        if(!progressRich[ymis]) progressRich[ymis]={};
+        for(const itemId in progressFlat[ymis]){
+          if(!progressRich[ymis][itemId]) progressRich[ymis][itemId]={date:progressFlat[ymis][itemId]||'',note:''};
         }
       }
       otherBadgesMap=backendData.otherBadges||{};
@@ -2367,11 +2470,11 @@ async function loadItemsAndProgress(){
       }catch(e){ pendingRequestsQueue=pr; }
       updateRequestsBadge();
       // cache
-      localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, members, logs:logRecords, savedAt:Date.now()}));
+      localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, other:otherBadgesMap, members, logs:logRecords, savedAt:Date.now()}));
     }else{
       // fallback to cache
       const cached=localStorage.getItem(LS.cacheProgress(currentTroopId));
-      if(cached){ const c=JSON.parse(cached); progressFlat=c.flat||{}; progressRich=c.rich||{}; members=c.members||[]; logRecords=c.logs||[]; showToast(i18n('offline'),'warning'); }
+      if(cached){ const c=JSON.parse(cached); progressFlat=c.flat||{}; progressRich=c.rich||{}; otherBadgesMap=c.other||{}; members=c.members||[]; logRecords=c.logs||[]; showToast(i18n('offline'),'warning'); }
       else{ progressFlat={}; members=[]; }
     }
     selectedProgressYmis=currentUser.ymis;
@@ -2431,6 +2534,7 @@ function switchTab(name, btn){
 // ESC 緊急退出 + 雙擊 Header 返回首頁
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape'){
+    if(feedbackSubmitState==='sending'&&document.getElementById('feedbackModal')?.classList.contains('active')){ e.preventDefault(); return; }
     // 關閉所有 modal 和 overlay
     document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
     document.getElementById('savingOverlay')?.classList.remove('active');
@@ -2451,6 +2555,221 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
 });
+
+/* ================== Legacy transition + activity detail records ================== */
+function hasProgressRecord(ymis,itemId){
+  const rich=progressRich[ymis]||{}, flat=progressFlat[ymis]||{};
+  const pending=(pendingChanges||[]).some(change=>String(change.ymis)===String(ymis)&&String(change.itemId)===String(itemId)&&!change.uncomplete&&!change.isOther);
+  return Object.prototype.hasOwnProperty.call(rich,itemId) || Object.prototype.hasOwnProperty.call(flat,itemId) || pending;
+}
+function getProgressNote(ymis,itemId){
+  const staged=(pendingChanges||[]).find(change=>String(change.ymis)===String(ymis)&&String(change.itemId)===String(itemId)&&!change.uncomplete&&!change.isOther&&Object.prototype.hasOwnProperty.call(change,'note'));
+  if(staged) return String(staged.note||'');
+  const record=(progressRich[ymis]||{})[itemId];
+  return record&&record.note!=null?String(record.note):'';
+}
+function renderLegacySegmentTag(ymis,segmentCode){
+  const records=(itemsData?.legacyTransition?.quickTransfers||[]).filter(row=>row.targetSegmentCode===segmentCode&&hasProgressRecord(ymis,row.recordId));
+  if(!records.length) return '';
+  return `<small title="${i18n('legacy.equivalent')}" style="display:inline-block;margin-left:5px;padding:2px 6px;border-radius:999px;background:#FFF4D6;color:#805B00;font-size:9px;font-weight:600">↔ ${i18n('legacy.equivalent')} (${records.length})</small>`;
+}
+function resolveOtherBadgeRecord(ymis,badge){
+  const map=otherBadgesMap[ymis]||{};
+  for(const id of [badge.id,...(badge.aliases||[])]) if(map[id]) return {id,record:map[id]};
+  const normalize=value=>String(value||'').toLowerCase().replace(/[\s\-_()（）.·]/g,'');
+  const names=new Set([badge.name,badge.en,...(badge.nameAliases||[])].map(normalize).filter(Boolean));
+  for(const [id,record] of Object.entries(map)) if(names.has(normalize(record&&record.name))) return {id,record};
+  return {id:badge.id,record:null};
+}
+function isActivityDetailItem(item){
+  return !!(item&&/^L[34]-ACT-/.test(item.id)&&!(item.subItems&&item.subItems.length));
+}
+function renderActivityDetailEditor(item,targetYmis,editable){
+  if(!isActivityDetailItem(item)) return '';
+  const note=getProgressNote(targetYmis,item.id);
+  const mayEdit=!!editable&&canCurrentUserTickItem(item.id)&&!isMember();
+  if(!mayEdit) return note?`<div class="activity-detail-readonly">${i18n('activity.recorded')}${escapeHtmlText(note)}</div>`:'';
+  const inputId=`activityNote_${targetYmis}_${item.id}`;
+  const options=item.activityOptions||[];
+  const choices=options.length?`<select aria-label="${i18n('activity.choose')}" onchange="applyActivityDetailOption('${inputId}','${escapeAttr(item.id)}','${escapeAttr(targetYmis)}',this.value)"><option value="">${i18n('activity.choosePlaceholder')}</option>${options.map(option=>`<option value="${escapeHtmlText(tx(option))}">${escapeHtmlText(tx(option))}</option>`).join('')}</select>`:'';
+  return `<details class="activity-detail-editor" ${note?'open':''}>
+    <summary>${i18n('activity.detailTitle')}${note?` · ${i18n('activity.recorded')}`:''}</summary>
+    <div class="activity-detail-fields ${options.length?'has-options':'free-text'}">${choices}
+      <textarea id="${inputId}" rows="2" maxlength="500" placeholder="${i18n('activity.detailPlaceholder')}" onchange="saveActivityDetail('${escapeAttr(item.id)}','${escapeAttr(targetYmis)}',this.value)">${escapeHtmlText(note)}</textarea>
+      <small>${i18n('activity.detailHint')}</small>
+    </div>
+  </details>`;
+}
+function applyActivityDetailOption(inputId,itemId,targetYmis,value){
+  const input=document.getElementById(inputId);
+  const selected=String(value||'').trim();
+  if(input&&selected){ input.value=selected; saveActivityDetail(itemId,targetYmis,selected); }
+}
+function saveActivityDetail(itemId,targetYmis,value){
+  if(!canUserTickRole(currentUser.role)||!canCurrentUserTickItem(itemId)){ showToast(i18n('activity.noPermission'),'warning'); return; }
+  const flat=progressFlat[targetYmis]||{};
+  if(!Object.prototype.hasOwnProperty.call(flat,itemId)||!flat[itemId]){ showToast(i18n('activity.completeFirst'),'warning'); return; }
+  const note=String(value||'').trim().slice(0,500);
+  if(!progressRich[targetYmis]) progressRich[targetYmis]={};
+  const old=progressRich[targetYmis][itemId]||{};
+  progressRich[targetYmis][itemId]={...old,date:old.date||flat[itemId],note};
+  addOrUpdatePending(targetYmis,itemId,flat[itemId],false,note);
+  updateSaveBar();
+  showToast(i18n('activity.queued'),'success');
+}
+function safeExternalUrl(value){
+  const url=String(value||'').trim();
+  return /^https?:\/\//i.test(url)?url:'';
+}
+function renderExternalLinks(links){
+  return (Array.isArray(links)?links:[]).map(link=>{
+    const href=safeExternalUrl(link?.url);
+    if(!href) return '';
+    const title=tx(link,'title')||link.title||href;
+    return `<a href="${escapeHtmlText(href)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtmlText(title)}</a>`;
+  }).filter(Boolean).join('<br>');
+}
+function renderLegacyTransitionPanel(targetYmis,isLeader){
+  const transition=itemsData&&itemsData.legacyTransition;
+  if(!transition) return '';
+  const memberName=members.find(m=>String(m.ymis)===String(targetYmis))?.name||(String(targetYmis)===String(currentUser.ymis)?currentUser.name:targetYmis);
+  const headers=`<thead><tr><th>${i18n('legacy.old')}</th><th>${i18n('legacy.new')}</th><th>${i18n('legacy.notes')}</th></tr></thead>`;
+  const badgeRows=(transition.badgeMappings||[]).map(row=>`<tr>
+    <td>${escapeHtmlText(tx(row,'old'))}</td><td>${escapeHtmlText(tx(row,'new'))}</td><td>${escapeHtmlText(tx(row,'note'))}${row.transferable?'':` <b style="color:var(--orange)">(${i18n('legacy.manual')})</b>`}</td>
+  </tr>`).join('');
+  const detailRows=(transition.detailMappings||[]).map(row=>`<tr>
+    <td><code>${escapeHtmlText(tx(row,'code'))}</code><br>${escapeHtmlText(tx(row,'old'))}</td>
+    <td>${tx(row,'newItemId')?`<code>${escapeHtmlText(tx(row,'newItemId'))}</code><br>`:''}${escapeHtmlText(tx(row,'new'))}</td><td>${escapeHtmlText(tx(row,'note'))}</td>
+  </tr>`).join('');
+  const renderNoteRows=rows=>(rows||[]).map(row=>`<tr>
+    <td>${escapeHtmlText(tx(row,'old'))}</td><td>${escapeHtmlText(tx(row,'new'))}</td><td>${escapeHtmlText(tx(row,'consequence'))}</td>
+  </tr>`).join('');
+  const categoryRows=renderNoteRows(transition.categoryOnlyNotes);
+  const unmatchedRows=renderNoteRows(transition.unmatchedItems);
+  const newRequirementRows=renderNoteRows(transition.newRequirements);
+  const preservedRows=(transition.preservedChecklistItems||[]).map(row=>{
+    const oldProgress=progressFlat[targetYmis]||{};
+    const hasOldRecord=Object.prototype.hasOwnProperty.call(oldProgress,row.id);
+    const oldValue=oldProgress[row.id];
+    const oldStatus=hasOldRecord?`${i18n('legacy.historyDone')}${oldValue?` · ${escapeHtmlText(oldValue)}`:''}`:i18n('legacy.historyNoRecord');
+    return `<tr>
+      <td><code>${escapeHtmlText(row.id)}</code></td>
+      <td>${escapeHtmlText(isEn()?(row.enName||row.name):(row.name||row.id))}</td>
+      <td>${escapeHtmlText(isEn()?(row.enSegmentName||row.segmentName||row.segmentCode):(row.segmentName||row.segmentCode))}</td>
+      <td>${oldStatus}</td>
+    </tr>`;
+  }).join('');
+  const sourceLinks=renderExternalLinks([
+    {title:i18n('legacy.sourceLink'),url:transition.sourceUrl},
+    {title:i18n('legacy.newSchemeLink'),url:transition.newSchemeUrl},
+    {title:i18n('legacy.oldSchemeLink'),url:transition.oldSchemeUrl}
+  ]);
+  const transfers=transition.quickTransfers||[];
+  const transferRows=transfers.map(row=>{
+    const pendingChange=pendingChanges.find(change=>String(change.ymis)===String(targetYmis)&&String(change.itemId)===String(row.recordId)&&!change.uncomplete&&!change.isOther);
+    const pending=!!pendingChange;
+    const already=hasProgressRecord(targetYmis,row.recordId);
+    const allowed=isLeader&&canUserTickRole(currentUser.role)&&canCurrentUserTickItem(row.permissionItemId);
+    const date=(progressRich[targetYmis]||{})[row.recordId]?.date||((progressFlat[targetYmis]||{})[row.recordId]||pendingChange?.date||'');
+    const status=already?(pending?i18n('legacy.pending'):i18n('legacy.recorded')):'';
+    const checkId=`legacyCheck_${row.id}`;
+    return `<div class="legacy-transfer-row">
+      <input id="${checkId}" type="checkbox" data-transfer-id="${escapeHtmlText(row.id)}" ${already?'checked':''} ${already||!allowed?'disabled':''}>
+      <label for="${checkId}"><b>${escapeHtmlText(tx(row,'old'))}</b> → <b>${escapeHtmlText(tx(row,'new'))}</b><br><small>${escapeHtmlText(tx(row,'note'))}</small></label>
+      <input class="legacy-date" type="date" data-transfer-date="${escapeHtmlText(row.id)}" max="${todayISO()}" value="${escapeHtmlText(date)}" ${already||!allowed?'disabled':''} aria-label="${i18n('legacy.dateOptional')}">
+      <span class="legacy-status">${status}${already&&!date?` · ${i18n('legacy.unknownDate')}`:''}${!allowed&&!already?` · ${i18n('legacy.noPermission')}`:''}${already&&allowed?` <button type="button" class="btn btn-sm btn-outline" onclick="removeLegacyTransfer('${escapeAttr(targetYmis)}','${escapeAttr(row.recordId)}')">${i18n('legacy.remove')}</button>`:''}</span>
+    </div>`;
+  }).join('');
+  const transferTool=isLeader?`<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+    <h4 style="font-size:13px;color:var(--maroon)">${i18n('legacy.transferTitle')}</h4>
+    <p style="font-size:11px;color:var(--text-light);line-height:1.6">${i18n('legacy.transferHint')}</p>
+    <label style="display:flex;gap:7px;align-items:flex-start;margin:8px 0;font-size:11px;color:var(--red)"><input id="legacyEligibility_${escapeAttr(targetYmis)}" type="checkbox" style="margin-top:2px;flex:0 0 auto">${i18n('legacy.eligibilityConfirm')}</label>
+    <div class="legacy-transfer-list" id="legacyTransferList">${transferRows||`<p>${i18n('legacy.noTransfers')}</p>`}</div>
+    <button type="button" class="btn btn-sm btn-primary" onclick="queueLegacyTransfers('${escapeAttr(targetYmis)}')">${i18n('legacy.submit')}</button>
+  </div>`:'';
+  const historySection=preservedRows?`<details class="legacy-detail-list legacy-history"><summary>${i18n('legacy.historyTitle')} (${(transition.preservedChecklistItems||[]).length})</summary>
+    <p>${i18n('legacy.historyHint')}</p>
+    <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk"><thead><tr><th>ID</th><th>${i18n('legacy.old')}</th><th>${isEn()?'Old section':'舊章節'}</th><th>${i18n('legacy.historyProgress')}</th></tr></thead><tbody>${preservedRows}</tbody></table></div>
+  </details>`:'';
+  return `<details class="info-section legacy-transition" id="legacyTransitionDetails">
+    <summary>${i18n('legacy.title')} <small style="font-weight:400;color:var(--text-light)">— ${escapeHtmlText(memberName)}</small></summary>
+    <div class="legacy-policy"><b>${escapeHtmlText(tx(transition,'from'))} → ${escapeHtmlText(tx(transition,'to'))}</b><br>
+      ${escapeHtmlText(tx(transition,'policy')||i18n('legacy.policy'))}<br>
+      ${escapeHtmlText(tx(transition,'mappingScope')||i18n('legacy.mappingScopeTitle'))}<br>
+      ${i18n('legacy.activityNote')}<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">${sourceLinks}</div>
+    </div>
+    <h4 style="font-size:13px;color:var(--maroon)">${i18n('legacy.crosswalkTitle')}</h4>
+    <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk">${headers}<tbody>${badgeRows}</tbody></table></div>
+    <h4 style="font-size:13px;color:var(--maroon)">${i18n('legacy.categoryTitle')}</h4>
+    <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk">${headers}<tbody>${categoryRows}</tbody></table></div>
+    <h4 style="font-size:13px;color:var(--red)">${i18n('legacy.unmatchedTitle')}</h4>
+    <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk">${headers}<tbody>${unmatchedRows}</tbody></table></div>
+    <h4 style="font-size:13px;color:var(--maroon)">${i18n('legacy.newRequirementsTitle')}</h4>
+    <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk">${headers}<tbody>${newRequirementRows}</tbody></table></div>
+    <h4 style="font-size:13px;color:var(--maroon)">${i18n('legacy.detailTitle')} (${(transition.detailMappings||[]).length})</h4>
+    <details class="legacy-detail-list"><summary>${i18n('legacy.expandDetails',{n:(transition.detailMappings||[]).length})}</summary>
+      <div class="legacy-crosswalk-wrap"><table class="legacy-crosswalk">${headers}<tbody>${detailRows}</tbody></table></div>
+    </details>
+    ${historySection}
+    ${transferTool}
+  </details>`;
+}
+function queueLegacyTransfers(targetYmis){
+  if(!canUserTickRole(currentUser.role)){ showToast(i18n('legacy.noPermission'),'warning'); return; }
+  const transition=itemsData&&itemsData.legacyTransition;
+  if(!transition) return;
+  if(!document.getElementById(`legacyEligibility_${targetYmis}`)?.checked){ showToast(i18n('legacy.eligibilityConfirm'),'warning'); return; }
+  const selected=[...document.querySelectorAll('#legacyTransferList input[data-transfer-id]:checked')];
+  const records=selected.map(input=>(transition.quickTransfers||[]).find(row=>row.id===input.dataset.transferId)).filter(Boolean);
+  if(!records.length){ showToast(i18n('legacy.noneSelected'),'warning'); return; }
+  for(const record of records){
+    if(!canCurrentUserTickItem(record.permissionItemId)){ showToast(i18n('legacy.noPermission'),'warning'); return; }
+  }
+  const memberName=members.find(m=>String(m.ymis)===String(targetYmis))?.name||(String(targetYmis)===String(currentUser.ymis)?currentUser.name:targetYmis);
+  if(!confirm(i18n('legacy.confirm',{n:records.length,member:memberName}))) return;
+  let added=0;
+  for(const record of records){
+    if(hasProgressRecord(targetYmis,record.recordId)) continue;
+    const date=document.querySelector(`#legacyTransferList input[data-transfer-date="${record.id}"]`)?.value||'';
+    const note=isEn()
+      ? `Legacy transition record (10th to 11th Edition): ${record.enOld} → ${record.enNew}. SAHK Circular P022/2026.${date?'':' Date not provided.'}`
+      : `舊章過渡紀錄（第十版→第十一版）：${record.old} → ${record.new}。參考總會通告 P022/2026。${date?'':'未提供舊章日期。'}`;
+    if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
+    if(!progressRich[targetYmis]) progressRich[targetYmis]={};
+    progressFlat[targetYmis][record.recordId]=date;
+    progressRich[targetYmis][record.recordId]={date,note,confirmer:currentUser.name,legacyTransfer:true};
+    addOrUpdatePending(targetYmis,record.recordId,date,false,note);
+    added++;
+  }
+  if(!added){ showToast(i18n('legacy.noTransfers'),'warning'); return; }
+  renderProgressTab();
+  const panel=document.getElementById('legacyTransitionDetails');
+  if(panel){ panel.open=true; panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+  showToast(i18n('legacy.queued',{n:added}),'success');
+}
+function removeLegacyTransfer(ymis,itemId){
+  if(!canUserTickRole(currentUser.role)){ showToast(i18n('legacy.noPermission'),'warning'); return; }
+  const row=(itemsData?.legacyTransition?.quickTransfers||[]).find(entry=>entry.recordId===itemId);
+  if(!row||!canCurrentUserTickItem(row.permissionItemId)){ showToast(i18n('legacy.noPermission'),'warning'); return; }
+  const memberName=members.find(m=>String(m.ymis)===String(ymis))?.name||(String(ymis)===String(currentUser.ymis)?currentUser.name:ymis);
+  if(!confirm(i18n('legacy.removeConfirm',{member:memberName}))) return;
+  if(progressFlat[ymis]) delete progressFlat[ymis][itemId];
+  if(progressRich[ymis]) delete progressRich[ymis][itemId];
+  addOrUpdatePending(ymis,itemId,'',true);
+  renderProgressTab();
+  const panel=document.getElementById('legacyTransitionDetails');
+  if(panel){ panel.open=true; panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+  showToast(i18n('legacy.removeQueued'),'success');
+}
+function openLegacyTransferForMember(ymis){
+  if(!canUserTickRole(currentUser.role)){ showToast(i18n('legacy.noPermission'),'warning'); return; }
+  selectedProgressYmis=String(ymis||'');
+  switchTab('progress');
+  setTimeout(()=>{
+    const panel=document.getElementById('legacyTransitionDetails');
+    if(panel){ panel.open=true; panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+  },180);
+}
 
 /* ================== Progress Tab ================== */
 function renderProgressTab(){
@@ -2482,6 +2801,7 @@ function renderProgressTab(){
       ${!isLeader && targetYmis!==currentUser.ymis ? '<div style="font-size:11px;color:var(--red);background:#FFF5F5;padding:6px 10px;border-radius:6px;margin-top:8px">'+i18n('progress.viewOnly')+'</div>' : ''}
     </div>`;
 
+  html+=renderLegacyTransitionPanel(targetYmis,isLeader);
   itemsData.badges.forEach(badge=>{
     const badgeIds=getBadgeItemIds(badge);
     const badgeDone=badgeIds.filter(id=>flat[id]).length;
@@ -2492,14 +2812,14 @@ function renderProgressTab(){
         <div style="display:flex;align-items:center;gap:8px"><span class="progress-chip">${badgeDone}/${badgeIds.length} (${badgePct}%)</span><span>▶</span></div>
       </div>
       <div class="badge-body">
-        ${badge.description?`<div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:var(--bg);border-bottom:1px solid var(--border)">${tx(badge,'description')}</div>`:''}
+        ${badge.description?`<div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:var(--bg);border-bottom:1px solid var(--border);white-space:pre-wrap">${escapeHtmlText(tx(badge,'description'))}</div>`:''}
         ${badge.segments.map(seg=>{
           const segIds=getSegmentItemIds(seg);
           const segDone=segIds.filter(id=>flat[id]).length;
           return `<div class="segment">
             <div class="segment-header" onclick="toggleSegment(this)">
-              <h4>${tx(seg)} <span style="font-weight:400;font-size:11px;color:var(--text-light)">(${segDone}/${segIds.length})</span> ${seg.desc?` - <small style="font-weight:400;color:var(--text-light)">${tx(seg,'desc')}</small>`:''}</h4>
-              <span style="font-size:10px;color:var(--text-light)">▶ ${seg.requirement?` | ${tx(seg,'requirement')}`:''}</span>
+              <h4>${escapeHtmlText(tx(seg))} <span style="font-weight:400;font-size:11px;color:var(--text-light)">(${segDone}/${segIds.length})</span> ${seg.desc?` - <small style="font-weight:400;color:var(--text-light)">${escapeHtmlText(tx(seg,'desc'))}</small>`:''}${renderLegacySegmentTag(targetYmis,seg.code)}</h4>
+              <span style="font-size:10px;color:var(--text-light)">▶ ${seg.requirement?` | ${escapeHtmlText(tx(seg,'requirement')||seg.requirement)}`:''}</span>
             </div>
             <div class="items-container">
               ${seg.items.map(item=>renderItemRow(item, flat, targetYmis, isLeader)).join('')}
@@ -2513,7 +2833,7 @@ function renderProgressTab(){
   if(itemsData.otherBadges && itemsData.otherBadges.length>0){
     const otherFlat = otherBadgesMap[targetYmis]||{};
     const otherIds = itemsData.otherBadges.map(o=>o.id);
-    const otherDone = otherIds.filter(id=>otherFlat[id]).length;
+    const otherDone = itemsData.otherBadges.filter(ob=>!!resolveOtherBadgeRecord(targetYmis,ob).record).length;
     const otherPct = otherIds.length?Math.round(otherDone/otherIds.length*100):0;
     html+=`<div class="badge-card" style="border:2px dashed var(--gold-dark)">
       <div class="badge-header" style="background:linear-gradient(135deg,#856404 0%, #665007 100%)" onclick="toggleBadgeBody(this)">
@@ -2524,16 +2844,17 @@ function renderProgressTab(){
         <div style="padding:10px 16px;font-size:11px;color:var(--text-light);background:#FFFBEB;border-bottom:1px solid var(--border)">${i18n('progress.otherHint')}</div>
         <div style="padding:8px 16px">
           ${itemsData.otherBadges.map(ob=>{
-            const rec = otherFlat[ob.id];
+            const resolved=resolveOtherBadgeRecord(targetYmis,ob);
+            const badgeId=resolved.id, rec=resolved.record;
             const checked = !!rec;
             const dateVal = rec?.date||'';
             const editable = isLeader && canUserTickRole(currentUser.role);
-            return `<div class="item-row ${checked?'checked':''}" data-item-id="${ob.id}">
-              <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleOtherBadgeToggle('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.checked)">
-              <div class="item-main"><div class="item-name">${ob.icon||''} ${tx(ob)}</div><div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${rec?.cert?`📜 ${rec.cert}`:''} - ${tx(ob,'desc')||''}</div></div>
+            return `<div class="item-row ${checked?'checked':''}" data-item-id="${escapeHtmlText(badgeId)}">
+              <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleOtherBadgeToggle('${escapeAttr(badgeId)}','${escapeAttr(ob.name)}','${escapeAttr(targetYmis)}',this.checked)">
+              <div class="item-main"><div class="item-name">${ob.icon||''} ${tx(ob)}</div><div class="item-meta">${dateVal?`📅 ${escapeHtmlText(dateVal)}`:''} ${rec?.cert?`📜 ${escapeHtmlText(rec.cert)}`:''} - ${tx(ob,'desc')||''}</div></div>
               <div class="item-actions">
-                ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleOtherBadgeDate('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)"><input type="text" placeholder="${i18n('progress.certNo')}" value="${rec?.cert||''}" style="width:90px;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" onchange="handleOtherBadgeCert('${ob.id}','${escapeAttr(ob.name)}','${targetYmis}',this.value)">`:''}
-                <button class="info-btn" onclick="showSubDetail('${escapeAttr(ob.name)}','${escapeAttr(ob.desc+'\\n'+(ob.detail||''))}')">ⓘ</button>
+                ${editable?`<input type="date" value="${escapeHtmlText(dateVal)}" max="${todayISO()}" onchange="handleOtherBadgeDate('${escapeAttr(badgeId)}','${escapeAttr(ob.name)}','${escapeAttr(targetYmis)}',this.value)"><input type="text" placeholder="${i18n('progress.certNo')}" value="${escapeHtmlText(rec?.cert||'')}" style="width:90px;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" onchange="handleOtherBadgeCert('${escapeAttr(badgeId)}','${escapeAttr(ob.name)}','${escapeAttr(targetYmis)}',this.value)">`:''}
+                <button class="info-btn" onclick="showSubDetail('${escapeAttr(tx(ob))}','${escapeAttr(tx(ob,'desc')+'\\n'+tx(ob,'detail'))}')">ⓘ</button>
               </div>
             </div>`;
           }).join('')}
@@ -2597,23 +2918,24 @@ function getLeafItemIds(){
 }
 function renderItemRow(item, flat, targetYmis, isLeaderView){
   const isParent=item.subItems && item.subItems.length>0;
-  const checked=flat[item.id]?true:false;
-  const dateVal=flat[item.id]||'';
+  const checked=!item.noDirectCheck&&!!flat[item.id];
+  const dateVal=item.noDirectCheck?'':(flat[item.id]||'');
   const canEdit=isLeaderView && targetYmis!==currentUser.ymis || isLeaderView && members.length>0 ? canUserTickRole(currentUser.role) : false;
   const actuallyCanEdit = canUserTickRole(currentUser.role) && (isLeaderView);
   const editable = actuallyCanEdit && !isMember();
   if(!isParent){
-    return `<div class="item-row ${checked?'checked':''}" data-item-id="${item.id}">
-      <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${item.id}', this.checked, '${targetYmis}')">
+    return `<div class="item-row ${checked?'checked':''}" data-item-id="${escapeHtmlText(item.id)}">
+      <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${escapeAttr(item.id)}', this.checked, '${escapeAttr(targetYmis)}')">
       <div class="item-main">
-        <div class="item-name">${tx(item)} ${item.mandatory?'<span style="background:var(--red);color:#fff;padding:1px 5px;border-radius:999px;font-size:9px">'+i18n('progress.mandatory')+'</span>':''}</div>
-        ${item.detail?`<div class="item-detail" style="display:none" id="detail-${item.id}">${tx(item,'detail')}<br>${item.assessment?`<b>${isEn()?'Assessment: ':'評核：'}</b>${tx(item,'assessment')||item.assessment}<br>`:''}${item.tip?`<b>${isEn()?'Tip: ':'提示：'}</b>${tx(item,'tip')}<br>`:''}${item.link?`<a href="${item.link}" target="_blank">🔗</a><br>`:''}${item.links? item.links.map(l=>`<a href="${l.url}" target="_blank">🔗 ${tx(l,'title')||l.title}</a>`).join('<br>'):''}</div>`:''}
-        <div class="item-meta">${dateVal?`<span>📅 ${dateVal}</span>`:''}${item.evidence?`<span>📎 ${tx(item,'evidence')}</span>`:''}</div>
+        <div class="item-name">${escapeHtmlText(tx(item))} ${item.mandatory?'<span style="background:var(--red);color:#fff;padding:1px 5px;border-radius:999px;font-size:9px">'+i18n('progress.mandatory')+'</span>':''}</div>
+        ${item.detail?`<div class="item-detail" style="display:none;white-space:pre-wrap" id="detail-${escapeHtmlText(item.id)}">${escapeHtmlText(tx(item,'detail'))}${item.assessment?`<br><b>${isEn()?'Assessment: ':'評核：'}</b>${escapeHtmlText(tx(item,'assessment')||item.assessment)}`:''}${item.tip?`<br><b>${isEn()?'Tip: ':'提示：'}</b>${escapeHtmlText(tx(item,'tip'))}`:''}${item.link?`<br>${renderExternalLinks([{title:isEn()?'Official link':'官方連結',url:item.link}])}`:''}${item.links?`<br>${renderExternalLinks(item.links)}`:''}</div>`:''}
+        <div class="item-meta">${dateVal?`<span>📅 ${escapeHtmlText(dateVal)}</span>`:''}${item.evidence?`<span>📎 ${escapeHtmlText(tx(item,'evidence'))}</span>`:''}</div>
+        ${renderActivityDetailEditor(item,targetYmis,editable)}
       </div>
       <div class="item-actions">
-        ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleDateChange('${item.id}', this.value, '${targetYmis}')">`:''}
-        <button class="info-btn" onclick="toggleDetail('${item.id}')" title="${i18n('item.detailTitle')}">ⓘ</button>
-        ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${item.id}', '${escapeAttr(tx(item))}')" title="${i18n('progress.apply')}">${checked?i18n('progress.done'):i18n('progress.apply')}</button>`:''}
+        ${editable?`<input type="date" value="${escapeHtmlText(dateVal)}" max="${todayISO()}" onchange="handleDateChange('${escapeAttr(item.id)}', this.value, '${escapeAttr(targetYmis)}')">`:''}
+        <button class="info-btn" onclick="toggleDetail('${escapeAttr(item.id)}')" title="${i18n('item.detailTitle')}">ⓘ</button>
+        ${!editable?`<button class="btn btn-sm btn-outline" onclick="openRequestModal('${escapeAttr(item.id)}', '${escapeAttr(tx(item))}')" title="${i18n('progress.apply')}">${checked?i18n('progress.done'):i18n('progress.apply')}</button>`:''}
       </div>
     </div>`;
   }else{
@@ -2627,15 +2949,15 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
       }else{ leafCount++; if(flat[si.id]) leafDone++; }
     });
     const subDone=item.subItems.filter(si=>flat[si.id]).length;
-    return `<div class="item-row ${checked?'checked':''}" data-item-id="${item.id}" style="background:#FAFAFA;border-radius:8px;padding:8px;margin:4px 0">
-      <input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${item.id}', this.checked, '${targetYmis}', true)">
+    return `<div class="item-row ${checked?'checked':''}" data-item-id="${escapeHtmlText(item.id)}" style="background:#FAFAFA;border-radius:8px;padding:8px;margin:4px 0">
+      ${item.noDirectCheck?`<span class="checkbox-placeholder" aria-hidden="true"></span>`:`<input type="checkbox" class="checkbox" ${checked?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${escapeAttr(item.id)}', this.checked, '${escapeAttr(targetYmis)}', true)">`}
       <div class="item-main">
-        <div class="item-name"><b>${tx(item)}</b> <span class="sub-count">${leafDone}/${leafCount}</span>${item.desc?` <small style="color:var(--text-light)">${tx(item,'desc')}</small>`:''}</div>
-        ${item.detail?`<div class="item-detail" style="display:none" id="detail-${item.id}">${tx(item,'detail')}</div>`:''}
-        <div class="item-meta">${dateVal?`📅 ${dateVal}`:''} ${item.requirement||''}</div>
+        <div class="item-name"><b>${escapeHtmlText(tx(item))}</b> <span class="sub-count">${leafDone}/${leafCount}</span>${item.desc?` <small style="color:var(--text-light)">${escapeHtmlText(tx(item,'desc'))}</small>`:''}${item.noDirectCheck?` <small class="parent-no-direct">${i18n('item.parentNoDirect')}</small>`:''}</div>
+        ${item.detail?`<div class="item-detail" style="display:none;white-space:pre-wrap" id="detail-${escapeHtmlText(item.id)}">${escapeHtmlText(tx(item,'detail'))}</div>`:''}
+        <div class="item-meta">${dateVal?`📅 ${escapeHtmlText(dateVal)}`:''} ${escapeHtmlText(item.requirement?tx(item,'requirement')||item.requirement:'')}</div>
       </div>
       <div class="item-actions">
-        ${editable?`<input type="date" value="${dateVal}" max="${todayISO()}" onchange="handleDateChange('${item.id}', this.value, '${targetYmis}')">`:''}
+        ${editable&&!item.noDirectCheck?`<input type="date" value="${escapeHtmlText(dateVal)}" max="${todayISO()}" onchange="handleDateChange('${escapeAttr(item.id)}', this.value, '${escapeAttr(targetYmis)}')">`:''}
         <button class="info-btn" onclick="toggleDetail('${item.id}')">ⓘ</button>
         <span style="font-size:10px;cursor:pointer" onclick="toggleSubItems(this)">${i18n('progress.expand')}</span>
       </div>
@@ -2645,14 +2967,14 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
           if(sub.subItems && sub.subItems.length>0){
             const catDone=sub.subItems.filter(si2=>flat[si2.id]).length;
             return `<div class="sub-item" data-item-id="${sub.id}" style="background:#F5F5F5;border-radius:6px;padding:6px;margin:4px 0;border-left:3px solid var(--gold-dark)">
-              <div class="item-name" style="font-size:13px;font-weight:700">${tx(sub)} <span class="sub-count">${catDone}/${sub.subItems.length}</span>${sub.detail?` <small style="color:var(--text-light)">${tx(sub,'detail')}</small>`:''}</div>
+              <div class="item-name" style="font-size:13px;font-weight:700">${escapeHtmlText(tx(sub))} <span class="sub-count">${catDone}/${sub.subItems.length}</span>${sub.detail?` <small style="color:var(--text-light)">${escapeHtmlText(tx(sub,'detail'))}</small>`:''}</div>
               <div class="sub-items" style="margin-top:4px;padding-left:16px;border-left:2px dashed var(--border)">
                 ${sub.subItems.map(sub2=>{
                   const sc2=flat[sub2.id]?true:false;
                   const sd2=flat[sub2.id]||'';
                   return `<div class="sub-item ${sc2?'checked':''}" data-item-id="${sub2.id}">
                     <input type="checkbox" class="checkbox" ${sc2?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub2.id}', this.checked, '${targetYmis}')">
-                    <div class="item-main"><div class="item-name" style="font-size:11px">${tx(sub2)}</div><div class="item-meta">${sd2?`📅 ${sd2}`:''}${sub2.detail?` - ${tx(sub2,'detail').substring(0,50)}`:''}</div></div>
+                    <div class="item-main"><div class="item-name" style="font-size:11px">${escapeHtmlText(tx(sub2))}</div><div class="item-meta">${sd2?`📅 ${escapeHtmlText(sd2)}`:''}${sub2.detail?` - ${escapeHtmlText(tx(sub2,'detail').substring(0,50))}`:''}</div>${renderActivityDetailEditor(sub2,targetYmis,editable)}</div>
                     <div class="item-actions">
                       ${editable?`<input type="date" value="${sd2}" max="${todayISO()}" onchange="handleDateChange('${sub2.id}', this.value, '${targetYmis}')">`:''}
                       <button class="info-btn" style="width:22px;height:22px;font-size:10px" onclick="showSubDetail('${escapeAttr(tx(sub2))}','${escapeAttr(tx(sub2,'detail')||'')}')">ⓘ</button>
@@ -2668,7 +2990,7 @@ function renderItemRow(item, flat, targetYmis, isLeaderView){
             const sd=flat[sub.id]||'';
             return `<div class="sub-item ${sc?'checked':''}" data-item-id="${sub.id}">
               <input type="checkbox" class="checkbox" ${sc?'checked':''} ${editable?'':'disabled'} onchange="handleCheckboxToggle('${sub.id}', this.checked, '${targetYmis}')">
-              <div class="item-main"><div class="item-name" style="font-size:12px">${tx(sub)}</div><div class="item-meta">${sd?`📅 ${sd}`:''}${sub.detail?` - ${tx(sub,'detail').substring(0,60)}`:''}</div></div>
+              <div class="item-main"><div class="item-name" style="font-size:12px">${escapeHtmlText(tx(sub))}</div><div class="item-meta">${sd?`📅 ${escapeHtmlText(sd)}`:''}${sub.detail?` - ${escapeHtmlText(tx(sub,'detail').substring(0,60))}`:''}</div>${renderActivityDetailEditor(sub,targetYmis,editable)}</div>
               <div class="item-actions">
                 ${editable?`<input type="date" value="${sd}" max="${todayISO()}" onchange="handleDateChange('${sub.id}', this.value, '${targetYmis}')">`:''}
                 <button class="info-btn" onclick="showSubDetail('${escapeAttr(tx(sub))}','${escapeAttr(tx(sub,'detail')||'')}')">ⓘ</button>
@@ -2708,14 +3030,28 @@ function toggleDetail(id){
 }
 function showSubDetail(name, detail){
   document.getElementById('detailTitle').textContent=name;
-  document.getElementById('detailBody').innerHTML=`<div style="white-space:pre-wrap">${detail||i18n('item.noDetail')}</div>`;
+  document.getElementById('detailBody').innerHTML=`<div style="white-space:pre-wrap">${escapeHtmlText(detail||i18n('item.noDetail'))}</div>`;
   document.getElementById('itemDetailModal').classList.add('active');
 }
 
 /* Checkbox + Date handling */
+function findProgressItemById(itemId){
+  const visit=node=>{
+    if(String(node?.id)===String(itemId)) return node;
+    for(const child of node?.subItems||[]){const found=visit(child);if(found)return found;}
+    return null;
+  };
+  for(const badge of itemsData?.badges||[]) for(const segment of badge.segments||[]) for(const root of segment.items||[]){
+    const found=visit(root);if(found)return found;
+  }
+  return null;
+}
 function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
+  if(findProgressItemById(itemId)?.noDirectCheck){ showToast(i18n('item.parentNoDirect'),'warning'); return; }
   if(!canUserTickRole(currentUser.role)){ showToast(i18n('tick.noPerm'),'warning'); return; }
   if(!canCurrentUserTickItem(itemId)){ showToast(i18n('tick.noItem',{id:itemId}),'warning'); return; }
+  const stagedBefore=pendingChanges.find(pc=>String(pc.ymis)===String(targetYmis)&&String(pc.itemId)===String(itemId));
+  const recoveredNote=getProgressNote(targetYmis,itemId)||stagedBefore?.note||'';
   const date=checked? todayISO() : '';
   // if parent checked, auto check all subs
   if(isParent && checked){
@@ -2725,17 +3061,26 @@ function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
         if(!progressFlat[targetYmis]||!progressFlat[targetYmis][sub.id]){
           addOrUpdatePending(targetYmis, sub.id, date, false);
           if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
+          if(!progressRich[targetYmis]) progressRich[targetYmis]={};
           progressFlat[targetYmis][sub.id]=date;
+          progressRich[targetYmis][sub.id]={...(progressRich[targetYmis][sub.id]||{}),date,note:getProgressNote(targetYmis,sub.id)};
           updateRowUI(sub.id, true, date);
         }
       });
     }
   }
   addOrUpdatePending(targetYmis, itemId, date, !checked);
-  // update local flat immediately
+  // update local flat + rich records immediately; preserve any existing activity note until the item is explicitly cleared.
   if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
-  if(checked) progressFlat[targetYmis][itemId]=date;
-  else delete progressFlat[targetYmis][itemId];
+  if(!progressRich[targetYmis]) progressRich[targetYmis]={};
+  if(checked){
+    progressFlat[targetYmis][itemId]=date;
+    const old=progressRich[targetYmis][itemId]||{};
+    progressRich[targetYmis][itemId]={...old,date,note:old.note||recoveredNote};
+  }else{
+    delete progressFlat[targetYmis][itemId];
+    delete progressRich[targetYmis][itemId];
+  }
   // partial UI update
   updateRowUI(itemId, checked, date);
   updateSaveBar();
@@ -2745,9 +3090,13 @@ function handleCheckboxToggle(itemId, checked, targetYmis, isParent=false){
   updateProgressDisplay(targetYmis);
 }
 function handleDateChange(itemId, dateValue, targetYmis){
+  if(findProgressItemById(itemId)?.noDirectCheck){ showToast(i18n('item.parentNoDirect'),'warning'); return; }
   if(!dateValue) return;
   if(!progressFlat[targetYmis]) progressFlat[targetYmis]={};
+  if(!progressRich[targetYmis]) progressRich[targetYmis]={};
   progressFlat[targetYmis][itemId]=dateValue;
+  const old=progressRich[targetYmis][itemId]||{};
+  progressRich[targetYmis][itemId]={...old,date:dateValue,note:old.note||''};
   addOrUpdatePending(targetYmis, itemId, dateValue, false);
   updateRowUI(itemId, true, dateValue);
   updateSaveBar();
@@ -2771,10 +3120,12 @@ function checkCascading(targetYmis){
   itemsData.badges.forEach(badge=>{
     badge.segments.forEach(seg=>{
       seg.items.forEach(item=>{
-        if(item.subItems){
+        if(item.subItems&&!item.noDirectCheck){
           const allDone=item.subItems.every(sub=>progressFlat[targetYmis] && progressFlat[targetYmis][sub.id]);
           if(allDone && (!progressFlat[targetYmis][item.id])){
             progressFlat[targetYmis][item.id]=todayISO();
+            if(!progressRich[targetYmis]) progressRich[targetYmis]={};
+            progressRich[targetYmis][item.id]={date:todayISO(),note:''};
             addOrUpdatePending(targetYmis, item.id, todayISO(), false);
           }
         }
@@ -2838,13 +3189,20 @@ function updateProgressDisplay(targetYmis){
     });
   });
 }
-function addOrUpdatePending(ymis, itemId, date, isUncomplete){
-  // remove existing pending for same ymis+itemId
+function addOrUpdatePending(ymis, itemId, date, isUncomplete, noteValue){
+  // preserve an already-staged note unless this call explicitly edits it
+  const previous=pendingChanges.find(pc=>pc.ymis===ymis&&pc.itemId===itemId);
   pendingChanges=pendingChanges.filter(pc=>!(pc.ymis===ymis && pc.itemId===itemId));
   if(isUncomplete){
-    pendingChanges.push({ymis, itemId, date:'', uncomplete:true, confirmer: currentUser.name});
+    const change={ymis,itemId,date:'',uncomplete:true,confirmer:currentUser.name};
+    const carriedNote=noteValue!==undefined?String(noteValue||'').slice(0,500):(previous?.note||getProgressNote(ymis,itemId));
+    if(carriedNote) change.note=carriedNote;
+    pendingChanges.push(change);
   }else{
-    pendingChanges.push({ymis, itemId, date: date||todayISO(), uncomplete:false, confirmer: currentUser.name, note:''});
+    const change={ymis,itemId,date:date===''?'':(date||todayISO()),uncomplete:false,confirmer:currentUser.name};
+    if(noteValue!==undefined) change.note=String(noteValue||'').slice(0,500);
+    else if(previous&&Object.prototype.hasOwnProperty.call(previous,'note')) change.note=previous.note;
+    pendingChanges.push(change);
   }
   savePendingToLocal();
 }
@@ -2868,7 +3226,7 @@ function discardChanges(){
   // reload progress from cache or re-render
   try{
     const cached=localStorage.getItem(LS.cacheProgress(currentTroopId));
-    if(cached){ const c=JSON.parse(cached); progressFlat=c.flat; }
+    if(cached){ const c=JSON.parse(cached); progressFlat=c.flat||{}; progressRich=c.rich||{}; otherBadgesMap=c.other||{}; }
   }catch(e){ console.warn('discard cache restore failed',e); }
   renderProgressTab();
   showToast(i18n('save.discarded'),'warning');
@@ -2902,7 +3260,7 @@ async function saveChanges(){
       localStorage.removeItem(LS.pending(currentTroopId));
       updateSaveBar();
       // update cache
-      localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, members, savedAt:Date.now()}));
+      localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, other:otherBadgesMap, members, savedAt:Date.now()}));
       setTimeout(()=>{ overlay.classList.remove('active'); renderProgressTab(); renderOverviewTab(); renderByItemTab(); showToast(i18n('save.cloudOk'),'success'); },1000);
     }else throw new Error(d.error||i18n('save.fail'));
   }catch(e){
@@ -3139,9 +3497,13 @@ function executeBatchTick(){
   memberChecks.forEach(mcb=>{
     const ymis=mcb.value;
     if(!progressFlat[ymis]) progressFlat[ymis]={};
+    if(!progressRich[ymis]) progressRich[ymis]={};
     itemChecks.forEach(icb=>{
       const itemId=icb.value;
+      const old=progressRich[ymis][itemId]||{};
+      const staged=pendingChanges.find(pc=>String(pc.ymis)===String(ymis)&&String(pc.itemId)===String(itemId));
       progressFlat[ymis][itemId]=date;
+      progressRich[ymis][itemId]={...old,date,note:old.note||staged?.note||''};
       addOrUpdatePending(ymis, itemId, date, false);
       count++;
     });
@@ -3204,13 +3566,24 @@ function renderOverviewTable(){
 }
 function toggleMemberItem(ymis,itemId,cell){
   if(!canUserTickRole(currentUser.role)){ showToast(i18n('overview.noPerm'),'error'); return; }
+  const staged=pendingChanges.find(pc=>String(pc.ymis)===String(ymis)&&String(pc.itemId)===String(itemId));
+  const oldNote=getProgressNote(ymis,itemId)||staged?.note||'';
   const done=cell.textContent==='✓';
   const newDone=!done;
   cell.textContent=newDone?'✓':'';
   cell.style.color=newDone?'var(--green)':'#DDD';
   if(!progressFlat[ymis]) progressFlat[ymis]={};
-  if(newDone) progressFlat[ymis][itemId]=todayISO(); else delete progressFlat[ymis][itemId];
-  addOrUpdatePending(ymis,itemId,newDone?todayISO():'',!newDone);
+  if(!progressRich[ymis]) progressRich[ymis]={};
+  if(newDone){
+    const date=todayISO();
+    progressFlat[ymis][itemId]=date;
+    progressRich[ymis][itemId]={...(progressRich[ymis][itemId]||{}),date,note:oldNote};
+    addOrUpdatePending(ymis,itemId,date,false);
+  }else{
+    delete progressFlat[ymis][itemId];
+    delete progressRich[ymis][itemId];
+    addOrUpdatePending(ymis,itemId,'',true,oldNote);
+  }
 }
 
 /* ================== By Item ================== */
@@ -3520,16 +3893,19 @@ function renderOtherBadgesTab(){
   let html=`<div class="filter-bar"><label style="font-size:12px;font-weight:600">${i18n('progress.viewMember')}</label><select id="otherMemberSelect" onchange="onOtherMemberChange(this.value)">${members.map(m=>`<option value="${m.ymis}" ${m.ymis===targetYmis?'selected':''}>${m.name} (${m.ymis})</option>`).join('')}</select><button class="btn btn-sm btn-secondary" onclick="loadOtherBadges()">${i18n('btn.refresh')}</button></div>`;
   html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">`;
   itemsData.otherBadges.forEach(ob=>{
-    const rec=(otherBadgesMap[targetYmis] && otherBadgesMap[targetYmis][ob.id])||null;
+    const resolved=resolveOtherBadgeRecord(targetYmis,ob);
+    const badgeId=resolved.id, rec=resolved.record;
     const done=!!rec;
     html+=`<div class="other-card" style="${done?'border-color:var(--green);background:#F0FFF4':''}">
-      <h4>${ob.icon||'⭐'} ${tx(ob)} ${done?'<span style="background:var(--green);color:#fff;padding:2px 6px;border-radius:999px;font-size:10px">'+i18n('other.done')+'</span>':''}</h4>
-      <p style="font-size:11px;color:var(--text-light)">${tx(ob,'desc')}</p>
-      ${ob.detail?`<p style="font-size:10px;color:var(--text-light);margin-top:4px">${tx(ob,'detail')}</p>`:''}
+      <h4>${escapeHtmlText(ob.icon||'⭐')} ${escapeHtmlText(tx(ob))} ${done?'<span style="background:var(--green);color:#fff;padding:2px 6px;border-radius:999px;font-size:10px">'+i18n('other.done')+'</span>':''}</h4>
+      <p style="font-size:11px;color:var(--text-light);white-space:pre-wrap">${escapeHtmlText(tx(ob,'desc'))}</p>
+      ${tx(ob,'detail')?`<p style="font-size:10px;color:var(--text-light);margin-top:4px;white-space:pre-wrap">${escapeHtmlText(tx(ob,'detail'))}</p>`:''}
+      ${tx(ob,'legacyNote')?`<p class="other-legacy-note">${escapeHtmlText(tx(ob,'legacyNote'))}</p>`:''}
+      ${ob.links?.length?`<div class="other-badge-links">${renderExternalLinks(ob.links)}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <input type="date" id="otherDate_${ob.id}" value="${rec?.date||''}" style="padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" ${!isLeader?'disabled':''}>
-        <input type="text" id="otherCert_${ob.id}" placeholder="${i18n('progress.certNo')}" value="${rec?.cert||''}" style="padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px;width:110px" ${!isLeader?'disabled':''}>
-        ${isLeader?`<button class="btn btn-sm ${done?'btn-secondary':'btn-success'}" onclick="toggleOtherBadge('${ob.id}','${escapeAttr(tx(ob))}','${targetYmis}')">${done?i18n('other.update'):i18n('other.complete')}</button>`:''}
+        <input type="date" id="otherDate_${escapeHtmlText(badgeId)}" value="${escapeHtmlText(rec?.date||'')}" style="padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px" ${!isLeader?'disabled':''}>
+        <input type="text" id="otherCert_${escapeHtmlText(badgeId)}" placeholder="${i18n('progress.certNo')}" value="${escapeHtmlText(rec?.cert||'')}" style="padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:6px;width:110px" ${!isLeader?'disabled':''}>
+        ${isLeader?`<button class="btn btn-sm ${done?'btn-secondary':'btn-success'}" onclick="toggleOtherBadge('${escapeAttr(badgeId)}','${escapeAttr(tx(ob))}','${escapeAttr(targetYmis)}')">${done?i18n('other.update'):i18n('other.complete')}</button>`:''}
       </div>
     </div>`;
   });
@@ -3541,6 +3917,12 @@ async function loadOtherBadges(){
   // already loaded in handleLoad, but can refresh
   renderOtherBadgesTab();
 }
+async function persistOtherBadgeRecord(ymis,badgeId,name,record,uncomplete=false){
+  const d=await apiRequest('saveOtherBadge',{token:currentToken,records:[{ymis,badgeId,name,date:record?.date||'',cert:record?.cert||'',uncomplete}]});
+  if(!d.success) throw new Error(d.error||i18n('save.fail'));
+  try{ localStorage.setItem(LS.cacheProgress(currentTroopId),JSON.stringify({flat:progressFlat,rich:progressRich,other:otherBadgesMap,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
+  return d;
+}
 async function toggleOtherBadge(badgeId, name, targetYmis){
   if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast(i18n('tick.noOther'),'warning'); return; }
   if(toggleOtherBadge._busy){ showToast(i18n('other.writing'),'warning'); return; }
@@ -3549,16 +3931,13 @@ async function toggleOtherBadge(badgeId, name, targetYmis){
   const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null; // rollback 快照
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
   otherBadgesMap[targetYmis][badgeId]={name,date,cert};
-  pendingChanges.push({ymis:targetYmis, itemId: badgeId, date, isOther:true, name, cert});
   renderOtherBadgesTab();
   renderProgressTab();
   toggleOtherBadge._busy=true;
   try{
-    const d=await apiRequest('saveOtherBadge',{token:currentToken,records:[{ymis:targetYmis,badgeId,name,date,cert}]});
-    if(!d.success) throw new Error(d.error||i18n('save.fail'));
+    await persistOtherBadgeRecord(targetYmis,badgeId,name,{name,date,cert});
     showToast(i18n('other.ok'),'success');
   }catch(e){
-    // optimistic UI rollback + 明確錯誤（記錄仍保留在待寫入清單可重試）
     if(prev) otherBadgesMap[targetYmis][badgeId]=prev; else delete otherBadgesMap[targetYmis][badgeId];
     renderOtherBadgesTab();
     renderProgressTab();
@@ -3568,39 +3947,43 @@ async function toggleOtherBadge(badgeId, name, targetYmis){
 async function handleOtherBadgeToggle(badgeId, name, targetYmis, checked){
   if(!canCurrentUserTickItem(badgeId) && !canCurrentUserTickItem('OTHER')){ showToast(i18n('tick.noOther'),'warning'); return; }
   if(!canUserTickRole(currentUser.role)){ showToast(i18n('overview.noPerm'),'error'); return; }
-  const date = checked ? todayISO() : '';
-  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null; // rollback 快照
+  if(handleOtherBadgeToggle._busy){ showToast(i18n('other.writing'),'warning'); return; }
+  handleOtherBadgeToggle._busy=true;
+  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null;
   if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
-  if(checked){
-    otherBadgesMap[targetYmis][badgeId]={name,date,cert: prev?.cert||''};
-    addOrUpdatePending(targetYmis, badgeId, date, false);
-  }else{
-    delete otherBadgesMap[targetYmis][badgeId];
-    addOrUpdatePending(targetYmis, badgeId, '', true);
-  }
-  updateRowUI(badgeId, checked, date);
-  updateSaveBar();
+  const record=checked?{name,date:todayISO(),cert:prev?.cert||''}:null;
+  if(checked) otherBadgesMap[targetYmis][badgeId]=record; else delete otherBadgesMap[targetYmis][badgeId];
+  renderProgressTab();
   try{
-    const d=await apiRequest('saveOtherBadge',{token:currentToken,records:[{ymis:targetYmis,badgeId,name,date,cert: prev?.cert||''}]});
-    if(!d.success) throw new Error(d.error||i18n('save.fail'));
+    await persistOtherBadgeRecord(targetYmis,badgeId,name,record,!checked);
   }catch(e){
-    // rollback + 明確提示，不靜默
     if(prev) otherBadgesMap[targetYmis][badgeId]=prev; else delete otherBadgesMap[targetYmis][badgeId];
+    renderProgressTab();
     showToast(i18n('other.syncFail',{m:e.message}),'warning');
+  }finally{ handleOtherBadgeToggle._busy=false; }
+}
+async function handleOtherBadgeDate(badgeId, name, targetYmis, dateVal){
+  if(!dateVal) return;
+  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null;
+  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
+  const record={name,date:dateVal,cert:prev?.cert||''};
+  otherBadgesMap[targetYmis][badgeId]=record;
+  try{ await persistOtherBadgeRecord(targetYmis,badgeId,name,record); renderProgressTab(); }
+  catch(e){
+    if(prev) otherBadgesMap[targetYmis][badgeId]=prev; else delete otherBadgesMap[targetYmis][badgeId];
+    renderProgressTab(); showToast(i18n('other.syncFail',{m:e.message}),'warning');
   }
 }
-function handleOtherBadgeDate(badgeId, name, targetYmis, dateVal){
-  if(!dateVal) return;
-  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
-  if(!otherBadgesMap[targetYmis][badgeId]) otherBadgesMap[targetYmis][badgeId]={name,date:dateVal,cert:''};
-  else otherBadgesMap[targetYmis][badgeId].date=dateVal;
-  addOrUpdatePending(targetYmis, badgeId, dateVal, false);
-  updateSaveBar();
-}
-function handleOtherBadgeCert(badgeId, name, targetYmis, certVal){
-  if(!otherBadgesMap[targetYmis]) otherBadgesMap[targetYmis]={};
-  if(!otherBadgesMap[targetYmis][badgeId]) otherBadgesMap[targetYmis][badgeId]={name,date:todayISO(),cert:certVal};
-  else otherBadgesMap[targetYmis][badgeId].cert=certVal;
+async function handleOtherBadgeCert(badgeId, name, targetYmis, certVal){
+  const prev=(otherBadgesMap[targetYmis]&&otherBadgesMap[targetYmis][badgeId])||null;
+  if(!prev){ showToast(i18n('other.markFirst'),'warning'); return; }
+  const record={...prev,name,cert:certVal};
+  otherBadgesMap[targetYmis][badgeId]=record;
+  try{ await persistOtherBadgeRecord(targetYmis,badgeId,name,record); }
+  catch(e){
+    otherBadgesMap[targetYmis][badgeId]=prev;
+    renderProgressTab(); showToast(i18n('other.syncFail',{m:e.message}),'warning');
+  }
 }
 
 /* ================== 活動履歷 (v8.1)：服務／活動／訓練班紀錄 ================== */
@@ -3822,7 +4205,7 @@ async function submitLogRecord(){
       else logRecords.push(localRec);
     });
     const failed=(d.results||[]).filter(r=>!r.success);
-    try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
+    try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,other:otherBadgesMap,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
     closeModal('logRecordModal'); renderLogsTab();
     if(failed.length===0) showToast(i18n('log.savedN',{n:d.processed||records.length}),'success');
     else showToast(i18n('log.partial',{ok:d.processed||0,fail:failed.length,err:failed[0].error||''}),'error');
@@ -3840,7 +4223,7 @@ async function deleteLogRecord(recordId){
     const d=await apiRequest('deleteLogRecord',{token:currentToken,record_id:recordId});
     if(!d.success) throw new Error(d.error||i18n('log.delFail',{m:''}));
     logRecords=logRecords.filter(x=>x.record_id!==recordId);
-    try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
+    try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,other:otherBadgesMap,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
     renderLogsTab(); showToast(i18n('log.deleted'),'success');
   }catch(e){ showToast(i18n('log.delFail',{m:e.message}),'error'); }
 }
@@ -3906,7 +4289,7 @@ async function reviewLogRequest(reqId,decision){
       const idx=logRecords.findIndex(x=>x.record_id===d.record.record_id);
       if(idx>=0) logRecords[idx]={...logRecords[idx],...d.record};
       else logRecords.push(d.record);
-      try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
+      try{ localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat,rich:progressRich,other:otherBadgesMap,members,logs:logRecords,savedAt:Date.now()})); }catch(e){}
     }
     logRequests=logRequests.filter(x=>x.request_id!==reqId);
     showToast('✅ '+(d.message||(decision==='approved'?i18n('log.reqApproved'):i18n('log.reqRejected'))),'success');
@@ -4278,10 +4661,11 @@ function renderUserAdminCard(u){
   const permissionButton=u.role==='member'?'':`<button class="btn btn-sm btn-warning" onclick="openPermissionModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}','${escapeAttr(u.role)}','${escapeAttr(u.allowed_badges||'')}')">${i18n('users.permBtn')}</button>`;
   const editButton=`<button class="btn btn-sm btn-outline" onclick="openEditUserModal('${escapeAttr(u.ymis)}')">${i18n('users.edit')}</button>`;
   const deleteButton=`<button class="btn btn-sm btn-danger" onclick="deleteUser('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}',${hasAccount})">${i18n('users.delete')}</button>`;
+  const legacyButton=/^\d{10}$/.test(String(u.ymis||''))?`<button class="btn btn-sm btn-outline activity-legacy-link" onclick="openLegacyTransferForMember('${escapeAttr(u.ymis)}')">${i18n('legacy.memberAction')}</button>`:'';
   let actions='';
-  if(manageable&&hasAccount&&active) actions=`${roleSelect}${editButton}${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">${i18n('users.resetPw')}</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">${i18n('users.disable')}</button>${deleteButton}`;
-  if(manageable&&hasAccount&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">${i18n('users.enable')}</button>${editButton}${deleteButton}`;
-  if(manageable&&!hasAccount) actions=`${editButton}<button class="btn btn-sm btn-primary" onclick="openCreateUserForMember('${escapeAttr(u.ymis)}')">${i18n('users.openAccount')}</button>${deleteButton}`;
+  if(manageable&&hasAccount&&active) actions=`${roleSelect}${editButton}${legacyButton}${tickButton}${permissionButton}<button class="btn btn-sm btn-secondary" onclick="openResetPasswordModal('${escapeAttr(u.ymis)}','${escapeAttr(u.name)}')">${i18n('users.resetPw')}</button><button class="btn btn-sm btn-danger" onclick="setUserStatus('${escapeAttr(u.ymis)}','inactive')">${i18n('users.disable')}</button>${deleteButton}`;
+  if(manageable&&hasAccount&&!active) actions=`<button class="btn btn-sm btn-success" onclick="setUserStatus('${escapeAttr(u.ymis)}','active')">${i18n('users.enable')}</button>${editButton}${legacyButton}${deleteButton}`;
+  if(manageable&&!hasAccount) actions=`${editButton}<button class="btn btn-sm btn-primary" onclick="openCreateUserForMember('${escapeAttr(u.ymis)}')">${i18n('users.openAccount')}</button>${legacyButton}${deleteButton}`;
 
   // 領袖若使用內部 L 編號，不顯示 (Lxxxx)，只顯示姓名＋電郵＋角色
   const isInternalLId = /^L\d+$/i.test(String(u.ymis||''));
@@ -4916,12 +5300,17 @@ async function enterDemoMode(){
     const mockProgress=data.progress_mock||{};
     members=mockMembers.map(m=>({ymis:m.ymis, name:isEn()?(m.name_en||m.name):m.name}));
     progressFlat={};
+    progressRich={};
     for(const ymis in mockProgress){
       progressFlat[ymis]={};
+      progressRich[ymis]={};
       for(const itemId in mockProgress[ymis]){
-        progressFlat[ymis][itemId]=mockProgress[ymis][itemId];
+        const date=mockProgress[ymis][itemId];
+        progressFlat[ymis][itemId]=date;
+        progressRich[ymis][itemId]={date,note:''};
       }
     }
+    otherBadgesMap={};
     currentTroopId='DEMO';
     currentTroopName=isEn()?'82nd Group DEMO (MOCK)':'第82旅 DEMO (MOCK)';
     currentUser={ymis:'DEMO_LEADER', name:isEn()?'DEMO GSL (try without sign-in)':'DEMO 團長 (免登入試用)', role:'group_leader', can_tick:true, allowed_badges:'*'};
@@ -4985,14 +5374,17 @@ async function loadMockMembers(){
     // 合併進度 (僅 MOCK，不覆蓋已有真實進度除非為空)
     for(const ymis in mockProgress){
       if(!progressFlat[ymis]) progressFlat[ymis]={};
+      if(!progressRich[ymis]) progressRich[ymis]={};
       for(const itemId in mockProgress[ymis]){
         if(!progressFlat[ymis][itemId]){
-          progressFlat[ymis][itemId]=mockProgress[ymis][itemId];
+          const date=mockProgress[ymis][itemId];
+          progressFlat[ymis][itemId]=date;
+          progressRich[ymis][itemId]={date,note:''};
         }
       }
     }
     // 保存到快取
-    localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, members, savedAt:Date.now(), isMock:true}));
+    localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, other:otherBadgesMap, members, savedAt:Date.now(), isMock:true}));
     if(status) status.innerHTML=i18n('demo.loadInfo',{added:added,total:members.length});
     showToast(i18n('demo.loadedN',{n:added}), 'success');
     renderOverviewTab();
