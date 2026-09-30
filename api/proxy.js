@@ -160,16 +160,16 @@ export default async function handler(req, res) {
   if (action === 'submitFeedback') {
     if (!isTrustedExecUrl(SCOUT_ADMIN_API)) {
       safeLog({ result: 'feedback_inbox_misconfig', ms: Date.now() - t0 });
-      return sendJson(res, 500, { success: false, error: '回報服務暫時無法使用，請稍後重試' });
+      return sendJson(res, 500, { success: false, deliveryStatus: 'not_sent', error: '回報服務暫時無法使用，請稍後重試' });
     }
     const type = String(data.type || '').trim().toLowerCase();
     const contact = String(data.contact || '').trim().substring(0, 120);
     const troopIdRaw = String(data.troopId || '').trim();
     if (!['issue', 'feedback'].includes(type)) {
-      return sendJson(res, 400, { success: false, error: '回報類型不正確' });
+      return sendJson(res, 400, { success: false, deliveryStatus: 'not_sent', error: '回報類型不正確' });
     }
     if (contact.length < 3) {
-      return sendJson(res, 400, { success: false, error: '請留下聯絡方式，方便通知處理結果' });
+      return sendJson(res, 400, { success: false, deliveryStatus: 'not_sent', error: '請留下聯絡方式，方便通知處理結果' });
     }
     const safeText = (value, limit) => {
       const text = String(value || '').trim().substring(0, limit);
@@ -182,27 +182,31 @@ export default async function handler(req, res) {
     if (type === 'issue') {
       const title = String(data.title || '').trim().substring(0, 120);
       const desc = String(data.desc || '').trim().substring(0, 2000);
-      if (!title || !desc) return sendJson(res, 400, { success: false, error: '請簡單寫下問題及需要的協助' });
+      if (!title || !desc) return sendJson(res, 400, { success: false, deliveryStatus: 'not_sent', error: '請簡單寫下問題及需要的協助' });
       const severity = ['低', '中', '高', '緊急'].includes(String(data.severity || '')) ? String(data.severity) : '中';
       payload = { ...common, title: safeText(title, 120), desc: safeText(desc, 2000), severity };
     } else {
       const content = String(data.content || '').trim().substring(0, 2000);
-      if (content.length < 5) return sendJson(res, 400, { success: false, error: '請簡單描述你的意見' });
+      if (content.length < 5) return sendJson(res, 400, { success: false, deliveryStatus: 'not_sent', error: '請簡單描述你的意見' });
       const fbType = ['建議', '讚', '批評', '其他'].includes(String(data.fbType || '')) ? String(data.fbType) : '建議';
       payload = { ...common, fbType, content: safeText(content, 2000) };
     }
     try {
       const up = await callUpstream(SCOUT_ADMIN_API, { method: 'POST', payload });
-      if (!up.json || up.json.status !== 'success') {
+      if (!up.json) {
+        safeLog({ result: 'feedback_inbox_bad_response', status: up.status, ms: Date.now() - t0 });
+        return sendJson(res, 502, { success: false, deliveryStatus: 'unknown', error: '暫時未能確認回報是否送達' });
+      }
+      if (up.json.status !== 'success') {
         safeLog({ result: 'feedback_inbox_rejected', status: up.status, ms: Date.now() - t0 });
-        return sendJson(res, 502, { success: false, error: '回報未能送出，請稍後重試' });
+        return sendJson(res, 502, { success: false, deliveryStatus: 'rejected', error: '回報未能送出，請稍後重試' });
       }
       safeLog({ result: 'feedback_received', status: up.status, ms: Date.now() - t0 });
-      return sendJson(res, 200, { success: true, message: '已傳送給開發者，請等待通知。' });
+      return sendJson(res, 200, { success: true, deliveryStatus: 'confirmed', message: '已傳送給開發者，請等待通知。' });
     } catch (e) {
       const timeout = e && e.name === 'TimeoutError';
       safeLog({ result: timeout ? 'feedback_timeout' : 'feedback_send_error', ms: Date.now() - t0 });
-      return sendJson(res, timeout ? 504 : 502, { success: false, error: '回報未能送出，請稍後重試' });
+      return sendJson(res, timeout ? 504 : 502, { success: false, deliveryStatus: 'unknown', error: '暫時未能確認回報是否送達' });
     }
   }
 

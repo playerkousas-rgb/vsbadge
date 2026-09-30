@@ -1315,8 +1315,22 @@ function getMembers(){
 function handleLoad(){
   const ss=getSheet();
   const pSheet=ss.getSheetByName('進度追蹤'); const progress={};
-  if(pSheet){ const data=pSheet.getDataRange().getValues(); for(let i=1;i<data.length;i++){ const ymis=data[i][0].toString(); if(!ymis || isSuperAdminId(ymis)) continue; if(!progress[ymis]) progress[ymis]={}; progress[ymis][data[i][1].toString()]={date:data[i][2]?formatDate(data[i][2]):'',confirmer:isSuperAdminId(data[i][4])?'system':(data[i][4]?data[i][4].toString():'')}; } }
-  // 簡化版：同時提供 flat
+  if(pSheet){
+    const data=pSheet.getDataRange().getValues();
+    for(let i=1;i<data.length;i++){
+      const ymis=String(data[i][0]||'').trim();
+      const itemId=String(data[i][1]||'').trim();
+      if(!ymis || !itemId || isSuperAdminId(ymis)) continue;
+      if(!progress[ymis]) progress[ymis]={};
+      progress[ymis][itemId]={
+        date:data[i][2]?formatDate(data[i][2]):'',
+        confirmer:isSuperAdminId(data[i][4])?'system':(data[i][4]?data[i][4].toString():''),
+        // 「備註」是既有第六欄；回傳作活動細項／過渡紀錄備註，不新增或改動工作表結構。
+        note:data[i].length>5?String(data[i][5]||''):''
+      };
+    }
+  }
+  // 簡化版：同時提供 flat，舊版前端仍可照常讀取。
   const flat={}; for(const y in progress){ flat[y]={}; for(const k in progress[y]){ flat[y][k]=progress[y][k].date; } }
   const members=getMembers();
   // pending requests
@@ -1338,14 +1352,23 @@ function handleSave(changes, confirmer){
   changes.forEach(function(c){
     if(isSuperAdminId(c.ymis)) return;
     const data=sheet.getDataRange().getValues(); let found=false;
+    const hasNote=Object.prototype.hasOwnProperty.call(c,'note');
+    const noteValue=hasNote?safeSheetText(c.note,500):'';
     for(let i=1;i<data.length;i++){
-      if(data[i][0].toString()===c.ymis && data[i][1].toString()===c.itemId){
-        if(c.uncomplete){ sheet.deleteRow(i+1); } else { sheet.getRange(i+1,3).setValue(c.date); sheet.getRange(i+1,4).setValue(new Date()); sheet.getRange(i+1,5).setValue(confirmer||persistedActorId(c.confirmer)||''); sheet.getRange(i+1,6).setValue(c.note||''); }
+      if(String(data[i][0]||'')===String(c.ymis) && String(data[i][1]||'')===String(c.itemId)){
+        if(c.uncomplete){ sheet.deleteRow(i+1); }
+        else {
+          sheet.getRange(i+1,3).setValue(c.date||'');
+          sheet.getRange(i+1,4).setValue(new Date());
+          sheet.getRange(i+1,5).setValue(confirmer||persistedActorId(c.confirmer)||'');
+          // 舊版前端未送 note 時保留既有備註，避免單純更改日期覆寫已填的細項。
+          if(hasNote) sheet.getRange(i+1,6).setValue(noteValue);
+        }
         found=true; processed++; break;
       }
     }
     if(!found && !c.uncomplete){
-      sheet.appendRow([c.ymis,c.itemId,c.date,new Date(),confirmer||persistedActorId(c.confirmer)||'',c.note||'']);
+      sheet.appendRow([c.ymis,c.itemId,c.date||'',new Date(),confirmer||persistedActorId(c.confirmer)||'',hasNote?noteValue:'']);
       processed++;
     }
   });
@@ -1619,8 +1642,20 @@ function handleSaveOtherBadge(records){
   records.forEach(function(r){
     if(isSuperAdminId(r.ymis)) return;
     const data=sheet.getDataRange().getValues(); let found=false;
-    for(let i=1;i<data.length;i++){ if(data[i][0].toString()===r.ymis && data[i][1].toString()===r.badgeId){ sheet.getRange(i+1,3).setValue(r.date); sheet.getRange(i+1,4).setValue(r.cert||''); sheet.getRange(i+1,5).setValue(r.note||''); sheet.getRange(i+1,6).setValue(new Date()); found=true; c++; break; } }
-    if(!found){ sheet.appendRow([r.ymis,r.badgeId,r.name||r.badgeId,r.date,r.cert||'',r.note||'',new Date()]); c++; }
+    for(let i=1;i<data.length;i++){
+      if(String(data[i][0]||'')===String(r.ymis) && String(data[i][1]||'')===String(r.badgeId)){
+        if(r.uncomplete===true || r.remove===true){ sheet.deleteRow(i+1); found=true; c++; break; }
+        // 既有表格欄位：YMIS / 獎章 ID / 獎章名稱 / 完成日期 / 證書編號 / 備註 / 更新時間。
+        // 逐欄更新，避免覆寫名稱或錯置日期、證書編號；不需重建或初始化工作表。
+        sheet.getRange(i+1,3).setValue(safeSheetText(r.name||r.badgeId,120));
+        sheet.getRange(i+1,4).setValue(r.date||'');
+        sheet.getRange(i+1,5).setValue(safeSheetText(r.cert||'',120));
+        if(Object.prototype.hasOwnProperty.call(r,'note')) sheet.getRange(i+1,6).setValue(safeSheetText(r.note||'',500));
+        sheet.getRange(i+1,7).setValue(new Date());
+        found=true; c++; break;
+      }
+    }
+    if(!found && r.uncomplete!==true && r.remove!==true){ sheet.appendRow([r.ymis,r.badgeId,safeSheetText(r.name||r.badgeId,120),r.date||'',safeSheetText(r.cert||'',120),safeSheetText(r.note||'',500),new Date()]); c++; }
   });
   return jsonResponse({success:true,processed:c});
 }
