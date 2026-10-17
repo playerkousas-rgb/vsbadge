@@ -135,6 +135,8 @@ console.log('\n【4】首頁 + 旅團選擇 + 正確旅團配置載入');
   const tr = await fetch(`${APP_BASE}/api/troops`);
   const tj = await tr.json();
   check('/api/troops 列出兩個旅團', !!tj.troops['0082'] && !!tj.troops['1001']);
+  check('/api/troops 回應帶 Edge 快取 Header',
+    tr.headers.get('cache-control') === 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
   check('/api/troops 不洩漏 backend/apikey',
     !JSON.stringify(tj).includes('127.0.0.1:39') && !JSON.stringify(tj).includes('KEY_A') &&
     !('backend' in (tj.troops['0082']||{})) && !('apikey' in (tj.troops['0082']||{})));
@@ -566,7 +568,7 @@ console.log('\n【13】真實 apiRequest() 前端封裝錯誤路徑');
 // ---- 前端靜態安全檢查 ----
 console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network 檢查）');
 {
-  const jsOnly = (html.split('<script>')[1] || '').split('</script>')[0];
+  const jsOnly = html.split('<script>').slice(1).map(s => s.split('</script>')[0]).join('\n');
   let syntaxError = '';
   try { new Function(jsOnly); } catch (e) { syntaxError = e.message; }
   check('前端主程式 JavaScript 語法正確', !syntaxError, syntaxError);
@@ -577,6 +579,7 @@ console.log('\n【14】index.html 靜態安全檢查（代替 Browser Network �
   const ALLOWED_FETCH = /^(API_ENDPOINT|['"]?\/?api\/(troops|portal)|'data\/)/;
   const badFetch = fetches.filter(f => !ALLOWED_FETCH.test(f));
   check(`所有 fetch() 只去同源（發現 ${fetches.length} 個）`, badFetch.length === 0, badFetch.join(' | '));
+  check('前端呼叫 /api/troops 不帶 cache-busting 參數或 no-store', !/\/api\/troops(?:\.js)?\?_/.test(jsOnly));
   const apiCalls = [...jsOnly.matchAll(/apiRequest\('(\w+)'/g)].map(m => m[1]);
   const need = ['login','logout','apply','changePassword','getConfig','load','save','requestComplete','getPendingRequests','getApplications','reviewRequest','saveOtherBadge','getLogRecords','saveLogRecord','deleteLogRecord','requestLogRecord','getLogRequests','reviewLogRequest','cancelLogRequest','getAllUsers','addUser','updateUserProfile','resetPassword','setUserStatus','deleteUser','getAuditLog','bulkAddUsers','updateConfig','updateUserRole','reviewApplication','submitRegistration','submitFeedback'];
   const missing = need.filter(a => !apiCalls.includes(a));
