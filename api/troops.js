@@ -9,7 +9,7 @@ export default function handler(req, res) {
     return res.status(405).json({ success: false, error: '此 API 只接受 GET 請求' });
   }
   const troops = listPublicTroops();
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.status(200).json({
     troops,

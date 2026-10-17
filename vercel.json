@@ -1,5 +1,10 @@
 {
   "version": 2,
   "framework": null,
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
 }
