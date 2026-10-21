@@ -250,9 +250,24 @@ test('Troop registration relay maps scriptUrl to Scout Admin apply contract and 
     assert.equal(sent.scriptUrl, undefined, 'scriptUrl must be mapped to backendUrl rather than forwarded unmapped');
     assert.equal(sent.apiKey, 'vs-secret-0777');
     assert.equal(sent.appType, 'vsbadge');
-    assert.equal(sent.note, 'contact@0777.example.org');
+    assert.equal(sent.note, '[vsbadge] contact@0777.example.org');
     assert(!JSON.stringify(logs).includes('vs-secret-0777'));
     assert(!JSON.stringify(logs).includes('DEPLOY_0777'));
+
+    // Also fills fallback troopName + [vsbadge] tag when optional fields are omitted so Scout Admin UI displays card & source app
+    const blankOptRes = await call(proxy, {
+      action: 'submitRegistration',
+      data: {
+        troopId: '0888',
+        troopName: '',
+        scriptUrl: 'https://script.google.com/macros/s/DEPLOY_0888/exec',
+        apiKey: 'vs-secret-0888',
+        note: ''
+      }
+    });
+    assert.equal(blankOptRes.code, 200);
+    assert.equal(sent.troopName, '第 0888 旅');
+    assert.equal(sent.note, '[vsbadge]');
 
     // Also supports direct backendUrl input, env var aliases (SCOUT_ADMIN_API / VSBADGE_ADMIN_API / SCOUTBADGE_ADMIN_API), and legacy { success: true } reply
     let lastTargetUrl = '';

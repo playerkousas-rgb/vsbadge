@@ -145,16 +145,22 @@ export default async function handler(req, res) {
       return sendJson(res, 500, { success: false, error: '伺服器設定錯誤，請聯絡管理員' });
     }
     // Scout Admin GS 的申請契約使用 type: 'apply' 及 backendUrl，成功時回覆
-    // { status: 'success', ... }。在此將前端的 scriptUrl 映射為 backendUrl，保持前端契約不變。
+    // { status: 'success', ... }。在此將前端的 scriptUrl 映射為 backendUrl，
+    // 並補上預設旅團名稱與 [vsbadge] 備注標記（Scout Admin 旅團登記卡片目前只顯示備注欄且略過空旅團名稱）。
     const clamp = (value, max) => String(value === undefined || value === null ? '' : value).trim().substring(0, max);
+    const regTroopId = clamp(data.troopId, 32);
+    const rawNote = clamp(data.note, 480);
+    const taggedNote = /^\[vsbadge\]/i.test(rawNote)
+      ? rawNote
+      : (rawNote ? `[vsbadge] ${rawNote}` : '[vsbadge]');
     const regPayload = {
       type: 'apply',
-      troopId: clamp(data.troopId, 32),
-      troopName: clamp(data.troopName, 100),
+      troopId: regTroopId,
+      troopName: clamp(data.troopName, 100) || (regTroopId ? `第 ${regTroopId} 旅` : ''),
       backendUrl: clamp(data.backendUrl || data.scriptUrl, 300),
       apiKey: clamp(data.apiKey, 120),
       appType: 'vsbadge',
-      note: clamp(data.note, 500)
+      note: taggedNote.substring(0, 500)
     };
     if (!regPayload.troopId || !regPayload.backendUrl || !regPayload.apiKey) {
       return sendJson(res, 400, { success: false, error: '申請資料不完整' });

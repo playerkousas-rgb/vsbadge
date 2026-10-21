@@ -777,10 +777,11 @@ console.log('\n【16】Scout Admin 新旅團接入申請契約（type=apply、ba
     check('scriptUrl 已映射為 backendUrl，且不再夾帶未識別的 scriptUrl 欄位',
       seen[0]?.body.backendUrl === 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec' &&
       seen[0]?.body.scriptUrl === undefined);
-    check('Scout Admin GS FIELD_MAP「URL」欄成功填入後端網址',
+    check('Scout Admin GS FIELD_MAP「URL」欄成功填入後端網址，且「備注」標明 [vsbadge] 來源',
       seen[0]?.mapped['URL'] === 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec' &&
       seen[0]?.mapped['旅團號'] === '0777' &&
-      seen[0]?.mapped['API Key'] === 'VS-NEW-TROOP-KEY');
+      seen[0]?.mapped['API Key'] === 'VS-NEW-TROOP-KEY' &&
+      seen[0]?.mapped['備注'] === '[vsbadge] leader@0777.example.org');
 
     const bad = await postProxy({ action: 'submitRegistration', data: { troopId: '0777', apiKey: 'VS-NEW-TROOP-KEY' } });
     check('缺少後端網址時回 400 且不呼叫上游', bad.status === 400 && bad.json?.success === false && seen.length === 1);
