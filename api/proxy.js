@@ -24,9 +24,13 @@ const UPSTREAM_TIMEOUT_MS = (() => {
 })();
 const MAX_DATA_BYTES = 2 * 1024 * 1024; // 單次請求 data 上限（bulkAddUsers 一批 100 人 << 1MB）
 
-// 中央管理員收件匣（新旅團接入申請）。目的地是伺服器端固定常數，不由用戶輸入決定。
-const SCOUT_ADMIN_API = process.env.SCOUT_ADMIN_API ||
+// 中央管理員收件匣（新旅團接入申請及統一回報）。目的地是伺服器端固定常數，不由用戶輸入決定。
+const SCOUT_ADMIN_API_DEFAULT =
   'https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
+
+function getScoutAdminApi() {
+  return String(process.env.SCOUT_ADMIN_API || SCOUT_ADMIN_API_DEFAULT).trim();
+}
 
 // ---- action 白名單（對照 Code.gs doGet/doPost）----
 // 公開（無需 token）
@@ -129,21 +133,30 @@ export default async function handler(req, res) {
 
   // ===== 特殊：新旅團接入申請（轉發去中央管理員收件匣，目的地固定於伺服器端）=====
   if (action === 'submitRegistration') {
-    if (!isTrustedExecUrl(SCOUT_ADMIN_API)) {
+    const adminApi = getScoutAdminApi();
+    if (!isTrustedExecUrl(adminApi)) {
       safeLog({ result: 'admin_api_misconfig', ms: Date.now() - t0 });
       return sendJson(res, 500, { success: false, error: '伺服器設定錯誤，請聯絡管理員' });
     }
+    // Scout Admin GS 的申請契約使用 type: 'apply' 及 backendUrl，成功時回覆
+    // { status: 'success', ... }。在此將前端的 scriptUrl 映射為 backendUrl，保持前端契約不變。
+    const clamp = (value, max) => String(value === undefined || value === null ? '' : value).trim().substring(0, max);
     const regPayload = {
-      troopId: String(data.troopId || '').substring(0, 32),
-      troopName: String(data.troopName || '').substring(0, 100),
-      scriptUrl: String(data.scriptUrl || '').substring(0, 300),
-      apiKey: String(data.apiKey || '').substring(0, 120),
+      type: 'apply',
+      troopId: clamp(data.troopId, 32),
+      troopName: clamp(data.troopName, 100),
+      backendUrl: clamp(data.backendUrl || data.scriptUrl, 300),
+      apiKey: clamp(data.apiKey, 120),
       appType: 'vsbadge',
-      note: String(data.note || '').substring(0, 500)
+      note: clamp(data.note, 500)
     };
+    if (!regPayload.troopId || !regPayload.backendUrl || !regPayload.apiKey) {
+      return sendJson(res, 400, { success: false, error: '申請資料不完整' });
+    }
     try {
-      const up = await callUpstream(SCOUT_ADMIN_API, { method: 'POST', payload: regPayload });
-      if (!up.json) {
+      const up = await callUpstream(adminApi, { method: 'POST', payload: regPayload });
+      const accepted = Boolean(up.json) && (up.json.status === 'success' || up.json.success === true);
+      if (up.status < 200 || up.status >= 300 || !accepted) {
         safeLog({ result: 'admin_upstream_bad', status: up.status, ms: Date.now() - t0 });
         return sendJson(res, 502, { success: false, error: '申請未能送達管理員，請稍後重試' });
       }
@@ -158,7 +171,8 @@ export default async function handler(req, res) {
 
   // ===== Scout Admin 統一回報格式 v1：固定來源與收件端，不經旅團 GAS =====
   if (action === 'submitFeedback') {
-    if (!isTrustedExecUrl(SCOUT_ADMIN_API)) {
+    const adminApi = getScoutAdminApi();
+    if (!isTrustedExecUrl(adminApi)) {
       safeLog({ result: 'feedback_inbox_misconfig', ms: Date.now() - t0 });
       return sendJson(res, 500, { success: false, deliveryStatus: 'not_sent', error: '回報服務暫時無法使用，請稍後重試' });
     }
@@ -192,12 +206,12 @@ export default async function handler(req, res) {
       payload = { ...common, fbType, content: safeText(content, 2000) };
     }
     try {
-      const up = await callUpstream(SCOUT_ADMIN_API, { method: 'POST', payload });
+      const up = await callUpstream(adminApi, { method: 'POST', payload });
       if (!up.json) {
         safeLog({ result: 'feedback_inbox_bad_response', status: up.status, ms: Date.now() - t0 });
         return sendJson(res, 502, { success: false, deliveryStatus: 'unknown', error: '暫時未能確認回報是否送達' });
       }
-      if (up.json.status !== 'success') {
+      if (up.status < 200 || up.status >= 300 || up.json.status !== 'success') {
         safeLog({ result: 'feedback_inbox_rejected', status: up.status, ms: Date.now() - t0 });
         return sendJson(res, 502, { success: false, deliveryStatus: 'rejected', error: '回報未能送出，請稍後重試' });
       }
