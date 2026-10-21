@@ -25,11 +25,17 @@ const UPSTREAM_TIMEOUT_MS = (() => {
 const MAX_DATA_BYTES = 2 * 1024 * 1024; // 單次請求 data 上限（bulkAddUsers 一批 100 人 << 1MB）
 
 // 中央管理員收件匣（新旅團接入申請及統一回報）。目的地是伺服器端固定常數，不由用戶輸入決定。
+// 標準環境變數名為 SCOUT_ADMIN_API；同時相容 VSBADGE_ADMIN_API 與 SCOUTBADGE_ADMIN_API，未設時使用內建預設值。
 const SCOUT_ADMIN_API_DEFAULT =
   'https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec';
 
 function getScoutAdminApi() {
-  return String(process.env.SCOUT_ADMIN_API || SCOUT_ADMIN_API_DEFAULT).trim();
+  return String(
+    process.env.SCOUT_ADMIN_API ||
+    process.env.VSBADGE_ADMIN_API ||
+    process.env.SCOUTBADGE_ADMIN_API ||
+    SCOUT_ADMIN_API_DEFAULT
+  ).trim();
 }
 
 // ---- action 白名單（對照 Code.gs doGet/doPost）----

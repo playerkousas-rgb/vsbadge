@@ -254,21 +254,33 @@ test('Troop registration relay maps scriptUrl to Scout Admin apply contract and 
     assert(!JSON.stringify(logs).includes('vs-secret-0777'));
     assert(!JSON.stringify(logs).includes('DEPLOY_0777'));
 
-    // Also supports direct backendUrl input and legacy { success: true } reply
+    // Also supports direct backendUrl input, env var aliases (SCOUT_ADMIN_API / VSBADGE_ADMIN_API / SCOUTBADGE_ADMIN_API), and legacy { success: true } reply
+    let lastTargetUrl = '';
+    const prevFetch = globalThis.fetch;
+    globalThis.fetch = async (url, init) => { lastTargetUrl = url; return prevFetch(url, init); };
     upstreamBody = { success: true };
-    const legacyOk = await call(proxy, {
-      action: 'submitRegistration',
-      data: {
-        troopId: '0778',
-        troopName: '第 778 旅',
-        backendUrl: 'https://script.google.com/macros/s/DEPLOY_0778/exec',
-        apiKey: 'vs-secret-0778',
-        note: ''
+    for (const envName of ['SCOUT_ADMIN_API', 'VSBADGE_ADMIN_API', 'SCOUTBADGE_ADMIN_API']) {
+      const customTarget = `https://script.google.com/macros/s/CUSTOM_${envName}/exec`;
+      process.env[envName] = ` ${customTarget} `;
+      try {
+        const legacyOk = await call(proxy, {
+          action: 'submitRegistration',
+          data: {
+            troopId: '0778',
+            troopName: '第 778 旅',
+            backendUrl: 'https://script.google.com/macros/s/DEPLOY_0778/exec',
+            apiKey: 'vs-secret-0778',
+            note: ''
+          }
+        });
+        assert.equal(legacyOk.code, 200);
+        assert.equal(legacyOk.body.success, true);
+        assert.equal(lastTargetUrl, customTarget);
+        assert.equal(sent.backendUrl, 'https://script.google.com/macros/s/DEPLOY_0778/exec');
+      } finally {
+        delete process.env[envName];
       }
-    });
-    assert.equal(legacyOk.code, 200);
-    assert.equal(legacyOk.body.success, true);
-    assert.equal(sent.backendUrl, 'https://script.google.com/macros/s/DEPLOY_0778/exec');
+    }
 
     // Incomplete data is rejected with 400 before contacting upstream
     const beforeBadCalls = calls;

@@ -91,7 +91,7 @@ Vercel /api/proxy（api/proxy.js）
 | `TROOP_{ID}_PORTALORIGIN` | 可選（例外才用） | 個別旅團用第二個 hub，**覆寫**全域預設 |
 | `TROOP_{ID}_PORTALROLES` | 可選（例外才用） | 個別旅團嘅角色白名單，**覆寫**全域預設 |
 | `TROOP_{ID}_PORTALDISABLED` | 可選（例外才用） | 設 `1` = 即使有全域預設，呢個旅團都**唔開放** portal |
-| `SCOUT_ADMIN_API` | 可選 | 新旅團接入申請及回報的中央收件匣 GAS URL（預設內建值）；接入申請送 `type: apply` 及 `backendUrl`（回覆 `status: success`），回報使用 Scout Admin 統一回報格式 v1（`sourceApp: vsbadge`，問題／意見分別為 `type: issue`／`type: feedback`） |
+| `SCOUT_ADMIN_API` | 可選 | 新旅團接入申請及回報的中央收件匣 GAS URL（預設內建值，亦相容別名 `VSBADGE_ADMIN_API`／`SCOUTBADGE_ADMIN_API`）；接入申請送 `type: apply` 及 `backendUrl`（回覆 `status: success`），回報使用 Scout Admin 統一回報格式 v1（`sourceApp: vsbadge`，問題／意見分別為 `type: issue`／`type: feedback`） |
 | `VSBADGE_PROXY_TIMEOUT_MS` | 可選 | 上游逾時（預設 45000，範圍 1000–55000） |
 
 > ⚠️ `VSBADGE_PROXY_TEST=1` 只供本機測試使用（允許 mock http://127.0.0.1 上游），**切勿設在 Vercel**。
