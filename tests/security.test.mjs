@@ -208,6 +208,131 @@ test('Feedback relay uses the Scout Admin v1 contract and keeps reports private'
   }
 });
 
+test('Troop registration relay maps scriptUrl to Scout Admin apply contract and verifies delivery', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs = []; let calls = 0; let sent;
+  let upstreamStatus = 200;
+  let upstreamBody = { status: 'success', message: '登記已提交，管理員會盡快接入。' };
+  console.log = line => logs.push(JSON.parse(line));
+  globalThis.fetch = async (url, init) => {
+    calls++;
+    assert.match(url, /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
+    sent = JSON.parse(init.body);
+    return {
+      status: upstreamStatus,
+      text: async () => typeof upstreamBody === 'string' ? upstreamBody : JSON.stringify(upstreamBody)
+    };
+  };
+  try {
+    const okRes = await call(proxy, {
+      troopId: '',
+      action: 'submitRegistration',
+      data: {
+        troopId: ' 0777 ',
+        troopName: ' 第 777 旅 ',
+        scriptUrl: ' https://script.google.com/macros/s/DEPLOY_0777/exec ',
+        apiKey: ' vs-secret-0777 ',
+        note: ' contact@0777.example.org '
+      }
+    });
+    assert.equal(okRes.code, 200);
+    assert.deepEqual(okRes.body, { success: true, message: '申請已提交' });
+    assert.equal(calls, 1);
+    assert.deepEqual(
+      Object.keys(sent).sort(),
+      ['apiKey', 'appType', 'backendUrl', 'note', 'troopId', 'troopName', 'type']
+    );
+    assert.equal(sent.type, 'apply');
+    assert.equal(sent.troopId, '0777');
+    assert.equal(sent.troopName, '第 777 旅');
+    assert.equal(sent.backendUrl, 'https://script.google.com/macros/s/DEPLOY_0777/exec');
+    assert.equal(sent.scriptUrl, undefined, 'scriptUrl must be mapped to backendUrl rather than forwarded unmapped');
+    assert.equal(sent.apiKey, 'vs-secret-0777');
+    assert.equal(sent.appType, 'vsbadge');
+    assert.equal(sent.note, '[vsbadge] contact@0777.example.org');
+    assert(!JSON.stringify(logs).includes('vs-secret-0777'));
+    assert(!JSON.stringify(logs).includes('DEPLOY_0777'));
+
+    // Also fills fallback troopName + [vsbadge] tag when optional fields are omitted so Scout Admin UI displays card & source app
+    const blankOptRes = await call(proxy, {
+      action: 'submitRegistration',
+      data: {
+        troopId: '0888',
+        troopName: '',
+        scriptUrl: 'https://script.google.com/macros/s/DEPLOY_0888/exec',
+        apiKey: 'vs-secret-0888',
+        note: ''
+      }
+    });
+    assert.equal(blankOptRes.code, 200);
+    assert.equal(sent.troopName, '第 0888 旅');
+    assert.equal(sent.note, '[vsbadge]');
+
+    // Also supports direct backendUrl input, env var aliases (SCOUT_ADMIN_API / VSBADGE_ADMIN_API / SCOUTBADGE_ADMIN_API), and legacy { success: true } reply
+    let lastTargetUrl = '';
+    const prevFetch = globalThis.fetch;
+    globalThis.fetch = async (url, init) => { lastTargetUrl = url; return prevFetch(url, init); };
+    upstreamBody = { success: true };
+    for (const envName of ['SCOUT_ADMIN_API', 'VSBADGE_ADMIN_API', 'SCOUTBADGE_ADMIN_API']) {
+      const customTarget = `https://script.google.com/macros/s/CUSTOM_${envName}/exec`;
+      process.env[envName] = ` ${customTarget} `;
+      try {
+        const legacyOk = await call(proxy, {
+          action: 'submitRegistration',
+          data: {
+            troopId: '0778',
+            troopName: '第 778 旅',
+            backendUrl: 'https://script.google.com/macros/s/DEPLOY_0778/exec',
+            apiKey: 'vs-secret-0778',
+            note: ''
+          }
+        });
+        assert.equal(legacyOk.code, 200);
+        assert.equal(legacyOk.body.success, true);
+        assert.equal(lastTargetUrl, customTarget);
+        assert.equal(sent.backendUrl, 'https://script.google.com/macros/s/DEPLOY_0778/exec');
+      } finally {
+        delete process.env[envName];
+      }
+    }
+
+    // Incomplete data is rejected with 400 before contacting upstream
+    const beforeBadCalls = calls;
+    for (const partial of [
+      { troopName: 'X', scriptUrl: 'https://script.google.com/macros/s/X/exec', apiKey: 'k' },
+      { troopId: '0779', troopName: 'X', apiKey: 'k' },
+      { troopId: '0779', troopName: 'X', scriptUrl: 'https://script.google.com/macros/s/X/exec' }
+    ]) {
+      const bad = await call(proxy, { action: 'submitRegistration', data: partial });
+      assert.equal(bad.code, 400);
+      assert.equal(bad.body.success, false);
+    }
+    assert.equal(calls, beforeBadCalls, 'incomplete applications do not call Admin GS');
+
+    // Upstream rejection ({ status: "error" }), non-JSON, or 5xx is never misreported as success
+    upstreamBody = { status: 'error', message: '沒有收到任何資料' };
+    const gsErr = await call(proxy, {
+      action: 'submitRegistration',
+      data: { troopId: '0777', scriptUrl: 'https://script.google.com/macros/s/DEPLOY_0777/exec', apiKey: 'vs-secret-0777' }
+    });
+    assert.equal(gsErr.code, 502);
+    assert.equal(gsErr.body.success, false);
+
+    upstreamStatus = 500;
+    upstreamBody = { status: 'success' };
+    const httpErr = await call(proxy, {
+      action: 'submitRegistration',
+      data: { troopId: '0777', scriptUrl: 'https://script.google.com/macros/s/DEPLOY_0777/exec', apiKey: 'vs-secret-0777' }
+    });
+    assert.equal(httpErr.code, 502);
+    assert.equal(httpErr.body.success, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+});
+
 function gasContext() {
   const used = new Map(); let verified = false; let fetches = 0;
   const context = vm.createContext({

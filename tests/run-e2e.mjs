@@ -721,6 +721,85 @@ console.log('\n【15】Portal 免登入驗證（/api/portal）—— v3.1 修補
   delete process.env.PORTAL_DEFAULT_ROLES;
 }
 
+// ================== 16. Scout Admin 新旅團接入申請契約（submitRegistration） ==================
+console.log('\n【16】Scout Admin 新旅團接入申請契約（type=apply、backendUrl 映射、status=success 回覆）');
+{
+  // 模擬真實 Scout Admin GS（FIELD_MAP 只認 backendUrl/url，成功回覆 { status: "success", message: ... }）
+  const ADMIN_FIELD_MAP = {
+    '旅團號': ['troopId'],
+    '旅團名稱': ['troopName'],
+    'URL': ['backendUrl', 'url'],
+    'API Key': ['apiKey', 'apikey'],
+    '備注': ['note']
+  };
+  const seen = [];
+  let forceError = false;
+  const adminServer = http.createServer((req, res) => {
+    let raw = '';
+    req.on('data', chunk => { raw += chunk; });
+    req.on('end', () => {
+      if (req.url === '/exec') {
+        const parsed = JSON.parse(raw || '{}');
+        const mapped = {};
+        for (const [hdr, aliases] of Object.entries(ADMIN_FIELD_MAP)) {
+          const hit = aliases.find(k => parsed[k] !== undefined && parsed[k] !== null);
+          mapped[hdr] = hit ? String(parsed[hit]) : '';
+        }
+        seen.push({ body: parsed, mapped });
+        const reply = forceError
+          ? { status: 'error', message: '沒有收到任何資料' }
+          : { status: 'success', message: '登記已提交，管理員會盡快接入。' };
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(reply));
+        return;
+      }
+      res.writeHead(404); res.end('not found');
+    });
+  });
+  await new Promise(resolve => adminServer.listen(0, '127.0.0.1', resolve));
+  const adminPort = adminServer.address().port;
+  const prevAdminApi = process.env.SCOUT_ADMIN_API;
+  process.env.SCOUT_ADMIN_API = `http://127.0.0.1:${adminPort}/exec`;
+
+  try {
+    const apiPublic = makeApi('', `${APP_BASE}/api/proxy`); // 首頁未揀旅團狀態
+    const d = await apiPublic('submitRegistration', {
+      troopId: '0777',
+      troopName: '第 777 旅',
+      scriptUrl: 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec',
+      apiKey: 'VS-NEW-TROOP-KEY',
+      note: 'leader@0777.example.org'
+    });
+    check('submitRegistration 接受 Scout Admin { status: "success" } 回覆並回傳 success:true', d.success === true);
+    check('申請請求成功送達中央收件匣（未登記旅團亦可提交）', seen.length === 1);
+    check('payload 帶 type="apply" 及 appType="vsbadge"',
+      seen[0]?.body.type === 'apply' && seen[0]?.body.appType === 'vsbadge');
+    check('scriptUrl 已映射為 backendUrl，且不再夾帶未識別的 scriptUrl 欄位',
+      seen[0]?.body.backendUrl === 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec' &&
+      seen[0]?.body.scriptUrl === undefined);
+    check('Scout Admin GS FIELD_MAP「URL」欄成功填入後端網址，且「備注」標明 [vsbadge] 來源',
+      seen[0]?.mapped['URL'] === 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec' &&
+      seen[0]?.mapped['旅團號'] === '0777' &&
+      seen[0]?.mapped['API Key'] === 'VS-NEW-TROOP-KEY' &&
+      seen[0]?.mapped['備注'] === '[vsbadge] leader@0777.example.org');
+
+    const bad = await postProxy({ action: 'submitRegistration', data: { troopId: '0777', apiKey: 'VS-NEW-TROOP-KEY' } });
+    check('缺少後端網址時回 400 且不呼叫上游', bad.status === 400 && bad.json?.success === false && seen.length === 1);
+
+    forceError = true;
+    const rejected = await postProxy({
+      action: 'submitRegistration',
+      data: { troopId: '0777', scriptUrl: 'https://script.google.com/macros/s/FAKEDEPLOYID0777/exec', apiKey: 'VS-NEW-TROOP-KEY' }
+    });
+    check('Scout Admin 回覆 { status: "error" } 時回 502 失敗而非誤報成功',
+      rejected.status === 502 && rejected.json?.success === false);
+  } finally {
+    if (prevAdminApi === undefined) delete process.env.SCOUT_ADMIN_API;
+    else process.env.SCOUT_ADMIN_API = prevAdminApi;
+    adminServer.close();
+  }
+}
+
 // ---- 清理 ----
 console.log(`\n========================================`);
 console.log(`結果：${passed} 通過, ${failed} 失敗`);
