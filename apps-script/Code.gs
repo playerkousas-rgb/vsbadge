@@ -13,7 +13,7 @@
 // 旅系統（旅 > 團 > 進度）：上游登記下游 URL 及 SHEET KEY，經 sig 讀寫下游；下游 ALLOW_LOCAL_LOGIN 閂口後只收 sig；
 //   選單「🔗 旅系統」提供匯出 JSON（含 hash）／匯入（upsertUser）／登記下游／直接入口掣
 // 初始化：全新後端執行；本次升級亦須執行一次，清除舊版保留帳號殘留（只清理保留身份，不清普通用戶資料）。
-// 版號只記錄在 operations/TROOP_LINK_UPGRADE.md，程式內不留版號註解
+// 版號只記錄在 operations/TROOP_LINK_UPGRADE.md，程式內不留版本註解；唯一例外係 VS_GS_VERSION 發佈識別常數，供前端公告及初始化核對（不設逐級升級表）
 // ============================================================
 
 const ADMIN_YMIS = '1111111111';
@@ -28,6 +28,15 @@ const SUPER_ADMIN_EMAIL = SUPER_ADMIN_ID + '@vsbadge.local';
 const MIN_PASSWORD_LEN = 4;
 const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
+
+// 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
+const VS_GS_VERSION = 'v9.1';
+const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
+function getVsGsReleaseStatus(){
+  let initialized='';
+  try{ initialized=String(PropertiesService.getScriptProperties().getProperty(VS_GS_INITIALIZED_PROP)||''); }catch(e){}
+  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION };
+}
 
 // 本次升級：更新 Code.gs 後執行一次 initializeSheets() 清理舊版保留帳號痕跡，再部署新版本；其他資料／結構保留。
 // ===== 工具 =====
@@ -436,6 +445,8 @@ function initializeSheets() {
   removeSuperAdminIdentityRows(cfgSheet,[],[3]);
 
   const apiKey = getApiKey();
+  // 只有所有補表、補預設值及清理步驟完成後，才記錄最新初始化版本；只貼新 Code.gs 唔會被誤當完成。API Key 沿用，唔會更換。
+  PropertiesService.getScriptProperties().setProperty(VS_GS_INITIALIZED_PROP,VS_GS_VERSION);
   let scriptUrl=''; try{ scriptUrl=ScriptApp.getService().getUrl(); }catch(e){ scriptUrl='請部署為網頁應用程式後查看';}
   try{
     const ui=SpreadsheetApp.getUi();
@@ -443,7 +454,7 @@ function initializeSheets() {
       ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl+'\n\n🔗 旅系統：本節點 BACKEND／APIKEY 見選單「🔗 旅系統 → 顯示 BACKEND／APIKEY」；登記資料不寫入工作表');
     }
   }catch(e){}
-  return {success:true,apiKey:apiKey,scriptUrl:scriptUrl};
+  return {success:true,apiKey:apiKey,scriptUrl:scriptUrl,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
 }
 
 // ===== 用戶查詢 =====
@@ -1017,6 +1028,12 @@ function doPost(e){
     if(verifyLinkSig(e,body,rawBody)) return handleSignedRequest(action,body);
     // 中央救援登入獨立於本地入口閘門；只放行保留身份並由 Proxy 驗證的短效票據。
     if(action==='login' && body.super_ticket && isSuperAdminId(body.login_id)) return handleLogin(body.login_id,body.password,body.super_ticket);
+    // 最新版本核對：只回報 GS 程式版本及初始化版本（無敏感資料），供前端公告分辨「未更新／未初始化／已核對」；
+    // API Key 由同源 Proxy 伺服器端注入驗證，瀏覽器永遠睇唔到。閂口（ALLOW_LOCAL_LOGIN 關閉）時管理員仍可核對。
+    if(action==='ecStatus'){
+      if(!body.apikey || body.apikey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
+      return jsonResponse(Object.assign({success:true,timestamp:now()},getVsGsReleaseStatus()));
+    }
     // 閂口狀態不向一般使用者公開；有效保留帳號 session 可進入處理。
     if(!localLoginAllowed() && !isSuperAdminToken(body.token)) return jsonResponse(linkClosedResponse());
     if(action==='login') return handleLogin(body.login_id,body.password);
@@ -1343,7 +1360,7 @@ function handleLoad(){
   const lSheet=ss.getSheetByName(LOG_SHEET_NAME);
   // 待批履歷（團員自行申報，logRequestsSupported 讓前端分辨後端是否已升級）
   const lrSheet=ss.getSheetByName(LOG_REQ_SHEET_NAME);
-  return jsonResponse({success:true,members:members,progress:progress,flatProgress:flat,pendingRequests:pending,otherBadges:other,logs:getLogRecordsList(),logsSupported:!!lSheet,logRequests:getLogRequestsList(),logRequestsSupported:!!lrSheet});
+  return jsonResponse(Object.assign({success:true,members:members,progress:progress,flatProgress:flat,pendingRequests:pending,otherBadges:other,logs:getLogRecordsList(),logsSupported:!!lSheet,logRequests:getLogRequestsList(),logRequestsSupported:!!lrSheet},getVsGsReleaseStatus()));
 }
 function handleSave(changes, confirmer){
   confirmer=persistedActorId(confirmer);

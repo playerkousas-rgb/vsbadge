@@ -558,10 +558,16 @@ test('上游傳來的標籤不可變成工作表算式（auth_by／操作紀錄�
   assert.match(String(rec.data[rec.map.auth_by]), /^[0-9A-Za-z_.@-]+$/, 'auth_by 只留安全字元');
 });
 
-test('GS 程式內不留版號註解（版號只留 MD）', () => {
+test('GS 程式內不留版號註解（版號只留 MD；唯一例外係 VS_GS_VERSION 發佈識別常數）', () => {
   for (const file of ['apps-script/Code.gs', 'assets/batch-onboard/Code.gs']) {
     const text = fs.readFileSync(file, 'utf8');
     assert.equal(/\/\/\s*v\d+\.\d+/.test(text), false, file + ' 仍有 // vX.X 註解');
-    assert.equal(/\bv\d+\.\d+(\.\d+)?\b/.test(text), false, file + ' 仍有版號字樣');
+    // 2026-10-23 起：發佈核對機制需要一行 machine-readable 識別（VS_GS_VERSION），豁免該行；其餘版號字樣照舊禁止。
+    const stripped = text.replace(/const VS_GS_VERSION = 'v\d+\.\d+(\.\d+)?';/, '');
+    assert.equal(/\bv\d+\.\d+(\.\d+)?\b/.test(stripped), false, file + ' 仍有版號字樣（只准 VS_GS_VERSION 一行）');
+    if (file === 'apps-script/Code.gs') {
+      const declarations = text.match(/const VS_GS_VERSION = '/g) || [];
+      assert.equal(declarations.length, 1, 'VS_GS_VERSION 只准宣告一次');
+    }
   }
 });
