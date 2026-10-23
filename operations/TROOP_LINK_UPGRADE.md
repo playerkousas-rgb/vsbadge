@@ -4,6 +4,8 @@
 >
 > **版號只留本 MD**：`apps-script/Code.gs` 及 `assets/batch-onboard/Code.gs` 內所有 `// vX.X` 註解（連 `initializeSheets()` 彈窗的版號字樣）已全部拆走；`tests/troop_link.test.mjs` 有守護測試，GS 再出現版號字樣就會 fail。
 >
+> **例外（2026-10-23 起，v9.1 新增）**：`apps-script/Code.gs` 准有且只准有一行 `const VS_GS_VERSION = 'vX.X';` 發佈識別常數，供前端公告＋初始化核對（`ecStatus`／`load` 回報用）。守護測試已加對應窄豁免（只豁免該行，其餘版號字樣照舊 fail）。
+>
 > 是次改動範圍：**只改 `apps-script/Code.gs`、`assets/batch-onboard/Code.gs`（拆註解）、`package.json`（加測試）、新增本 MD 及 `tests/troop_link.test.mjs`**。前端 `index.html` 一字未改，`api/` 一字未改。
 
 ---
@@ -227,3 +229,17 @@ npm run test:build
 | `package.json` | `test` 加入旅系統測試；新增 `test:link` |
 | `operations/TROOP_LINK_UPGRADE.md` | 本檔（新增，只留 Git，不部署） |
 | `index.html`、`api/*`、`docs/*`、`README.md`、`DEPLOY_GUIDE_FOR_TROOPS.md` | **未改動** |
+
+---
+
+# 後續版本
+
+## v9.1 — 最新版本公告、GS 初始化核對及用戶資料保全（2026-10-23）
+
+- **GS 發佈識別**：`Code.gs` 新增 `VS_GS_VERSION = 'v9.1'`（唯一常數，不設逐級補丁清單）＋ `getVsGsReleaseStatus()`；`initializeSheets()` 成功完成後先喺 Script Properties 寫 `VS_GS_INITIALIZED_VERSION = v9.1`。
+- **回報**：`ecStatus`（新公開 action，API Key 由 Proxy 伺服器端注入驗證）及登入後 `load` 都回傳 `gsVersion`／`initializedGsVersion`／`gsInitializationCurrent`。
+- **前端公告**：`index.html` 首頁 `#homeReleaseNotice`、登入頁 `#loginReleaseNotice`、登入後 `#mainReleaseNotice`，只列最新日期（2026-10-23）＋最新 GS（v9.1），附下載、更新步驟、「🔄 重新檢查」；三態「GS 未更新／已更新但未初始化／全部完成（綠色✅已核對）」。今次 `initializeRequired: true`。
+- **資料保全**：初始化只補缺失結構＋設定預設值；已有帳號、成員、YMIS、新舊 ID 進度、其他獎章、活動履歷、備註、旅團設定、API Key 全部唔准改寫。規則已寫入 `docs/LEADER_GUIDE.md`（及 `.en.md`）同新檔 `APP_ADMIN_WORKFLOW.md`。
+- **測試**：新增 `tests/release-version.test.mjs`（版本一致性＋初始化前後逐 Sheet 快照對比＋idempotent＋API Key 不變＋Proxy ecStatus 注入 Key）；`tests/troop_link.test.mjs` 版號守護測試加 `VS_GS_VERSION` 一行窄豁免。
+- **改動檔案**：`apps-script/Code.gs`、`index.html`、`api/proxy.js`（白名單加 `ecStatus`）、`tests/release-version.test.mjs`（新）、`tests/troop_link.test.mjs`、`package.json`、`docs/LEADER_GUIDE.md`、`docs/LEADER_GUIDE.en.md`、`APP_ADMIN_WORKFLOW.md`（新）、本 MD。
+- **部署**：沿用現有 Apps Script Web App URL（管理部署 → 新版本），Vercel env 毋須改動；**每個已部署旅團都必須執行一次 `initializeSheets()`**。

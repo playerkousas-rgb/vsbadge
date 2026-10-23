@@ -297,6 +297,22 @@ a:hover{text-decoration:underline}
 .step-number{width:32px;height:32px;background:var(--maroon);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
 .step-content h4{color:var(--text);font-size:13px;margin-bottom:4px}
 .step-content p{color:var(--text-light);font-size:11.5px;line-height:1.6}
+.release-notice{border:2px solid #D97706;background:#FFFBEB;border-radius:12px;padding:12px 14px;margin:0 0 14px;box-shadow:var(--shadow);line-height:1.6}
+.release-notice.release-current{border-color:var(--green);background:#F0FFF4}
+.release-notice.release-checking{border-color:var(--blue);background:var(--blue-light)}
+.release-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800;color:#8B5A00}
+.release-current .release-head{color:var(--green)}
+.release-chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700}
+.release-chip.required{background:#FEE2E2;color:#991B1B}
+.release-chip.verified{background:var(--green-light);color:var(--green)}
+.release-summary{font-size:11.5px;color:var(--text-light);margin-top:5px}
+.release-status{font-size:12px;font-weight:650;margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.78)}
+.release-notice details{margin-top:8px;font-size:11.5px;color:var(--text-light)}
+.release-notice summary{cursor:pointer;font-weight:700;color:#8B5A00}
+.release-notice ol{margin:7px 0 8px;padding-left:22px}
+.release-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+#mainReleaseNotice{padding:10px 12px 0}
+#mainReleaseNotice .release-notice{margin-bottom:0;box-shadow:none}
 
 .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
 .admin-toolbar .search-grow{flex:1;min-width:200px}
@@ -395,6 +411,7 @@ a:hover{text-decoration:underline}
     <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
   <div class="container">
+    <div id="homeReleaseNotice"></div>
     <div id="welcome-enter" class="welcome-section active">
       <!-- 已修復問題及V4.0新增已按要求移除，保留框架註解：未來多旅團用時可在此加新功能介紹 -->
       <div id="home-future-framework" style="display:none">
@@ -454,7 +471,7 @@ a:hover{text-decoration:underline}
 
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (GS v9.1 單一檔案版)</h4><p>最新 GS v9.1：待批、其他獎章、批量、PNG、私隱開關，版本／初始化核對及資料保全</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (GS v9.1)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>首次登入（預設管理員帳號）</h4><p>initializeSheets 跑完會自動建立預設管理員。登記完成後，首頁揀該旅團卡片 → 用「👤 成員」分頁登入（YMIS 登入，唔好用「👨‍💼 領袖」＝Email 分頁）：</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 密碼</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>首次登入會<b style="color:var(--red)">強制改密碼</b>（最少 4 位）。之後去「👥 用戶管理」開返各領袖自己嘅帳號並設角色／權限，喺「✅ 審批中心」批成員申請。</p></div></div>
@@ -497,7 +514,11 @@ a:hover{text-decoration:underline}
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：2026-10 部署頁教學更新（首次登入步驟＋主系統介紹暫時隱藏）</h3>
+        <h3>最新：GS v9.1 版本公告、初始化核對及資料保全（2026-10-23）</h3>
+        <p style="font-size:12px">首頁、登入頁及登入後主頁新增「📣 最新更新公告」：只顯示最新更新日期及最新 GS 版本（v9.1），唔設逐級補丁清單，附最新 Code.gs 下載、更新步驟及「重新檢查」按鈕。GS 的 ecStatus 及登入後 load 會回報 gsVersion 及 initializedGsVersion，前端據此分辨「GS 未更新／已更新但未初始化／全部完成」，只有最後者顯示綠色「已核對」。此版本必須執行一次 initializeSheets()；初始化只補齊缺失結構並喺 Script Properties 記錄版本，已有帳號、成員、YMIS、新舊 ID 進度、獎章、活動履歷、備註、旅團設定及 API Key 一律保留。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>2026-10 部署頁教學更新（首次登入步驟＋主系統介紹暫時隱藏）</h3>
         <p style="font-size:12px">「📋 新旅團部署」頁新增步驟 4「首次登入（預設管理員帳號）」：initializeSheets 自動建立 YMIS 1111111111／密碼 changeme，首次登入強制改密碼（最少 4 位）。主系統（scoutsystem-2.0）介紹及軌道B 暫停對外推廣，頁面字眼已隱藏，Portal／api/portal／sig 程式碼保留照常運作。日後重啟：喺 index.html 搜尋 <code>[主系統暫時隱藏]</code> 解除註解，並重排步驟號（部署頁變回 6 步）。</p>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -526,6 +547,7 @@ a:hover{text-decoration:underline}
     <button class="lang-toggle" onclick="toggleLang()" title="中／EN 一鍵切換">🌐 English</button>
   </div>
   <div class="container">
+    <div id="loginReleaseNotice"></div>
     <div class="login-container">
       <h2 data-i18n="login.title">🔐 登入系統</h2>
       <div class="troop-info-box" id="loginTroopInfo">—</div>
@@ -569,6 +591,7 @@ a:hover{text-decoration:underline}
   <!-- v8.8 導覽架構：三組按鈕（主要／領袖專屬／常用）
        桌面：全部攤平一行過（大螢幕放得晒，用 order 排先後）
        手機：直向堆疊（主要在上，常用 3＋2 平分中段，領袖專屬最底），整列固定置頂唔會被拉走 -->
+  <div id="mainReleaseNotice"></div>
   <div class="nav-tabs" id="mainNavTabs">
     <div class="nav-row nav-group-main">
       <button class="nav-tab active" id="btn-tab-progress" onclick="switchTab('progress', this)" data-i18n="nav.progress">📊 我的進度</button>
@@ -1699,6 +1722,7 @@ function setLang(lang){
     }
     updateSaveBar();
     localizeModals();
+    renderReleaseNotices();
   }catch(e){ console.warn('setLang rerender', e); }
 }
 const WELCOME_HTML_CACHE={};
@@ -1719,7 +1743,7 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
 [主系統暫時隱藏 完] -->
 <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Setup map</h3><p style="font-size:11px">Download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key → give them to a vsbadge admin to add Vercel environment variables → first sign-in (step 4) → use vsbadge.vercel.app, pick your Group, sign in.</p><!-- [主系統暫時隱藏 2026-10] Path B, connect the main platform: still register with a vsbadge admin (from v3.0 the card only needs u=Group number). From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles); portal sign-in is then verified server-side. Use: Dashboard, card, from=portal + src=main-platform-origin + embed=1 (ymis is now optional). Re-enable: restore this sentence as a visible line and rename the card to Two paths. --></div>
 <div class="tutorial"><div class="steps">
-  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (single file)</h4><p>Pending claims, other badges, bulk, PNG, privacy switch</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs</a></div></div>
+  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (GS v9.1, single file)</h4><p>Latest GS v9.1: pending claims, other badges, bulk, PNG, privacy switch, release/initialisation checks and data preservation</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs (GS v9.1)</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy API Key<br><b>2.4</b> Deploy as web app (execute as me, access anyone), copy the /exec URL</p></div></div>
   <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add Vercel environment variables. After Vercel deploys, use it standalone.</p></div></div>
   <div class="step"><div class="step-number">4</div><div class="step-content"><h4>First sign-in (default admin account)</h4><p>initializeSheets creates the default admin automatically. After registration, open the home page, pick your Group card, and sign in on the “👤 Member” tab (YMIS sign-in; do not use the “👨‍💼 Leader” tab, which uses Email):</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 Password</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>The first sign-in <b style="color:var(--red)">forces a password change</b> (minimum 4 characters). Then open accounts for your leaders under “👥 Users” with roles and rights, and approve member applications in “✅ Approvals”.</p></div></div>
@@ -1752,7 +1776,11 @@ changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">�
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
-  <h3>Latest: Oct 2026 setup page update (first sign-in step + main-platform intro hidden)</h3>
+  <h3>Latest: GS v9.1 release notice, initialisation check and data preservation (2026-10-23)</h3>
+  <p style="font-size:12px">The home, sign-in and post-login pages now show a “📣 Latest update” notice with only the latest date and GS version (v9.1) — no sequential patch list — plus the latest Code.gs download, update steps and a Re-check button. GS ecStatus and the post-login load report gsVersion and initializedGsVersion, letting the app distinguish “GS not updated / updated but not initialised / fully done”; only the last shows a green Verified state. This release requires running initializeSheets() once. Initialisation only fills in missing structures and records the version in Script Properties; existing accounts, members, YMIS, old/new-ID progress, badges, activity log, notes, Group settings and the API Key are all preserved.</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>Oct 2026 setup page update (first sign-in step + main-platform intro hidden)</h3>
   <p style="font-size:12px">The “📋 New Group setup” page gains step 4, “First sign-in (default admin)”: initializeSheets creates YMIS 1111111111 / password changeme, with a forced password change on first sign-in (minimum 4 characters). The main-platform (scoutsystem-2.0) intro and Path B are hidden while promotion is paused; the Portal / api/portal / sig code stays and keeps running. To re-enable: search index.html for <code>[主系統暫時隱藏]</code>, uncomment, and renumber the steps (back to 6).</p>
 </div>
 <div class="info-section" style="margin-top:12px">
@@ -1809,6 +1837,90 @@ function todayISO(){ return new Date().toISOString().split('T')[0]; }
    - 所有 GAS 通訊必须经过這裡，禁止各自直接 fetch GAS URL
    - 網絡／逾時／非 JSON 回應一律 throw 友善錯誤
    - Proxy 業務錯誤（404/502/504...）統一化成 {success:false,error} 交呼叫端處理 */
+/* ================== 最新版本公告＋GS 初始化核對（2026-10-23） ==================
+   只列最新版本，不設逐級補丁清單。GS 的 ecStatus 及登入後 load 會回報
+   gsVersion（程式版本）及 initializedGsVersion（初始化版本），前端據此分辨：
+   「GS 未更新」→ 警告、「已更新但未初始化」→ 警告、「全部完成」→ 綠色「已核對」。 */
+const LATEST_RELEASE=Object.freeze({updated:'2026-10-23',gsVersion:'v9.1',initializeRequired:true});
+let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initializedGsVersion:'',error:''};
+let _releaseCheckSequence=0;
+function resetBackendRelease(){
+  _releaseCheckSequence++;
+  backendReleaseState={troopId:currentTroopId||'',status:currentTroopId==='DEMO'?'demo':'idle',reportedVersion:'',initializedGsVersion:'',error:''};
+  renderReleaseNotices();
+}
+function applyBackendRelease(payload){
+  const source=payload&&payload.release?payload.release:(payload||{});
+  const actual=String(source.gsVersion||'').trim();
+  const initialized=String(source.initializedGsVersion||'').trim();
+  const status=actual!==LATEST_RELEASE.gsVersion?'update':(initialized===LATEST_RELEASE.gsVersion?'current':'initialize');
+  backendReleaseState={troopId:currentTroopId||'',status,reportedVersion:actual||String(source.backendVersion||'').trim()||'unknown',initializedGsVersion:initialized,error:''};
+  renderReleaseNotices();
+  return status;
+}
+async function checkBackendRelease(){
+  if(!currentTroopId){ resetBackendRelease(); return; }
+  if(currentTroopId==='DEMO'){ backendReleaseState={troopId:'DEMO',status:'demo',reportedVersion:'',initializedGsVersion:'',error:''}; renderReleaseNotices(); return; }
+  if(backendReleaseState.status==='checking'&&backendReleaseState.troopId===currentTroopId) return;
+  const troopId=currentTroopId,sequence=++_releaseCheckSequence;
+  backendReleaseState={troopId,status:'checking',reportedVersion:'',initializedGsVersion:'',error:''};
+  renderReleaseNotices();
+  try{
+    const result=await apiRequest('ecStatus',{},{troopId,timeout:15000});
+    if(sequence!==_releaseCheckSequence||troopId!==currentTroopId) return;
+    if(!result.success){
+      // 舊版 GS 未識 ecStatus（回 Unknown action）＝ 旅團仲未更新後端，直接當「GS 未更新」顯示，唔好顯示成核對失敗。
+      if(String(result.error||'')==='Unknown action'){
+        backendReleaseState={troopId,status:'update',reportedVersion:'',initializedGsVersion:'',error:''};
+        renderReleaseNotices();
+        return;
+      }
+      throw new Error(result.error||'ecStatus failed');
+    }
+    applyBackendRelease(result);
+  }catch(e){
+    if(sequence!==_releaseCheckSequence||troopId!==currentTroopId) return;
+    backendReleaseState={troopId,status:'error',reportedVersion:'',initializedGsVersion:'',error:String((e&&e.message)||e)};
+    renderReleaseNotices();
+  }
+}
+function renderReleaseNotices(){
+  const hosts=[['homeReleaseNotice',true],['loginReleaseNotice',false],['mainReleaseNotice',false]];
+  for(const [hostId,isHome] of hosts){
+    const host=document.getElementById(hostId); if(!host) continue;
+    const demo=!isHome&&currentTroopId==='DEMO';
+    const state=isHome?{status:'idle'}:(demo?{status:'demo'}:(backendReleaseState.troopId===(currentTroopId||'')?backendReleaseState:{status:'idle'}));
+    const actionNeeded=['update','initialize','error'].includes(state.status);
+    const cardClass=state.status==='current'?'release-current':(state.status==='checking'?'release-checking':'');
+    const title=isEn()?`📣 Latest update · ${LATEST_RELEASE.updated}`:`📣 最新更新公告｜${LATEST_RELEASE.updated}`;
+    let statusText='';
+    if(isHome) statusText=isEn()?'Each Group deploys its own GS backend — updating this website alone does not update any Group’s backend.':'每個旅團都要各自更新 GS 後端；只更新網頁，唔代表旅團後端已經更新。';
+    else if(state.status==='demo') statusText=isEn()?'DEMO does not connect to a Group GS. A real Group still needs this update.':'示範模式唔連接旅團 GS；正式旅團仍須完成呢次更新。';
+    else if(state.status==='checking') statusText=isEn()?'Checking the GS version deployed by this Group…':'正在核對此旅團實際部署嘅 GS 版本…';
+    else if(state.status==='current') statusText=isEn()?`✅ Verified: GS ${LATEST_RELEASE.gsVersion}, and initialisation for this release is complete.`:`✅ 已核對：GS ${LATEST_RELEASE.gsVersion}，呢個版本嘅初始化亦已完成。`;
+    else if(state.status==='update') statusText=isEn()?`⚠️ GS update is still required (reported: ${state.reportedVersion||'unknown'}). The latest fixes are not active until GS is replaced and redeployed.`:`⚠️ 此旅團尚未完成 GS 更新（回報版本：${state.reportedVersion||'未知'}）。未更換並重新部署 GS，今次修正就唔會生效。`;
+    else if(state.status==='initialize') statusText=isEn()?`⚠️ GS ${LATEST_RELEASE.gsVersion} is deployed, but initializeSheets() has not completed for this release (record: ${state.initializedGsVersion||'none'}). Run it once, then re-check.`:`⚠️ GS 已係 ${LATEST_RELEASE.gsVersion}，但呢個版本嘅 initializeSheets() 尚未完成（初始化紀錄：${state.initializedGsVersion||'未記錄'}）。請執行一次，然後重新檢查。`;
+    else if(state.status==='error') statusText=isEn()?'⚠️ The GS version cannot be verified right now. Do not assume the update is complete; use Re-check later.':'⚠️ 暫時未能核對 GS 版本。唔好當已經更新；稍後按「重新檢查」。';
+    else statusText=isEn()?'Select a Group to verify its deployed GS version.':'選擇旅團後，系統會核對實際部署嘅 GS 版本。';
+    const steps=isEn()?[
+      'Download the latest Code.gs below, replace the Group’s Apps Script content and save it.',
+      'Run initializeSheets() once — this is required for this release; keep the existing spreadsheet and all records (accounts, progress, badges, activity log and settings are never rewritten).',
+      'Deploy → Manage deployments → Edit → New version → Deploy, keeping the existing web-app URL and API Key.',
+      'Return here and select Re-check. Only the green Verified status means both GS and initialisation are current.'
+    ]:[
+      '按下方按鈕下載最新 Code.gs，取代旅團 Apps Script 嘅現有內容並儲存。',
+      '必須執行一次 initializeSheets()；保留現有 Google Sheet 及所有紀錄（帳號、進度、獎章、活動履歷及設定一律唔會被改寫），唔需要逐級升級。',
+      '到「部署 → 管理部署 → 編輯 → 新版本 → 部署」，沿用現有網頁應用程式網址及 API Key。',
+      '返嚟呢度按「重新檢查」；只有綠色「已核對」先代表 GS 同初始化都係最新。'
+    ];
+    const openSteps=!isHome&&actionNeeded?' open':'';
+    const chip=state.status==='current'
+      ?`<span class="release-chip verified">${isEn()?'✅ Verified':'✅ 已核對'}</span>`
+      :(LATEST_RELEASE.initializeRequired?`<span class="release-chip required">${isEn()?'initializeSheets() required once':'必須執行 initializeSheets() 一次'}</span>`:'');
+    host.innerHTML=`<section class="release-notice ${cardClass}" role="status" aria-live="polite"><div class="release-head"><span>${title}</span><span class="release-chip">${isEn()?'Latest GS':'最新 GS'}：${LATEST_RELEASE.gsVersion}</span>${chip}</div><div class="release-summary">${isEn()?'Current release only — no sequential patch installation is needed.':'只列最新版本；唔使逐級下載或安裝補丁。'}</div><div class="release-status">${escapeHtmlText(statusText)}</div><details${openSteps}><summary>${isEn()?'Update steps and download':'查看更新步驟及下載'}</summary><ol>${steps.map(step=>`<li>${escapeHtmlText(step)}</li>`).join('')}</ol><div class="release-actions"><a class="btn btn-sm btn-primary" href="apps-script/Code.gs" download="Code.gs">${isEn()?'⬇️ Download latest Code.gs':'⬇️ 下載最新 Code.gs'}</a>${!isHome&&currentTroopId&&!demo?`<button type="button" class="btn btn-sm btn-secondary" onclick="checkBackendRelease()">🔄 ${isEn()?'Re-check':'重新檢查'}</button>`:''}</div></details></section>`;
+  }
+}
+
 async function apiRequest(action, data={}, opts={}){
   const timeoutMs=opts.timeout||45000;
   const controller=new AbortController();
@@ -1895,6 +2007,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const loginPwEl=document.getElementById('loginPassword');
   if(loginIdEl) loginIdEl.addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
   if(loginPwEl) loginPwEl.addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+  renderReleaseNotices();
 });
 
 async function handlePortalParams(){
@@ -2063,6 +2176,7 @@ function showWelcomeTab(name, btn){
   if(btn) btn.classList.add('active');
 }
 function backToHome(){
+  resetBackendRelease();
   document.getElementById('loginPage').style.display='none';
   document.getElementById('homePage').style.display='block';
   document.getElementById('loginMsg').className='login-msg';
@@ -2100,6 +2214,7 @@ async function selectTroop(id){
     }catch(e){}
     if(!tr){ showToast(i18n('unreg'),'error'); return; }
     currentTroopId=id; currentTroopName=troopDisplayName(tr,id);
+    resetBackendRelease(); checkBackendRelease();
     document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='block';
@@ -2148,6 +2263,7 @@ function doLogout(){
   if(currentTroopId&&currentTroopId!=='DEMO'&&currentToken) apiRequest('logout',{token:currentToken}).then(d=>{ if(!d.success) console.warn('[logout] 後端 token 註銷失敗:',d.error); }).catch(e=>console.warn('[logout] 後端 token 註銷失敗（已在本機登出）:',e.message||e));
   localStorage.removeItem(LS.session);
   currentUser=null; currentToken=''; currentTroopId=''; currentTroopName='';
+  resetBackendRelease();
   feedbackSubmitState='idle';
   ['feedbackMessage','feedbackContact'].forEach(id=>{ const field=document.getElementById(id); if(field) field.value=''; });
   document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
@@ -2457,6 +2573,7 @@ async function loadItemsAndProgress(){
       backendData=await apiRequest('load',{token:currentToken});
     }catch(e){ console.warn('backend load fail',e); backendData={success:false}; }
     if(backendData.success){
+      applyBackendRelease(backendData);
       members=backendData.members||[];
       // 相容舊／新 GAS：同時正規化 flatProgress 與 rich progress，保留既有「備註」欄的細項內容。
       progressFlat=backendData.flatProgress||{};
@@ -2500,6 +2617,7 @@ async function loadItemsAndProgress(){
       localStorage.setItem(LS.cacheProgress(currentTroopId), JSON.stringify({flat:progressFlat, rich:progressRich, other:otherBadgesMap, members, logs:logRecords, savedAt:Date.now()}));
     }else{
       // fallback to cache
+      checkBackendRelease();
       const cached=localStorage.getItem(LS.cacheProgress(currentTroopId));
       if(cached){ const c=JSON.parse(cached); progressFlat=c.flat||{}; progressRich=c.rich||{}; otherBadgesMap=c.other||{}; members=c.members||[]; logRecords=c.logs||[]; showToast(i18n('offline'),'warning'); }
       else{ progressFlat={}; members=[]; }
@@ -5365,6 +5483,7 @@ async function enterDemoMode(){
     document.getElementById('homePage').style.display='none';
     document.getElementById('loginPage').style.display='none';
     document.getElementById('mainApp').style.display='block';
+    resetBackendRelease();
     document.getElementById('appTitle').textContent=`${currentTroopName} - ${i18n('demo.title')}`;
     document.getElementById('userInfo').innerHTML=`${currentUser.name} <span class="role-badge role-group_leader">${i18n('demo.chip')}</span> <span style="background:var(--orange);color:#fff;padding:2px 6px;border-radius:999px;font-size:9px">${i18n('demo.mock')}</span>`;
     setupTabsByRole();
