@@ -434,8 +434,9 @@ a:hover{text-decoration:underline}
     </div>
 
     <div id="welcome-setup" class="welcome-section">
-      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 新旅團部署指南 - 有主系統 / 無主系統 兩條路 (10分鐘)</h2>
-      
+      <h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 新旅團部署指南 (10分鐘)</h2>
+
+      <!-- [主系統暫時隱藏 2026-10] 主系統（scoutsystem-2.0）介紹暫停對外推廣：以下卡片已隱藏，程式碼保留照常運作。日後重啟：搜尋 [主系統暫時隱藏] 解除註解，並重排步驟號（部署頁會變回 6 步）。
       <div class="info-card" style="background:var(--blue-light);border-color:var(--blue);margin-bottom:12px">
         <h3 style="color:var(--blue)">🌟 先了解一下：主系統平台是什麼？</h3>
         <p style="font-size:12px">你而家用緊嘅 <b>深資童軍進度追蹤</b> 係一個 Tier 3 元件，可以獨立用，但其實屬於更龐大的 <b>scoutsystem-2.0 主系統平台</b>：</p>
@@ -447,19 +448,23 @@ a:hover{text-decoration:underline}
         </ul>
         <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>重點：有主系統 ≠ 一定要接上本系統</b>，可自由選擇獨立用或接上，兩條路並存不衝突。藉此告訴用家有更大平台可用。</p>
       </div>
+      [主系統暫時隱藏 完] -->
 
-      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖 - 兩條路</h3><p style="font-size:11px">共通：下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key<br><b>軌道A 無主系統/有但想獨立用：</b> 將 URL+Key 交 vsbadge 管理員 → 加入 Vercel 環境變數 → 完成 → 用法：vsbadge.vercel.app 選旅團登入<br><b>軌道B 有主系統並想接上：</b> 同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）→ <b>v3.1 起必須由管理員登記 portalOrigin（主系統網址）+ portalRoles（可帶入角色）</b>，Portal 免登入改由 vsbadge 伺服器驗證來源 → 用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal&src=主系統網址&embed=1 → 直接用（ymis 已可省略）</p></div>
+      <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ 部署地圖</h3><p style="font-size:11px">下載 Code.gs → 建 Sheet → 執行 initializeSheets → 部署 → 複製 URL+API Key → 交 vsbadge 管理員加入 Vercel 環境變數 → 首次登入（步驟 4）→ 用法：vsbadge.vercel.app 選旅團登入</p><!-- [主系統暫時隱藏 2026-10] 軌道B 有主系統並想接上：同樣交 vsbadge 管理員（v3.0 起主系統卡片只需帶 u=旅團編號，不需填 backend+apikey）；v3.1 起必須由管理員登記 portalOrigin（主系統網址）+ portalRoles（可帶入角色），Portal 免登入改由 vsbadge 伺服器驗證來源；用法：主系統 Dashboard 點卡片 → 自動帶入 from=portal + src=主系統網址 + embed=1 → 直接用（ymis 已可省略）。重啟時將此句改回可見段落，標題改回「部署地圖 - 兩條路」 --></div>
 
       <div class="tutorial">
         <div class="steps">
           <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (單一檔案版)</h4><p>包含待批、其他獎章、批量、PNG、私隱開關</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (最新)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，複製 URL (/exec)</p></div></div>
-          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>軌道A：無主系統 - 提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給 vsbadge 管理員</h4><p>將旅團編號、名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用</p></div></div>
+          <div class="step"><div class="step-number">4</div><div class="step-content"><h4>首次登入（預設管理員帳號）</h4><p>initializeSheets 跑完會自動建立預設管理員。登記完成後，首頁揀該旅團卡片 → 用「👤 成員」分頁登入（YMIS 登入，唔好用「👨‍💼 領袖」＝Email 分頁）：</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 密碼</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>首次登入會<b style="color:var(--red)">強制改密碼</b>（最少 4 位）。之後去「👥 用戶管理」開返各領袖自己嘅帳號並設角色／權限，喺「✅ 審批中心」批成員申請。</p></div></div>
+          <!-- [主系統暫時隱藏 2026-10] 軌道B 步驟暫時隱藏（主系統暫停對外推廣）；重啟時解除註解，並將私隱步驟重排為 6（全頁變回 6 步）。
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>軌道B：有主系統並想接上 - 主系統卡片只需帶旅團編號</h4><p>v3.0 起採用同源 Proxy：主系統卡片點擊時 URL 只需帶 ?u=0082&role=&from=portal&src=主系統網址&embed=1，無需密碼；旅團 GAS URL 由 vsbadge 伺服器端 Registry 安全解析，不經瀏覽器。<b>v3.1 起 Portal 免登入必須經 /api/portal 驗證來源（portalOrigin）及角色白名單（portalRoles）</b>，唔再淨係信 URL 參數；ymis 已可省略（自動用 PORTAL-&lt;u&gt;-&lt;role&gt;）</p></div></div>
-          <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>有主系統不等於一定要接，可自由選擇獨立用。若旅團重私隱，成員預設只看自己；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
+          [主系統暫時隱藏 完] -->
+          <div class="step"><div class="step-number">5</div><div class="step-content"><h4>私隱選擇</h4><p>成員預設只看自己進度，私隱優先；若想互相鼓勵，團長可在用戶管理→系統設定開啟「允許成員互相查看進度」</p></div></div>
         </div>
       </div>
-      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 完成後提交</h3><p style="font-size:11px">獨立用：交 vsbadge 管理員<br>接入主系統：同樣交 vsbadge 管理員登記 Registry 即可（主系統卡片只需帶 u 參數）<br>兩條路可同時用，領袖從主系統入，成員 bookmark 獨立連結</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請給 vsbadge 管理員</button></div>
+      <div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 完成後提交</h3><p style="font-size:11px">將旅團編號、名稱、後端 URL、API Key 交 vsbadge 管理員加入 Registry（Vercel 環境變數），重新部署後即可使用</p><!-- [主系統暫時隱藏 2026-10] 接入主系統：同樣交 vsbadge 管理員登記 Registry 即可（主系統卡片只需帶 u 參數）；兩條路可同時用，領袖從主系統入，成員 bookmark 獨立連結 --><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 一鍵提交接入申請給 vsbadge 管理員</button></div>
     </div>
 
     <div id="welcome-guide" class="welcome-section">
@@ -492,7 +497,11 @@ a:hover{text-decoration:underline}
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：v8.2 帳戶自助申請（成員／執委／領袖）</h3>
+        <h3>最新：2026-10 部署頁教學更新（首次登入步驟＋主系統介紹暫時隱藏）</h3>
+        <p style="font-size:12px">「📋 新旅團部署」頁新增步驟 4「首次登入（預設管理員帳號）」：initializeSheets 自動建立 YMIS 1111111111／密碼 changeme，首次登入強制改密碼（最少 4 位）。主系統（scoutsystem-2.0）介紹及軌道B 暫停對外推廣，頁面字眼已隱藏，Portal／api/portal／sig 程式碼保留照常運作。日後重啟：喺 index.html 搜尋 <code>[主系統暫時隱藏]</code> 解除註解，並重排步驟號（部署頁變回 6 步）。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>v8.2 帳戶自助申請（成員／執委／領袖）</h3>
         <p style="font-size:12px">申請帳戶毋須填寫支部／單位（支部＝深資童軍、單位＝所屬旅團，系統自動帶入）；執委／領袖亦可自行申請，團長／支部領袖在「審批中心」→「用戶審批」一鍵批准開戶。</p>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -1099,6 +1108,7 @@ zh:{
   'api.timeout':'連線逾時，伺服器沒有回應，請稍後重試','api.net':'無法連接伺服器，請檢查網絡連線',
   'api.badJson':'伺服器回應格式異常 (HTTP {s})，請稍後重試','api.badJson2':'伺服器回應異常 (HTTP {s})',
   'api.proxyFallback':'⚠️ 同源 Proxy 不可用，已切換直接連線（僅限本機開發）',
+  // [主系統暫時隱藏 2026-10] 主系統介紹已暫時隱藏，但 Portal／/api/portal／sig 功能照常運作，以下 portal.* key 屬運作所需，唔好當死碼刪除；重啟時搜尋 [主系統暫時隱藏]
   'portal.unregTitle':'⚠️ Portal 模式：旅團未在 Registry 登記',
   'portal.unregP':'請聯絡 vsbadge 管理員將此旅團（編號 {id}）加入 Vercel 環境變數，然後重新整理。',
   'portal.preset':'Portal預選','portal.fallbackErr':'載入出錯，已顯示後備 0082：{m}','portal.warnIgnored':'已忽略 URL 中的 backend/apikey 參數',
@@ -1404,6 +1414,7 @@ en:{
   'api.timeout':'Connection timed out — the server did not respond. Please try again later.','api.net':'Cannot connect to the server. Please check your network.',
   'api.badJson':'Unexpected server response (HTTP {s}). Please try again later.','api.badJson2':'Unexpected server response (HTTP {s})',
   'api.proxyFallback':'⚠️ Same-origin proxy unavailable — switched to direct connection (local development only)',
+  // [主系統暫時隱藏 2026-10] Main-platform intro is hidden, but Portal / /api/portal / sig still run; these portal.* keys are live code, not dead code. Search [主系統暫時隱藏] to re-enable.
   'portal.unregTitle':'⚠️ Portal mode: this Group is not registered',
   'portal.unregP':'Please ask a vsbadge admin to add this Group (no. {id}) to Vercel environment variables, then refresh.',
   'portal.preset':'pre-selected','portal.fallbackErr':'Could not load Groups — showing the 0082 fallback: {m}','portal.warnIgnored':'backend/apikey parameters in the URL were ignored',
@@ -1692,7 +1703,8 @@ function setLang(lang){
 }
 const WELCOME_HTML_CACHE={};
 const WELCOME_EN={
-setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 New Group setup — with / without the main platform (about 10 minutes)</h2>
+setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 New Group setup (about 10 minutes)</h2>
+<!-- [主系統暫時隱藏 2026-10] Main-platform (scoutsystem-2.0) intro hidden while promotion is paused; code kept and still runs. To re-enable: search [主系統暫時隱藏] and uncomment, then renumber the steps (back to 6).
 <div class="info-card" style="background:var(--blue-light);border-color:var(--blue);margin-bottom:12px">
   <h3 style="color:var(--blue)">🌟 What is the main platform?</h3>
   <p style="font-size:12px">This <b>Venture Scout Progress Tracker</b> is a Tier 3 component. It works on its own, and also as a plugin of the larger <b>scoutsystem-2.0</b> platform:</p>
@@ -1700,19 +1712,23 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
     <li>📊 Dashboard: numbers, activities and finance at a glance</li>
     <li>👥 Members, ✅ meeting attendance QR, 💰 finance, 📅 event signup</li>
     <li>🧩 Plugin market: this system is one plugin, added as a card</li>
-    <li>🔐 Single sign-on: the card carries your identity — no extra YMIS/password</li>
+    <li>🔐 Single sign-on: the card carries your identity, no extra YMIS/password</li>
   </ul>
   <p style="font-size:11px;margin-top:8px;background:#fff;padding:6px;border-radius:6px"><b>Having the main platform ≠ you must connect this system.</b> Use it standalone or connected; both paths work.</p>
 </div>
-<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Two paths</h3><p style="font-size:11px">Common: download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key<br><b>Path A — no main platform / want standalone:</b> give URL+Key to a vsbadge admin → add to Vercel environment variables → done. Use vsbadge.vercel.app, pick your Group, sign in.<br><b>Path B — connect the main platform:</b> still register with a vsbadge admin (from v3.0 the card only needs u=Group number). <b>From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles)</b> — portal sign-in is then verified server-side. Use: Dashboard → card → from=portal&src=main-platform-origin&embed=1 (ymis is now optional).</p></div>
+[主系統暫時隱藏 完] -->
+<div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Setup map</h3><p style="font-size:11px">Download Code.gs → create a Sheet → run initializeSheets → deploy → copy URL + API Key → give them to a vsbadge admin to add Vercel environment variables → first sign-in (step 4) → use vsbadge.vercel.app, pick your Group, sign in.</p><!-- [主系統暫時隱藏 2026-10] Path B, connect the main platform: still register with a vsbadge admin (from v3.0 the card only needs u=Group number). From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles); portal sign-in is then verified server-side. Use: Dashboard, card, from=portal + src=main-platform-origin + embed=1 (ymis is now optional). Re-enable: restore this sentence as a visible line and rename the card to Two paths. --></div>
 <div class="tutorial"><div class="steps">
   <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (single file)</h4><p>Pending claims, other badges, bulk, PNG, privacy switch</p><a href="apps-script/Code.gs" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy API Key<br><b>2.4</b> Deploy as web app (execute as me, access anyone), copy the /exec URL</p></div></div>
-  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Path A: no main platform — submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add Vercel environment variables. After Vercel deploys, use it standalone.</p></div></div>
+  <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Submit to a vsbadge admin</h4><p>Give Group number, name, URL and API Key so they can add Vercel environment variables. After Vercel deploys, use it standalone.</p></div></div>
+  <div class="step"><div class="step-number">4</div><div class="step-content"><h4>First sign-in (default admin account)</h4><p>initializeSheets creates the default admin automatically. After registration, open the home page, pick your Group card, and sign in on the “👤 Member” tab (YMIS sign-in; do not use the “👨‍💼 Leader” tab, which uses Email):</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 Password</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>The first sign-in <b style="color:var(--red)">forces a password change</b> (minimum 4 characters). Then open accounts for your leaders under “👥 Users” with roles and rights, and approve member applications in “✅ Approvals”.</p></div></div>
+  <!-- [主系統暫時隱藏 2026-10] Path B step hidden (main-platform promotion paused). To re-enable: uncomment and renumber Privacy to step 6 (6 steps in total).
   <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Path B: main platform card only needs the Group number</h4><p>From v3.0, same-origin proxy: the card URL is ?u=0082&role=&from=portal&src=main-platform-origin&embed=1. The GAS URL stays in the vsbadge server Registry. <b>From v3.1 portal sign-in must be verified by /api/portal (source origin portalOrigin + role allow-list portalRoles)</b> instead of trusting URL parameters; ymis is now optional (falls back to PORTAL-&lt;u&gt;-&lt;role&gt;).</p></div></div>
-  <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Privacy</h4><p>You may stay standalone. Members see only themselves by default. To encourage one another, the GSL can turn on “Allow members to view one another’s progress” under Users → settings.</p></div></div>
+  [主系統暫時隱藏 完] -->
+  <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Privacy</h4><p>Members see only themselves by default, privacy first. To encourage one another, the GSL can turn on “Allow members to view one another’s progress” under Users → settings.</p></div></div>
 </div></div>
-<div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 After that</h3><p style="font-size:11px">Standalone: send to a vsbadge admin<br>Connect the main platform: the same Registry registration (the card only sends u)<br>Both paths can run together</p><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 One-click connection request to a vsbadge admin</button></div>`,
+<div class="info-card" style="border-color:var(--blue);background:var(--blue-light)"><h3 style="color:var(--blue)">📧 After that</h3><p style="font-size:11px">Send your Group number, name, backend URL and API Key to a vsbadge admin to add to the Registry (Vercel environment variables); usable after redeploy.</p><!-- [主系統暫時隱藏 2026-10] Connect the main platform: the same Registry registration (the card only sends u); both paths can run together (leaders via the platform, members via bookmark). --><button class="btn btn-blue" onclick="showContactModal()" style="width:100%">📧 One-click connection request to a vsbadge admin</button></div>`,
 guide:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📖 How to use</h2>
 <div class="tutorial"><div class="steps">
   <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Pick your Group</h4><p>On the home page tap a Group card (e.g. 0082 — 82nd Group)</p></div></div>
@@ -1736,7 +1752,11 @@ changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">�
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
-  <h3>Latest: v8.2 self-service account application (member / exec / leader)</h3>
+  <h3>Latest: Oct 2026 setup page update (first sign-in step + main-platform intro hidden)</h3>
+  <p style="font-size:12px">The “📋 New Group setup” page gains step 4, “First sign-in (default admin)”: initializeSheets creates YMIS 1111111111 / password changeme, with a forced password change on first sign-in (minimum 4 characters). The main-platform (scoutsystem-2.0) intro and Path B are hidden while promotion is paused; the Portal / api/portal / sig code stays and keeps running. To re-enable: search index.html for <code>[主系統暫時隱藏]</code>, uncomment, and renumber the steps (back to 6).</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>v8.2 self-service account application (member / exec / leader)</h3>
   <p style="font-size:12px">No need to fill in branch or unit (branch = Venture Scout, unit = your Group — filled in automatically). Execs and leaders may apply too; the GSL / branch leader approves in one tap under Approvals → Users.</p>
 </div>
 <div class="info-section" style="margin-top:12px">
