@@ -2,6 +2,22 @@
 // 已登記的 GAS /exec URL 白名單格式（只接受 HTTPS 正式部署 URL，不接受 /dev）
 const EXEC_URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{10,}\/exec\/?$/i;
 
+// Google Workspace 帳戶在部署視窗可能見到網域內格式：
+//   https://script.google.com/a/<網域>/macros/s/<部署 ID>/exec
+// 只把這種合法 HTTPS 網址轉成「相同部署 ID」的公開路徑格式；這不代表已核實部署
+// 身份或存取權限，亦不會修正錯誤的部署 ID。附 query／fragment／帳密／自訂連接埠
+// 或非 HTTPS 的輸入一律原樣交回白名單拒絕，絕不藉正規化洗走不允許的部分。
+export function normalizeGasUrl(url) {
+  const raw = String(url === undefined || url === null ? '' : url).trim();
+  if (!raw) return '';
+  let u;
+  try { u = new URL(raw); } catch (e) { return raw; }
+  if (u.protocol !== 'https:' || u.hostname !== 'script.google.com' ||
+      u.search || u.hash || u.username || u.password || u.port) return raw;
+  const m = u.pathname.match(/^\/a\/[^/]+\/macros\/s\/([A-Za-z0-9_-]+)\/exec\/?$/);
+  return m ? `https://script.google.com/macros/s/${m[1]}/exec` : raw;
+}
+
 // 正規化 origin：只接受 http/https，並用 URL.origin 統一（小寫 host、去掉 path / query / hash）
 // 用於 portalOrigin（主系統網址）比對，容許管理員填 "https://hub.example/app/" 這類寫法。
 export function normalizeOrigin(v){
@@ -38,7 +54,8 @@ const TEST_LOCAL_RE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/[A-Za-z0-9.
 
 export function isTrustedExecUrl(url) {
   if (typeof url !== 'string' || url.length > 300) return false;
-  if (EXEC_URL_RE.test(url.trim())) return true;
+  // 先把 Workspace 網域內格式轉成相同部署 ID 的公開路徑，再用同一條白名單驗證
+  if (EXEC_URL_RE.test(normalizeGasUrl(url))) return true;
   if (process.env.VSBADGE_PROXY_TEST === '1' && process.env.VERCEL !== '1' && TEST_LOCAL_RE.test(url.trim())) return true;
   return false;
 }
@@ -62,7 +79,8 @@ export function getRegistry() {
   const out = Object.create(null);
   for (const id of ids) {
     const get = suffix => envVar(`TROOP_${id}_${suffix}`).trim();
-    const backend = get('BACKEND');
+    // env 若填了 Workspace 網域內格式，儲存及連線一律用相同部署 ID 的公開路徑
+    const backend = normalizeGasUrl(get('BACKEND'));
     const roles = parseRoleList(get('PORTALROLES'));
     out[id] = {
       id, name: get('NAME'), en: get('EN'), backend, apikey: get('APIKEY'),

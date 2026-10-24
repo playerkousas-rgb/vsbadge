@@ -13,6 +13,7 @@
 // 旅系統（旅 > 團 > 進度）：上游登記下游 URL 及 SHEET KEY，經 sig 讀寫下游；下游 ALLOW_LOCAL_LOGIN 閂口後只收 sig；
 //   選單「🔗 旅系統」提供匯出 JSON（含 hash）／匯入（upsertUser）／登記下游／直接入口掣
 // 初始化：全新後端執行；本次升級亦須執行一次，清除舊版保留帳號殘留（只清理保留身份，不清普通用戶資料）。
+// 接入資料：initializeSheets／showApiKey 及旅系統選單只顯示 API Key；部署 URL 由 Google 部署視窗提供，旅團編號在 ADMIN FORM 填寫。
 // 版號只記錄在 operations/TROOP_LINK_UPGRADE.md，程式內不留版本註解；唯一例外係 VS_GS_VERSION 發佈識別常數，供前端公告及初始化核對（不設逐級升級表）
 // ============================================================
 
@@ -30,7 +31,7 @@ const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
 
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
-const VS_GS_VERSION = 'v9.1';
+const VS_GS_VERSION = 'v9.2';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
 function getVsGsReleaseStatus(){
   let initialized='';
@@ -50,10 +51,35 @@ function getApiKey() {
   }
   return apiKey;
 }
+// ===== 領袖登記資料：只提供 API Key，不要求預先設定旅團編號或 BACKEND URL =====
+// Google 自動回報的網址可能不是部署視窗選定的入口。寧願不顯示 URL，
+// 也不把推算值／舊 WEBAPP_URL 快取當作部署網址；不新增人手貼網址的設定流程。
+const DEPLOYMENT_URL_NOTICE = '部署網址由 Google「部署 → 管理部署」視窗提供；本功能不顯示自動取得或推算的網址。';
+const REGISTRATION_FORM_NOTICE = '請在 ADMIN FORM 填寫旅團編號、名稱、部署 URL 及 API Key；旅團編號毋須在 Sheet／Apps Script 預先設定。';
+
+/** 只回傳現有 API Key；不依賴旅團編號。保留舊函式名稱供既有選單／腳本使用。 */
+function vercelEnvLines() {
+  return ['API Key = ' + getApiKey()];
+}
+function showVercelEnv() {
+  const lines = vercelEnvLines();
+  const msg = '旅團 API Key 資料（交 APP ADMIN）：\n\n' + lines.join('\n') +
+    '\n\n' + DEPLOYMENT_URL_NOTICE + '\n\n' + REGISTRATION_FORM_NOTICE +
+    '\n\n功能變數全部由 APP ADMIN 設定，旅團毋須設定任何功能變數。';
+  let ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { ui = null; }
+  if (ui) ui.alert('旅團 API Key（交 APP ADMIN）', msg, ui.ButtonSet.OK);
+  Logger.log(msg);
+  return lines;
+}
 function showApiKey() {
   const apiKey = getApiKey();
-  const ui = SpreadsheetApp.getUi();
-  if (ui) ui.alert('API Key', '你的 API Key：\n\n' + apiKey, ui.ButtonSet.OK);
+  let ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { ui = null; }
+  if (ui) ui.alert('旅團 API Key（交 APP ADMIN）',
+    vercelEnvLines().join('\n') + '\n\n' + DEPLOYMENT_URL_NOTICE + '\n\n' + REGISTRATION_FORM_NOTICE +
+    '\n\nVercel 功能變數全部由 APP ADMIN 設定，旅團毋須設定任何功能變數。',
+    ui.ButtonSet.OK);
   Logger.log('API Key: ' + apiKey);
   return apiKey;
 }
@@ -447,14 +473,14 @@ function initializeSheets() {
   const apiKey = getApiKey();
   // 只有所有補表、補預設值及清理步驟完成後，才記錄最新初始化版本；只貼新 Code.gs 唔會被誤當完成。API Key 沿用，唔會更換。
   PropertiesService.getScriptProperties().setProperty(VS_GS_INITIALIZED_PROP,VS_GS_VERSION);
-  let scriptUrl=''; try{ scriptUrl=ScriptApp.getService().getUrl(); }catch(e){ scriptUrl='請部署為網頁應用程式後查看';}
   try{
     const ui=SpreadsheetApp.getUi();
     if(ui){
-      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 API Key:\n'+apiKey+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n🌐 URL:\n'+scriptUrl+'\n\n🔗 旅系統：本節點 BACKEND／APIKEY 見選單「🔗 旅系統 → 顯示 BACKEND／APIKEY」；登記資料不寫入工作表');
+      // 生成 API Key 不需要旅團編號；由用戶在 ADMIN FORM 填寫，不新增 GS 設定步驟。
+      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
     }
   }catch(e){}
-  return {success:true,apiKey:apiKey,scriptUrl:scriptUrl,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
+  return {success:true,apiKey:apiKey,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
 }
 
 // ===== 用戶查詢 =====
@@ -1895,7 +1921,7 @@ function onOpen(){
       .addItem('📥 匯入 JSON（upsertUser 直插 hash）','menuImportUsersJson')
       .addSeparator()
       .addItem('🧭 本機接駁狀態','menuShowLinkState')
-      .addItem('🔑 顯示 BACKEND／APIKEY（交 ADMIN）','menuShowLinkCredentials')
+      .addItem('🔑 顯示 API KEY（交 ADMIN）','menuShowLinkCredentials')
       .addSeparator()
       .addItem('➕ 登記下游（URL + SHEET KEY）','menuRegisterDownstream')
       .addItem('📡 測試下游連線（sig）','menuPingDownstream')
@@ -1967,21 +1993,13 @@ function menuShowLinkState(){
   return linkAlert('本機接駁狀態',lines.join('\n'));
 }
 function menuShowLinkCredentials(){
-  let url='';
-  try{ url=ScriptApp.getService().getUrl()||''; }catch(e){ url=''; }
-  const lines=[
-    '以下兩項由本節點 GS 產生，經收件匣交 ADMIN 登記；四項一律不寫入工作表。',
+  const lines = vercelEnvLines().concat([
     '',
-    'B　BACKEND（部署後抄此 URL）：',
-    url||'（尚未部署為網頁應用程式：部署 → 新增部署 → 網頁應用程式，再按一次本選單）',
-    '',
-    'D　APIKEY（SHEET KEY）：',
-    getApiKey(),
-    '',
-    'C　NAME：由你自行填寫（交 ADMIN 時一併提供）',
-    'A　隱藏管理鍵：與旅系統無關，不改動、不在此顯示'
-  ];
-  return linkAlert('BACKEND／APIKEY（交 ADMIN）',lines.join('\n'));
+    'API Key 由本節點產生，只交 APP ADMIN，請勿公開分享。',
+    DEPLOYMENT_URL_NOTICE,
+    REGISTRATION_FORM_NOTICE
+  ]);
+  return linkAlert('API KEY（交 ADMIN）', lines.join('\n'));
 }
 function menuRegisterDownstream(){
   const id=linkPrompt('登記下游 1/4','下游編號（例：團 / 進度節點識別，只可用英文、數字、底線、連字號）：');

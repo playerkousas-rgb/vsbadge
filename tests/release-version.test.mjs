@@ -107,7 +107,7 @@ test('最新 GS 發佈喺前端公告同 Apps Script 之間保持一致', () => 
   assert.ok(release, '前端只有一個最新發佈宣告（不設逐級補丁清單）');
   const gs = gas.match(/const VS_GS_VERSION = '([^']+)'/);
   assert.ok(gs, 'Apps Script 端有最新 GS 發佈識別');
-  assert.equal(release[1], '2026-10-23', '公告日期');
+  assert.equal(release[1], '2026-10-24', '公告日期');
   assert.equal(release[2], gs[1], '前端要求嘅 GS 版本同後端回報必須一致');
   assert.equal(release[3], 'true', '呢個版本必須明確要求 initializeSheets()');
   assert.match(gas, /setProperty\(VS_GS_INITIALIZED_PROP,VS_GS_VERSION\)/, 'initializeSheets() 成功完成後寫入初始化標記');
@@ -150,14 +150,14 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(badKey.success, false, 'ecStatus 要驗 API Key');
   const before = post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' });
   assert.equal(before.success, true);
-  assert.equal(before.gsVersion, 'v9.1', '程式版本即時反映新 Code.gs');
+  assert.equal(before.gsVersion, 'v9.2', '程式版本即時反映新 Code.gs');
   assert.equal(before.initializedGsVersion, '', '淨貼新 Code.gs 唔會當已初始化');
   assert.equal(before.gsInitializationCurrent, false);
 
   const init1 = context.initializeSheets();
   assert.equal(init1.success, true);
-  assert.equal(init1.gsVersion, 'v9.1');
-  assert.equal(init1.initializedGsVersion, 'v9.1');
+  assert.equal(init1.gsVersion, 'v9.2');
+  assert.equal(init1.initializedGsVersion, 'v9.2');
   assert.equal(init1.gsInitializationCurrent, true);
   assert.equal(props.get('API_KEY'), 'test-api-key-keep-me', '初始化唔得更換現有 API Key');
   assert.deepEqual(snapshotRows(node, preservedSheetNames), originalRows, '初始化唔准修改、刪除、覆寫、重置、重新編號或遷移任何現有用戶資料');
@@ -168,14 +168,14 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(appendedDefault[1], 'false', '補建嘅預設值');
 
   const after = post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' });
-  assert.equal(after.gsVersion, 'v9.1');
-  assert.equal(after.initializedGsVersion, 'v9.1');
+  assert.equal(after.gsVersion, 'v9.2');
+  assert.equal(after.initializedGsVersion, 'v9.2');
   assert.equal(after.gsInitializationCurrent, true, '呢個組合先係綠色「已核對」');
 
   const load = context.handleLoad();
   assert.equal(load.success, true);
-  assert.equal(load.gsVersion, 'v9.1', '登入後 load 都要回報 GS 程式版本');
-  assert.equal(load.initializedGsVersion, 'v9.1', '登入後 load 都要回報初始化版本');
+  assert.equal(load.gsVersion, 'v9.2', '登入後 load 都要回報 GS 程式版本');
+  assert.equal(load.initializedGsVersion, 'v9.2', '登入後 load 都要回報初始化版本');
   assert.equal(load.gsInitializationCurrent, true);
 
   // 重複初始化：安全、idempotent、資料同 API Key 原封不動
@@ -194,7 +194,7 @@ test('Proxy 放行 ecStatus 並喺伺服器端注入 API Key（瀏覽器永遠�
   const res = { headers: {}, code: 0, body: null, setHeader(k, v) { this.headers[k] = v; }, status(c) { this.code = c; return this; }, json(v) { this.body = v; return this; } };
   const originalFetch = globalThis.fetch;
   let sent;
-  globalThis.fetch = async (url, init) => { sent = { url, init }; return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.1', initializedGsVersion: 'v9.1', gsInitializationCurrent: true }) }; };
+  globalThis.fetch = async (url, init) => { sent = { url, init }; return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.2', initializedGsVersion: 'v9.2', gsInitializationCurrent: true }) }; };
   try {
     await proxy({ method: 'POST', body: { troopId: '0082', action: 'ecStatus', data: {} } }, res);
   } finally {
@@ -202,7 +202,7 @@ test('Proxy 放行 ecStatus 並喺伺服器端注入 API Key（瀏覽器永遠�
   }
   assert.equal(res.code, 200);
   assert.equal(res.body.success, true);
-  assert.equal(res.body.gsVersion, 'v9.1');
+  assert.equal(res.body.gsVersion, 'v9.2');
   assert.equal(res.body.gsInitializationCurrent, true);
   const forwarded = JSON.parse(sent.init.body);
   assert.equal(forwarded.action, 'ecStatus');

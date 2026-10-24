@@ -4,12 +4,14 @@
 
 Tap **中 / EN** (top right) to switch the whole app. Cloud records use the same item IDs; only the display language changes. The English syllabus follows the Scout Association of Hong Kong 11th Edition Venture Scout Training Scheme.
 
-## Latest release notice (2026-10-23 · GS v9.1)
+## Latest release notice (2026-10-24 · GS v9.2)
 
 > **Hard data-preservation rule for every patch: existing user data must never be modified, deleted, overwritten, reset, renumbered or silently migrated.** This covers accounts, members, YMIS, current and legacy-ID progress, other badges, the activity log, notes and Group settings. Old records must never be converted or re-entered because of a scheme or system update. Patches may only add missing structures in a backward-compatible way; existing values always stay, and the existing API Key must not be rotated. See [APP_ADMIN_WORKFLOW.md](../APP_ADMIN_WORKFLOW.md).
 
-- **Latest GS: `v9.1`**. Install this single latest version — no sequential patches.
+- **Latest GS: `v9.2`**. Install this single latest version — no sequential patches.
 - **You must run `initializeSheets()` once this time.** Steps: download and replace `Code.gs` → save → run `initializeSheets()` → Deploy → Manage deployments → Edit the existing deployment → New version → Deploy (keeping the existing URL and API Key).
+- **Connection details now show only the API Key.** The “🔗 旅系統” menu item is now “🔑 顯示 API KEY（交 ADMIN）”, and the initialisation dialog likewise provides only `API Key = ...` — never an automatically obtained or cached deployment URL. Always copy the deployment URL from Google's “Deploy → Manage deployments” dialog, and enter the Group number directly in the connection request (the ADMIN FORM); it never needs to be preset in the Sheet / Apps Script, and there is no step that pastes a URL back into GS. Background: [BACKEND_URL_DIAGNOSIS.md](BACKEND_URL_DIAGNOSIS.md).
+- The home page gains a “🌿 System introduction” tab (data flow, Google authorisation and sign-in, with the shared diagram), cross-linked with “📋 New Group setup”.
 - The home, sign-in and post-login pages show the latest date, GS version and download link, with a “🔄 Re-check” button. The app checks the **GS program version** (`gsVersion`) and the **initialisation version** (`initializedGsVersion`, reported by `ecStatus` and by the post-login `load`) separately: pasting new code without initialising still shows an “updated but not initialised” warning; only the green “✅ Verified” state means both are complete.
 - Initialisation only fills in missing sheets and default settings, and records `VS_GS_INITIALIZED_VERSION` in Script Properties. It never changes the user data listed above and never rotates the API Key. Press Re-check on the notice when done.
 

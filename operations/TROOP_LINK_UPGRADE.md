@@ -23,11 +23,11 @@
 | 代號 | 名稱 | 邊個產生 | 放喺邊 | 用途 |
 |---|---|---|---|---|
 | **A** | `SUPER_KEY` | 現有（隱藏） | Vercel env | 超管登入／票據加密。**與旅系統無關，是次不改動、不在任何選單顯示** |
-| **B** | `TROOP_(id)_BACKEND` | GS 部署後抄（`ScriptApp.getService().getUrl()`） | Vercel env；上游則存 `DOWNSTREAM_<id>_URL` | 主系統 proxy／上游打去邊個 GAS |
+| **B** | `TROOP_(id)_BACKEND` | Google「部署 → 管理部署」視窗複製（GS 唔自動提供網址；`getUrl()` 回報值未必係所選部署，唔准再拎嚟顯示） | Vercel env；上游則存 `DOWNSTREAM_<id>_URL` | 主系統 proxy／上游打去邊個 GAS |
 | **C** | `TROOP_(id)_NAME` | 你自填 | Vercel env | 前端旅團顯示名（純文字） |
 | **D** | `TROOP_(id)_APIKEY` | GS 生成（`initializeSheets()` 或 `showApiKey()`，存 Script Properties `API_KEY`） | Vercel env；上游則存 `DOWNSTREAM_<id>_KEY` | API key，同時係 `sig` 嘅根密鑰（見第 3 節） |
 
-- **一次過抄 B + D**：Sheet 選單「**🔗 旅系統 → 🔑 顯示 BACKEND／APIKEY（交 ADMIN）**」。未部署做網頁應用程式時 B 會提示先部署。
+- **抄 D（API KEY）**：Sheet 選單「**🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）**」或執行 `showApiKey()`；選單同初始化彈窗只顯示 D，唔再顯示 B。**B 只可以喺 Google 部署視窗抄**，唔好再用程式自動取得嘅網址。
 - **交 ADMIN**：經收件匣——首頁「📋 新旅團部署」表單（旅團編號 / 名稱 / Apps Script URL / API Key）→ `submitRegistration` → `/api/proxy` 轉發去伺服器端固定的中央管理員收件匣。把 **B、C、D** 一齊交；ADMIN 登記後 Redeploy。
 - **四個都唔寫入任何工作表**：B/D 只存 Script Properties（同 Vercel env），C 由你填，A 隱藏。`tests/troop_link.test.mjs` 會掃晒所有工作表，確保冇後端 URL、冇 API KEY、冇 `ALLOW_LOCAL_LOGIN` 字樣。
 - 換 D（撤銷舊 key）：下游 Script Properties 刪除 `API_KEY` → 執行 `showApiKey()` 生成新 key → 重新交 ADMIN 改 env，並喺上游重新登記下游。
@@ -52,9 +52,9 @@
 
 | 步驟 | 做乜 | 邊度做 |
 |---|---|---|
-| 1 | 部署 GS，抄 B 的 URL，生成 D | 每層 Sheet → Apps Script → 部署（執行身分「我」、存取權「任何人」）→ 選單「🔗 旅系統 → 🔑 顯示 BACKEND／APIKEY」 |
+| 1 | 部署 GS（喺 Google 部署視窗抄 B 的 URL），生成 D | 每層 Sheet → Apps Script → 部署（執行身分「我」、存取權「任何人」）→ 喺部署視窗抄 URL；D 見選單「🔗 旅系統 → 🔑 顯示 API KEY」 |
 | 2 | 填 C，連 B/D 經收件匣交 ADMIN | 首頁「📋 新旅團部署」表單（前端冇改過，照舊用） |
-| 3 | 每團補一張支部 SHEET，與現有進度 SHEET 成對 | 新 Sheet → 貼同一份 `Code.gs` → `initializeSheets()` → 部署 → 抄 B/D |
+| 3 | 每團補一張支部 SHEET，與現有進度 SHEET 成對 | 新 Sheet → 貼同一份 `Code.gs` → `initializeSheets()` → 部署 → 喺部署視窗抄 B、選單抄 D |
 | 4 | 上游登記下游，再測連線 | 上游選單「➕ 登記下游（URL + SHEET KEY）」→「📡 測試下游連線（sig）」 |
 | 5 | 搬舊數（第 6 節） | 舊進度「📤 匯出 JSON（含 hash）」→ 新支部「📥 匯入 JSON」 |
 | 6 | 核對無誤後閂下游直接入口 | 上游選單「🚪 下游直接入口 → 🔒 閂口」 |
@@ -243,3 +243,16 @@ npm run test:build
 - **測試**：新增 `tests/release-version.test.mjs`（版本一致性＋初始化前後逐 Sheet 快照對比＋idempotent＋API Key 不變＋Proxy ecStatus 注入 Key）；`tests/troop_link.test.mjs` 版號守護測試加 `VS_GS_VERSION` 一行窄豁免。
 - **改動檔案**：`apps-script/Code.gs`、`index.html`、`api/proxy.js`（白名單加 `ecStatus`）、`tests/release-version.test.mjs`（新）、`tests/troop_link.test.mjs`、`package.json`、`docs/LEADER_GUIDE.md`、`docs/LEADER_GUIDE.en.md`、`APP_ADMIN_WORKFLOW.md`（新）、本 MD。
 - **部署**：沿用現有 Apps Script Web App URL（管理部署 → 新版本），Vercel env 毋須改動；**每個已部署旅團都必須執行一次 `initializeSheets()`**。
+
+## v9.2 — 接入資料只顯示 API Key、系統介紹及 Workspace URL 相容（2026-10-24）
+
+- **背景**：幼童軍 cubsbadge 已合併同類修正，交接指示見其 `docs/SIBLING_BADGE_HANDOFF.md`。舊版深資 `initializeSheets()` 彈窗及回傳值、選單 `menuShowLinkCredentials()` 直接顯示 `ScriptApp.getService().getUrl()`，該值未必等於領袖在 Google 部署視窗選定的部署，可出現第二／第三條網址。本版改為只提供 API Key；調查及撤回的舊說法記錄於 `docs/BACKEND_URL_DIAGNOSIS.md`。
+- **GS 顯示入口**：新增共用 `DEPLOYMENT_URL_NOTICE`／`REGISTRATION_FORM_NOTICE` 及 `vercelEnvLines()`／`showVercelEnv()`；`showApiKey()`、`initializeSheets()`（彈窗及回傳值移除 `scriptUrl`）、選單「🔑 顯示 API KEY（交 ADMIN）」一律只提供 `API Key = ...`，不讀 `getUrl()`、不讀舊 `WEBAPP_URL` 快取、不發探測請求。沒有旅團編號亦可初始化／查看 Key；不新增「設定旅團編號」或貼 URL 入 GS 的流程。初始化彈窗保留深資原有管理員首次登入／改密碼提示。
+- **用戶流程不變**：初始化生成／保留 API Key → 在 Google「部署 → 管理部署」視窗抄 URL → 在原有接入申請（ADMIN FORM，前端 `submitRegistration`）填編號、名稱、URL、API Key。
+- **系統介紹**：`index.html` 首頁新增「🌿 系統介紹」分頁（`assets/system-introduction-zh-hant.webp` 通用圖＋中英說明，支援放大／下載），與「📋 新旅團部署」雙向連結；`showWelcomeTab()` 補上交叉連結時自動選中對應 nav 按鈕。公開介紹不披露保留帳號資訊，並明示部分資料讀取入口驗證仍待補強（已核實深資舊式 `load` 讀取入口同樣未受登入保護）——今次沒有改登入／`sig` 協定，亦沒有修復該事項，不可宣稱已受保護。
+- **Workspace URL 相容**：`api/_registry.js` 新增 `normalizeGasUrl()`，Registry 及 `api/proxy.js` 接入申請轉發只將 `https://script.google.com/a/<網域>/macros/s/<id>/exec` 轉成相同部署 ID 的公開路徑；HTTP、query、fragment、帳密、自訂連接埠一律不接受。GS 下游登記的 URL 規則不變。
+- **資料保全**：已有 API Key、帳號、成員、YMIS、新舊 ID 進度、其他獎章、活動履歷、備註、旅團設定及既有 Script Properties（包括舊 URL 快取）全部保留；初始化可安全重跑。
+- **版本**：`VS_GS_VERSION = 'v9.2'`，前端 `LATEST_RELEASE` 同步 `2026-10-24／v9.2`，下載連結加 `?gs=v9.2` 參數；**每個已部署旅團都必須執行一次 `initializeSheets()`** 並以「新版本」重新部署才完成（沿用原 `/exec` URL）。
+- **測試**：新增 `tests/credential-display.test.mjs`（三個不同回報 URL＋舊快取不洩出、全部顯示入口、無編號新裝、重跑保全、Workspace 正規化）及 `tests/system-intro.test.mjs`（分頁雙向切換、真實 `setLang` 渲染、中英鍵、圖檔部署守護）；`tests/release-version.test.mjs` 期望值同步至 v9.2。
+- **改動檔案**：`apps-script/Code.gs`、`api/_registry.js`、`api/proxy.js`、`index.html`、`assets/system-introduction-zh-hant.webp`（新）、`tests/credential-display.test.mjs`（新）、`tests/system-intro.test.mjs`（新）、`tests/release-version.test.mjs`、`tests/dev-server.mjs`、`package.json`、`docs/BACKEND_URL_DIAGNOSIS.md`（新）、`docs/LEADER_GUIDE.md`、`docs/LEADER_GUIDE.en.md`、`README.md`、`DEPLOY_GUIDE_FOR_TROOPS.md`、`APP_ADMIN_WORKFLOW.md`、本 MD。
+- **發佈邊界**：本版只改 repository，**未直接更新任何旅團的線上 Google Apps Script 部署**；各旅團仍須自行更新 `Code.gs`、執行一次初始化並部署新版本，公告綠色「✅ 已核對」後才生效。
