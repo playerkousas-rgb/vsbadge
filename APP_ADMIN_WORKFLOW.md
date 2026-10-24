@@ -19,7 +19,7 @@
 - 中央超管（保留帳號）經 `/api/super` 短效票據救援，密碼只存 Vercel env（`SUPER_KEY`），唔寫入任何 Sheet。
 - 旅系統（旅 > 團 > 進度）上下游 sig 接入係自願性質，見 [operations/TROOP_LINK_UPGRADE.md](operations/TROOP_LINK_UPGRADE.md)。
 
-## 最新版本公告及初始化核對（2026-10-23｜GS v9.1）
+## 最新版本公告及初始化核對（2026-10-24｜GS v9.2）
 
 - 前端公告（首頁、登入頁、登入後主頁）**只列最新更新日期＋最新 GS 版本**，不設逐級補丁清單；附上最新 `Code.gs` 下載、更新步驟及「🔄 重新檢查」按鈕。
 - GS 以 `VS_GS_VERSION` 常數標記發佈識別（**唯一例外**；其餘版號只記錄喺 `operations/TROOP_LINK_UPGRADE.md`，`tests/troop_link.test.mjs` 有守護測試）。
@@ -29,6 +29,9 @@
   - `gsInitializationCurrent`：兩者一致先為 `true`
 - 前端三態：**GS 未更新**（警告）／**已更新但未初始化**（警告）／**全部完成**（綠色「✅ 已核對」）。只有最後一態先算完成。
 - 今次發佈 `initializeRequired: true`：每個旅團都**必須執行一次 `initializeSheets()`**，然後新版本部署（沿用現有 `/exec` URL），再喺 App 按「重新檢查」。
+- **接入資料只提供 API Key（v9.2 起）**：GS 初始化彈窗、`showApiKey()`／`showVercelEnv()` 及 Sheet 選單「🔑 顯示 API KEY（交 ADMIN）」一律只顯示 `API Key = ...`，唔再顯示 `ScriptApp.getService().getUrl()`、舊 `WEBAPP_URL` 快取或請求自報嘅網址，初始化回傳值亦冇 `scriptUrl`。旅團毋須預先設定旅團編號，亦冇貼 URL 入 GS 嘅步驟：正式 URL 由領袖喺 Google「部署 → 管理部署」視窗抄，再喺原有接入申請（ADMIN FORM）填編號、名稱、URL、API Key。既有 Script Properties（包括舊 URL 快取）原樣保留，唔會因今次修正刪改。背景調查見 [docs/BACKEND_URL_DIAGNOSIS.md](docs/BACKEND_URL_DIAGNOSIS.md)。
+- **Workspace URL 格式相容**：Registry 及接入申請轉發會把 `https://script.google.com/a/<網域>/macros/s/<部署 ID>/exec` 轉成相同部署 ID 嘅公開路徑再驗白名單；唔代表修正錯 ID 或改變 Google 權限，亦唔接受 HTTP、query、fragment、帳密或自訂連接埠。非 JSON 回應唔可以直接當作錯誤／舊部署證據。
+- 首頁新增「🌿 系統介紹」分頁（通用「支部進度追蹤系統」圖＋中英說明），公開內容唔包含任何保留帳號資訊，並保留「部分資料讀取入口驗證仍待補強」嘅安全邊界聲明；今次冇改登入／簽名協定，亦冇修復該已知事項。
 
 ## 所有補丁的資料保全硬性規則
 

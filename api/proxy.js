@@ -11,7 +11,7 @@
 //   5. 永不在 log 記錄 token／密碼／apikey／payload 內容
 //
 
-import { getTrustedTroop, isTrustedExecUrl } from './_registry.js';
+import { getTrustedTroop, isTrustedExecUrl, normalizeGasUrl } from './_registry.js';
 import { accountId, isSuperId, checkSuperPassword, superConfigured, sealSuper, openSuper } from './_super.js';
 
 export const config = { maxDuration: 60 };
@@ -158,7 +158,9 @@ export default async function handler(req, res) {
       type: 'apply',
       troopId: regTroopId,
       troopName: clamp(data.troopName, 100) || (regTroopId ? `第 ${regTroopId} 旅` : ''),
-      backendUrl: clamp(data.backendUrl || data.scriptUrl, 300),
+      // 用戶從 Google 部署視窗抄回來的 Workspace 格式（/a/<網域>/…）只轉成相同部署 ID
+      // 的公開格式再轉交；不代表已驗證部署或存取權限，其他格式原樣保留交管理員核對。
+      backendUrl: normalizeGasUrl(clamp(data.backendUrl || data.scriptUrl, 300)),
       apiKey: clamp(data.apiKey, 120),
       appType: 'vsbadge',
       note: taggedNote.substring(0, 500)

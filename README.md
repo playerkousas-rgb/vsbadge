@@ -12,6 +12,14 @@
 >
 > **第十版→第十一版過渡／活動細項功能更新：既有旅團只需更新 `apps-script/Code.gs` 並部署新版本；此更新沒有新增工作表或欄位，毋須、亦不應為此執行 `initializeSheets()`／SETUP。** 系統沿用「進度追蹤」既有備註欄及「其他獎章」既有欄位，保留現有進度與備註。原有直接入口閂口行為不變；控制仍只在 Apps Script／上游，不在下游介面顯示。
 
+## 最新發佈：GS v9.2（2026-10-24）
+
+- **接入資料只顯示 API Key**：試算表選單改為「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；`initializeSheets()`、`showApiKey()` 等入口只提供 `API Key = ...`，不再顯示自動取得或快取的部署 URL，初始化回傳值亦不帶 `scriptUrl`。部署 URL 請在 Google「部署 → 管理部署」視窗複製；旅團編號直接在接入申請（ADMIN FORM）填寫，毋須在 Sheet／Apps Script 預先設定，亦沒有把 URL 貼入 GS 的步驟。背景見 [docs/BACKEND_URL_DIAGNOSIS.md](docs/BACKEND_URL_DIAGNOSIS.md)。
+- **系統介紹**：首頁新增「🌿 系統介紹」分頁（通用「支部進度追蹤系統」圖＋中英說明；支援放大及下載），與「📋 新旅團部署」互設入口；公開說明保留安全邊界，不含任何隱藏帳號資訊。
+- **升級要求**：此版本必須執行一次 `initializeSheets()`（可安全重跑）。現有帳號、成員、YMIS、新舊 ID 進度、其他獎章、活動履歷、備註、旅團設定及 API Key 全部保留；深資綱要、評核權限、首次登入提示、登入／簽名協定不變。
+- Workspace 帳戶抄到的 `/a/<網域>/macros/s/<部署 ID>/exec` 會由伺服器端轉成相同部署 ID 的公開路徑再驗白名單；不會藉此接受 HTTP、query、fragment、帳密或自訂連接埠。
+- 驗證：`npm run check`、`npm test`（含接入資料顯示及系統介紹回歸測試）、`npm run build` + `npm run test:build`。
+
 ## v8.8：環境變數登記及部署瘦身
 
 - 每個旅團只需 `TROOP_{ID}_NAME`、`TROOP_{ID}_BACKEND`、`TROOP_{ID}_APIKEY`，不再讀取旅團 JSON。
@@ -40,7 +48,7 @@
 
 按一下即時全站切換，毋須重新載入；語言記在瀏覽器（`localStorage: vsbadge_lang`）。
 
-- **未登入首頁全部有英文版**：選旅團畫面、四級架構、MOCK 試用、「📋 新旅團部署」、「📖 使用教學」、「📦 版本更新紀錄」— 中文模式下右上角仍有清晰可見的 `🌐 English` 按鈕，英語旅團不會誤以為「只有中文」。
+- **未登入首頁全部有英文版**：選旅團畫面、四級架構、MOCK 試用、「🌿 系統介紹」、「📋 新旅團部署」、「📖 使用教學」、「📦 版本更新紀錄」— 中文模式下右上角仍有清晰可見的 `🌐 English` 按鈕，英語旅團不會誤以為「只有中文」。
 - **分享連結可鎖定語言**：`?lang=en` / `?lang=zh`（例：`https://vsbadge.vercel.app/?lang=en`，主系統卡片亦可帶 `&lang=en`）。
 
 訓練綱要採用香港童軍總會第11版官方英文譯名（Membership Badge、Venture Scout Epaulettes、Venture Scout Award、Dragon Scout Award、Project / Service / Multiple Skills / Outdoor Exploration Achievement Badge 及 Bar）。**項目 ID 不變**，雲端進度、審批、履歷紀錄中英共用同一套資料，只換顯示語言。

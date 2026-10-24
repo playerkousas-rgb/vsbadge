@@ -1,3 +1,4 @@
+> **最新 GS v9.2（2026-10-24）請先看本頁「最新 GS：v9.2」一節**：此版本要執行一次 `initializeSheets()`（保留全部現有資料及 API Key）。接入資料只顯示 API Key；部署 URL 在 Google 部署視窗複製，旅團編號在接入申請（ADMIN FORM）填寫。
 > **v8.8 現有系統升級請先看 [ENV_MIGRATION.md](docs/ENV_MIGRATION.md)**：不重建 Sheet、不執行 initializeSheets()。下方建立 Sheet／初始化步驟只適用於全新安裝。
 > **第十版→第十一版過渡／活動細項功能更新：既有旅團只需覆蓋 Code.gs 並部署新版本；毋須、亦不應為此執行 initializeSheets()／SETUP。** 沒有新增工作表或欄位，沿用既有備註及其他獎章欄位。
 > 旅團登記只用三個 Vercel 環境變數 NAME / BACKEND / APIKEY，設定後須手動 Redeploy。
@@ -36,7 +37,7 @@
 
 ```
 所有旅團共通 (必做)：
-  下載 Code.gs → 建立 Google Sheet → 貼上 Code.gs → 執行 initializeSheets → 部署為網頁應用程式 → 複製 URL + API Key
+  下載 Code.gs → 建立 Google Sheet → 貼上 Code.gs → 執行 initializeSheets 取得 API Key → 部署為網頁應用程式，在 Google 部署視窗複製 URL
 
 分叉：
 
@@ -98,13 +99,13 @@
    - `待批完成` (成員申請完成)
    - `其他獎章`
    - `操作紀錄`（前端帳戶及權限管理紀錄）
-7. 彈窗顯示 **API Key** (`vs_...`) 及管理員帳號 → **複製保存**
+7. 彈窗只顯示 **API Key** (`API Key = vs_...`) 及管理員帳號 → **複製保存**（彈窗及選單不會顯示自動取得的部署網址；不用先設定旅團編號，之後隨時可在試算表選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」重看同一隻 Key）
 
 ### 第 4 步：部署為網頁應用程式
 
 1. 點 **部署 → 新增部署** → 齒輪 → **網頁應用程式**
 2. 設定：描述 `vsbadge 82旅`, 執行身分 `我`, 存取權 `任何人`
-3. 點部署 → 複製 **網頁應用程式網址** (`https://script.google.com/macros/s/.../exec`)
+3. 點部署 → **就在 Google 部署視窗**複製 **網頁應用程式網址** (`https://script.google.com/macros/s/.../exec`)。這是正式網址的唯一來源；GS 本身不會自動提供網址
 
 ### 第 5 步：提交給 vsbadge 管理員 (獨立用必要)
 
@@ -116,6 +117,8 @@
 | 旅團名稱 | 第82旅 |
 | Apps Script URL | https://script.google.com/.../exec |
 | API Key | vs_xxxxxxxxxxxxxxxx |
+
+亦可經首頁「📧 一鍵提交接入申請給 vsbadge 管理員」（ADMIN FORM）直接填寫以上四項：旅團編號就在表格填寫，毋須預先入 Sheet／Apps Script 設定。
 
 管理員加入 Vercel 環境變數 後在 Vercel 按 Redeploy，之後 `vsbadge.vercel.app` 就會有你旅團，你的成員可獨立使用。
 
@@ -250,6 +253,17 @@ A: 可以。用戶管理的「停用」只會停止登入及撤銷舊登入狀�
 ---
 
 ## 📦 版本更新
+
+### 最新 GS：v9.2（2026-10-24）接入資料只顯示 API Key＋系統介紹
+
+- **既有旅團升級步驟：**
+  1. 先備份／匯出 Google Sheet（建議的安全措施）。
+  2. Google Sheet → 擴充功能 → Apps Script → 將最新 `apps-script/Code.gs` 全檔覆蓋原程式碼 → 儲存。
+  3. **執行一次 `initializeSheets()`**（此版本必要；只補齊缺失結構並記錄版本，不會改動現有帳號、成員、進度、獎章、履歷、備註、設定或 API Key，可安全重跑）。
+  4. 部署 → 管理部署 → ✏️ 編輯 → 版本選「新版本」→ 部署；`/exec` URL 不變，Registry 不用改。
+  5. 在 App 公告按「🔄 重新檢查」，見綠色「✅ 已核對」才算完成。
+- **顯示行為改變**：初始化彈窗、`showApiKey()` 及試算表選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」只提供 `API Key = ...`，不再顯示自動取得／快取的部署 URL。需要 URL 時請在 Google「部署 → 管理部署」視窗複製；旅團編號在接入申請（ADMIN FORM）填寫，毋須在 GS 預先設定。原因及撤回的舊說法見 [docs/BACKEND_URL_DIAGNOSIS.md](docs/BACKEND_URL_DIAGNOSIS.md)。
+- 首頁新增「🌿 系統介紹」分頁，與本部署指南互設入口；登入／簽名協定、深資綱要及權限不變。
 
 ### 最新功能：第十版→第十一版過渡、活動細項及其他獎章
 
