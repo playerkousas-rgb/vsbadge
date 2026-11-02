@@ -8,14 +8,19 @@
 // 帳戶自助申請（成員／執委／領袖）：apply 接受 requested_role（只限 member/exec_committee/branch_leader），
 //   getApplications 回傳申請角色，reviewApplication 按角色開戶並回傳 final_role
 // 忘記密碼（工作表「密碼重設」）：requestPasswordReset / completePasswordReset 為免登入復原入口；
-//   只有已登記電郵的帳號提供自助重設（6 位驗證碼、只存雜湊、15 分鐘有效、最多 5 次嘗試）；
-//   未登記電郵／寄件失敗一律提示聯絡領袖，不建立待批請求（領袖用 resetPassword 重設臨時密碼）
+//   只有已登記電郵的帳號提供自助重設（8 位重設碼、只存加鹽雜湊、15 分鐘有效、最多 5 次嘗試、單次使用）；
+//   公開入口一律回覆中性訊息（帳號不存在／未登記電郵／寄件失敗／成功寄出完全一致），不建立待批請求；
+//   未登記電郵的成員由領袖登入後在「用戶管理」以 resetPassword 重設臨時密碼
+// 登入安全（A3／A5／A17）：密碼以 PBKDF2-HMAC-SHA256（120000 迭代＋每用戶隨機鹽）儲存，
+//   舊單次 SHA-256 雜湊仍可登入並於成功登入時自動升級；同一帳號連續 5 次登入失敗鎖定 15 分鐘；
+//   公開登入失敗一律回覆「帳號或密碼錯誤」；改密碼／重設密碼一律踢走舊登入並清除失敗鎖定
 // 用戶管理及唯一身份：YMIS / Email 在單筆、批量、申請及編輯流程均由後端鎖內檢查，不可重複；
 //   getAllUsers 合併「Users」及「成員名單」；領袖可重設成員密碼；刪除後保留識別碼 tombstone 及歷史進度
 // 密碼原則：最短 4 位；批量開戶／審批初始密碼統一 1234
 // 旅系統（旅 > 團 > 進度）：上游登記下游 URL 及 SHEET KEY，經 sig 讀寫下游；下游 ALLOW_LOCAL_LOGIN 閂口後只收 sig；
 //   選單「🔗 旅系統」提供匯出 JSON（含 hash）／匯入（upsertUser）／登記下游／直接入口掣
-// 初始化：全新後端執行；本次升級亦須執行一次，清除舊版保留帳號殘留（只清理保留身份，不清普通用戶資料）。
+// 初始化：全新後端執行；之後每次更新 Code.gs 後建議都執行一次 initializeSheets()（只做增補：建表、補表頭、補缺失列，
+//   可安全重跑，不刪除或改寫既有用戶資料）；跨多個版本升級時必須執行，否則會缺新版所需的工作表／欄位。
 // 接入資料：initializeSheets／showApiKey 及旅系統選單只顯示 API Key；部署 URL 由 Google 部署視窗提供，旅團編號在 ADMIN FORM 填寫。
 // 版號只記錄在 operations/TROOP_LINK_UPGRADE.md，程式內不留版本註解；唯一例外係 VS_GS_VERSION 發佈識別常數，供前端公告及初始化核對（不設逐級升級表）
 // ============================================================
@@ -34,7 +39,7 @@ const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
 
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
-const VS_GS_VERSION = 'v9.3';
+const VS_GS_VERSION = 'v9.4';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
 function getVsGsReleaseStatus(){
   let initialized='';
@@ -89,6 +94,69 @@ function showApiKey() {
 function hashPassword(p) {
   const raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, p, Utilities.Charset.UTF_8);
   return raw.map(function(b){return ('0' + (b & 0xFF).toString(16)).slice(-2);}).join('');
+}
+// ===== A3 密碼雜湊：PBKDF2-HMAC-SHA256（120000 迭代 + 每用戶 16-byte 隨機鹽 + 時序安全比對）=====
+// 新格式寫入 Users.password_hash 同一欄：pbkdf2$<iter>$<saltHex>$<dkHex>
+// 舊格式（64 hex 單次 SHA-256）仍可驗證；登入成功時自動升級為新格式（密碼本身不變，屬增補式升級）。
+// hashPassword() 本身保留作 SHA-256 工具（sig／重設碼雜湊／舊格式驗證），新設密碼一律用 hashPasswordV2。
+const PBKDF2_ITERATIONS = 120000;
+const LOGIN_MAX_FAILS = 5;
+const LOGIN_LOCK_MS = 15*60*1000;
+function hexToBytes_(hex){ const out=[]; hex=String(hex||'').replace(/[^0-9a-f]/gi,''); for(let i=0;i+1<hex.length;i+=2) out.push(parseInt(hex.substr(i,2),16)); return out; }
+function xorBytes_(a,b){ const out=[]; for(let i=0;i<a.length;i++) out.push((a[i]^b[i])&0xFF); return out; }
+function pbkdf2HmacSha256_(password, saltBytes, iterations){
+  // dkLen=32（一個 block）：T = U1 ^ U2 ^ ... ^ Uc；U1 = PRF(P, S||INT(1))；Ui = PRF(P, U_{i-1})
+  let u = Utilities.computeHmacSha256Signature(saltBytes.concat([0,0,0,1]), String(password||''));
+  let t = u.slice();
+  for(let i=1;i<iterations;i++){
+    u = Utilities.computeHmacSha256Signature(u, String(password||''));
+    t = xorBytes_(t, u);
+  }
+  return t;
+}
+function hashPasswordV2(p){
+  const saltHex = (Utilities.getUuid()+Utilities.getUuid()).replace(/-/g,'').slice(0,32); // 16 bytes 鹽
+  const dk = pbkdf2HmacSha256_(String(p||''), hexToBytes_(saltHex), PBKDF2_ITERATIONS);
+  return 'pbkdf2$'+PBKDF2_ITERATIONS+'$'+saltHex+'$'+toHex(dk);
+}
+function isLegacyPasswordHash_(h){ return /^[0-9a-f]{64}$/i.test(String(h||'')); }
+// 驗證密碼：自動接受舊格式（單次 SHA-256）與新格式（pbkdf2$...）；比對用 safeEqualText（防時序洩漏）
+function verifyPassword(p, stored){
+  stored = String(stored||'');
+  if(stored.indexOf('pbkdf2$')===0){
+    const parts = stored.split('$');
+    if(parts.length!==4) return false;
+    const iter = parseInt(parts[1],10)||0; if(iter<100000||iter>1000000) return false;
+    const salt = hexToBytes_(parts[2]); if(!salt.length) return false;
+    const dk = pbkdf2HmacSha256_(String(p||''), salt, iter);
+    return safeEqualText(toHex(dk), parts[3]);
+  }
+  return safeEqualText(sha256Hex(String(p||'')), stored);
+}
+let __dummyPasswordHash_ = null;
+function dummyPasswordHash_(){ if(!__dummyPasswordHash_) __dummyPasswordHash_ = hashPasswordV2('timing-equalizer'); return __dummyPasswordHash_; }
+// ===== A5 登入失敗鎖定（ScriptProperties，key = LOGIN_FAIL:<ymis>；不寫入工作表）=====
+function loginFailKey_(ymis){ return 'LOGIN_FAIL:'+String(ymis||''); }
+function readLoginFail_(ymis){
+  try{ return JSON.parse(PropertiesService.getScriptProperties().getProperty(loginFailKey_(ymis))||'null'); }catch(e){ return null; }
+}
+function clearLoginFail_(ymis){
+  try{ PropertiesService.getScriptProperties().deleteProperty(loginFailKey_(ymis)); }catch(e){}
+}
+function recordLoginFail_(ymis){
+  const prev=readLoginFail_(ymis);
+  const f=((prev&&Number(prev.f))||0)+1;
+  try{
+    PropertiesService.getScriptProperties().setProperty(loginFailKey_(ymis),
+      JSON.stringify({f:f, until: f>=LOGIN_MAX_FAILS ? Date.now()+LOGIN_LOCK_MS : 0}));
+    if(f>=LOGIN_MAX_FAILS) writeAudit('system','login_locked', String(ymis||''), '連續 '+LOGIN_MAX_FAILS+' 次登入失敗，鎖定 15 分鐘');
+  }catch(e){}
+}
+// 密碼被重設（領袖重設／電郵自助重設）後的善後：清走登入失敗鎖定（否則鎖定期內改完密碼仍然入唔到），
+// 並踢走該帳號所有舊登入；不動其他人（包括執行重設的管理員）的登入。
+function afterPasswordReset_(targetYmis){
+  clearLoginFail_(targetYmis);
+  try{ destroyTokensForUser(targetYmis); }catch(e){}
 }
 function generateToken(){ return Utilities.getUuid().replace(/-/g,'') + Date.now().toString(36); }
 function now(){ return Utilities.formatDate(new Date(), 'Asia/Hong_Kong', 'yyyy-MM-dd HH:mm:ss'); }
@@ -164,7 +232,7 @@ function ensureSeedAccount(sheet,map,dataRows,acc){
   const row=new Array(sheet.getLastColumn()||USER_HEADERS.length).fill('');
   function set(name,val){ const idx=map[name]; if(idx!==undefined) row[idx]=val; }
   set('ymis',acc.ymis); set('name',acc.name); set('email',acc.email||'');
-  set('role',acc.role||'member'); set('password_hash',hashPassword(acc.password||''));
+  set('role',acc.role||'member'); set('password_hash',hashPasswordV2(acc.password||''));
   set('branch',acc.branch||''); set('can_tick',acc.can_tick!==false);
   set('auth_by',acc.auth_by||'system'); set('auth_date',now()); set('created_at',now());
   set('last_login',''); set('status','active');
@@ -392,9 +460,12 @@ function initializeSheets() {
   removeSuperAdminFromSheet(uSheet,userMap,uSheet.getDataRange().getValues());
   const userRows=uSheet.getDataRange().getValues();
   ensureSeedAccount(uSheet,userMap,userRows,{ymis:ADMIN_YMIS,name:ADMIN_NAME,email:ADMIN_EMAIL,role:'admin',password:ADMIN_PASS,branch:'b4',can_tick:true,force_change_password:true});
-  // 舊版本會自動補上新欄，不需手動改 Sheet；仍使用預設密碼的舊管理員會被要求立即更改。
+  // 舊版本會自動補上新欄，不需手動改 Sheet；仍使用預設密碼的舊帳號（舊單次 SHA-256 格式可在此直接比對）會被要求立即更改。
+  // 新格式帳號在建立時已設 force_change_password；登入時亦會對預設密碼再作判斷，毋須在此逐個做 KDF 比對。
+  const legacyDefaultHash=hashPassword(ADMIN_PASS);
   for(let i=1;i<userRows.length;i++){
-    if(String(userRows[i][userMap.password_hash]||'')===hashPassword(ADMIN_PASS)) uSheet.getRange(i+1,userMap.force_change_password+1).setValue(true);
+    const storedHash=String(userRows[i][userMap.password_hash]||'');
+    if(isLegacyPasswordHash_(storedHash) && safeEqualText(storedHash,legacyDefaultHash)) uSheet.getRange(i+1,userMap.force_change_password+1).setValue(true);
   }
   let aSheet = ss.getSheetByName('Applications');
   if(!aSheet){
@@ -493,7 +564,7 @@ function initializeSheets() {
     const ui=SpreadsheetApp.getUi();
     if(ui){
       // 生成 API Key 不需要旅團編號；由用戶在 ADMIN FORM 填寫，不新增 GS 設定步驟。
-      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：只有已登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；未登記電郵嘅帳號會提示用戶聯絡領袖，由領袖喺「用戶管理」重設臨時密碼。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
+      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：只有已登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；登入頁一律顯示中性訊息唔透露帳號是否存在，未登記電郵嘅成員請由領袖登入後喺「用戶管理」重設臨時密碼。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
@@ -600,7 +671,8 @@ const LINK_MAX_SIGNED_BYTES=900000;
 const LINK_EXEC_URL_RE=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{10,}\/exec\/?$/i;
 const LINK_SIG_HEX_RE=/^[0-9a-f]{64}$/i;
 const LINK_NONCE_RE=/^[0-9A-Za-z_-]{8,64}$/;
-const LINK_HASH_RE=/^[0-9a-f]{64}$/i;
+// 跨節點搬數同時接受舊格式（64 hex 單次 SHA-256）與新格式（pbkdf2$<iter>$<salt>$<dk>），避免同步中斷
+const LINK_HASH_RE=/^([0-9a-f]{64}|pbkdf2\$\d+\$[0-9a-f]{16,64}\$[0-9a-f]{64})$/i;
 const LINK_RESERVED_BODY_KEYS=['sig','sig_ts','sig_nonce'];
 // 上游以 sig 可以在下游執行的 action。login／apply／logout／changePassword 等本地憑證操作永不接受。
 const LINK_SIG_READ_ACTIONS=['load','getLoginMode','getLinkState','getMembers','getConfig','getAllUsers','getOtherBadges','getPendingRequests','getApplications','getLogRecords','getLogRequests','getAuditLog'];
@@ -890,7 +962,7 @@ function syncMemberRow(ymis,name,branch,email,status){
   }
   mSheet.appendRow([ymis,name||'',new Date(),branch||'',email||'']);
 }
-// upsertUser：搬數專用寫入。只接受 64 位 SHA-256 password_hash，不接受明文密碼；
+// upsertUser：搬數專用寫入。只接受 password_hash（64 位 SHA-256 hex 或 pbkdf2$ 格式兩種都得），不接受明文密碼；
 // 既有帳戶（同 YMIS，或同 Email 認回同一身份）→ 更新；冇提供 hash 就保留原密碼。
 function upsertUser(raw,actor){
   raw=raw||{};
@@ -900,7 +972,7 @@ function upsertUser(raw,actor){
   const hash=String(raw.password_hash||'').trim().toLowerCase();
   if(!ymis) return {success:false,ymis:'',error:'缺少 YMIS'};
   if(raw.password!==undefined&&raw.password!==null&&String(raw.password)!=='') return {success:false,ymis:ymis,error:'匯入不可帶明文 password；請只用 password_hash'};
-  if(hash&&!LINK_HASH_RE.test(hash)) return {success:false,ymis:ymis,error:'password_hash 必須是 64 位 SHA-256 hex'};
+  if(hash&&!LINK_HASH_RE.test(hash)) return {success:false,ymis:ymis,error:'password_hash 必須是 64 位 SHA-256 hex 或 pbkdf2$<iter>$<salt>$<hash> 格式'};
   if(!/^\d{10}$/.test(ymis)&&!/^L\d+$/i.test(ymis)) return {success:false,ymis:ymis,error:'YMIS 須為 10 位數字或 L 編號'};
   if(email&&!isEmail(email)) return {success:false,ymis:ymis,error:'Email 格式不正確'};
   const role=VALID_ROLES.indexOf(String(raw.role||''))>=0?String(raw.role):'member';
@@ -1110,7 +1182,7 @@ function doPost(e){
     if(action==='getConfig') return handleGetConfig();
     if(action==='getMembers') return jsonResponse({success:true,members:getMembers()});
     if(action==='getOtherBadges') return handleGetOtherBadges(body.target_ymis||ymis);
-    if(action==='changePassword') return handleChangePassword(ymis,body.old_password,body.new_password);
+    if(action==='changePassword') return handleChangePassword(ymis,body.old_password,body.new_password,body.token);
     if(action==='getPendingRequests') return handleGetPendingRequests();
     if(action==='reviewRequest'){
       if(!canUserTick(user.role) || user.can_tick!==true) return jsonResponse({success:false,error:'權限不足，需已獲勾選權限的領袖'});
@@ -1205,21 +1277,36 @@ function handleLogin(loginId,password,superTicket){
   loginId=String(loginId||'').trim();
   if(!loginId||(!password&&!superTicket)) return jsonResponse({success:false,error:'請填寫帳號和密碼'});
   const user=getUser(loginId)||getUserByEmail(loginId);
-  if(!user) return jsonResponse({success:false,error:'找不到此帳號或帳號已停用'});
-  if(isSuperAdminId(user.ymis)){
+  if(user && isSuperAdminId(user.ymis)){
     if(!verifySuperTicket(superTicket)) return jsonResponse({success:false,error:'帳號或密碼錯誤'});
     // 保留帳號已由 getUser() 直接建立，不讀寫 Users／Tokens／操作紀錄工作表。
     const token=createToken(user.ymis);
     return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password});
   }
+  // A17 防枚舉（只限未登入公開入口）：找不到帳號（包括已停用）與密碼錯誤回完全相同訊息；
+  // 找不到帳號時照做一次假 KDF，令回應時序一致。後台管理查詢不受影響，領袖仍可正常搵人。
+  if(!user){ try{ verifyPassword(password, dummyPasswordHash_()); }catch(e){} return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
+  // A5 登入鎖定：同一帳號連續失敗達上限後鎖 15 分鐘，鎖定期間連正確密碼都拒（回同一訊息）。
+  const failRec=readLoginFail_(user.ymis);
+  if(failRec && Number(failRec.until||0)>Date.now()) return jsonResponse({success:false,error:'帳號或密碼錯誤'});
   const rec=findUserRecord(user.ymis);
+  if(!rec){ try{ verifyPassword(password, dummyPasswordHash_()); }catch(e){} return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
   const map=rec.map;
-  if(String(rec.data[map.password_hash]||'')!==hashPassword(String(password))) return jsonResponse({success:false,error:'密碼錯誤'});
+  const storedHash=String(rec.data[map.password_hash]||'');
+  if(!verifyPassword(String(password||''),storedHash)){
+    recordLoginFail_(user.ymis);
+    return jsonResponse({success:false,error:'帳號或密碼錯誤'});
+  }
+  clearLoginFail_(user.ymis);
+  // A3 自動升級：舊單次 SHA-256 雜湊在成功登入時改寫為 PBKDF2 格式（密碼不變）。
+  if(isLegacyPasswordHash_(storedHash)){ try{ rec.sheet.getRange(rec.row,map.password_hash+1).setValue(hashPasswordV2(String(password))); }catch(e){} }
   rec.sheet.getRange(rec.row,map.last_login+1).setValue(now());
   const token=createToken(user.ymis);
-  return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password});
+  // 仍用緊預設密碼（已成功驗證，輸入密碼即預設值）一律當要強制改密，新舊雜湊格式都一樣。
+  const forceChange=!!user.force_change_password || String(password)===ADMIN_PASS;
+  return jsonResponse({success:true,token:token,user:user,force_change_password:forceChange});
 }
-function handleChangePassword(ymis,oldP,newP){
+function handleChangePassword(ymis,oldP,newP,keepToken){
   newP=String(newP||'');
   if(newP.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newP.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
@@ -1227,10 +1314,13 @@ function handleChangePassword(ymis,oldP,newP){
   if(isSuperAdminId(ymis)) return jsonResponse({success:false,error:'此帳號不支援在此更改密碼，請聯絡管理員'});
   const rec=findUserRecord(ymis);
   if(!rec || rec.user.status!=='active') return jsonResponse({success:false,error:'找不到用戶'});
-  if(String(rec.data[rec.map.password_hash]||'')!==hashPassword(String(oldP||''))) return jsonResponse({success:false,error:'原密碼錯誤'});
-  rec.sheet.getRange(rec.row,rec.map.password_hash+1).setValue(hashPassword(newP));
+  if(!verifyPassword(String(oldP||''),String(rec.data[rec.map.password_hash]||''))) return jsonResponse({success:false,error:'原密碼錯誤'});
+  rec.sheet.getRange(rec.row,rec.map.password_hash+1).setValue(hashPasswordV2(newP));
   rec.sheet.getRange(rec.row,rec.map.force_change_password+1).setValue(false);
   rec.sheet.getRange(rec.row,rec.map.auth_date+1).setValue(now());
+  // A5：改密碼成功後踢走該用戶其他所有登入（保留當前 token），並清走登入失敗鎖定。
+  try{ destroyTokensForUserExcept(ymis,keepToken); }catch(e){}
+  clearLoginFail_(ymis);
   writeAudit(ymis,'change_password',ymis,'用戶自行更改密碼');
   return jsonResponse({success:true,message:'密碼已更新'});
 }
@@ -1531,7 +1621,7 @@ function createUsersBatch(rawUsers,manager){
 
       const row=new Array(uSheet.getLastColumn()).fill('');
       row[map.ymis]=u.ymis; row[map.name]=u.name; row[map.email]=u.email; row[map.role]=u.role;
-      row[map.password_hash]=hashPassword(u.password); row[map.branch]=u.branch;
+      row[map.password_hash]=hashPasswordV2(u.password); row[map.branch]=u.branch;
       row[map.can_tick]=canUserTick(u.role) && u.can_tick; row[map.auth_by]=persistedActorId(manager.ymis);
       row[map.auth_date]=now(); row[map.created_at]=now(); row[map.status]='active';
       row[map.allowed_badges]=defaultAllowedBadges(u.role); row[map.force_change_password]=true;
@@ -1565,17 +1655,27 @@ function handleAddUser(body,manager){
 }
 function handleBulkAddUsers(users,manager){ return jsonResponse(createUsersBatch(users,manager)); }
 function handleResetPassword(targetYmis,newPassword,manager){
-  const rec=findUserRecord(targetYmis); newPassword=String(newPassword||'');
+  targetYmis=String(targetYmis||'').trim(); newPassword=String(newPassword||'');
+  // 授權檢查必須喺 handler 內部做（上游 sig 入口唔經 doPost 角色閘）：manager 必須是已驗證的管理員物件（含 role），
+  // 唔靠 ymis 字串反查（sig 入口的 on_behalf 只係標籤，角色以 linkManager 傳入的物件為準）。
+  if(!manager || !manager.ymis || !manager.role) return jsonResponse({success:false,error:'未授權'});
+  if(isSuperAdminId(targetYmis)) return jsonResponse({success:false,error:'不能重設此帳號密碼'});
+  const rec=findUserRecord(targetYmis);
   if(!rec || rec.user.status==='deleted') return jsonResponse({success:false,error:'找不到帳號'});
   if(accountIdKey(targetYmis)===accountIdKey(manager.ymis)) return jsonResponse({success:false,error:'請使用「更改密碼」修改自己的密碼'});
-  if(!canManageUser(manager,rec.user.role)) return jsonResponse({success:false,error:'權限不足，不能重設此角色'});
+  const targetRole=String(rec.user.role||'member');
+  if(targetRole==='super_admin' || isSuperAdminReserved(rec.user.ymis,rec.user.email)) return jsonResponse({success:false,error:'不能重設此帳號密碼'});
+  // 只有可管理該角色者可重設：admin 不可改 admin（只有最高管理層可以）、同級不可互改、成員不可改任何人。
+  // 被拒時在任何寫入之前回傳，目標帳號的雜湊完全不變。
+  if(!canManageUser(manager,targetRole)) return jsonResponse({success:false,error:'權限不足，不能重設該角色密碼'});
   if(newPassword.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newPassword.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'臨時密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
-  rec.sheet.getRange(rec.row,rec.map.password_hash+1).setValue(hashPassword(newPassword));
+  rec.sheet.getRange(rec.row,rec.map.password_hash+1).setValue(hashPasswordV2(newPassword));
   rec.sheet.getRange(rec.row,rec.map.force_change_password+1).setValue(true);
   rec.sheet.getRange(rec.row,rec.map.auth_by+1).setValue(persistedActorId(manager.ymis));
   rec.sheet.getRange(rec.row,rec.map.auth_date+1).setValue(now());
-  destroyTokensForUser(targetYmis);
+  // 善後：清走登入失敗鎖定 + 踢走目標帳號所有舊登入（管理員自己的登入不動）；force_change_password 已在上面設 true。
+  afterPasswordReset_(targetYmis);
   // 領袖為該用戶重設臨時密碼後，一併結案其在「忘記密碼」留下的待處理請求。
   const closedResets=completePendingPasswordResets(targetYmis,manager.ymis,'領袖已重設臨時密碼，未用驗證碼作廢');
   writeAudit(manager.ymis,'reset_password',targetYmis,'已設定臨時密碼並撤銷舊登入'+(closedResets?'（已作廢 '+closedResets+' 組未用驗證碼）':''));
@@ -1586,14 +1686,28 @@ function destroyTokensForUser(ymis){
   const data=sh.getDataRange().getValues();
   for(let i=data.length-1;i>=1;i--) if(String(data[i][1])===String(ymis)) sh.deleteRow(i+1);
 }
+// 踢走某用戶全部登入但保留指定 token（自行改密碼時保留當前登入；A5）
+function destroyTokensForUserExcept(ymis, keepToken){
+  if(!ymis) return;
+  const sh=getSheet().getSheetByName('Tokens'); if(!sh) return;
+  const data=sh.getDataRange().getValues();
+  for(let i=data.length-1;i>=1;i--){
+    if(String(data[i][1])===String(ymis) && String(data[i][0])!==String(keepToken||'')) sh.deleteRow(i+1);
+  }
+}
 
 // ===== 忘記密碼（自助重設 → 只限已登記電郵） =====
 // 私隱及安全原則：
-//   1. 免登入入口（requestPasswordReset／completePasswordReset）不會透露帳號是否存在；
-//   2. 驗證碼 6 位、15 分鐘有效、最多 5 次嘗試；只以 API Key 加鹽雜湊儲存，成功／過期後即清空；
-//   3. 每次新申請會令同一帳號較舊的待處理請求失效（superseded），避免舊碼仍然可用；
-//   4. 重設完成後撤銷該用戶所有既有登入 token，並寫入操作紀錄；
-//   5. 只有已登記電郵的帳號才提供自助重設；沒有電郵／寄件失敗只提示聯絡領袖，不建立任何請求。
+//   1. 免登入入口（requestPasswordReset／completePasswordReset）不會透露帳號是否存在：
+//      帳號不存在／未登記電郵／寄件失敗／成功寄出四種情況回覆完全相同的中性訊息（A17）；
+//   2. 重設碼 8 位數字、15 分鐘有效、最多 5 次嘗試、單次使用；只以 API Key 加鹽雜湊儲存，成功／過期後即清空；
+//      輸入時自動去空格／連字號，升級前已寄出的舊 6 位碼在有效期內仍可完成（雜湊算法不變）；
+//   3. 每次新申請會令同一帳號較舊的待處理請求失效（superseded），避免舊碼仍然可用；申請有冷卻及次數上限；
+//   4. 重設完成後撤銷該用戶所有既有登入 token、清走登入失敗鎖定，並寫入操作紀錄（紀錄不含密碼／重設碼）；
+//   5. 只有已登記電郵的帳號才提供自助重設；沒有電郵的帳號不建立任何請求，由領袖登入後重設臨時密碼
+//      （公開回覆不會講明「未登記電郵」，以免被用作探測帳號；後台查詢則不受影響）。
+const PWD_RESET_NEUTRAL_MESSAGE='如該帳號已登記電郵，重設碼會寄到登記電郵，請於 15 分鐘內輸入。如收唔到信，請先檢查垃圾郵件，再聯絡領袖協助。';
+function neutralPasswordResetResponse_(){ return jsonResponse({success:true,message:PWD_RESET_NEUTRAL_MESSAGE}); }
 function passwordResetSheet(createIfMissing){
   const ss=getSheet();
   let sheet=ss.getSheetByName(PWD_RESET_SHEET_NAME);
@@ -1650,14 +1764,14 @@ function updatePasswordResetRow(target,rowIndex,fields){
   if(updatedCol!==undefined && !Object.prototype.hasOwnProperty.call(fields||{},'updated_at')) target.sheet.getRange(rowIndex,updatedCol+1).setValue(now());
 }
 function passwordResetCode(){
-  // 以 UUID 的十六進位位元產生 6 位數字，毋須額外隨機源。
-  const hex=String(Utilities.getUuid()||'').replace(/[^0-9a-f]/gi,'');
+  // 以 UUID 的十六進位位元產生 8 位數字重設碼，毋須額外隨機源。
+  const hex=(String(Utilities.getUuid()||'')+String(Utilities.getUuid()||'')).replace(/[^0-9a-f]/gi,'');
   let n=parseInt(hex.substring(0,8),16);
-  if(!isFinite(n)) n=Math.floor(Math.random()*1000000000);
-  return ('000000'+String(n%1000000)).slice(-6);
+  if(!isFinite(n)) n=Math.floor(Math.random()*100000000);
+  return ('00000000'+String(n%100000000)).slice(-8);
 }
 function passwordResetCodeHash(code){
-  // 綁定本旅團 API Key：單純取得試算表內容亦不能離線暴力破解 6 位碼。
+  // 綁定本旅團 API Key：單純取得試算表內容亦不能離線暴力破解重設碼。
   return sha256Hex('vsbadge-password-reset-v1|'+getApiKey()+'|'+String(code||''));
 }
 function passwordResetExpired(rec){
@@ -1666,13 +1780,6 @@ function passwordResetExpired(rec){
   const ms=Date.parse(raw);
   if(isNaN(ms)) return true;
   return Date.now()>ms;
-}
-function maskResetEmail(email){
-  const text=String(email||'');
-  const at=text.indexOf('@');
-  if(at<1 || at===text.length-1) return '';
-  const name=text.substring(0,at);
-  return (name.length<=1?name:name.substring(0,1)+'***')+'@'+text.substring(at+1);
 }
 function passwordResetCache(){
   try{ if(typeof CacheService==='undefined' || !CacheService) return null; return CacheService.getScriptCache(); }catch(e){ return null; }
@@ -1699,14 +1806,17 @@ function sendPasswordResetEmail(email,user,code){
       (name?name+' 你好：':'你好：'),
       '',
       '你（或有人）要求重設「深資童軍進度及行政平台」帳戶密碼。',
-      '驗證碼：'+code,
-      '有效時間：'+PWD_RESET_TTL_MINUTES+' 分鐘（過期須重新申請）。',
+      '請返到登入頁，在「忘記密碼」畫面輸入以下 8 位重設碼，再設定新密碼（至少 4 位）。',
+      '重設碼：'+code,
+      '有效時間：'+PWD_RESET_TTL_MINUTES+' 分鐘（過期請重新申請；重新申請會令呢個碼失效）。',
+      '輸入時可以直接貼上，空格唔使理會。',
       '',
-      '如非本人操作，請忽略此電郵；你的密碼不會被更改，亦無需通知任何人。'
+      '如非本人操作，請忽略此電郵；你的密碼不會被更改，亦無需通知任何人。請勿將重設碼轉發畀任何人。',
+      'Your 8-digit password reset code is above. It is valid for '+PWD_RESET_TTL_MINUTES+' minutes. If you did not request it, ignore this email and never share the code.'
     ].join('\n');
     MailApp.sendEmail({
       to:email,
-      subject:'【深資童軍平台】密碼重設驗證碼 / Password reset code',
+      subject:'【深資童軍平台】密碼重設碼 / Password reset code',
       body:body,
       name:'深資童軍進度及行政平台'
     });
@@ -1718,23 +1828,20 @@ function handleRequestPasswordReset(loginId){
   if(!loginId) return jsonResponse({success:false,error:'請填寫 YMIS 或 Email'});
   if(loginId.length>160) return jsonResponse({success:false,error:'帳號格式不正確'});
   if(!passwordResetRateAllowed(loginId)) return jsonResponse({success:false,error:'重設請求過於頻密，請稍後再試'});
-  const genericMessage='如資料相符，重設指示已處理。';
   const user=getUser(loginId)||getUserByEmail(loginId);
-  // 保留帳號／不存在的帳號一律回覆相同訊息，避免被用作探測帳號。
-  if(!user || isSuperAdminId(user.ymis)) return jsonResponse({success:true,channel:'none',message:genericMessage});
+  // A17：保留帳號／不存在的帳號一律回覆中性訊息，避免被用作探測帳號（限速在上面按輸入字串先行處理，對所有輸入一致）。
+  if(!user || isSuperAdminId(user.ymis)) return neutralPasswordResetResponse_();
 
-  // 只有已登記電郵的帳號才提供自助重設；沒有電郵的帳號不建立任何請求，
-  // 直接提示用戶聯絡領袖（領袖可在「用戶管理」重設臨時密碼）。
+  // 只有已登記電郵的帳號才提供自助重設；沒有電郵的帳號不建立任何請求、不寄電郵，
+  // 但公開回覆與其他情況完全一致（畫面另有「收唔到信請聯絡領袖」的通用指引，領袖可在「用戶管理」重設臨時密碼）。
   const email=String(user.email||'').trim();
-  if(!isEmail(email)){
-    return jsonResponse({
-      success:true,channel:'leader',
-      message:'此帳號未有登記電郵，未能自助重設。請聯絡領袖協助重設臨時密碼。'
-    });
-  }
+  if(!isEmail(email)) return neutralPasswordResetResponse_();
 
   const target=passwordResetSheet(true);
-  if(!target) return jsonResponse({success:false,error:'系統暫時未能建立重設紀錄，請聯絡領袖'});
+  if(!target){
+    writeAudit(user.ymis,'request_password_reset',String(user.ymis),'未能建立重設紀錄，已回覆中性訊息');
+    return neutralPasswordResetResponse_();
+  }
 
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一項請求，請稍後重試'});
@@ -1766,31 +1873,26 @@ function handleRequestPasswordReset(loginId){
     });
 
     if(!sendPasswordResetEmail(email,user,code)){
-      // 寄件失敗（未授權寄件／超出配額）：作廢此次驗證碼並提示聯絡領袖，不會假裝已寄出。
+      // 寄件失敗（未授權寄件／超出配額）：即刻作廢此次重設碼；公開回覆與成功寄出完全一致，
+      // 訊息用條件句（「如已登記電郵，重設碼會寄到…」）唔會聲稱已寄出，實際情況只記喺後台審計。
       const latest=readPasswordResetRows(target).filter(function(rec){ return String(rec.request_id)===requestId; })[0];
       if(latest) updatePasswordResetRow(target,latest._row,{status:'failed',code_hash:'',expires_at:'',note:'電郵發送失敗，請用戶聯絡領袖'});
-      writeAudit(user.ymis,'request_password_reset',String(user.ymis),'電郵發送失敗，提示用戶聯絡領袖');
-      return jsonResponse({
-        success:true,channel:'leader',
-        message:'電郵暫時未能送出，未能自助重設。請聯絡領袖協助重設臨時密碼。'
-      });
+      writeAudit(user.ymis,'request_password_reset',String(user.ymis),'電郵發送失敗，已回覆中性訊息');
+      return neutralPasswordResetResponse_();
     }
 
-    writeAudit(user.ymis,'request_password_reset',String(user.ymis),'已發送電郵驗證碼');
-    return jsonResponse({
-      success:true,channel:'email',
-      email_hint:maskResetEmail(email),
-      expires_in_minutes:PWD_RESET_TTL_MINUTES,
-      message:'驗證碼已發送至 '+maskResetEmail(email)+'，'+PWD_RESET_TTL_MINUTES+' 分鐘內有效。'
-    });
+    writeAudit(user.ymis,'request_password_reset',String(user.ymis),'已發送電郵重設碼');
+    return neutralPasswordResetResponse_();
   } finally { lock.releaseLock(); }
 }
 function handleCompletePasswordReset(loginId,code,newPassword){
-  loginId=String(loginId||'').trim(); code=String(code||'').replace(/\s+/g,''); newPassword=String(newPassword||'');
-  if(!loginId||!code) return jsonResponse({success:false,error:'請填寫帳號及驗證碼'});
+  // 重設碼輸入容錯：自動去空格／連字號（可直接貼上電郵內的碼）；升級前的舊 6 位碼在有效期內照常比對雜湊。
+  loginId=String(loginId||'').trim(); code=String(code||'').replace(/[\s-]+/g,''); newPassword=String(newPassword||'');
+  if(!loginId||!code) return jsonResponse({success:false,error:'請填寫帳號及重設碼'});
   if(newPassword.length<MIN_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼至少 '+MIN_PASSWORD_LEN+' 位'});
   if(newPassword.length>MAX_PASSWORD_LEN) return jsonResponse({success:false,error:'新密碼不可超過 '+MAX_PASSWORD_LEN+' 位'});
-  const failed={success:false,error:'驗證碼錯誤或已過期，請重新申請'};
+  // 公開入口的所有失敗（帳號不存在／無待處理碼／碼不正確／已過期／次數用盡）一律回同一句，避免枚舉（A17）。
+  const failed={success:false,error:'重設碼不正確或已過期，請重新申請'};
   const user=getUser(loginId)||getUserByEmail(loginId);
   if(!user || isSuperAdminId(user.ymis)) return jsonResponse(failed);
   const target=passwordResetSheet(true);
@@ -1804,7 +1906,7 @@ function handleCompletePasswordReset(loginId,code,newPassword){
     });
     const rec=pending.length?pending[pending.length-1]:null;
     if(!rec) return jsonResponse(failed);
-    if(String(rec.channel)!=='email') return jsonResponse({success:false,error:'此帳號未登記電郵，請聯絡領袖重設密碼'});
+    if(String(rec.channel)!=='email') return jsonResponse(failed);
     if(passwordResetExpired(rec)){
       updatePasswordResetRow(target,rec._row,{status:'expired',code_hash:''});
       return jsonResponse(failed);
@@ -1812,22 +1914,23 @@ function handleCompletePasswordReset(loginId,code,newPassword){
     const attempts=parseInt(rec.attempts||0,10)||0;
     if(attempts>=PWD_RESET_MAX_ATTEMPTS){
       updatePasswordResetRow(target,rec._row,{status:'locked',code_hash:''});
-      return jsonResponse({success:false,error:'驗證碼錯誤次數過多，請重新申請'});
+      return jsonResponse(failed);
     }
     if(!safeEqualText(String(rec.code_hash||''),passwordResetCodeHash(code))){
       const nextAttempts=attempts+1;
       updatePasswordResetRow(target,rec._row,{attempts:nextAttempts,status:nextAttempts>=PWD_RESET_MAX_ATTEMPTS?'locked':'pending',code_hash:nextAttempts>=PWD_RESET_MAX_ATTEMPTS?'':rec.code_hash});
-      return jsonResponse(nextAttempts>=PWD_RESET_MAX_ATTEMPTS?{success:false,error:'驗證碼錯誤次數過多，請重新申請'}:failed);
+      return jsonResponse(failed);
     }
 
     const userRec=findUserRecord(user.ymis);
     if(!userRec || userRec.user.status!=='active') return jsonResponse(failed);
-    userRec.sheet.getRange(userRec.row,userRec.map.password_hash+1).setValue(hashPassword(newPassword));
+    userRec.sheet.getRange(userRec.row,userRec.map.password_hash+1).setValue(hashPasswordV2(newPassword));
     userRec.sheet.getRange(userRec.row,userRec.map.force_change_password+1).setValue(false);
     userRec.sheet.getRange(userRec.row,userRec.map.auth_date+1).setValue(now());
-    destroyTokensForUser(user.ymis);
-    updatePasswordResetRow(target,rec._row,{status:'completed',code_hash:'',handled_by:'self',handled_at:now(),note:'電郵驗證碼自助重設'});
-    writeAudit(user.ymis,'self_reset_password',String(user.ymis),'已用電郵驗證碼重設密碼');
+    // 善後：踢走該帳號所有舊登入 + 清走登入失敗鎖定（即刻可用新密碼登入）。
+    afterPasswordReset_(user.ymis);
+    updatePasswordResetRow(target,rec._row,{status:'completed',code_hash:'',handled_by:'self',handled_at:now(),note:'電郵重設碼自助重設'});
+    writeAudit(user.ymis,'self_reset_password',String(user.ymis),'已用電郵重設碼重設密碼');
     return jsonResponse({success:true,message:'密碼已重設，請用新密碼登入'});
   } finally { lock.releaseLock(); }
 }

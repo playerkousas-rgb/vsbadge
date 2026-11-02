@@ -1,4 +1,8 @@
-# 旅系統升級（旅 > 團 > 進度）— v9.0
+# 旅系統升級（旅 > 團 > 進度）— v9.0（及後續版本紀錄，最新 GS v9.4）
+
+> **2026-11-02｜GS v9.4 登入安全強化（A3／A5／A17）**：`VS_GS_VERSION` 升至 v9.4，與旅系統接入協定（sig／落口）無關，只改登入與密碼層。要點：密碼改用 PBKDF2-HMAC-SHA256（120,000 迭代＋逐用戶鹽，存現有 `password_hash` 欄），舊雜湊登入成功自動升級；`upsertUser`／`importUsers` 雙格式接受，跨節點（含舊 GS 節點）搬帳號不中斷；同一帳號 5 次失敗鎖 15 分鐘（Script Properties `LOGIN_FAIL:<ymis>`，審計 `login_locked`）；登入與申請重設碼回應完全中性；電郵重設碼改為 8 位（升級前未過期舊碼可完成）；任何重設成功清鎖＋撤銷登入＋要求下次改密碼（領袖重設）。沒有新增工作表／欄位／action；部署慣例改為「每次覆蓋 Code.gs 後執行一次只做增補的 `initializeSheets()` 再新版本部署」，跨 v9.3 升級尤其必要（補建「密碼重設」工作表）。詳情見 repo 根目錄 `CHANGE_LOG.md` 及測試 `tests/auth-hardening.test.mjs`。
+
+> **2026-11-02｜GS v9.3**：忘記密碼自助重設（新增「密碼重設」工作表，`requestPasswordReset`／`completePasswordReset` 公開 action，只限已登記電郵）。
 
 > **維運文件，只放 Git 給你自己看**：`operations/` 已在 `.vercelignore`，`scripts/build.mjs` 的 static 白名單亦不包含，所以唔會部署到公開網站，團員／領袖睇唔到。
 >

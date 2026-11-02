@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomUUID } from 'node:crypto';
 import proxy from '../api/proxy.js';
 
 const GAS_SOURCE = fs.readFileSync('apps-script/Code.gs', 'utf8');
@@ -86,6 +86,8 @@ function buildNode() {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
+      // 真 GAS 接受 String 或 Byte[] 作 data；PBKDF2 會傳 byte[]，stub 要同 semantics
+      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },
@@ -150,14 +152,14 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(badKey.success, false, 'ecStatus 要驗 API Key');
   const before = post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' });
   assert.equal(before.success, true);
-  assert.equal(before.gsVersion, 'v9.3', '程式版本即時反映新 Code.gs');
+  assert.equal(before.gsVersion, 'v9.4', '程式版本即時反映新 Code.gs');
   assert.equal(before.initializedGsVersion, '', '淨貼新 Code.gs 唔會當已初始化');
   assert.equal(before.gsInitializationCurrent, false);
 
   const init1 = context.initializeSheets();
   assert.equal(init1.success, true);
-  assert.equal(init1.gsVersion, 'v9.3');
-  assert.equal(init1.initializedGsVersion, 'v9.3');
+  assert.equal(init1.gsVersion, 'v9.4');
+  assert.equal(init1.initializedGsVersion, 'v9.4');
   assert.equal(init1.gsInitializationCurrent, true);
   assert.equal(props.get('API_KEY'), 'test-api-key-keep-me', '初始化唔得更換現有 API Key');
   assert.deepEqual(snapshotRows(node, preservedSheetNames), originalRows, '初始化唔准修改、刪除、覆寫、重置、重新編號或遷移任何現有用戶資料');
@@ -168,14 +170,14 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(appendedDefault[1], 'false', '補建嘅預設值');
 
   const after = post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' });
-  assert.equal(after.gsVersion, 'v9.3');
-  assert.equal(after.initializedGsVersion, 'v9.3');
+  assert.equal(after.gsVersion, 'v9.4');
+  assert.equal(after.initializedGsVersion, 'v9.4');
   assert.equal(after.gsInitializationCurrent, true, '呢個組合先係綠色「已核對」');
 
   const load = context.handleLoad();
   assert.equal(load.success, true);
-  assert.equal(load.gsVersion, 'v9.3', '登入後 load 都要回報 GS 程式版本');
-  assert.equal(load.initializedGsVersion, 'v9.3', '登入後 load 都要回報初始化版本');
+  assert.equal(load.gsVersion, 'v9.4', '登入後 load 都要回報 GS 程式版本');
+  assert.equal(load.initializedGsVersion, 'v9.4', '登入後 load 都要回報初始化版本');
   assert.equal(load.gsInitializationCurrent, true);
 
   // 重複初始化：安全、idempotent、資料同 API Key 原封不動
@@ -194,7 +196,7 @@ test('Proxy 放行 ecStatus 並喺伺服器端注入 API Key（瀏覽器永遠�
   const res = { headers: {}, code: 0, body: null, setHeader(k, v) { this.headers[k] = v; }, status(c) { this.code = c; return this; }, json(v) { this.body = v; return this; } };
   const originalFetch = globalThis.fetch;
   let sent;
-  globalThis.fetch = async (url, init) => { sent = { url, init }; return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.3', initializedGsVersion: 'v9.3', gsInitializationCurrent: true }) }; };
+  globalThis.fetch = async (url, init) => { sent = { url, init }; return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.4', initializedGsVersion: 'v9.4', gsInitializationCurrent: true }) }; };
   try {
     await proxy({ method: 'POST', body: { troopId: '0082', action: 'ecStatus', data: {} } }, res);
   } finally {
@@ -202,7 +204,7 @@ test('Proxy 放行 ecStatus 並喺伺服器端注入 API Key（瀏覽器永遠�
   }
   assert.equal(res.code, 200);
   assert.equal(res.body.success, true);
-  assert.equal(res.body.gsVersion, 'v9.3');
+  assert.equal(res.body.gsVersion, 'v9.4');
   assert.equal(res.body.gsInitializationCurrent, true);
   const forwarded = JSON.parse(sent.init.body);
   assert.equal(forwarded.action, 'ecStatus');

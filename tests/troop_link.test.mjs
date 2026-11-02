@@ -137,7 +137,7 @@ function makeNode({ name, apikey, url }) {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
-      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(String(value), 'utf8').digest()),
+      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
       formatDate: formatDateStub
     },
     DriveApp: {
@@ -437,7 +437,7 @@ test('開戶：上游揀團開戶，經 sig 落下游寫（兩邊同一 password
     String(downstreamHash.data[downstreamHash.map.password_hash]),
     '下游必須直插同一 hash'
   );
-  assert.equal(String(downstreamHash.data[downstreamHash.map.password_hash]), sha256('4321'));
+  assert.match(String(downstreamHash.data[downstreamHash.map.password_hash]), /^pbkdf2\$\d+\$[0-9a-f]+\$[0-9a-f]{64}$/, '開戶寫 PBKDF2，下游直插同一新格式 hash');
   assert.equal(downstreamHash.user.role, 'exec_committee');
   // 下游已閂口，但上游仍可直接寫下游進度
   assert.equal(up.context.callDownstream('progress', 'save', { changes: [{ ymis: '2345678901', itemId: 'L1', date: '2026-04-04' }] }).success, true);
@@ -453,7 +453,8 @@ test('開戶：上游揀團開戶，經 sig 落下游寫（兩邊同一 password
   assert.equal(mirrored.password_kept, true, '冇帶 hash 時必須保留原密碼');
   assert.equal(down.context.findUserRecord('2345678901').user.name, '李四（改名）');
   assert.equal(down.context.findUserRecord('2345678901').user.branch, '第 82 旅深資', '冇帶 branch 不可洗走既有支部');
-  assert.equal(String(down.context.findUserRecord('2345678901').data[down.context.findUserRecord('2345678901').map.password_hash]), sha256('4321'));
+  assert.equal(String(down.context.findUserRecord('2345678901').data[down.context.findUserRecord('2345678901').map.password_hash]),
+    String(upstreamHash.data[upstreamHash.map.password_hash]), '冇帶 hash 的更新必須保留原 PBKDF2 hash');
   assert.equal(sheetRows(down, 'Users').filter(r => String(r[0]) === '2345678901').length, 1, '不可出現重複列');
 });
 
@@ -479,7 +480,8 @@ test('吐 JSON：匯出含 hash，匯入逐個 upsertUser 直插 hash（保留�
   const payload = JSON.parse(stored.content);
   assert.equal(payload.format, 'vsbadge-users-export');
   const chen = payload.users.find(u => u.ymis === '1234567890');
-  assert.equal(chen.password_hash, sha256('newpass1'), '匯出必須含 hash');
+  assert.match(chen.password_hash, /^pbkdf2\$\d+\$[0-9a-f]+\$[0-9a-f]{64}$/, '匯出必須含改密後的 PBKDF2 hash');
+  assert.equal(chen.password_hash, String(oldNode.context.findUserRecord('1234567890').data[oldNode.context.findUserRecord('1234567890').map.password_hash]), '匯出 hash 與來源節點一致');
   assert.equal(chen.email, 'chan@example.com');
   assert.equal(JSON.stringify(sheetRows(oldNode, '操作紀錄')).includes(chen.password_hash), false, 'hash 不可寫入操作紀錄');
   assert.equal(oldNode.ss.getSheets().some(sh => sh.getName().includes('匯出')), false, '匯出不可另開工作表');
@@ -492,7 +494,7 @@ test('吐 JSON：匯出含 hash，匯入逐個 upsertUser 直插 hash（保留�
   assert.equal(imported.updated, 1);
   assert.equal(imported.failed, 0);
   const rec = newNode.context.findUserRecord('1234567890');
-  assert.equal(String(rec.data[rec.map.password_hash]), sha256('newpass1'), '舊密碼必須保留');
+  assert.equal(String(rec.data[rec.map.password_hash]), chen.password_hash, '舊密碼的 hash 必須原樣搬走（PBKDF2 直插）');
   assert.equal(rec.user.force_change_password, false, '搬舊數唔應該強制改密碼');
   // 舊密碼喺新支部直接可用
   const login = newNode.context.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'login', login_id: '1234567890', password: 'newpass1' }) } });

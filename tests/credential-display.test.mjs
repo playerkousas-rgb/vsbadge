@@ -136,7 +136,7 @@ function setup({ fresh = false } = {}) {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
-      computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(String(message), 'utf8').digest()),
+      computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(message) ? Buffer.from(message.map(b => b & 0xFF)) : Buffer.from(String(message), 'utf8')).digest()),
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },
@@ -236,7 +236,7 @@ test('普通 HTTP 請求唔會發現、儲存或回傳自報的 backend URL；�
     postData: { contents: JSON.stringify({ action: 'ecStatus', apikey: KEY, backend: FALSE_URLS[1] }) }
   });
   assert.equal(post.success, true);
-  assert.equal(post.gsVersion, 'v9.3');
+  assert.equal(post.gsVersion, 'v9.4');
   for (const apikey of ['', 'wrong', KEY]) {
     const self = backend.doGet({ parameter: { action: 'selfUrl', apikey } });
     assert.equal(self.success, false, 'selfUrl 循環自我核實入口唔准存在');

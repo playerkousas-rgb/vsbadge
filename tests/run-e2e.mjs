@@ -800,27 +800,30 @@ console.log('\n【16】Scout Admin 新旅團接入申請契約（type=apply、ba
   }
 }
 
-// ---- 忘記密碼（v9.3）經同源 Proxy 自助重設 ----
-console.log('\n【17】忘記密碼：電郵驗證碼／通知領袖（v9.3）');
+// ---- 忘記密碼經同源 Proxy 自助重設（中性回應＋8 位重設碼）----
+console.log('\n【17】忘記密碼：中性回應＋8 位電郵重設碼');
 {
   const noEmail = await apiA('requestPasswordReset', { login_id: '1234560001' });
-  check('未登記電郵的帳號 → 提示聯絡領袖（不提供自助重設）',
-    noEmail.success === true && noEmail.channel === 'leader' && /聯絡領袖/.test(noEmail.message || ''));
-  check('未登記電郵的帳號不會產生任何待批驗證碼紀錄',
+  check('未登記電郵的帳號 → 中性回應（唔透露未登記電郵）',
+    noEmail.success === true && !('channel' in noEmail) && !/未有登記電郵|未登記電郵/.test(noEmail.message || ''));
+  check('未登記電郵的帳號不會產生任何待批重設碼紀錄',
     !mockA.state.passwordResets.some(r => r.ymis === '1234560001'));
 
   const withEmail = await apiA('requestPasswordReset', { login_id: '1234567890' });
-  check('已登記電郵的帳號 → 回覆電郵渠道及遮蔽提示', withEmail.success === true && withEmail.channel === 'email' && withEmail.email_hint === 'a@example.org');
-  check('回應不會回傳驗證碼', !/\b\d{6}\b/.test(String(withEmail.message || '')));
+  check('已登記電郵的帳號 → 回應與未登記電郵完全一致（防枚舉）', JSON.stringify(withEmail) === JSON.stringify(noEmail));
+  check('回應不會回傳重設碼', !/\b\d{8}\b/.test(String(withEmail.message || '')));
+
+  const ghost = await apiA('requestPasswordReset', { login_id: '9999999999' });
+  check('不存在的帳號 → 回應亦完全一致', JSON.stringify(ghost) === JSON.stringify(noEmail));
 
   const pending = mockA.state.passwordResets.filter(r => r.ymis === '1234567890' && r.status === 'pending').pop();
-  check('驗證碼只保存在旅團後端（測試讀取 mock 狀態）', !!pending && /^\d{6}$/.test(pending.code));
+  check('重設碼只保存在旅團後端（測試讀取 mock 狀態）', !!pending && /^\d{8}$/.test(pending.code));
 
-  const wrong = await apiA('completePasswordReset', { login_id: '1234567890', code: pending.code === '000000' ? '111111' : '000000', new_password: 'ResetPass!9' });
-  check('錯誤驗證碼不可重設密碼', wrong.success === false);
+  const wrong = await apiA('completePasswordReset', { login_id: '1234567890', code: pending.code === '00000000' ? '11111111' : '00000000', new_password: 'ResetPass!9' });
+  check('錯誤重設碼不可重設密碼', wrong.success === false && wrong.error === '重設碼不正確或已過期，請重新申請');
 
   const done = await apiA('completePasswordReset', { login_id: '1234567890', code: pending.code, new_password: 'ResetPass!9' });
-  check('正確驗證碼完成自助重設', done.success === true && /密碼已重設/.test(done.message || ''));
+  check('正確重設碼完成自助重設', done.success === true && /密碼已重設/.test(done.message || ''));
 
   const relogin = await apiA('login', { login_id: '1234567890', password: 'ResetPass!9' });
   check('可用新密碼重新登入', relogin.success === true && !!relogin.token);

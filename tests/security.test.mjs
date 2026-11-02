@@ -336,7 +336,7 @@ test('Troop registration relay maps scriptUrl to Scout Admin apply contract and 
 function gasContext() {
   const used = new Map(); let verified = false; let fetches = 0;
   const context = vm.createContext({
-    Utilities: { computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(String(message)).digest()) },
+    Utilities: { computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(message) ? Buffer.from(message.map(b => b & 0xFF)) : Buffer.from(String(message), 'utf8')).digest()) },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
     CacheService: { getScriptCache: () => ({ get: k => used.get(k), put: (k, v) => used.set(k, v) }) },
     ScriptApp: { getService: () => ({ getUrl: () => backend }) },

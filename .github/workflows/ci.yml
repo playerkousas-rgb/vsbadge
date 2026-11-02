@@ -1,0 +1,32 @@
+# CI 閘門（對應 readme repo PLAYBOOK G8：CI 一定要有；docs/20 P2 建議四個 badge repo 各加一條跑現成測試）
+# 零第三方依賴：只跑本 repo 自帶嘅 lint / check / 全套測試 / build。
+# Actions 以 commit SHA pin（A16 供應鏈）：
+#   actions/checkout  v4.2.2 = 11bd71901bbe5b1630ceea73d27597364c9af683
+#   actions/setup-node v4.1.0 = 39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+name: ci
+
+on:
+  push:
+    branches: ['main', 'arena/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: '22'
+      - name: Lint
+        run: npm run lint
+      - name: Check (語法＋結構守護)
+        run: npm run check
+      - name: Full test suite（含真實 Code.gs harness＋端到端）
+        run: npm test
+      - name: Build (Vercel output)
+        run: npm run build && npm run test:build
