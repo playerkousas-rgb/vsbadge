@@ -518,7 +518,7 @@ a:hover{text-decoration:underline}
 
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (GS v9.2 單一檔案版)</h4><p>最新 GS v9.2：初始化及 API Key 彈窗不再顯示自動取得的部署網址，只提供 API Key；保留現有資料及 API Key</p><a href="apps-script/Code.gs?gs=v9.2" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (GS v9.2)</a></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (GS v9.3 單一檔案版)</h4><p>最新 GS v9.3：新增「忘記密碼」自助重設（電郵驗證碼或通知領袖），並沿用 API Key 專用接入資料彈窗；保留現有資料及 API Key</p><a href="apps-script/Code.gs?gs=v9.3" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (GS v9.3)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key（GS 彈窗及選單只提供 API Key，不顯示自動取得的網址；旅團編號毋須在 Sheet／Apps Script 預先設定）<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，在 Google 部署視窗複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給 vsbadge 管理員</h4><p>取得 API Key 及 Google 部署視窗提供的部署 URL 後，填寫下方接入申請（ADMIN FORM）。旅團編號直接在 ADMIN FORM 填寫，毋須在 GS 設定；連同名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用。API Key 可在「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」查看</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>首次登入（預設管理員帳號）</h4><p>initializeSheets 跑完會自動建立預設管理員。登記完成後，首頁揀該旅團卡片 → 用「👤 成員」分頁登入（YMIS 登入，唔好用「👨‍💼 領袖」＝Email 分頁）：</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 密碼</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>首次登入會<b style="color:var(--red)">強制改密碼</b>（最少 4 位）。之後去「👥 用戶管理」開返各領袖自己嘅帳號並設角色／權限，喺「✅ 審批中心」批成員申請。</p></div></div>
@@ -561,7 +561,11 @@ a:hover{text-decoration:underline}
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：GS v9.2 接入資料只顯示 API Key＋系統介紹（2026-10-24）</h3>
+        <h3>最新：GS v9.3 忘記密碼（2026-11-02）</h3>
+        <p style="font-size:12px">登入頁新增「🔑 忘記密碼？」：輸入 YMIS 或登記電郵即可自助重設。已登記電郵的帳號會收到 6 位驗證碼（15 分鐘有效、最多 5 次嘗試，只以雜湊儲存），輸入驗證碼及新密碼即可完成；未登記電郵的帳號不設自助重設，畫面會直接提示聯絡領袖，由領袖在「👥 用戶管理」重設臨時密碼（系統不會建立待批請求）。重設成功會撤銷該帳戶所有既有登入，並寫入操作紀錄；免登入入口不會透露帳號是否存在。此版本必須執行一次 initializeSheets() 以補建「密碼重設」工作表（可安全重跑，現有資料、API Key 及登入協定不變）。電郵由本旅團部署帳戶寄出，如從未授權寄件權限，系統會自動改用領袖協助流程。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>GS v9.2 接入資料只顯示 API Key＋系統介紹（2026-10-24）</h3>
         <p style="font-size:12px">「🔗 旅系統」選單改為「🔑 顯示 API KEY（交 ADMIN）」；initializeSheets()、showApiKey() 等接入資料入口只提供 API Key，不再顯示自動取得或快取的部署 URL，初始化回傳值亦不再帶 scriptUrl。部署 URL 一律在 Google「部署 → 管理部署」視窗複製，旅團編號直接在 ADMIN FORM 填寫，毋須預先在 Sheet／Apps Script 設定，亦無須把 URL 貼回 GS。首頁新增「🌿 系統介紹」分頁（通用說明圖＋中英文字說明），並與「📋 新旅團部署」互設入口。此版本必須執行一次 initializeSheets()；已有帳號、成員、YMIS、新舊 ID 進度、獎章、活動履歷、備註、旅團設定及 API Key 一律保留，登入／簽名協定不變。</p>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -615,6 +619,7 @@ a:hover{text-decoration:underline}
       <div class="form-group"><label id="loginIdLabel" data-i18n="login.ymis">YMIS（10位數字）</label><input type="text" id="loginId" placeholder="例如 1234567890" maxlength="10" data-i18n-placeholder="login.ymisPh"></div>
       <div class="form-group"><label data-i18n="login.password">密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼" data-i18n-placeholder="login.passwordPh"></div>
       <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin" data-i18n="login.submit">登入</button>
+      <div style="text-align:center;margin:10px 0 0"><a href="#" onclick="showPasswordResetModal();return false" style="font-size:12px;font-weight:600" data-i18n="pwreset.loginLink">🔑 忘記密碼？</a></div>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
         <a href="#" onclick="showAccountApplyModal();return false" style="font-size:12px" data-i18n="login.apply">🆕 申請帳戶（成員／執委／領袖）</a>
         <a href="#" onclick="showContactModal();return false" style="font-size:12px" data-i18n="login.register">新旅團登記</a>
@@ -815,6 +820,35 @@ a:hover{text-decoration:underline}
     <div style="font-size:11px;color:var(--text-light);background:var(--bg);padding:8px 10px;border-radius:6px;margin-bottom:12px" data-i18n="apply.pwNotice">💡 申請經批核後，初始密碼預設為 1234；首次登入時系統會強制要求設定新密碼。</div>
     <div id="applyMsg" class="login-msg" aria-live="polite"></div>
     <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('accountApplyModal')" data-i18n="btn.cancel">取消</button><button class="btn btn-primary" id="btnAccountApply" onclick="submitAccountApply()" data-i18n="btn.submit">提交申請</button></div>
+  </div>
+</div>
+
+<div id="passwordResetModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="passwordResetTitle">
+  <div class="modal-content" style="max-width:470px">
+    <h3 id="passwordResetTitle" data-i18n="pwreset.title">🔑 忘記密碼</h3>
+    <div class="troop-info-box" id="passwordResetTroopInfo">—</div>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:10px" data-i18n="pwreset.hint">輸入 YMIS 或登記電郵。已登記電郵會收到 6 位驗證碼；未登記電郵的帳號會通知領袖協助，由領袖提供臨時密碼。</p>
+    <div id="passwordResetMsg" class="login-msg" role="status" aria-live="polite"></div>
+    <div id="passwordResetStep1">
+      <div class="form-group"><label for="pwResetLoginId" data-i18n="pwreset.idLabel">YMIS（10 位）或 Email *</label><input id="pwResetLoginId" type="text" maxlength="160" autocomplete="username" data-i18n-placeholder="pwreset.idPh" placeholder="例如 1234567890 或 your@email.com"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('passwordResetModal')" data-i18n="btn.cancel">取消</button>
+        <button class="btn btn-primary" id="btnRequestPasswordReset" onclick="submitPasswordResetRequest()" data-i18n="pwreset.request">發送重設指示</button>
+      </div>
+    </div>
+    <div id="passwordResetStep2" style="display:none">
+      <div class="form-group"><label for="pwResetCode" data-i18n="pwreset.codeLabel">電郵驗證碼（6 位數字）*</label><input id="pwResetCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456"></div>
+      <div class="form-group"><label for="pwResetNewPassword" data-i18n="pwreset.newLabel">新密碼（至少 4 位）*</label><input id="pwResetNewPassword" type="password" minlength="4" maxlength="128" autocomplete="new-password"></div>
+      <div class="form-group"><label for="pwResetConfirmPassword" data-i18n="pwreset.confirmLabel">再次輸入新密碼 *</label><input id="pwResetConfirmPassword" type="password" minlength="4" maxlength="128" autocomplete="new-password"></div>
+      <div style="font-size:11px;color:var(--text-light);margin-bottom:10px" data-i18n="pwreset.secureHint">為安全起見，重設成功後其他裝置的登入會立即失效。如收不到驗證碼，可返回上一步再申請一次（舊驗證碼會失效）。</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="backToPasswordResetStep1()" data-i18n="pwreset.back">← 重新輸入帳號</button>
+        <button class="btn btn-primary" id="btnCompletePasswordReset" onclick="submitPasswordResetComplete()" data-i18n="pwreset.submit">完成重設</button>
+      </div>
+    </div>
+    <div id="passwordResetStep3" style="display:none">
+      <div class="modal-actions"><button class="btn btn-primary" onclick="closeModal('passwordResetModal')" data-i18n="pwreset.close">知道了</button></div>
+    </div>
   </div>
 </div>
 
@@ -1116,6 +1150,16 @@ zh:{
   'cu.title':'➕ 前端開立帳戶','cu.hint':'帳戶建立後可立即登入；首次登入會強制更改臨時密碼。','cu.ymis':'YMIS（10 位）*','cu.name':'姓名 *','cu.email':'Email','cu.branch':'支部／單位','cu.role':'角色 *','cu.temp':'臨時密碼 *','cu.gen':'產生','cu.tick':'允許勾選進度（只適用於領袖／執委）','cu.create':'建立帳戶','cu.need':'請填寫姓名及至少 4 位臨時密碼','cu.creating':'建立中...','cu.okTitle':'✅ 帳戶已建立','cu.ok':'帳戶已建立，請安全轉交臨時密碼','cu.fail':'建立失敗：{m}',
   'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
   'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 4 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 4 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
+  'pwreset.loginLink':'🔑 忘記密碼？','pwreset.title':'🔑 忘記密碼',
+  'pwreset.hint':'只支援已登記電郵的帳號：輸入 YMIS 或電郵後會收到 6 位驗證碼。未有登記電郵的帳號請直接聯絡領袖協助重設密碼。',
+  'pwreset.idLabel':'YMIS（10 位）或 Email *','pwreset.idPh':'例如 1234567890 或 your@email.com',
+  'pwreset.request':'發送重設指示','pwreset.sending':'處理中…','pwreset.submitting':'重設中…',
+  'pwreset.codeLabel':'電郵驗證碼（6 位數字）*','pwreset.newLabel':'新密碼（至少 4 位）*','pwreset.confirmLabel':'再次輸入新密碼 *',
+  'pwreset.back':'← 重新輸入帳號','pwreset.submit':'完成重設','pwreset.close':'知道了',
+  'pwreset.secureHint':'為安全起見，重設成功後其他裝置的登入會立即失效。如收不到驗證碼，可返回上一步再申請一次（舊驗證碼會失效）。',
+  'pwreset.needId':'請填寫 YMIS 或 Email','pwreset.needCode':'請輸入 6 位電郵驗證碼',
+  'pwreset.fail':'重設未能完成，請稍後重試','pwreset.sentGeneric':'如資料相符，重設指示已處理；請檢查登記電郵或聯絡領袖。',
+  'pwreset.done':'密碼已重設，請用新密碼登入','pwreset.pickTroop':'請先選擇旅團','pwreset.demo':'示範模式不支援重設密碼',
   'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
   'del.accountQ':'確定刪除「{name}」？帳戶會停止登入並從成員名單移除；歷史進度會保留。為免身份被冒用，其 YMIS／Email 不可再用於另一帳戶。','del.memberQ':'確定從成員名單刪除「{name}」？','del.ok':'已刪除','del.fail':'刪除失敗：{m}',
   'hist.title':'🧾 操作紀錄','hist.empty':'沒有操作紀錄','hist.fail':'讀取紀錄失敗：{m}','hist.time':'時間','hist.actor':'操作者','hist.act':'操作','hist.target':'對象','hist.detail':'詳情',
@@ -1436,6 +1480,16 @@ en:{
   'cu.title':'➕ Create account','cu.hint':'The account can sign in at once; the first sign-in forces a password change.','cu.ymis':'YMIS (10 digits) *','cu.name':'Name *','cu.email':'Email','cu.branch':'Section / unit','cu.role':'Role *','cu.temp':'Temporary password *','cu.gen':'Generate','cu.tick':'Allow ticking progress (leaders / execs only)','cu.create':'Create account','cu.need':'Please enter a name and a temporary password of at least 4 characters','cu.creating':'Creating...','cu.okTitle':'✅ Account created','cu.ok':'Account created. Pass on the temporary password securely.','cu.fail':'Create failed: {m}',
   'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
   'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 4 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 4 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
+  'pwreset.loginLink':'🔑 Forgot password?','pwreset.title':'🔑 Forgot password',
+  'pwreset.hint':'Self-service reset is only for accounts with a registered email: enter your YMIS or email to receive a 6-digit code. Accounts without an email should contact a Leader to reset the password.',
+  'pwreset.idLabel':'YMIS (10 digits) or Email *','pwreset.idPh':'e.g. 1234567890 or your@email.com',
+  'pwreset.request':'Send reset instructions','pwreset.sending':'Working…','pwreset.submitting':'Resetting…',
+  'pwreset.codeLabel':'Email code (6 digits) *','pwreset.newLabel':'New password (at least 4 characters) *','pwreset.confirmLabel':'Re-enter new password *',
+  'pwreset.back':'← Change account','pwreset.submit':'Reset password','pwreset.close':'Got it',
+  'pwreset.secureHint':'For safety, other devices are signed out as soon as the reset succeeds. If the code never arrives, go back and request again — the older code stops working.',
+  'pwreset.needId':'Enter your YMIS or email','pwreset.needCode':'Enter the 6-digit email code',
+  'pwreset.fail':'The reset could not be completed. Please try again later.','pwreset.sentGeneric':'If the details match, the reset request has been handled. Check your registered email or contact a Leader.',
+  'pwreset.done':'Password reset. Please sign in with your new password.','pwreset.pickTroop':'Select a Group first','pwreset.demo':'Password reset is not available in DEMO',
   'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
   'del.accountQ':'Delete “{name}”? Sign-in will stop and the person will be removed from the member roster; historical progress is kept. To prevent identity reuse, the YMIS / email cannot be used for another account.','del.memberQ':'Remove “{name}” from the member roster?','del.ok':'Deleted','del.fail':'Delete failed: {m}',
   'hist.title':'🧾 Audit log','hist.empty':'No audit records','hist.fail':'Could not read the log: {m}','hist.time':'Time','hist.actor':'Actor','hist.act':'Action','hist.target':'Target','hist.detail':'Detail',
@@ -1826,7 +1880,7 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
 [主系統暫時隱藏 完] -->
 <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Setup map</h3><p style="font-size:11px">Download Code.gs → create a Sheet → run initializeSheets to get the API Key → deploy and copy the URL from Google's deployment dialog → enter Group number, name, URL and API Key in the ADMIN FORM for a vsbadge admin to add Vercel environment variables → first sign-in (step 4) → use vsbadge.vercel.app, pick your Group, sign in.</p><!-- [主系統暫時隱藏 2026-10] Path B, connect the main platform: still register with a vsbadge admin (from v3.0 the card only needs u=Group number). From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles); portal sign-in is then verified server-side. Use: Dashboard, card, from=portal + src=main-platform-origin + embed=1 (ymis is now optional). Re-enable: restore this sentence as a visible line and rename the card to Two paths. --></div>
 <div class="tutorial"><div class="steps">
-  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (GS v9.2, single file)</h4><p>Latest GS v9.2: initialisation and API-key dialogs no longer show an automatically obtained deployment URL; they provide only the API Key. Existing data and API Key are preserved</p><a href="apps-script/Code.gs?gs=v9.2" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs (GS v9.2)</a></div></div>
+  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (GS v9.3, single file)</h4><p>Latest GS v9.3: adds self-service “Forgot password” (email code or Leader assistance) and keeps the API-key-only connection details. Existing data and API Key are preserved</p><a href="apps-script/Code.gs?gs=v9.3" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs (GS v9.3)</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy the API Key (GS dialogs and menus provide only the API Key, never an automatically obtained URL; the Group number does not need to be set in the Sheet / Apps Script first)<br><b>2.4</b> Deploy as web app (execute as me, access anyone), and copy the /exec URL from Google's deployment dialog</p></div></div>
   <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Submit to a vsbadge admin</h4><p>With the API Key and the deployment URL from Google's deployment dialog, complete the connection request below (the ADMIN FORM). Enter the Group number directly in the ADMIN FORM; it never needs to be set in GS. Send number, name, URL and API Key so a vsbadge admin can add Vercel environment variables; after Vercel deploys, use it standalone. View the API Key anytime under “🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）”.</p></div></div>
   <div class="step"><div class="step-number">4</div><div class="step-content"><h4>First sign-in (default admin account)</h4><p>initializeSheets creates the default admin automatically. After registration, open the home page, pick your Group card, and sign in on the “👤 Member” tab (YMIS sign-in; do not use the “👨‍💼 Leader” tab, which uses Email):</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 Password</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>The first sign-in <b style="color:var(--red)">forces a password change</b> (minimum 4 characters). Then open accounts for your leaders under “👥 Users” with roles and rights, and approve member applications in “✅ Approvals”.</p></div></div>
@@ -1859,7 +1913,11 @@ changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">�
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
-  <h3>Latest: GS v9.2 API-key-only connection details + system introduction (2026-10-24)</h3>
+  <h3>Latest: GS v9.3 forgot password (2026-11-02)</h3>
+  <p style="font-size:12px">The sign-in page gains “🔑 Forgot password?”: enter your YMIS or registered email. Accounts with a registered email receive a 6-digit code (valid for 15 minutes, at most 5 attempts, stored only as a hash) and can set a new password themselves; accounts without an email cannot self-reset: the app tells them to contact a Leader, who resets a temporary password under “👥 Users” (no pending request is created). A successful reset signs out every existing session and is written to the audit log; the public entry point never reveals whether an account exists. This release requires running initializeSheets() once to add the “密碼重設” sheet (safe to re-run; existing data, API Key and sign-in protocols are unchanged). Emails are sent by the Group's own deployment account; if sending has never been authorised, the app automatically falls back to Leader assistance.</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>GS v9.2 API-key-only connection details + system introduction (2026-10-24)</h3>
   <p style="font-size:12px">The “🔗 旅系統” menu now reads “🔑 顯示 API KEY（交 ADMIN）”. initializeSheets(), showApiKey() and the other connection-detail entries provide only the API Key: they no longer display an automatically obtained or cached deployment URL, and the initialisation result no longer carries a scriptUrl. Always copy the deployment URL from Google's “Deploy → Manage deployments” dialog, and enter the Group number directly in the ADMIN FORM — it never needs to be preset in the Sheet / Apps Script, and there is no step that pastes a URL back into GS. The home page gains a “🌿 System introduction” tab (the shared diagram with Chinese and English text), cross-linked with “📋 New Group setup”. This release requires running initializeSheets() once; existing accounts, members, YMIS, old/new-ID progress, badges, activity log, notes, Group settings and the API Key are all preserved, and the sign-in / signature protocols are unchanged.</p>
 </div>
 <div class="info-section" style="margin-top:12px">
@@ -1928,7 +1986,7 @@ function todayISO(){ return new Date().toISOString().split('T')[0]; }
    只列最新版本，不設逐級補丁清單。GS 的 ecStatus 及登入後 load 會回報
    gsVersion（程式版本）及 initializedGsVersion（初始化版本），前端據此分辨：
    「GS 未更新」→ 警告、「已更新但未初始化」→ 警告、「全部完成」→ 綠色「已核對」。 */
-const LATEST_RELEASE=Object.freeze({updated:'2026-10-24',gsVersion:'v9.2',initializeRequired:true});
+const LATEST_RELEASE=Object.freeze({updated:'2026-11-02',gsVersion:'v9.3',initializeRequired:true});
 let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initializedGsVersion:'',error:''};
 let _releaseCheckSequence=0;
 function resetBackendRelease(){
@@ -2553,6 +2611,89 @@ async function submitFeedback(){
 function closeModal(id){
   if(id==='feedbackModal'&&feedbackSubmitState==='sending') return;
   document.getElementById(id).classList.remove('active');
+}
+
+/* ================== 忘記密碼（免登入自助重設） ==================
+   1. 輸入 YMIS／Email → 後端只回覆通用結果，不會透露帳號是否存在
+   2. 已登記電郵：6 位驗證碼（15 分鐘有效）＋新密碼；未登記電郵：通知領袖協助
+   3. 重設成功後所有既有登入失效，請用新密碼重新登入 */
+let passwordResetContext={troopId:'',loginId:'',channel:''};
+function showPasswordResetModal(){
+  if(!currentTroopId){ showToast(i18n('pwreset.pickTroop'),'warning'); return; }
+  if(currentTroopId==='DEMO'){ showToast(i18n('pwreset.demo'),'warning'); return; }
+  passwordResetContext={troopId:currentTroopId,loginId:'',channel:''};
+  ['pwResetLoginId','pwResetCode','pwResetNewPassword','pwResetConfirmPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const msg=document.getElementById('passwordResetMsg'); if(msg){ msg.className='login-msg'; msg.textContent=''; }
+  const info=document.getElementById('passwordResetTroopInfo');
+  if(info) info.textContent=`📍 ${currentTroopName||troopDisplayName(null,currentTroopId)} (ID: ${currentTroopId})`;
+  // 登入頁輸入過的帳號直接帶入，免重複輸入
+  const loginEl=document.getElementById('loginId');
+  const idEl=document.getElementById('pwResetLoginId');
+  if(loginEl&&idEl&&loginEl.value.trim()) idEl.value=loginEl.value.trim();
+  setPasswordResetStep(1);
+  document.getElementById('passwordResetModal').classList.add('active');
+  setTimeout(()=>{ const el=document.getElementById('pwResetLoginId'); if(el) el.focus(); },100);
+}
+function setPasswordResetStep(step){
+  [1,2,3].forEach(n=>{ const el=document.getElementById('passwordResetStep'+n); if(el) el.style.display=n===step?'block':'none'; });
+}
+function backToPasswordResetStep1(){
+  setPasswordResetStep(1);
+  const msg=document.getElementById('passwordResetMsg'); if(msg){ msg.className='login-msg'; msg.textContent=''; }
+  setTimeout(()=>{ const el=document.getElementById('pwResetLoginId'); if(el) el.focus(); },100);
+}
+async function submitPasswordResetRequest(){
+  const loginId=document.getElementById('pwResetLoginId').value.trim();
+  const msg=document.getElementById('passwordResetMsg');
+  const btn=document.getElementById('btnRequestPasswordReset');
+  if(!loginId){ msg.textContent=i18n('pwreset.needId'); msg.className='login-msg error'; return; }
+  btn.disabled=true; btn.textContent=i18n('pwreset.sending');
+  try{
+    const d=await apiRequest('requestPasswordReset',{login_id:loginId});
+    if(!d.success) throw new Error(d.error||i18n('pwreset.fail'));
+    passwordResetContext.loginId=loginId;
+    passwordResetContext.channel=d.channel||'none';
+    msg.className=d.channel==='leader'?'login-msg warning':'login-msg success';
+    msg.textContent=d.message||i18n('pwreset.sentGeneric');
+    if(d.channel==='email'){
+      setPasswordResetStep(2);
+      setTimeout(()=>{ const el=document.getElementById('pwResetCode'); if(el) el.focus(); },100);
+    }else{
+      setPasswordResetStep(3);
+    }
+  }catch(e){
+    msg.textContent=e.message; msg.className='login-msg error';
+  }finally{
+    btn.disabled=false; btn.textContent=i18n('pwreset.request');
+  }
+}
+async function submitPasswordResetComplete(){
+  const code=document.getElementById('pwResetCode').value.replace(/\D/g,'');
+  const newP=document.getElementById('pwResetNewPassword').value;
+  const confirmP=document.getElementById('pwResetConfirmPassword').value;
+  const msg=document.getElementById('passwordResetMsg');
+  const btn=document.getElementById('btnCompletePasswordReset');
+  if(code.length!==6){ msg.textContent=i18n('pwreset.needCode'); msg.className='login-msg error'; return; }
+  if(newP.length<4){ msg.textContent=i18n('pw.short'); msg.className='login-msg error'; return; }
+  if(newP!==confirmP){ msg.textContent=i18n('pw.mismatch'); msg.className='login-msg error'; return; }
+  btn.disabled=true; btn.textContent=i18n('pwreset.submitting');
+  try{
+    const d=await apiRequest('completePasswordReset',{login_id:passwordResetContext.loginId,code,new_password:newP});
+    if(!d.success) throw new Error(d.error||i18n('pwreset.fail'));
+    msg.textContent=d.message||i18n('pwreset.done'); msg.className='login-msg success';
+    document.getElementById('pwResetCode').value='';
+    document.getElementById('pwResetNewPassword').value='';
+    document.getElementById('pwResetConfirmPassword').value='';
+    setPasswordResetStep(3);
+    // 方便用新密碼即時登入
+    const loginEl=document.getElementById('loginId');
+    if(loginEl&&passwordResetContext.loginId) loginEl.value=passwordResetContext.loginId;
+    showToast(i18n('pwreset.done'),'success');
+  }catch(e){
+    msg.textContent=e.message; msg.className='login-msg error';
+  }finally{
+    btn.disabled=false; btn.textContent=i18n('pwreset.submit');
+  }
 }
 function showAccountApplyModal(){
   if(!currentTroopId){ showToast(i18n('apply.pickTroop'),'warning'); return; }
@@ -3927,7 +4068,7 @@ async function renderRequestsTab(){
   const totalUser=userApplications.length;
   const totalLog=logReqList.length;
   const totalAll=totalBadge+totalUser+totalLog;
-  // 更新紅點數字包含兩種
+  // 更新紅點數字包含獎章、履歷、帳戶申請及密碼重設
   const badgeEl=document.getElementById('badgeRequestsCount');
   if(badgeEl){ if(totalAll>0){ badgeEl.textContent=totalAll; badgeEl.style.display='inline-block'; } else badgeEl.style.display='none'; }
 
@@ -4030,7 +4171,6 @@ function showApprovalSubTab(which){
   if(lv) lv.style.display=which==='log'?'block':'none';
   if(uv) uv.style.display=which==='user'?'block':'none';
 }
-
 async function reviewSingleRequest(reqId, decision){
   if(!confirm(i18n('req.confirmDec',{dec:decision==='approved'?i18n('req.decA'):i18n('req.decR')}))) return;
   const dateInput=document.getElementById('confirmDate_'+reqId);

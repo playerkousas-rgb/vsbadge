@@ -41,7 +41,7 @@ function getScoutAdminApi() {
 // ---- action 白名單（對照 Code.gs doGet/doPost）----
 // 公開（無需 token）
 // ecStatus 只回報 GS 程式／初始化版本（無敏感資料），API Key 由伺服器端注入，供未登入前嘅版本公告核對
-const PUBLIC_ACTIONS = new Set(['login', 'apply', 'getLoginMode', 'ecStatus']);
+const PUBLIC_ACTIONS = new Set(['login', 'apply', 'getLoginMode', 'ecStatus', 'requestPasswordReset', 'completePasswordReset']);
 // 需要登入 token 的旅團內操作
 const TOKEN_ACTIONS = new Set([
   'logout', 'load', 'getConfig', 'getMembers', 'getOtherBadges',

@@ -18,6 +18,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     applications: [],
     logs: [],                      // v8.1 活動履歷
     logRequests: [],               // v8.4 待批履歷（團員自行申報）
+    passwordResets: [],            // v9.3 忘記密碼（自助重設請求；code 只供測試讀取，不會經 API 回傳）
     config: { allow_member_view_others: 'false' },
     apikey,
     mode: 'normal',               // normal | html-error | http500 | slow
@@ -58,6 +59,17 @@ export function startMockGas({ port, name, users, apikey = '' }) {
   }
 
   const pendingRedirects = new Map(); // rid -> payload
+
+  const RESET_TTL_MS = 15 * 60 * 1000;
+  const maskResetEmail = value => {
+    const text = String(value || '');
+    const at = text.indexOf('@');
+    if (at < 1) return '';
+    const name = text.substring(0, at);
+    return (name.length <= 1 ? name : name.substring(0, 1) + '***') + '@' + text.substring(at + 1);
+  };
+  const resetCode = () => String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+  const validEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
 
   function routeAction(action, body) {
     const validKey = state.apikey && body.apikey === state.apikey;
@@ -104,6 +116,59 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           branch: body.branch || '', status: 'pending', applied_at: '2026-08-17'
         });
         return { success: true, message: '申請已提交，請等待領袖在前端審批' };
+      }
+      // v9.3 忘記密碼：只有已登記電郵的帳號提供自助重設；沒有電郵只提示聯絡領袖
+      case 'requestPasswordReset': {
+        const loginId = String(body.login_id || '').trim();
+        if (!loginId) return { success: false, error: '請填寫 YMIS 或 Email' };
+        const u = findUserById(loginId) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(loginId));
+        if (!u || u.status !== 'active') {
+          return { success: true, channel: 'none', message: '如資料相符，重設指示已處理。' };
+        }
+        const email = validEmail(u.email) ? u.email : '';
+        if (!email) {
+          return { success: true, channel: 'leader', message: '此帳號未有登記電郵，未能自助重設。請聯絡領袖協助重設臨時密碼。' };
+        }
+        for (const r of state.passwordResets) {
+          if (r.ymis === u.ymis && r.status === 'pending') { r.status = 'superseded'; r.code = ''; }
+        }
+        const code = resetCode();
+        state.passwordResets.push({
+          request_id: 'PWR_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          ymis: u.ymis, name: u.name, login_id: loginId,
+          channel: 'email', email,
+          code, expires_at: Date.now() + RESET_TTL_MS,
+          status: 'pending', attempts: 0, created_at: '2026-11-02 10:00:00'
+        });
+        return {
+          success: true, channel: 'email', email_hint: maskResetEmail(email), expires_in_minutes: 15,
+          message: '驗證碼已發送至 ' + maskResetEmail(email) + '，15 分鐘內有效。'
+        };
+      }
+      case 'completePasswordReset': {
+        const failed = { success: false, error: '驗證碼錯誤或已過期，請重新申請' };
+        const loginId = String(body.login_id || '').trim();
+        const code = String(body.code || '').replace(/\s+/g, '');
+        const newPassword = String(body.new_password || '');
+        if (!loginId || !code) return { success: false, error: '請填寫帳號及驗證碼' };
+        if (newPassword.length < 4) return { success: false, error: '新密碼至少 4 位' };
+        const u = findUserById(loginId) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(loginId));
+        if (!u || u.status !== 'active') return failed;
+        const pending = state.passwordResets.filter(r => r.ymis === u.ymis && r.status === 'pending');
+        const rec = pending.length ? pending[pending.length - 1] : null;
+        if (!rec) return failed;
+        if (rec.channel !== 'email') return { success: false, error: '此帳號未登記電郵，請聯絡領袖重設密碼' };
+        if (!rec.expires_at || Date.now() > rec.expires_at) { rec.status = 'expired'; rec.code = ''; return failed; }
+        if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; return { success: false, error: '驗證碼錯誤次數過多，請重新申請' }; }
+        if (String(rec.code) !== code) {
+          rec.attempts += 1;
+          if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; return { success: false, error: '驗證碼錯誤次數過多，請重新申請' }; }
+          return failed;
+        }
+        u.pass = newPassword;
+        for (const [tok, owner] of Object.entries(state.tokens)) if (owner === u.ymis) delete state.tokens[tok];
+        rec.status = 'completed'; rec.code = '';
+        return { success: true, message: '密碼已重設，請用新密碼登入' };
       }
       case 'load': {
         // 與 Code.gs 一致：有提供 apikey 就必須正確
@@ -331,7 +396,10 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (String(body.target_ymis) === String(tokenYmis)) return { success: false, error: '請使用「更改密碼」修改自己的密碼' };
         if (!canManageUser(manager, u.role)) return { success: false, error: '權限不足，不能重設此角色' };
         u.pass = String(body.new_password || '1234');
-        return { success: true, message: '密碼已重設，舊登入已撤銷' };
+        for (const r of state.passwordResets) {
+          if (r.ymis === u.ymis && r.status === 'pending') { r.status = 'completed'; r.code = ''; }
+        }
+        return { success: true, message: '密碼已重設，舊登入已撤銷；未使用的驗證碼已作廢' };
       }
       case 'updateUserProfile': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
@@ -516,6 +584,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         requests: state.requests,
         otherBadges: state.otherBadges,
         logs: state.logs,
+        passwordResets: state.passwordResets.map(({ code, ...rest }) => rest),
         tokenCount: Object.keys(state.tokens).length,
         lastExecPath: state.lastExecPath,
         execCount: state.execCount

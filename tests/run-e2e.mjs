@@ -800,6 +800,35 @@ console.log('\n【16】Scout Admin 新旅團接入申請契約（type=apply、ba
   }
 }
 
+// ---- 忘記密碼（v9.3）經同源 Proxy 自助重設 ----
+console.log('\n【17】忘記密碼：電郵驗證碼／通知領袖（v9.3）');
+{
+  const noEmail = await apiA('requestPasswordReset', { login_id: '1234560001' });
+  check('未登記電郵的帳號 → 提示聯絡領袖（不提供自助重設）',
+    noEmail.success === true && noEmail.channel === 'leader' && /聯絡領袖/.test(noEmail.message || ''));
+  check('未登記電郵的帳號不會產生任何待批驗證碼紀錄',
+    !mockA.state.passwordResets.some(r => r.ymis === '1234560001'));
+
+  const withEmail = await apiA('requestPasswordReset', { login_id: '1234567890' });
+  check('已登記電郵的帳號 → 回覆電郵渠道及遮蔽提示', withEmail.success === true && withEmail.channel === 'email' && withEmail.email_hint === 'a@example.org');
+  check('回應不會回傳驗證碼', !/\b\d{6}\b/.test(String(withEmail.message || '')));
+
+  const pending = mockA.state.passwordResets.filter(r => r.ymis === '1234567890' && r.status === 'pending').pop();
+  check('驗證碼只保存在旅團後端（測試讀取 mock 狀態）', !!pending && /^\d{6}$/.test(pending.code));
+
+  const wrong = await apiA('completePasswordReset', { login_id: '1234567890', code: pending.code === '000000' ? '111111' : '000000', new_password: 'ResetPass!9' });
+  check('錯誤驗證碼不可重設密碼', wrong.success === false);
+
+  const done = await apiA('completePasswordReset', { login_id: '1234567890', code: pending.code, new_password: 'ResetPass!9' });
+  check('正確驗證碼完成自助重設', done.success === true && /密碼已重設/.test(done.message || ''));
+
+  const relogin = await apiA('login', { login_id: '1234567890', password: 'ResetPass!9' });
+  check('可用新密碼重新登入', relogin.success === true && !!relogin.token);
+
+  const legacyList = await apiA('getPasswordResetRequests', { token: relogin.token });
+  check('已移除領袖待批清單 action（即使有有效 token 亦不支援）', legacyList.success === false);
+}
+
 // ---- 清理 ----
 console.log(`\n========================================`);
 console.log(`結果：${passed} 通過, ${failed} 失敗`);

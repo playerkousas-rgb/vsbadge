@@ -53,7 +53,7 @@ test('系統介紹有獨立分頁、部署指南雙向入口，圖檔在可部�
   const build = fs.readFileSync('scripts/build.mjs', 'utf8');
   assert.match(build, /\['index\.html', 'assets', 'data', 'docs', 'apps-script'/, 'Vercel build 必須複製 assets 及 apps-script');
   assert.match(fs.readFileSync('tests/dev-server.mjs', 'utf8'), /'\.webp': 'image\/webp'/);
-  assert.equal(html.split('apps-script/Code.gs?gs=v9.2').length - 1, 2, '中英下載參數同步最新 GS 版本');
+  assert.equal(html.split('apps-script/Code.gs?gs=v9.3').length - 1, 2, '中英下載參數同步最新 GS 版本');
   assert.ok(html.includes('apps-script/Code.gs?gs=${LATEST_RELEASE.gsVersion}'), '版本公告下載參數跟 LATEST_RELEASE');
 });
 

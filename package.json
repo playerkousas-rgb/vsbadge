@@ -6,7 +6,7 @@
   "description": "Venture Scout Progress & Admin Platform（多旅團，同源 Proxy，中／英一鍵切換）",
   "scripts": {
     "dev": "node tests/dev-server.mjs 3000",
-    "test": "node tests/ymis_parse.test.cjs && node --test tests/security.test.mjs && node --test tests/feedback.test.mjs && node --test tests/troop_link.test.mjs && node --test tests/nav_layout.test.mjs && node --test tests/legacy_progress.test.mjs && node --test tests/release-version.test.mjs && node --test tests/credential-display.test.mjs && node --test tests/system-intro.test.mjs && node tests/run-e2e.mjs",
+    "test": "node tests/ymis_parse.test.cjs && node --test tests/security.test.mjs && node --test tests/password_reset.test.mjs && node --test tests/feedback.test.mjs && node --test tests/troop_link.test.mjs && node --test tests/nav_layout.test.mjs && node --test tests/legacy_progress.test.mjs && node --test tests/release-version.test.mjs && node --test tests/credential-display.test.mjs && node --test tests/system-intro.test.mjs && node tests/run-e2e.mjs",
     "test:ymis": "node tests/ymis_parse.test.cjs",
     "test:e2e": "node tests/run-e2e.mjs",
     "test:link": "node --test tests/troop_link.test.mjs",
@@ -17,7 +17,8 @@
     "lint": "node scripts/check.mjs",
     "build": "node scripts/build.mjs",
     "test:security": "node --test tests/security.test.mjs",
-    "test:build": "node --test tests/build.test.mjs"
+    "test:build": "node --test tests/build.test.mjs",
+    "test:reset": "node --test tests/password_reset.test.mjs"
   },
   "engines": {
     "node": "22.x"

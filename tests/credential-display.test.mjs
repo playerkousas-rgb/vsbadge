@@ -236,7 +236,7 @@ test('普通 HTTP 請求唔會發現、儲存或回傳自報的 backend URL；�
     postData: { contents: JSON.stringify({ action: 'ecStatus', apikey: KEY, backend: FALSE_URLS[1] }) }
   });
   assert.equal(post.success, true);
-  assert.equal(post.gsVersion, 'v9.2');
+  assert.equal(post.gsVersion, 'v9.3');
   for (const apikey of ['', 'wrong', KEY]) {
     const self = backend.doGet({ parameter: { action: 'selfUrl', apikey } });
     assert.equal(self.success, false, 'selfUrl 循環自我核實入口唔准存在');
