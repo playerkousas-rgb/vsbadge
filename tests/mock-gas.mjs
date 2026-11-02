@@ -61,14 +61,8 @@ export function startMockGas({ port, name, users, apikey = '' }) {
   const pendingRedirects = new Map(); // rid -> payload
 
   const RESET_TTL_MS = 15 * 60 * 1000;
-  const maskResetEmail = value => {
-    const text = String(value || '');
-    const at = text.indexOf('@');
-    if (at < 1) return '';
-    const name = text.substring(0, at);
-    return (name.length <= 1 ? name : name.substring(0, 1) + '***') + '@' + text.substring(at + 1);
-  };
-  const resetCode = () => String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+  const resetCode = () => String(Math.floor(Math.random() * 100000000)).padStart(8, '0');
+  const RESET_NEUTRAL = '如該帳號已登記電郵，重設碼會寄到登記電郵，請於 15 分鐘內輸入。如收唔到信，請先檢查垃圾郵件，再聯絡領袖協助。';
   const validEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
 
   function routeAction(action, body) {
@@ -77,8 +71,8 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     switch (action) {
       case 'login': {
         const u = findUserById(body.login_id) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(body.login_id));
-        if (!u || u.status !== 'active') return { success: false, error: '找不到此帳號或帳號已停用' };
-        if (u.pass !== String(body.password || '')) return { success: false, error: '密碼錯誤' };
+        if (!u || u.status !== 'active') return { success: false, error: '帳號或密碼錯誤' };
+        if (u.pass !== String(body.password || '')) return { success: false, error: '帳號或密碼錯誤' };
         const token = 'tok_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
         state.tokens[token] = u.ymis;
         return { success: true, token, user: { ymis: u.ymis, name: u.name, role: u.role, can_tick: u.can_tick, email: u.email || '', allowed_badges: '*' } };
@@ -117,17 +111,17 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         });
         return { success: true, message: '申請已提交，請等待領袖在前端審批' };
       }
-      // v9.3 忘記密碼：只有已登記電郵的帳號提供自助重設；沒有電郵只提示聯絡領袖
+      // 忘記密碼：只有已登記電郵的帳號會產生重設碼；所有情況回同一中性訊息（與 Code.gs 一致）
       case 'requestPasswordReset': {
         const loginId = String(body.login_id || '').trim();
         if (!loginId) return { success: false, error: '請填寫 YMIS 或 Email' };
         const u = findUserById(loginId) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(loginId));
         if (!u || u.status !== 'active') {
-          return { success: true, channel: 'none', message: '如資料相符，重設指示已處理。' };
+          return { success: true, message: RESET_NEUTRAL };
         }
         const email = validEmail(u.email) ? u.email : '';
         if (!email) {
-          return { success: true, channel: 'leader', message: '此帳號未有登記電郵，未能自助重設。請聯絡領袖協助重設臨時密碼。' };
+          return { success: true, message: RESET_NEUTRAL };
         }
         for (const r of state.passwordResets) {
           if (r.ymis === u.ymis && r.status === 'pending') { r.status = 'superseded'; r.code = ''; }
@@ -140,29 +134,26 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           code, expires_at: Date.now() + RESET_TTL_MS,
           status: 'pending', attempts: 0, created_at: '2026-11-02 10:00:00'
         });
-        return {
-          success: true, channel: 'email', email_hint: maskResetEmail(email), expires_in_minutes: 15,
-          message: '驗證碼已發送至 ' + maskResetEmail(email) + '，15 分鐘內有效。'
-        };
+        return { success: true, message: RESET_NEUTRAL };
       }
       case 'completePasswordReset': {
-        const failed = { success: false, error: '驗證碼錯誤或已過期，請重新申請' };
+        const failed = { success: false, error: '重設碼不正確或已過期，請重新申請' };
         const loginId = String(body.login_id || '').trim();
-        const code = String(body.code || '').replace(/\s+/g, '');
+        const code = String(body.code || '').replace(/[\s-]+/g, '');
         const newPassword = String(body.new_password || '');
-        if (!loginId || !code) return { success: false, error: '請填寫帳號及驗證碼' };
+        if (!loginId || !code) return { success: false, error: '請填寫帳號及重設碼' };
         if (newPassword.length < 4) return { success: false, error: '新密碼至少 4 位' };
         const u = findUserById(loginId) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(loginId));
         if (!u || u.status !== 'active') return failed;
         const pending = state.passwordResets.filter(r => r.ymis === u.ymis && r.status === 'pending');
         const rec = pending.length ? pending[pending.length - 1] : null;
         if (!rec) return failed;
-        if (rec.channel !== 'email') return { success: false, error: '此帳號未登記電郵，請聯絡領袖重設密碼' };
+        if (rec.channel !== 'email') return failed;
         if (!rec.expires_at || Date.now() > rec.expires_at) { rec.status = 'expired'; rec.code = ''; return failed; }
-        if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; return { success: false, error: '驗證碼錯誤次數過多，請重新申請' }; }
+        if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; return failed; }
         if (String(rec.code) !== code) {
           rec.attempts += 1;
-          if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; return { success: false, error: '驗證碼錯誤次數過多，請重新申請' }; }
+          if (rec.attempts >= 5) { rec.status = 'locked'; rec.code = ''; }
           return failed;
         }
         u.pass = newPassword;

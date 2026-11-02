@@ -1,7 +1,7 @@
-// 忘記密碼（GS v9.3）守護測試
-// 1) 免登入入口不洩露帳號是否存在；未登記電郵／寄件失敗會轉交領袖，不會假裝已寄出
-// 2) 驗證碼只以加鹽雜湊儲存，15 分鐘有效、最多 5 次嘗試；新申請令舊碼即時失效
-// 3) 重設成功會更新密碼、撤銷所有既有登入、寫入操作紀錄，並把請求結案
+// 忘記密碼守護測試（8 位重設碼＋公開入口中性回應）
+// 1) 免登入入口不洩露帳號是否存在：不存在／未登記電郵／寄件失敗／成功寄出回應完全一致（A17）
+// 2) 重設碼只以加鹽雜湊儲存，15 分鐘有效、最多 5 次嘗試、單次使用；新申請令舊碼即時失效
+// 3) 重設成功以 PBKDF2 更新密碼、撤銷所有既有登入、清走登入失敗鎖定、寫入操作紀錄，並把請求結案
 // 4) 領袖重設臨時密碼會自動結案；非管理層不可讀取／處理請求
 // 5) initializeSheets() 只補建「密碼重設」工作表，重跑不改寫任何現有資料
 // 6) Proxy 白名單及前端登入頁／審批中心／中英 i18n 同步
@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomUUID } from 'node:crypto';
 import proxy from '../api/proxy.js';
 
 const GAS_SOURCE = fs.readFileSync('apps-script/Code.gs', 'utf8');
@@ -98,6 +98,8 @@ function buildNode() {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
+      // 真 GAS 接受 String 或 Byte[] 作 data；PBKDF2 會傳 byte[]，stub 要同 semantics
+      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },
@@ -151,47 +153,49 @@ function freshNode() {
   seedUser(node, { ymis: '1111111111', name: '管理員', email: 'admin@example.org', role: 'admin', pass: 'AdminPass1', canTick: true });
   return node;
 }
+const NEUTRAL_MESSAGE = '如該帳號已登記電郵，重設碼會寄到登記電郵，請於 15 分鐘內輸入。如收唔到信，請先檢查垃圾郵件，再聯絡領袖協助。';
+// handler 回應物件喺 vm realm 建立，唔可以用 deepStrictEqual 同 host 物件比對；逐欄驗證形狀完全一致
+const assertNeutral = (res, label) => {
+  assert.equal(res.success, true, label);
+  assert.equal(res.message, NEUTRAL_MESSAGE, label);
+  assert.deepEqual(Object.keys(res).sort(), ['message', 'success'], (label || '') + '：回應只准有 success+message，冇 channel/email_hint 等洩漏欄位');
+};
 const codeFromMail = mail => {
-  const match = String(mail.body || '').match(/\b(\d{6})\b/);
+  const match = String(mail.body || '').match(/\b(\d{8})\b/);
   return match ? match[1] : '';
 };
 
-test('不存在的帳號只回覆通用結果，不建立紀錄、不寄電郵', () => {
+test('不存在的帳號只回覆中性訊息，不建立紀錄、不寄電郵', () => {
   const node = freshNode();
   const before = node.mails.length;
   const res = node.context.handleRequestPasswordReset('9999999999');
-  assert.equal(res.success, true);
-  assert.equal(res.channel, 'none');
+  assertNeutral(res);
   assert.equal(node.mails.length, before, '不存在帳號不會寄出任何電郵');
   assert.equal(resetRows(node).length, 0, '不存在帳號不會寫入密碼重設表');
   assert.doesNotMatch(JSON.stringify(res), /9999999999/, '回應不會回傳帳號');
 });
 
-test('未登記電郵：不建立任何請求、不寄電郵，只提示聯絡領袖', () => {
+test('未登記電郵：不建立任何請求、不寄電郵，回應與其他情況完全一致（不再提示「未登記電郵」）', () => {
   const node = freshNode();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: '', role: 'member' });
   const res = node.context.handleRequestPasswordReset('1234567890');
-  assert.equal(res.success, true);
-  assert.equal(res.channel, 'leader');
-  assert.match(res.message, /未有登記電郵/);
-  assert.match(res.message, /聯絡領袖/);
+  assertNeutral(res, '未登記電郵不可由回應分辨（A17）');
+  assert.doesNotMatch(JSON.stringify(res), /未有登記電郵|未登記電郵/);
   assert.equal(node.mails.length, 0, '沒有電郵不會寄出任何電郵');
   assert.equal(resetRows(node).length, 0, '沒有電郵不會寫入密碼重設表（不產生待批請求）');
   assert.equal(typeof node.context.getPasswordResetRequestsList, 'undefined', '已移除領袖待批清單功能');
   assert.equal(typeof node.context.handleResolvePasswordResetRequest, 'undefined');
 });
 
-test('已登記電郵：寄出 6 位驗證碼，只儲存加鹽雜湊（不存明文）', () => {
+test('已登記電郵：寄出 8 位重設碼，只儲存加鹽雜湊（不存明文），回應仍是同一中性訊息', () => {
   const node = freshNode();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: 'member@example.org', role: 'member' });
   const res = node.context.handleRequestPasswordReset('member@example.org');
-  assert.equal(res.success, true);
-  assert.equal(res.channel, 'email');
-  assert.equal(res.email_hint, 'm***@example.org');
+  assertNeutral(res, '成功寄出亦不可由回應分辨（唔洩漏 email 提示）');
   assert.equal(node.mails.length, 1);
   assert.equal(node.mails[0].to, 'member@example.org');
   const code = codeFromMail(node.mails[0]);
-  assert.match(code, /^\d{6}$/, '電郵包含 6 位驗證碼');
+  assert.match(code, /^\d{8}$/, '電郵包含 8 位重設碼');
   const rows = resetRows(node);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].channel, 'email');
@@ -203,15 +207,14 @@ test('已登記電郵：寄出 6 位驗證碼，只儲存加鹽雜湊（不存�
   assert.equal(rows[0].attempts, 0);
 });
 
-test('電郵寄件失敗（未授權 MailApp）會作廢驗證碼並提示聯絡領袖，不會假裝已寄出', () => {
+test('電郵寄件失敗（未授權 MailApp）會作廢重設碼，回應與成功完全一致（條件句不聲稱已寄出）', () => {
   const node = buildNode();
   node.context.initializeSheets();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: 'member@example.org', role: 'member' });
   node.context.MailApp = undefined;
   const res = node.context.handleRequestPasswordReset('1234567890');
-  assert.equal(res.success, true);
-  assert.equal(res.channel, 'leader', '寄件失敗會提示聯絡領袖');
-  assert.match(res.message, /聯絡領袖/);
+  assertNeutral(res, '寄件失敗回應與成功一模一樣');
+  assert.doesNotMatch(res.message, /已寄出|已發送至/, '中性訊息用條件句，不會假裝已寄出');
   const rows = resetRows(node);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].status, 'failed');
@@ -226,9 +229,12 @@ test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫�
   tokens.appendRow(['tok-old-1', '1234567890', '2026-01-01', '2099-01-01']);
   tokens.appendRow(['tok-other', '1111111111', '2026-01-01', '2099-01-01']);
 
+  // 先製造登入失敗鎖定紀錄，驗證自助重設成功後會一併清走（即刻可用新密碼登入）
+  node.props.set('LOGIN_FAIL:1234567890', JSON.stringify({ f: 5, until: Date.now() + 15 * 60 * 1000 }));
   node.context.handleRequestPasswordReset('1234567890');
   const code = codeFromMail(node.mails[0]);
-  const res = node.context.handleCompletePasswordReset('1234567890', code, 'BrandNew1');
+  // 貼上時夾雜空格／連字號都可完成（自動去除）
+  const res = node.context.handleCompletePasswordReset('1234567890', code.slice(0, 4) + ' - ' + code.slice(4), 'BrandNew1');
   assert.equal(res.success, true);
   assert.match(res.message, /密碼已重設/);
 
@@ -236,7 +242,8 @@ test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫�
   const map = node.context.getHeaderMap(users);
   const data = users.getDataRange().getValues();
   const row = data.find(r => String(r[map.ymis]) === '1234567890');
-  assert.equal(row[map.password_hash], sha256('BrandNew1'), '寫入新密碼雜湊');
+  assert.match(String(row[map.password_hash]), /^pbkdf2\$120000\$[0-9a-f]{32}\$[0-9a-f]{64}$/, '新密碼以 PBKDF2 寫入');
+  assert.equal(node.context.verifyPassword('BrandNew1', String(row[map.password_hash])), true, '新密碼可驗證');
   assert.equal(row[map.force_change_password], false, '自助重設不需要再強制改密碼');
   const remainTokens = tokens.getDataRange().getValues().slice(1).map(r => String(r[0]));
   assert.equal(remainTokens.includes('tok-old-1'), false, '該用戶既有登入全部撤銷');
@@ -248,22 +255,25 @@ test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫�
   const audit = node.ss.getSheetByName('操作紀錄').getDataRange().getValues();
   assert.ok(audit.some(r => r[2] === 'self_reset_password' && String(r[3]) === '1234567890'), '寫入操作紀錄');
   assert.equal(resetRows(node).filter(r => r.status === 'pending').length, 0, '完成後沒有殘留可用的驗證碼');
+  assert.equal(node.props.has('LOGIN_FAIL:1234567890'), false, '重設成功清走登入失敗鎖定');
+  assert.equal(JSON.stringify(audit).includes('BrandNew1'), false, '審計不含新密碼');
+  assert.equal(JSON.stringify(audit).includes(code), false, '審計不含重設碼');
 });
 
-test('驗證碼錯誤遞增嘗試次數，5 次後鎖定；過期驗證碼即時失效', () => {
+test('重設碼錯誤遞增嘗試次數，5 次後鎖定；過期重設碼即時失效；所有失敗回同一句', () => {
   const node = freshNode();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: 'member@example.org' });
   node.context.handleRequestPasswordReset('1234567890');
   const good = codeFromMail(node.mails[0]);
-  const wrong = good === '000000' ? '111111' : '000000';
+  const wrong = good === '00000000' ? '11111111' : '00000000';
   for (let i = 1; i <= 4; i++) {
     const res = node.context.handleCompletePasswordReset('1234567890', wrong, 'Another1');
     assert.equal(res.success, false);
-    assert.match(res.error, /錯誤或已過期/);
+    assert.equal(res.error, '重設碼不正確或已過期，請重新申請');
     assert.equal(Number(resetRows(node)[0].attempts), i);
   }
   const fifth = node.context.handleCompletePasswordReset('1234567890', wrong, 'Another1');
-  assert.match(fifth.error, /次數過多/);
+  assert.equal(fifth.error, '重設碼不正確或已過期，請重新申請', '鎖定後亦不透露次數（A17）');
   assert.equal(resetRows(node)[0].status, 'locked');
   assert.equal(resetRows(node)[0].code_hash, '', '鎖定後清空雜湊');
   const afterLock = node.context.handleCompletePasswordReset('1234567890', good, 'Another1');
@@ -299,11 +309,11 @@ test('新申請令舊驗證碼失效；未登記電郵的帳號不可用驗證�
   seedUser(node, { ymis: '2233445566', name: '無電郵', email: '' });
   node.cache.clear();
   const noMail = node.context.handleRequestPasswordReset('2233445566');
-  assert.equal(noMail.channel, 'leader');
+  assertNeutral(noMail);
   assert.equal(resetRows(node).filter(r => r.ymis === '2233445566').length, 0, '沒有電郵的帳號不會產生驗證碼紀錄');
-  const leaderOnly = node.context.handleCompletePasswordReset('2233445566', '123456', 'NewPass12');
+  const leaderOnly = node.context.handleCompletePasswordReset('2233445566', '12345678', 'NewPass12');
   assert.equal(leaderOnly.success, false);
-  assert.match(leaderOnly.error, /驗證碼錯誤或已過期/);
+  assert.equal(leaderOnly.error, '重設碼不正確或已過期，請重新申請');
 });
 
 test('同一帳號有冷卻時間，避免密集寄送驗證碼', () => {
@@ -380,13 +390,14 @@ test('Proxy 轉發 requestPasswordReset 時注入 API Key，未登記的 action 
   let sent = null;
   globalThis.fetch = async (url, init) => {
     sent = { url, init };
-    return { status: 200, text: async () => JSON.stringify({ success: true, channel: 'email', email_hint: 'm***@example.org' }) };
+    return { status: 200, text: async () => JSON.stringify({ success: true, message: NEUTRAL_MESSAGE }) };
   };
   try {
     const resA = makeRes();
     await proxy({ method: 'POST', body: { troopId: '0082', action: 'requestPasswordReset', data: { login_id: 'member@example.org' } } }, resA);
     assert.equal(resA.code, 200);
-    assert.equal(resA.body.channel, 'email');
+    assert.equal(resA.body.message, NEUTRAL_MESSAGE);
+    assert.equal('channel' in resA.body, false, '新版回應唔帶 channel／email_hint 等可分辨欄位');
     const forwarded = JSON.parse(sent.init.body);
     assert.equal(forwarded.action, 'requestPasswordReset');
     assert.equal(forwarded.login_id, 'member@example.org');
@@ -400,19 +411,26 @@ test('Proxy 轉發 requestPasswordReset 時注入 API Key，未登記的 action 
   }
 });
 
-test('前端：登入頁連結、重設三步流程及中英 i18n 齊全（只有電郵帳號可自助重設）', () => {
-  assert.match(HTML, /onclick="showPasswordResetModal\(\);return false"[\s\S]{0,120}data-i18n="pwreset\.loginLink"/, '登入頁有「忘記密碼」連結');
+test('前端：登入頁連結、重設三步流程及中英 i18n 齊全（中性訊息＋收唔到信指引）', () => {
+  assert.match(HTML, /onclick="showPasswordResetModal\(\);return false"[\s\S]{0,220}data-i18n="pwreset\.loginLink"/, '登入頁有明顯的「忘記密碼」入口');
   for (const id of ['passwordResetModal', 'passwordResetStep1', 'passwordResetStep2', 'passwordResetStep3', 'btnRequestPasswordReset', 'btnCompletePasswordReset']) {
     assert.ok(HTML.includes('id="' + id + '"'), '缺少元素 #' + id);
   }
   assert.match(HTML, /apiRequest\('requestPasswordReset',\{login_id:/, '前端呼叫 requestPasswordReset');
   assert.match(HTML, /apiRequest\('completePasswordReset',\{login_id:passwordResetContext\.loginId,code,new_password:newP\}\)/, '前端呼叫 completePasswordReset');
   assert.doesNotMatch(HTML, /getPasswordResetRequests|resolvePasswordResetRequest|approvalResetView/, '已移除領袖待批清單 UI');
-  assert.match(HTML, /d\.channel==='leader'\?'login-msg warning':'login-msg success'/, '未登記電郵以警告樣式提示聯絡領袖');
+  // 新版中性回應一律去輸入重設碼嗰步並顯示本機語言中性指引；舊版 GS 的 channel 只作兼容分支
+  assert.match(HTML, /passwordResetContext\.channel=d\.channel\|\|'neutral'/, '冇 channel 當中性回應');
+  assert.match(HTML, /msg\.textContent=i18n\('pwreset\.sentGeneric'\)[\s\S]{0,120}setPasswordResetStep\(2\)/, '中性回應去第 2 步輸入重設碼');
+  assert.match(HTML, /d\.channel==='leader'\|\|d\.channel==='none'/, '舊版 GS 兼容分支保留');
+  assert.match(HTML, /data-i18n="pwreset\.noMailHelp"/, '有「收唔到信？」逐步指引');
+  assert.match(HTML, /id="pwResetCode"[^>]*maxlength="12"/, '重設碼輸入容許貼上連空格的 8 位碼');
+  assert.match(HTML, /code\.length!==8&&code\.length!==6/, '新 8 位碼為主，升級前舊 6 位碼仍可輸入');
+  assert.match(HTML, /i18n\('pwreset\.badCode'\)/, '後端統一失敗句轉做當前語言');
 
   const zh = HTML.slice(HTML.indexOf('zh:{'), HTML.indexOf('en:{'));
   const en = HTML.slice(HTML.indexOf('en:{'));
-  const keys = ['pwreset.loginLink', 'pwreset.title', 'pwreset.hint', 'pwreset.request', 'pwreset.codeLabel', 'pwreset.submit', 'pwreset.done'];
+  const keys = ['pwreset.loginLink', 'pwreset.title', 'pwreset.hint', 'pwreset.request', 'pwreset.codeLabel', 'pwreset.submit', 'pwreset.done', 'pwreset.noMailHelp', 'pwreset.badCode', 'pwreset.sentGeneric'];
   for (const key of keys) {
     assert.ok(zh.includes("'" + key + "':"), '中文缺少 i18n 鍵 ' + key);
     assert.ok(en.includes("'" + key + "':"), '英文缺少 i18n 鍵 ' + key);

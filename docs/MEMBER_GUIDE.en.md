@@ -27,10 +27,11 @@
 Tap **中 / EN** (top right) to switch the whole app. Item IDs and cloud records stay the same — only the display language changes.
 
 ## Forgot your password?
-1. On the sign-in page, tap **“🔑 Forgot password?”** and enter your YMIS or registered email.
-2. **With a registered email**: you receive a 6-digit code (valid for 15 minutes); enter the code and a new password. Nothing else is needed.
-3. **Without an email**: self-service reset is not available — ask a Leader to reset a temporary password, then change it immediately after signing in.
-4. If the code does not arrive you may request again (the older code stops working at once). After a successful reset, sessions on other devices end immediately.
+1. On the sign-in page, tap **“🔑 Forgot password?”** and enter just one thing: your YMIS or your registered email.
+2. **With a registered email**: you receive an 8-digit reset code (valid for 15 minutes; you can paste it as-is). On the same screen, enter the code and a new password (at least 4 characters) twice. Nothing else is needed.
+3. **Without an email**: no email will be sent — ask a Leader to reset a temporary password, then change it immediately after signing in. To avoid revealing which accounts have a registered email, the screen shows the same message in every case, so if nothing arrives, contact a Leader.
+4. **No email?** 1) Check your spam folder. 2) Make sure you entered the email you registered with (or the correct YMIS). 3) Still nothing? Ask your Group Leader or the person who set up the system. Requesting a new code stops the older one working at once; after a successful reset, sessions on other devices end immediately — just sign in on the login page with your new password.
+5. Five wrong passwords in a row lock the account for 15 minutes (during that time even the correct password will not work, and the page only says the account or password is wrong). Wait 15 minutes, or ask a Leader to reset your password to unlock it at once.
 
 ## How to claim an item
 1. Find it in My progress
