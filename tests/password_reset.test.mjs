@@ -167,22 +167,18 @@ test('不存在的帳號只回覆通用結果，不建立紀錄、不寄電郵',
   assert.doesNotMatch(JSON.stringify(res), /9999999999/, '回應不會回傳帳號');
 });
 
-test('未登記電郵：建立領袖待處理請求，清單只顯示此類請求', () => {
+test('未登記電郵：不建立任何請求、不寄電郵，只提示聯絡領袖', () => {
   const node = freshNode();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: '', role: 'member' });
   const res = node.context.handleRequestPasswordReset('1234567890');
   assert.equal(res.success, true);
   assert.equal(res.channel, 'leader');
-  assert.equal(node.mails.length, 0, '沒有電郵不會假裝寄出');
-  const rows = resetRows(node);
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].channel, 'leader');
-  assert.equal(rows[0].status, 'pending');
-  assert.equal(rows[0].code_hash, '', '領袖渠道不儲存驗證碼');
-  const list = node.context.getPasswordResetRequestsList();
-  assert.equal(list.length, 1);
-  assert.equal(list[0].ymis, '1234567890');
-  assert.equal(list[0].name, '陳大文');
+  assert.match(res.message, /未有登記電郵/);
+  assert.match(res.message, /聯絡領袖/);
+  assert.equal(node.mails.length, 0, '沒有電郵不會寄出任何電郵');
+  assert.equal(resetRows(node).length, 0, '沒有電郵不會寫入密碼重設表（不產生待批請求）');
+  assert.equal(typeof node.context.getPasswordResetRequestsList, 'undefined', '已移除領袖待批清單功能');
+  assert.equal(typeof node.context.handleResolvePasswordResetRequest, 'undefined');
 });
 
 test('已登記電郵：寄出 6 位驗證碼，只儲存加鹽雜湊（不存明文）', () => {
@@ -207,19 +203,20 @@ test('已登記電郵：寄出 6 位驗證碼，只儲存加鹽雜湊（不存�
   assert.equal(rows[0].attempts, 0);
 });
 
-test('電郵寄件失敗（未授權 MailApp）會自動轉交領袖，不會假裝已寄出', () => {
+test('電郵寄件失敗（未授權 MailApp）會作廢驗證碼並提示聯絡領袖，不會假裝已寄出', () => {
   const node = buildNode();
   node.context.initializeSheets();
   seedUser(node, { ymis: '1234567890', name: '陳大文', email: 'member@example.org', role: 'member' });
   node.context.MailApp = undefined;
   const res = node.context.handleRequestPasswordReset('1234567890');
   assert.equal(res.success, true);
-  assert.equal(res.channel, 'leader', '寄件失敗會降級為領袖協助');
+  assert.equal(res.channel, 'leader', '寄件失敗會提示聯絡領袖');
+  assert.match(res.message, /聯絡領袖/);
   const rows = resetRows(node);
-  assert.equal(rows[0].channel, 'leader');
-  assert.equal(rows[0].code_hash, '');
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].status, 'failed');
+  assert.equal(rows[0].code_hash, '', '寄件失敗會清空未送出的驗證碼');
   assert.match(rows[0].note, /電郵發送失敗/);
-  assert.equal(node.context.getPasswordResetRequestsList().length, 1);
 });
 
 test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫入操作紀錄並結案', () => {
@@ -250,7 +247,7 @@ test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫�
   assert.equal(rows[0].handled_by, 'self');
   const audit = node.ss.getSheetByName('操作紀錄').getDataRange().getValues();
   assert.ok(audit.some(r => r[2] === 'self_reset_password' && String(r[3]) === '1234567890'), '寫入操作紀錄');
-  assert.equal(node.context.getPasswordResetRequestsList().length, 0);
+  assert.equal(resetRows(node).filter(r => r.status === 'pending').length, 0, '完成後沒有殘留可用的驗證碼');
 });
 
 test('驗證碼錯誤遞增嘗試次數，5 次後鎖定；過期驗證碼即時失效', () => {
@@ -301,10 +298,12 @@ test('新申請令舊驗證碼失效；未登記電郵的帳號不可用驗證�
 
   seedUser(node, { ymis: '2233445566', name: '無電郵', email: '' });
   node.cache.clear();
-  node.context.handleRequestPasswordReset('2233445566');
+  const noMail = node.context.handleRequestPasswordReset('2233445566');
+  assert.equal(noMail.channel, 'leader');
+  assert.equal(resetRows(node).filter(r => r.ymis === '2233445566').length, 0, '沒有電郵的帳號不會產生驗證碼紀錄');
   const leaderOnly = node.context.handleCompletePasswordReset('2233445566', '123456', 'NewPass12');
   assert.equal(leaderOnly.success, false);
-  assert.match(leaderOnly.error, /未登記電郵/);
+  assert.match(leaderOnly.error, /驗證碼錯誤或已過期/);
 });
 
 test('同一帳號有冷卻時間，避免密集寄送驗證碼', () => {
@@ -317,40 +316,31 @@ test('同一帳號有冷卻時間，避免密集寄送驗證碼', () => {
   assert.equal(node.mails.length, 1);
 });
 
-test('領袖重設臨時密碼會自動結案；非管理層不可讀取或處理請求', () => {
+test('領袖重設臨時密碼會作廢未用驗證碼；免登入流程不設任何待批清單', () => {
   const node = freshNode();
-  seedUser(node, { ymis: '1234567890', name: '陳大文', email: '' });
-  seedUser(node, { ymis: '1234560001', name: '普通成員', email: 'm@example.org' });
+  seedUser(node, { ymis: '1234567890', name: '陳大文', email: 'member@example.org' });
   node.context.handleRequestPasswordReset('1234567890');
-  assert.equal(node.context.getPasswordResetRequestsList().length, 1);
+  const code = codeFromMail(node.mails[0]);
+  assert.equal(resetRows(node).length, 1);
 
   const manager = { ymis: '1111111111', name: '管理員', role: 'admin' };
   const reset = node.context.handleResetPassword('1234567890', 'Temp1234', manager);
   assert.equal(reset.success, true);
-  assert.match(reset.message, /忘記密碼請求已結案/);
+  assert.match(reset.message, /未使用的驗證碼已作廢/);
   const rows = resetRows(node);
   assert.equal(rows[0].status, 'completed');
   assert.equal(rows[0].handled_by, '1111111111');
-  assert.equal(node.context.getPasswordResetRequestsList().length, 0);
+  assert.equal(rows[0].code_hash, '');
+  const after = node.context.handleCompletePasswordReset('1234567890', code, 'Another1');
+  assert.equal(after.success, false, '領袖重設後舊驗證碼不可再用');
 
-  // 已結案的請求不可再被標記
-  const again = node.context.handleResolvePasswordResetRequest(rows[0].request_id, 'dismissed', manager);
-  assert.equal(again.success, false);
-
-  // doPost 權限：普通成員 token 不可讀取清單
-  node.cache.clear();
-  node.context.handleRequestPasswordReset('1234567890');
-  const memberToken = node.context.createToken('1234560001');
-  const denied = node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'getPasswordResetRequests', token: memberToken }) } });
-  assert.equal(denied.success, false);
-  assert.match(denied.error, /權限不足/);
+  // 舊版領袖清單 action 已移除：即使帶管理員 token 亦不會被處理
   const managerToken = node.context.createToken('1111111111');
-  const allowed = node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'getPasswordResetRequests', token: managerToken }) } });
-  assert.equal(allowed.success, true);
-  assert.equal(allowed.requests.length, 1);
-  const dismiss = node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'resolvePasswordResetRequest', token: managerToken, request_id: allowed.requests[0].request_id, decision: 'dismissed' }) } });
-  assert.equal(dismiss.success, true);
-  assert.equal(node.context.getPasswordResetRequestsList().length, 0, '標記已處理後不再顯示');
+  for (const action of ['getPasswordResetRequests', 'resolvePasswordResetRequest']) {
+    const res = node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action, token: managerToken }) } });
+    assert.equal(res.success, false);
+    assert.match(res.error, /Unknown action/);
+  }
 });
 
 test('initializeSheets() 補建「密碼重設」表且重跑不改寫任何現有資料', () => {
@@ -376,12 +366,12 @@ test('initializeSheets() 補建「密碼重設」表且重跑不改寫任何現�
   assert.equal(node.props.get('API_KEY'), 'test-api-key', '初始化不更換 API Key');
 });
 
-test('Proxy 白名單：公開重設入口及管理層 action 均已登記', () => {
+test('Proxy 白名單：只放行兩個公開重設入口，沒有領袖待批 action', () => {
   assert.match(PROXY_SOURCE, /PUBLIC_ACTIONS = new Set\(\[[^\]]*'requestPasswordReset'[^\]]*'completePasswordReset'/, '公開白名單');
-  assert.match(PROXY_SOURCE, /TOKEN_ACTIONS = new Set\(\[[\s\S]*?'getPasswordResetRequests'[\s\S]*?'resolvePasswordResetRequest'/, '需 token 白名單');
+  assert.doesNotMatch(PROXY_SOURCE, /getPasswordResetRequests|resolvePasswordResetRequest/, '已移除領袖待批 action');
 });
 
-test('Proxy 轉發 requestPasswordReset 時注入 API Key，未登入不可呼叫管理層 action', async () => {
+test('Proxy 轉發 requestPasswordReset 時注入 API Key，未登記的 action 一律拒絕', async () => {
   process.env.TROOP_0082_NAME = '第 82 旅';
   process.env.TROOP_0082_BACKEND = 'https://script.google.com/macros/s/TEST_RESET_0082/exec';
   process.env.TROOP_0082_APIKEY = 'secret-api-key';
@@ -404,27 +394,25 @@ test('Proxy 轉發 requestPasswordReset 時注入 API Key，未登入不可呼�
 
     const resB = makeRes();
     await proxy({ method: 'POST', body: { troopId: '0082', action: 'getPasswordResetRequests', data: {} } }, resB);
-    assert.equal(resB.code, 401, '管理層 action 必須附帶 token');
+    assert.equal(resB.code, 400, '已移除的 action 不在白名單');
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-test('前端：登入頁連結、重設三步流程、審批中心分頁及中英 i18n 齊全', () => {
+test('前端：登入頁連結、重設三步流程及中英 i18n 齊全（只有電郵帳號可自助重設）', () => {
   assert.match(HTML, /onclick="showPasswordResetModal\(\);return false"[\s\S]{0,120}data-i18n="pwreset\.loginLink"/, '登入頁有「忘記密碼」連結');
   for (const id of ['passwordResetModal', 'passwordResetStep1', 'passwordResetStep2', 'passwordResetStep3', 'btnRequestPasswordReset', 'btnCompletePasswordReset']) {
     assert.ok(HTML.includes('id="' + id + '"'), '缺少元素 #' + id);
   }
   assert.match(HTML, /apiRequest\('requestPasswordReset',\{login_id:/, '前端呼叫 requestPasswordReset');
   assert.match(HTML, /apiRequest\('completePasswordReset',\{login_id:passwordResetContext\.loginId,code,new_password:newP\}\)/, '前端呼叫 completePasswordReset');
-  assert.match(HTML, /apiRequest\('getPasswordResetRequests'/, '審批中心載入重設請求');
-  assert.match(HTML, /apiRequest\('resolvePasswordResetRequest'/, '可標記已處理');
-  assert.match(HTML, /showApprovalSubTab\('reset'\)/, '審批中心有密碼重設分頁');
-  assert.match(HTML, /id="approvalResetView"/, '有密碼重設清單區塊');
+  assert.doesNotMatch(HTML, /getPasswordResetRequests|resolvePasswordResetRequest|approvalResetView/, '已移除領袖待批清單 UI');
+  assert.match(HTML, /d\.channel==='leader'\?'login-msg warning':'login-msg success'/, '未登記電郵以警告樣式提示聯絡領袖');
 
   const zh = HTML.slice(HTML.indexOf('zh:{'), HTML.indexOf('en:{'));
   const en = HTML.slice(HTML.indexOf('en:{'));
-  const keys = ['pwreset.loginLink', 'pwreset.title', 'pwreset.hint', 'pwreset.request', 'pwreset.codeLabel', 'pwreset.submit', 'pwreset.done', 'req.resetTab', 'req.resetH', 'req.resetAction'];
+  const keys = ['pwreset.loginLink', 'pwreset.title', 'pwreset.hint', 'pwreset.request', 'pwreset.codeLabel', 'pwreset.submit', 'pwreset.done'];
   for (const key of keys) {
     assert.ok(zh.includes("'" + key + "':"), '中文缺少 i18n 鍵 ' + key);
     assert.ok(en.includes("'" + key + "':"), '英文缺少 i18n 鍵 ' + key);

@@ -8,8 +8,8 @@
 // 帳戶自助申請（成員／執委／領袖）：apply 接受 requested_role（只限 member/exec_committee/branch_leader），
 //   getApplications 回傳申請角色，reviewApplication 按角色開戶並回傳 final_role
 // 忘記密碼（工作表「密碼重設」）：requestPasswordReset / completePasswordReset 為免登入復原入口；
-//   有登記電郵 → 寄 6 位驗證碼（只存雜湊、15 分鐘有效、最多 5 次嘗試）；未登記電郵 → 通知領袖，
-//   領袖在「審批中心」用 resetPassword 重設臨時密碼後自動結案；getPasswordResetRequests / resolvePasswordResetRequest 需管理層 token
+//   只有已登記電郵的帳號提供自助重設（6 位驗證碼、只存雜湊、15 分鐘有效、最多 5 次嘗試）；
+//   未登記電郵／寄件失敗一律提示聯絡領袖，不建立待批請求（領袖用 resetPassword 重設臨時密碼）
 // 用戶管理及唯一身份：YMIS / Email 在單筆、批量、申請及編輯流程均由後端鎖內檢查，不可重複；
 //   getAllUsers 合併「Users」及「成員名單」；領袖可重設成員密碼；刪除後保留識別碼 tombstone 及歷史進度
 // 密碼原則：最短 4 位；批量開戶／審批初始密碼統一 1234
@@ -493,7 +493,7 @@ function initializeSheets() {
     const ui=SpreadsheetApp.getUi();
     if(ui){
       // 生成 API Key 不需要旅團編號；由用戶在 ADMIN FORM 填寫，不新增 GS 設定步驟。
-      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：有登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；未登記電郵嘅帳號會通知領袖喺「審批中心」協助。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
+      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：只有已登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；未登記電郵嘅帳號會提示用戶聯絡領袖，由領袖喺「用戶管理」重設臨時密碼。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
@@ -1159,15 +1159,6 @@ function doPost(e){
       if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
       return handleResetPassword(body.target_ymis,body.new_password,user);
     }
-    // 忘記密碼：未登記電郵的帳號會在此出現，由領袖重設臨時密碼（resetPassword 會自動結案）。
-    if(action==='getPasswordResetRequests'){
-      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足，需支部領袖或以上'});
-      return handleGetPasswordResetRequests();
-    }
-    if(action==='resolvePasswordResetRequest'){
-      if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足，需支部領袖或以上'});
-      return handleResolvePasswordResetRequest(body.request_id,body.decision,user);
-    }
     if(action==='updateUserProfile'){
       if(getRoleLevel(user.role)<40) return jsonResponse({success:false,error:'權限不足'});
       return handleUpdateUserProfile(body,user);
@@ -1586,9 +1577,9 @@ function handleResetPassword(targetYmis,newPassword,manager){
   rec.sheet.getRange(rec.row,rec.map.auth_date+1).setValue(now());
   destroyTokensForUser(targetYmis);
   // 領袖為該用戶重設臨時密碼後，一併結案其在「忘記密碼」留下的待處理請求。
-  const closedResets=completePendingPasswordResets(targetYmis,manager.ymis,'領袖已重設臨時密碼');
-  writeAudit(manager.ymis,'reset_password',targetYmis,'已設定臨時密碼並撤銷舊登入'+(closedResets?'（已結案 '+closedResets+' 個忘記密碼請求）':''));
-  return jsonResponse({success:true,message:'密碼已重設，舊登入已撤銷'+(closedResets?'；忘記密碼請求已結案':'')});
+  const closedResets=completePendingPasswordResets(targetYmis,manager.ymis,'領袖已重設臨時密碼，未用驗證碼作廢');
+  writeAudit(manager.ymis,'reset_password',targetYmis,'已設定臨時密碼並撤銷舊登入'+(closedResets?'（已作廢 '+closedResets+' 組未用驗證碼）':''));
+  return jsonResponse({success:true,message:'密碼已重設，舊登入已撤銷'+(closedResets?'；未使用的驗證碼已作廢':'')});
 }
 function destroyTokensForUser(ymis){
   const sh=getSheet().getSheetByName('Tokens'); if(!sh) return;
@@ -1596,13 +1587,13 @@ function destroyTokensForUser(ymis){
   for(let i=data.length-1;i>=1;i--) if(String(data[i][1])===String(ymis)) sh.deleteRow(i+1);
 }
 
-// ===== 忘記密碼（自助重設 → 電郵驗證碼／通知領袖） =====
+// ===== 忘記密碼（自助重設 → 只限已登記電郵） =====
 // 私隱及安全原則：
 //   1. 免登入入口（requestPasswordReset／completePasswordReset）不會透露帳號是否存在；
 //   2. 驗證碼 6 位、15 分鐘有效、最多 5 次嘗試；只以 API Key 加鹽雜湊儲存，成功／過期後即清空；
 //   3. 每次新申請會令同一帳號較舊的待處理請求失效（superseded），避免舊碼仍然可用；
 //   4. 重設完成後撤銷該用戶所有既有登入 token，並寫入操作紀錄；
-//   5. 未登記電郵的帳號不會假裝已寄出，而是建立「待領袖處理」請求，領袖重設臨時密碼後自動結案。
+//   5. 只有已登記電郵的帳號才提供自助重設；沒有電郵／寄件失敗只提示聯絡領袖，不建立任何請求。
 function passwordResetSheet(createIfMissing){
   const ss=getSheet();
   let sheet=ss.getSheetByName(PWD_RESET_SHEET_NAME);
@@ -1727,10 +1718,20 @@ function handleRequestPasswordReset(loginId){
   if(!loginId) return jsonResponse({success:false,error:'請填寫 YMIS 或 Email'});
   if(loginId.length>160) return jsonResponse({success:false,error:'帳號格式不正確'});
   if(!passwordResetRateAllowed(loginId)) return jsonResponse({success:false,error:'重設請求過於頻密，請稍後再試'});
-  const genericMessage='如資料相符，重設指示已處理：已登記電郵會收到驗證碼；未登記電郵的帳號會通知領袖協助。';
+  const genericMessage='如資料相符，重設指示已處理。';
   const user=getUser(loginId)||getUserByEmail(loginId);
   // 保留帳號／不存在的帳號一律回覆相同訊息，避免被用作探測帳號。
   if(!user || isSuperAdminId(user.ymis)) return jsonResponse({success:true,channel:'none',message:genericMessage});
+
+  // 只有已登記電郵的帳號才提供自助重設；沒有電郵的帳號不建立任何請求，
+  // 直接提示用戶聯絡領袖（領袖可在「用戶管理」重設臨時密碼）。
+  const email=String(user.email||'').trim();
+  if(!isEmail(email)){
+    return jsonResponse({
+      success:true,channel:'leader',
+      message:'此帳號未有登記電郵，未能自助重設。請聯絡領袖協助重設臨時密碼。'
+    });
+  }
 
   const target=passwordResetSheet(true);
   if(!target) return jsonResponse({success:false,error:'系統暫時未能建立重設紀錄，請聯絡領袖'});
@@ -1738,15 +1739,13 @@ function handleRequestPasswordReset(loginId){
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一項請求，請稍後重試'});
   try{
-    // 同一帳號只保留最新的待處理請求，舊碼立即失效。
+    // 同一帳號只保留最新的待處理驗證碼，舊碼立即失效。
     readPasswordResetRows(target).forEach(function(rec){
       if(String(rec.status)==='pending' && String(rec.ymis)===String(user.ymis)){
         updatePasswordResetRow(target,rec._row,{status:'superseded',code_hash:''});
       }
     });
 
-    const email=String(user.email||'').trim();
-    const canEmail=isEmail(email);
     const code=passwordResetCode();
     const requestId='PWR_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
     appendPasswordResetRow(target,{
@@ -1754,10 +1753,10 @@ function handleRequestPasswordReset(loginId){
       ymis:String(user.ymis),
       name:String(user.name||''),
       login_id:safeSheetText(loginId,160), // 防止以 = + - @ 開頭的輸入被試算表當作公式
-      channel:canEmail?'email':'leader',
-      email:canEmail?email:'',
-      code_hash:canEmail?passwordResetCodeHash(code):'',
-      expires_at:canEmail?new Date(Date.now()+PWD_RESET_TTL_MINUTES*60000).toISOString():'',
+      channel:'email',
+      email:email,
+      code_hash:passwordResetCodeHash(code),
+      expires_at:new Date(Date.now()+PWD_RESET_TTL_MINUTES*60000).toISOString(),
       status:'pending',
       attempts:0,
       created_at:now(),
@@ -1766,22 +1765,14 @@ function handleRequestPasswordReset(loginId){
       note:''
     });
 
-    if(!canEmail){
-      writeAudit(user.ymis,'request_password_reset',String(user.ymis),'未登記電郵，已通知領袖協助');
-      return jsonResponse({
-        success:true,channel:'leader',
-        message:'此帳號未有可用的登記電郵，系統已通知領袖協助重設。請聯絡領袖並等候臨時密碼。'
-      });
-    }
-
     if(!sendPasswordResetEmail(email,user,code)){
-      // 寄件失敗（未授權寄件／超出配額）：改用領袖協助流程，不假裝已寄出。
+      // 寄件失敗（未授權寄件／超出配額）：作廢此次驗證碼並提示聯絡領袖，不會假裝已寄出。
       const latest=readPasswordResetRows(target).filter(function(rec){ return String(rec.request_id)===requestId; })[0];
-      if(latest) updatePasswordResetRow(target,latest._row,{channel:'leader',code_hash:'',expires_at:'',note:'電郵發送失敗，轉交領袖處理'});
-      writeAudit(user.ymis,'request_password_reset',String(user.ymis),'電郵發送失敗，已通知領袖協助');
+      if(latest) updatePasswordResetRow(target,latest._row,{status:'failed',code_hash:'',expires_at:'',note:'電郵發送失敗，請用戶聯絡領袖'});
+      writeAudit(user.ymis,'request_password_reset',String(user.ymis),'電郵發送失敗，提示用戶聯絡領袖');
       return jsonResponse({
         success:true,channel:'leader',
-        message:'電郵暫時未能送出，系統已通知領袖協助重設。請聯絡領袖並等候臨時密碼。'
+        message:'電郵暫時未能送出，未能自助重設。請聯絡領袖協助重設臨時密碼。'
       });
     }
 
@@ -1840,42 +1831,8 @@ function handleCompletePasswordReset(loginId,code,newPassword){
     return jsonResponse({success:true,message:'密碼已重設，請用新密碼登入'});
   } finally { lock.releaseLock(); }
 }
-function getPasswordResetRequestsList(){
-  const target=passwordResetSheet(true);
-  if(!target) return [];
-  const out=[];
-  readPasswordResetRows(target).forEach(function(rec){
-    if(String(rec.status)!=='pending') return;
-    if(String(rec.channel)!=='leader') return; // 電郵渠道由用戶自行完成，毋須領袖介入
-    if(isSuperAdminId(rec.ymis)) return;
-    out.push({
-      request_id:String(rec.request_id),
-      ymis:String(rec.ymis),
-      name:String(rec.name||''),
-      created_at:String(rec.created_at||''),
-      note:String(rec.note||'')
-    });
-  });
-  return out;
-}
-function handleGetPasswordResetRequests(){
-  if(!passwordResetSheet(true)) return jsonResponse({success:false,error:'「'+PWD_RESET_SHEET_NAME+'」工作表不存在：請在 Apps Script 執行 initializeSheets() 補建'});
-  return jsonResponse({success:true,requests:getPasswordResetRequestsList()});
-}
-function handleResolvePasswordResetRequest(requestId,decision,manager){
-  requestId=String(requestId||'');
-  if(decision!=='dismissed') return jsonResponse({success:false,error:'無效決定'});
-  const target=passwordResetSheet(true);
-  if(!target) return jsonResponse({success:false,error:'「'+PWD_RESET_SHEET_NAME+'」工作表不存在：請在 Apps Script 執行 initializeSheets() 補建'});
-  const rec=readPasswordResetRows(target).filter(function(r){ return String(r.request_id)===requestId && String(r.status)==='pending'; })[0];
-  if(!rec) return jsonResponse({success:false,error:'找不到待處理的重設請求，可能已處理或已取消'});
-  if(isSuperAdminId(rec.ymis)) return jsonResponse({success:false,error:'找不到待處理的重設請求，可能已處理或已取消'});
-  const actorId=persistedActorId(manager&&manager.ymis?manager.ymis:'system');
-  updatePasswordResetRow(target,rec._row,{status:'cancelled',code_hash:'',handled_by:actorId,handled_at:now(),note:'領袖標記為已處理'});
-  writeAudit(actorId,'resolve_password_reset',String(rec.ymis),'領袖標記重設請求為已處理');
-  return jsonResponse({success:true,message:'已標記為已處理'});
-}
 function completePendingPasswordResets(ymis,actor,note){
+  // 領袖已在「用戶管理」為該用戶重設臨時密碼：一併作廢其未使用的電郵驗證碼。
   const target=passwordResetSheet(true);
   if(!target) return 0;
   let count=0;

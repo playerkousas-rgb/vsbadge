@@ -804,7 +804,10 @@ console.log('\n【16】Scout Admin 新旅團接入申請契約（type=apply、ba
 console.log('\n【17】忘記密碼：電郵驗證碼／通知領袖（v9.3）');
 {
   const noEmail = await apiA('requestPasswordReset', { login_id: '1234560001' });
-  check('未登記電郵的帳號 → 轉交領袖處理', noEmail.success === true && noEmail.channel === 'leader');
+  check('未登記電郵的帳號 → 提示聯絡領袖（不提供自助重設）',
+    noEmail.success === true && noEmail.channel === 'leader' && /聯絡領袖/.test(noEmail.message || ''));
+  check('未登記電郵的帳號不會產生任何待批驗證碼紀錄',
+    !mockA.state.passwordResets.some(r => r.ymis === '1234560001'));
 
   const withEmail = await apiA('requestPasswordReset', { login_id: '1234567890' });
   check('已登記電郵的帳號 → 回覆電郵渠道及遮蔽提示', withEmail.success === true && withEmail.channel === 'email' && withEmail.email_hint === 'a@example.org');
@@ -822,11 +825,8 @@ console.log('\n【17】忘記密碼：電郵驗證碼／通知領袖（v9.3）')
   const relogin = await apiA('login', { login_id: '1234567890', password: 'ResetPass!9' });
   check('可用新密碼重新登入', relogin.success === true && !!relogin.token);
 
-  const leaderList = await apiA('getPasswordResetRequests', { token: relogin.token });
-  check('領袖可讀取未登記電郵的待處理請求', leaderList.success === true && leaderList.requests.some(r => r.ymis === '1234560001'));
-
-  const denied = await apiA('getPasswordResetRequests', {});
-  check('未登入不可讀取重設請求', denied.success === false);
+  const legacyList = await apiA('getPasswordResetRequests', { token: relogin.token });
+  check('已移除領袖待批清單 action（即使有有效 token 亦不支援）', legacyList.success === false);
 }
 
 // ---- 清理 ----

@@ -562,7 +562,7 @@ a:hover{text-decoration:underline}
       </div>
       <div class="info-section" style="margin-top:12px">
         <h3>最新：GS v9.3 忘記密碼（2026-11-02）</h3>
-        <p style="font-size:12px">登入頁新增「🔑 忘記密碼？」：輸入 YMIS 或登記電郵即可自助重設。已登記電郵的帳號會收到 6 位驗證碼（15 分鐘有效、最多 5 次嘗試，只以雜湊儲存），輸入驗證碼及新密碼即可完成；未登記電郵的帳號會自動通知領袖，在「✅ 審批中心 → 🔑 密碼重設」由領袖重設臨時密碼，重設後系統自動結案。重設成功會撤銷該帳戶所有既有登入，並寫入操作紀錄；免登入入口不會透露帳號是否存在。此版本必須執行一次 initializeSheets() 以補建「密碼重設」工作表（可安全重跑，現有資料、API Key 及登入協定不變）。電郵由本旅團部署帳戶寄出，如從未授權寄件權限，系統會自動改用領袖協助流程。</p>
+        <p style="font-size:12px">登入頁新增「🔑 忘記密碼？」：輸入 YMIS 或登記電郵即可自助重設。已登記電郵的帳號會收到 6 位驗證碼（15 分鐘有效、最多 5 次嘗試，只以雜湊儲存），輸入驗證碼及新密碼即可完成；未登記電郵的帳號不設自助重設，畫面會直接提示聯絡領袖，由領袖在「👥 用戶管理」重設臨時密碼（系統不會建立待批請求）。重設成功會撤銷該帳戶所有既有登入，並寫入操作紀錄；免登入入口不會透露帳號是否存在。此版本必須執行一次 initializeSheets() 以補建「密碼重設」工作表（可安全重跑，現有資料、API Key 及登入協定不變）。電郵由本旅團部署帳戶寄出，如從未授權寄件權限，系統會自動改用領袖協助流程。</p>
       </div>
       <div class="info-section" style="margin-top:12px">
         <h3>GS v9.2 接入資料只顯示 API Key＋系統介紹（2026-10-24）</h3>
@@ -1151,7 +1151,7 @@ zh:{
   'eu.title':'✏️ 編輯用戶資料','eu.saved':'資料已更新','eu.fail':'更新失敗：{m}',
   'rp.title':'🔑 重設臨時密碼','rp.label':'新臨時密碼（至少 4 位）*','rp.hint':'重設後會撤銷該用戶現有登入，並要求下次登入立即更改密碼。','rp.ok':'確認重設','rp.short':'臨時密碼至少 4 位','rp.doneTitle':'🔑 密碼已重設','rp.okToast':'密碼已重設；請立即安全轉交臨時密碼','rp.fail':'重設失敗：{m}',
   'pwreset.loginLink':'🔑 忘記密碼？','pwreset.title':'🔑 忘記密碼',
-  'pwreset.hint':'輸入 YMIS 或登記電郵。已登記電郵會收到 6 位驗證碼；未登記電郵的帳號會通知領袖協助，由領袖提供臨時密碼。',
+  'pwreset.hint':'只支援已登記電郵的帳號：輸入 YMIS 或電郵後會收到 6 位驗證碼。未有登記電郵的帳號請直接聯絡領袖協助重設密碼。',
   'pwreset.idLabel':'YMIS（10 位）或 Email *','pwreset.idPh':'例如 1234567890 或 your@email.com',
   'pwreset.request':'發送重設指示','pwreset.sending':'處理中…','pwreset.submitting':'重設中…',
   'pwreset.codeLabel':'電郵驗證碼（6 位數字）*','pwreset.newLabel':'新密碼（至少 4 位）*','pwreset.confirmLabel':'再次輸入新密碼 *',
@@ -1160,9 +1160,6 @@ zh:{
   'pwreset.needId':'請填寫 YMIS 或 Email','pwreset.needCode':'請輸入 6 位電郵驗證碼',
   'pwreset.fail':'重設未能完成，請稍後重試','pwreset.sentGeneric':'如資料相符，重設指示已處理；請檢查登記電郵或聯絡領袖。',
   'pwreset.done':'密碼已重設，請用新密碼登入','pwreset.pickTroop':'請先選擇旅團','pwreset.demo':'示範模式不支援重設密碼',
-  'req.resetTab':'🔑 密碼重設 ({n})','req.resetH':'🔑 忘記密碼 — 需領袖協助','req.noReset':'沒有待處理的密碼重設請求',
-  'req.resetAsked':'申請時間：','req.resetAction':'重設臨時密碼','req.resetDismiss':'標記已處理',
-  'req.resetDismissConfirm':'確定將此重設請求標記為已處理？（不會更改密碼）','req.resetDismissed':'已標記為已處理',
   'st.enableQ':'確定重新啟用此帳號？','st.disableQ':'確定停用此帳號？進度資料會保留。','st.fail':'操作失敗：{m}',
   'del.accountQ':'確定刪除「{name}」？帳戶會停止登入並從成員名單移除；歷史進度會保留。為免身份被冒用，其 YMIS／Email 不可再用於另一帳戶。','del.memberQ':'確定從成員名單刪除「{name}」？','del.ok':'已刪除','del.fail':'刪除失敗：{m}',
   'hist.title':'🧾 操作紀錄','hist.empty':'沒有操作紀錄','hist.fail':'讀取紀錄失敗：{m}','hist.time':'時間','hist.actor':'操作者','hist.act':'操作','hist.target':'對象','hist.detail':'詳情',
@@ -1484,7 +1481,7 @@ en:{
   'eu.title':'✏️ Edit user','eu.saved':'Profile updated','eu.fail':'Update failed: {m}',
   'rp.title':'🔑 Reset temporary password','rp.label':'New temporary password (at least 4 characters) *','rp.hint':'This signs the user out and requires an immediate password change next time.','rp.ok':'Confirm reset','rp.short':'Temporary password must be at least 4 characters','rp.doneTitle':'🔑 Password reset','rp.okToast':'Password reset. Pass on the temporary password securely now.','rp.fail':'Reset failed: {m}',
   'pwreset.loginLink':'🔑 Forgot password?','pwreset.title':'🔑 Forgot password',
-  'pwreset.hint':'Enter your YMIS or registered email. Accounts with an email receive a 6-digit code; accounts without one are passed to a Leader, who will give you a temporary password.',
+  'pwreset.hint':'Self-service reset is only for accounts with a registered email: enter your YMIS or email to receive a 6-digit code. Accounts without an email should contact a Leader to reset the password.',
   'pwreset.idLabel':'YMIS (10 digits) or Email *','pwreset.idPh':'e.g. 1234567890 or your@email.com',
   'pwreset.request':'Send reset instructions','pwreset.sending':'Working…','pwreset.submitting':'Resetting…',
   'pwreset.codeLabel':'Email code (6 digits) *','pwreset.newLabel':'New password (at least 4 characters) *','pwreset.confirmLabel':'Re-enter new password *',
@@ -1493,9 +1490,6 @@ en:{
   'pwreset.needId':'Enter your YMIS or email','pwreset.needCode':'Enter the 6-digit email code',
   'pwreset.fail':'The reset could not be completed. Please try again later.','pwreset.sentGeneric':'If the details match, the reset request has been handled. Check your registered email or contact a Leader.',
   'pwreset.done':'Password reset. Please sign in with your new password.','pwreset.pickTroop':'Select a Group first','pwreset.demo':'Password reset is not available in DEMO',
-  'req.resetTab':'🔑 Password resets ({n})','req.resetH':'🔑 Forgot password — Leader action needed','req.noReset':'No pending password reset requests',
-  'req.resetAsked':'Requested: ','req.resetAction':'Reset temporary password','req.resetDismiss':'Mark as handled',
-  'req.resetDismissConfirm':'Mark this reset request as handled? (The password will not change.)','req.resetDismissed':'Marked as handled',
   'st.enableQ':'Reactivate this account?','st.disableQ':'Deactivate this account? Progress is kept.','st.fail':'Failed: {m}',
   'del.accountQ':'Delete “{name}”? Sign-in will stop and the person will be removed from the member roster; historical progress is kept. To prevent identity reuse, the YMIS / email cannot be used for another account.','del.memberQ':'Remove “{name}” from the member roster?','del.ok':'Deleted','del.fail':'Delete failed: {m}',
   'hist.title':'🧾 Audit log','hist.empty':'No audit records','hist.fail':'Could not read the log: {m}','hist.time':'Time','hist.actor':'Actor','hist.act':'Action','hist.target':'Target','hist.detail':'Detail',
@@ -1920,7 +1914,7 @@ changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">�
 </div>
 <div class="info-section" style="margin-top:12px">
   <h3>Latest: GS v9.3 forgot password (2026-11-02)</h3>
-  <p style="font-size:12px">The sign-in page gains “🔑 Forgot password?”: enter your YMIS or registered email. Accounts with a registered email receive a 6-digit code (valid for 15 minutes, at most 5 attempts, stored only as a hash) and can set a new password themselves; accounts without an email automatically notify a Leader, who resets a temporary password under “✅ Approvals → 🔑 Password resets”, and the request closes automatically after the reset. A successful reset signs out every existing session and is written to the audit log; the public entry point never reveals whether an account exists. This release requires running initializeSheets() once to add the “密碼重設” sheet (safe to re-run; existing data, API Key and sign-in protocols are unchanged). Emails are sent by the Group's own deployment account; if sending has never been authorised, the app automatically falls back to Leader assistance.</p>
+  <p style="font-size:12px">The sign-in page gains “🔑 Forgot password?”: enter your YMIS or registered email. Accounts with a registered email receive a 6-digit code (valid for 15 minutes, at most 5 attempts, stored only as a hash) and can set a new password themselves; accounts without an email cannot self-reset: the app tells them to contact a Leader, who resets a temporary password under “👥 Users” (no pending request is created). A successful reset signs out every existing session and is written to the audit log; the public entry point never reveals whether an account exists. This release requires running initializeSheets() once to add the “密碼重設” sheet (safe to re-run; existing data, API Key and sign-in protocols are unchanged). Emails are sent by the Group's own deployment account; if sending has never been authorised, the app automatically falls back to Leader assistance.</p>
 </div>
 <div class="info-section" style="margin-top:12px">
   <h3>GS v9.2 API-key-only connection details + system introduction (2026-10-24)</h3>
@@ -2659,7 +2653,7 @@ async function submitPasswordResetRequest(){
     if(!d.success) throw new Error(d.error||i18n('pwreset.fail'));
     passwordResetContext.loginId=loginId;
     passwordResetContext.channel=d.channel||'none';
-    msg.className='login-msg success';
+    msg.className=d.channel==='leader'?'login-msg warning':'login-msg success';
     msg.textContent=d.message||i18n('pwreset.sentGeneric');
     if(d.channel==='email'){
       setPasswordResetStep(2);
@@ -4045,14 +4039,6 @@ async function renderRequestsTab(){
       if(d2.success) userApplications=d2.applications||[];
     }catch(e){ console.warn(e); }
   }
-  // 忘記密碼：未登記電郵的帳號會轉交領袖在此處理（重設後自動結案）
-  let passwordResets=[];
-  if(isManage && currentTroopId!=='DEMO'){
-    try{
-      const d4=await apiRequest('getPasswordResetRequests',{token:currentToken});
-      if(d4.success) passwordResets=d4.requests||[];
-    }catch(e){ console.warn(e); }
-  }
   // v8.4 載入履歷申報：領袖見全部待批；團員見自己的（可取消）
   let logReqList=[];
   const isLogReviewer=canUserTickRole(currentUser.role);
@@ -4081,8 +4067,7 @@ async function renderRequestsTab(){
   const totalBadge=badgeRequests.length;
   const totalUser=userApplications.length;
   const totalLog=logReqList.length;
-  const totalReset=passwordResets.length;
-  const totalAll=totalBadge+totalUser+totalLog+totalReset;
+  const totalAll=totalBadge+totalUser+totalLog;
   // 更新紅點數字包含獎章、履歷、帳戶申請及密碼重設
   const badgeEl=document.getElementById('badgeRequestsCount');
   if(badgeEl){ if(totalAll>0){ badgeEl.textContent=totalAll; badgeEl.style.display='inline-block'; } else badgeEl.style.display='none'; }
@@ -4096,7 +4081,6 @@ async function renderRequestsTab(){
     <button class="btn btn-sm btn-primary" onclick="showApprovalSubTab('badge')">${i18n('req.badgeTab',{n:totalBadge})}</button>
     ${(logRequestsSupported||currentTroopId==='DEMO')?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('log')">${i18n('req.logTab',{n:totalLog})}</button>`:''}
     ${isManage?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('user')">${i18n('req.userTab',{n:totalUser})}</button>`:''}
-    ${isManage?`<button class="btn btn-sm btn-secondary" onclick="showApprovalSubTab('reset')">${i18n('req.resetTab',{n:totalReset})}</button>`:''}
     <button class="btn btn-sm btn-secondary" onclick="renderRequestsTab()">${i18n('btn.refresh')}</button>
   </div>`;
 
@@ -4177,50 +4161,16 @@ async function renderRequestsTab(){
     html+=`</div>`;
   }
 
-  // 忘記密碼區（僅管理層）：未登記電郵的帳號由領袖重設臨時密碼；重設後系統自動結案
-  if(isManage){
-    html+=`<div id="approvalResetView" style="display:none;margin-top:16px">`;
-    html+=`<h3 style="font-size:14px;color:var(--orange);margin-bottom:8px">${i18n('req.resetH')}</h3>`;
-    if(totalReset===0){
-      html+=`<p style="color:var(--text-light);font-size:12px;padding:10px;background:var(--bg);border-radius:8px">${i18n('req.noReset')}</p>`;
-    }else{
-      html+=passwordResets.map(r=>`<div class="app-item">
-        <div class="app-item-info">
-          <div style="font-weight:600">🔑 ${escapeHtmlText(r.name||r.ymis)} <small style="color:var(--text-light)">(${escapeHtmlText(r.ymis)})</small></div>
-          <div style="font-size:11px;color:var(--text-light);margin-top:3px">${i18n('req.resetAsked')}${escapeHtmlText(r.created_at||'')}</div>
-          ${r.note?`<div style="font-size:11px;color:var(--orange);margin-top:3px">${escapeHtmlText(r.note)}</div>`:''}
-        </div>
-        <div class="app-item-actions" style="flex-direction:column">
-          <button class="btn btn-sm btn-primary" onclick="openResetPasswordModal('${escapeAttr(r.ymis)}','${escapeAttr(r.name||'')}')">${i18n('req.resetAction')}</button>
-          <button class="btn btn-sm btn-secondary" onclick="dismissPasswordResetRequest('${escapeAttr(r.request_id)}')">${i18n('req.resetDismiss')}</button>
-        </div>
-      </div>`).join('');
-    }
-    html+=`</div>`;
-  }
-
   c.innerHTML=html;
 }
 function showApprovalSubTab(which){
   const bv=document.getElementById('approvalBadgeView');
   const uv=document.getElementById('approvalUserView');
   const lv=document.getElementById('approvalLogView');
-  const rv=document.getElementById('approvalResetView');
   if(bv) bv.style.display=which==='badge'?'block':'none';
   if(lv) lv.style.display=which==='log'?'block':'none';
   if(uv) uv.style.display=which==='user'?'block':'none';
-  if(rv) rv.style.display=which==='reset'?'block':'none';
 }
-async function dismissPasswordResetRequest(requestId){
-  if(!confirm(i18n('req.resetDismissConfirm'))) return;
-  try{
-    const d=await apiRequest('resolvePasswordResetRequest',{token:currentToken,request_id:requestId,decision:'dismissed'});
-    if(!d.success) throw new Error(d.error||i18n('req.opFail',{m:''}));
-    showToast(d.message||i18n('req.resetDismissed'),'success');
-    renderRequestsTab();
-  }catch(e){ showToast(i18n('req.opFail',{m:e.message}),'error'); }
-}
-
 async function reviewSingleRequest(reqId, decision){
   if(!confirm(i18n('req.confirmDec',{dec:decision==='approved'?i18n('req.decA'):i18n('req.decR')}))) return;
   const dateInput=document.getElementById('confirmDate_'+reqId);
@@ -5258,8 +5208,6 @@ async function submitResetPassword(){
     showTemporaryPasswordResult(i18n('rp.doneTitle'),ymis,name,password,u?.email,u?.role);
     showToast(i18n('rp.okToast'),'success');
     loadUsers();
-    // 由「忘記密碼」清單重設時，後端已自動結案，立即刷新該清單
-    if(document.getElementById('tab-requests')?.classList.contains('active')) renderRequestsTab();
   }catch(e){showToast(i18n('rp.fail',{m:e.message}),'error');}
 }
 async function setUserStatus(ymis,status){

@@ -117,29 +117,29 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         });
         return { success: true, message: '申請已提交，請等待領袖在前端審批' };
       }
-      // v9.3 忘記密碼：免登入自助重設（電郵驗證碼／通知領袖）
+      // v9.3 忘記密碼：只有已登記電郵的帳號提供自助重設；沒有電郵只提示聯絡領袖
       case 'requestPasswordReset': {
         const loginId = String(body.login_id || '').trim();
         if (!loginId) return { success: false, error: '請填寫 YMIS 或 Email' };
         const u = findUserById(loginId) || Object.values(state.users).find(x => x.email && mailKey(x.email) === mailKey(loginId));
         if (!u || u.status !== 'active') {
-          return { success: true, channel: 'none', message: '如資料相符，重設指示已處理：已登記電郵會收到驗證碼；未登記電郵的帳號會通知領袖協助。' };
+          return { success: true, channel: 'none', message: '如資料相符，重設指示已處理。' };
+        }
+        const email = validEmail(u.email) ? u.email : '';
+        if (!email) {
+          return { success: true, channel: 'leader', message: '此帳號未有登記電郵，未能自助重設。請聯絡領袖協助重設臨時密碼。' };
         }
         for (const r of state.passwordResets) {
           if (r.ymis === u.ymis && r.status === 'pending') { r.status = 'superseded'; r.code = ''; }
         }
-        const email = validEmail(u.email) ? u.email : '';
         const code = resetCode();
         state.passwordResets.push({
           request_id: 'PWR_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
           ymis: u.ymis, name: u.name, login_id: loginId,
-          channel: email ? 'email' : 'leader', email,
-          code: email ? code : '', expires_at: email ? Date.now() + RESET_TTL_MS : 0,
+          channel: 'email', email,
+          code, expires_at: Date.now() + RESET_TTL_MS,
           status: 'pending', attempts: 0, created_at: '2026-11-02 10:00:00'
         });
-        if (!email) {
-          return { success: true, channel: 'leader', message: '此帳號未有可用的登記電郵，系統已通知領袖協助重設。請聯絡領袖並等候臨時密碼。' };
-        }
         return {
           success: true, channel: 'email', email_hint: maskResetEmail(email), expires_in_minutes: 15,
           message: '驗證碼已發送至 ' + maskResetEmail(email) + '，15 分鐘內有效。'
@@ -399,28 +399,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         for (const r of state.passwordResets) {
           if (r.ymis === u.ymis && r.status === 'pending') { r.status = 'completed'; r.code = ''; }
         }
-        return { success: true, message: '密碼已重設，舊登入已撤銷；忘記密碼請求已結案' };
-      }
-      case 'getPasswordResetRequests': {
-        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
-        const manager = state.users[tokenYmis];
-        if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足，需支部領袖或以上' };
-        return {
-          success: true,
-          requests: state.passwordResets
-            .filter(r => r.status === 'pending' && r.channel === 'leader')
-            .map(r => ({ request_id: r.request_id, ymis: r.ymis, name: r.name, created_at: r.created_at, note: '' }))
-        };
-      }
-      case 'resolvePasswordResetRequest': {
-        if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
-        const manager = state.users[tokenYmis];
-        if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足，需支部領袖或以上' };
-        if (body.decision !== 'dismissed') return { success: false, error: '無效決定' };
-        const rec = state.passwordResets.find(r => r.request_id === String(body.request_id || '') && r.status === 'pending');
-        if (!rec) return { success: false, error: '找不到待處理的重設請求，可能已處理或已取消' };
-        rec.status = 'cancelled'; rec.code = '';
-        return { success: true, message: '已標記為已處理' };
+        return { success: true, message: '密碼已重設，舊登入已撤銷；未使用的驗證碼已作廢' };
       }
       case 'updateUserProfile': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };

@@ -51,7 +51,6 @@ const TOKEN_ACTIONS = new Set([
   'requestLogRecord', 'getLogRequests', 'reviewLogRequest', 'cancelLogRequest',
   'getAllUsers', 'addMember', 'addUser', 'bulkAddUsers',
   'resetPassword', 'updateUserProfile', 'setUserStatus', 'deleteUser',
-  'getPasswordResetRequests', 'resolvePasswordResetRequest',
   'getApplications', 'reviewApplication',
   'updateUserRole', 'updatePermissions', 'updateConfig',
   'changePassword', 'getAuditLog'

@@ -16,11 +16,11 @@
 
 - **忘記密碼（自助重設）**：登入頁新增「🔑 忘記密碼？」。輸入 YMIS 或已登記電郵後：
   - **已登記電郵**：由旅團自己的部署帳戶寄出 6 位驗證碼（15 分鐘有效、最多 5 次嘗試，只以 API Key 加鹽雜湊儲存，永不寫入明文）；用戶輸入驗證碼及新密碼即完成重設。
-  - **未登記電郵／電郵發送失敗**：系統建立待處理請求，領袖在「✅ 審批中心 → 🔑 密碼重設」為對方重設臨時密碼；`resetPassword` 成功後自動結案，亦可按「標記已處理」。系統不會假裝已寄出電郵。
+  - **未登記電郵／電郵發送失敗**：不提供自助重設，畫面直接提示「請聯絡領袖協助重設臨時密碼」（領袖在「👥 用戶管理」重設即可）。系統**不會**建立待批請求，也不會假裝已寄出電郵。
   - **安全**：重設成功會撤銷該帳戶所有既有登入並寫入操作紀錄；免登入入口一律回覆通用結果，不透露帳號是否存在；同一帳號 60 秒冷卻、6 小時內最多 5 次申請；新申請會令舊驗證碼即時失效。
 - **升級要求**：更新 `apps-script/Code.gs` 後執行一次 `initializeSheets()`（可安全重跑）以補建「密碼重設」工作表及補齊欄位。現有帳號、成員、YMIS、新舊 ID 進度、其他獎章、活動履歷、備註、旅團設定及 API Key 全部保留；登入／簽名協定不變。
-- **電郵權限**：新增 `MailApp` 寄件會令 Apps Script 要求「以你名義傳送電郵」權限；首次執行 `initializeSheets()` 或部署時按指示授權即可（毋須交出任何密碼）。寄件失敗（例如超出每日配額）時系統會自動轉為領袖協助流程，不會假裝已寄出。收件人可核對寄件人是旅團的 Google 帳戶；平台不會取得或顯示用戶的 Google 密碼。
-- **Proxy 白名單**：新增 `requestPasswordReset`／`completePasswordReset`（公開）及 `getPasswordResetRequests`／`resolvePasswordResetRequest`（需登入 token，支部領袖或以上）。
+- **電郵權限**：新增 `MailApp` 寄件會令 Apps Script 要求「以你名義傳送電郵」權限；首次執行 `initializeSheets()` 或部署時按指示授權即可（毋須交出任何密碼）。寄件失敗（例如超出每日配額）時系統會作廢該驗證碼並提示用戶聯絡領袖，不會假裝已寄出。收件人可核對寄件人是旅團的 Google 帳戶；平台不會取得或顯示用戶的 Google 密碼。
+- **Proxy 白名單**：只新增 `requestPasswordReset`／`completePasswordReset`（公開復原入口，毋須 token）。
 - 驗證：`npm run check`、`npm test`（含新增 `tests/password_reset.test.mjs`）、`npm run build` + `npm run test:build`。
 
 ## v9.2：接入資料只顯示 API Key、系統介紹及 Workspace URL 相容（2026-10-24）

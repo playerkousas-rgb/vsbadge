@@ -248,14 +248,14 @@ npm run test:build
 
 - **背景**：成員／領袖忘記密碼時，以往只能找領袖在「用戶管理」重設臨時密碼，或經「回報問題」求助。本版在登入頁新增「🔑 忘記密碼？」，提供可審核的復原流程，同時保留無電郵帳號的既有做法。
 - **流程**：
-  - `requestPasswordReset`（公開）：輸入 YMIS 或電郵。有登記電郵 → `MailApp.sendEmail` 寄 6 位驗證碼；無電郵／寄件失敗 → 建立 transfer 給領袖的待處理請求。回應不透露帳號是否存在（保留帳號及不存在的帳號一律回覆通用訊息）。
-  - `completePasswordReset`（公開）：驗證碼 + 新密碼。成功後寫入新 `password_hash`、`force_change_password=false`、撤銷該用戶全部 token、把請求標記 `completed`、寫入操作紀錄。
-  - `getPasswordResetRequests`／`resolvePasswordResetRequest`（需 token，支部領袖或以上）：列出未登記電郵的待處理請求；`resetPassword` 成功後由 `completePendingPasswordResets()` 自動結案，亦可由領袖「標記已處理」（`cancelled`）。
-- **資料表**：「密碼重設」`request_id, ymis, name, login_id, channel, email, code_hash, expires_at, status, attempts, created_at, updated_at, handled_by, handled_at, note`。`initializeSheets()` 只補建此表及缺失欄位；`passwordResetSheet()` 亦可按需要懶建立，唔會改寫任何現有用戶資料。
+  - `requestPasswordReset`（公開）：輸入 YMIS 或電郵。**只有已登記電郵的帳號**才會用 `MailApp.sendEmail` 寄 6 位驗證碼；無電郵／寄件失敗一律直接回覆「請聯絡領袖協助」，不會建立任何待批請求（工作表亦不會有 channel=leader 的紀錄）。不存在／保留帳號回覆通用訊息，不透露帳號是否存在。
+  - `completePasswordReset`（公開）：驗證碼 + 新密碼。成功後寫入新 `password_hash`、`force_change_password=false`、撤銷該用戶全部 token、把紀錄標記 `completed`、寫入操作紀錄。
+  - 領袖協助路徑沿用既有 `resetPassword`（「用戶管理 → 重設臨時密碼」）；成功後 `completePendingPasswordResets()` 會作廢該用戶未使用的驗證碼。沒有新增任何管理層 action。
+- **資料表**：「密碼重設」`request_id, ymis, name, login_id, channel, email, code_hash, expires_at, status, attempts, created_at, updated_at, handled_by, handled_at, note`；只有電郵渠道紀錄，狀態為 `pending/completed/superseded/expired/locked/failed`。`initializeSheets()` 只補建此表及缺失欄位；`passwordResetSheet()` 亦可按需要懶建立，唔會改寫任何現有用戶資料。
 - **安全**：驗證碼 6 位、15 分鐘有效、最多 5 次嘗試；只以 `sha256('vsbadge-password-reset-v1|'+API Key+'|'+code)` 儲存，成功／過期／鎖定即清空；每次新申請會把同一帳號舊的 pending 請求改為 `superseded`；同一識別碼 60 秒冷卻、6 小時內最多 5 次（CacheService）；不存在的帳號與保留帳號不會建立任何紀錄。
 - **電郵邊界**：`MailApp` 以旅團部署帳戶寄出（新增 `script.send_mail` 授權及每日配額，執行 `initializeSheets()` 時按 Google 指示授權），只寄往該用戶 `Users.email`；`typeof MailApp` 及 try/catch 保護，寄件失敗即降級為領袖協助，並在紀錄 `note` 標明，不會假裝已寄出。
-- **前端**：登入頁 `#passwordResetModal`（三步：輸入帳號 → 驗證碼＋新密碼 → 完成）；「✅ 審批中心」新增「🔑 密碼重設 ({n})」分頁，紅點數字已計入待處理請求；中英 i18n 同步新增 `pwreset.*` 及 `req.reset*` 鍵。
-- **Proxy**：`PUBLIC_ACTIONS` 新增 `requestPasswordReset`／`completePasswordReset`；`TOKEN_ACTIONS` 新增 `getPasswordResetRequests`／`resolvePasswordResetRequest`（token 由 Proxy 驗格式、GAS 驗真偽）。
+- **前端**：登入頁 `#passwordResetModal`（三步：輸入帳號 → 驗證碼＋新密碼 → 完成；未登記電郵時以警告樣式提示聯絡領袖）。審批中心不新增分頁；中英 i18n 只新增 `pwreset.*` 鍵。
+- **Proxy**：`PUBLIC_ACTIONS` 只新增 `requestPasswordReset`／`completePasswordReset`；`TOKEN_ACTIONS` 不變。
 - **版本**：`VS_GS_VERSION = 'v9.3'`，前端 `LATEST_RELEASE` 同步 `2026-11-02／v9.3`，下載連結加 `?gs=v9.3`；**每個已部署旅團都必須執行一次 `initializeSheets()`** 並以「新版本」重新部署（沿用原 `/exec` URL 及 API Key）。
 - **測試**：新增 `tests/password_reset.test.mjs`（後端行為、雜湊不存明文、過期／鎖定／取代、領袖結案、權限、初始化補表及 Proxy／前端靜態守護）；`tests/mock-gas.mjs` 同步實作四個 action；`tests/release-version.test.mjs`、`tests/credential-display.test.mjs`、`tests/system-intro.test.mjs` 期望值同步至 v9.3。
 - **改動檔案**：`apps-script/Code.gs`、`api/proxy.js`、`index.html`、`tests/mock-gas.mjs`、`tests/password_reset.test.mjs`（新）、`tests/release-version.test.mjs`、`tests/credential-display.test.mjs`、`tests/system-intro.test.mjs`、`README.md`、`APP_ADMIN_WORKFLOW.md`、`DEPLOY_GUIDE_FOR_TROOPS.md`、`docs/LEADER_GUIDE.md`、`docs/LEADER_GUIDE.en.md`、`docs/MEMBER_GUIDE.md`、`docs/MEMBER_GUIDE.en.md`、本 MD。

@@ -29,7 +29,7 @@ Tap **中 / EN** (top right) to switch the whole app. Item IDs and cloud records
 ## Forgot your password?
 1. On the sign-in page, tap **“🔑 Forgot password?”** and enter your YMIS or registered email.
 2. **With a registered email**: you receive a 6-digit code (valid for 15 minutes); enter the code and a new password. Nothing else is needed.
-3. **Without an email**: a Leader is notified — wait for a temporary password, then change it immediately after signing in.
+3. **Without an email**: self-service reset is not available — ask a Leader to reset a temporary password, then change it immediately after signing in.
 4. If the code does not arrive you may request again (the older code stops working at once). After a successful reset, sessions on other devices end immediately.
 
 ## How to claim an item
