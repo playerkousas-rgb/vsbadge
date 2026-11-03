@@ -333,6 +333,52 @@ test('Troop registration relay maps scriptUrl to Scout Admin apply contract and 
   }
 });
 
+test('submitRegistration 初始化閘：已登記但未初始化的旅團回 422 且不轉交管理員；已初始化則正常轉交', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs = [];
+  console.log = line => logs.push(JSON.parse(line));
+  try {
+    // 已登記但後端未初始化：probe 回 initRequired=true 且 initializedGsVersion 空 → 422，不呼叫 Admin GS
+    let fetchCalls = 0;
+    globalThis.fetch = async (url) => {
+      fetchCalls++;
+      if (url.startsWith('https://script.google.com/macros/s/TEST_DEPLOYMENT_0082/exec')) {
+        return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.4', initializedGsVersion: '', initRequired: true, gsInitializationCurrent: false }) };
+      }
+      return { status: 200, text: async () => JSON.stringify({ status: 'success' }) };
+    };
+    const res = await call(proxy, {
+      troopId: '0082', action: 'submitRegistration',
+      data: { troopId: '0082', troopName: 'X', scriptUrl: 'https://script.google.com/macros/s/TEST_DEPLOYMENT_0082/exec', apiKey: 'k', note: '' }
+    });
+    assert.equal(res.code, 422);
+    assert.equal(res.body.success, false);
+    assert.equal(fetchCalls, 1, '未初始化時只探查 ecStatus，不轉交管理員收件匣');
+    assert.ok(!JSON.stringify(logs).includes('TEST_DEPLOYMENT_0082'), '錯誤訊息不洩漏後端網址');
+
+    // 已初始化：probe 回 initializedGsVersion === gsVersion → 正常轉交管理員
+    fetchCalls = 0;
+    globalThis.fetch = async (url) => {
+      fetchCalls++;
+      if (url.startsWith('https://script.google.com/macros/s/TEST_DEPLOYMENT_0082/exec')) {
+        return { status: 200, text: async () => JSON.stringify({ success: true, gsVersion: 'v9.4', initializedGsVersion: 'v9.4', initRequired: true, gsInitializationCurrent: true }) };
+      }
+      return { status: 200, text: async () => JSON.stringify({ status: 'success' }) };
+    };
+    const okRes = await call(proxy, {
+      troopId: '0082', action: 'submitRegistration',
+      data: { troopId: '0082', troopName: 'X', scriptUrl: 'https://script.google.com/macros/s/TEST_DEPLOYMENT_0082/exec', apiKey: 'k', note: '' }
+    });
+    assert.equal(okRes.code, 200);
+    assert.equal(okRes.body.success, true);
+    assert.equal(fetchCalls, 2, '已初始化時先探查 ecStatus 再轉交管理員');
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+});
+
 function gasContext() {
   const used = new Map(); let verified = false; let fetches = 0;
   const context = vm.createContext({

@@ -41,10 +41,30 @@ const DEFAULT_TEMP_PASSWORD = '1234';
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
 const VS_GS_VERSION = 'v9.4';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
+// 此版本是否強制要求旅團執行 initializeSheets()；與前端 LATEST_RELEASE.initializeRequired 保持一致。
+const GS_INIT_REQUIRED = true;
 function getVsGsReleaseStatus(){
   let initialized='';
   try{ initialized=String(PropertiesService.getScriptProperties().getProperty(VS_GS_INITIALIZED_PROP)||''); }catch(e){}
-  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION };
+  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION, initRequired:GS_INIT_REQUIRED };
+}
+// 回報 GS 發佈／初始化狀態，供 showApiKey／showVercelEnv 等介面在未初始化時提醒領袖先執行 initializeSheets()。
+function gsVersionInfo_(){
+  const st=getVsGsReleaseStatus();
+  return { gsVersion:st.gsVersion, initializedGsVersion:st.initializedGsVersion, gsInitializationCurrent:st.gsInitializationCurrent, initRequired:st.initRequired };
+}
+// 當此版本要求初始化而 Script Properties 仍未記錄對應版本時，回傳警告行；否則回傳空陣列。API Key 本身仍照常顯示。
+function initStatusWarningLines_(){
+  const info=gsVersionInfo_();
+  if(info.initRequired && info.initializedGsVersion!==info.gsVersion){
+    return [
+      '⚠️ 尚未完成初始化／更新（此 API Key 暫時未可用）',
+      '請先執行選單「🔧 初始化／更新」一次（等同 initializeSheets()）；',
+      '只會補建缺少的工作表及預設管理員，不會刪改任何既有資料。',
+      ''
+    ];
+  }
+  return [];
 }
 
 // 本次升級：更新 Code.gs 後執行一次 initializeSheets() 清理舊版保留帳號痕跡，再部署新版本；其他資料／結構保留。
@@ -71,7 +91,9 @@ function vercelEnvLines() {
 }
 function showVercelEnv() {
   const lines = vercelEnvLines();
-  const msg = '旅團 API Key 資料（交 APP ADMIN）：\n\n' + lines.join('\n') +
+  const warning = initStatusWarningLines_();
+  const msg = (warning.length ? warning.join('\n') + '\n' : '') +
+    '旅團 API Key 資料（交 APP ADMIN）：\n\n' + lines.join('\n') +
     '\n\n' + DEPLOYMENT_URL_NOTICE + '\n\n' + REGISTRATION_FORM_NOTICE +
     '\n\n功能變數全部由 APP ADMIN 設定，旅團毋須設定任何功能變數。';
   let ui = null;
@@ -82,9 +104,11 @@ function showVercelEnv() {
 }
 function showApiKey() {
   const apiKey = getApiKey();
+  const warning = initStatusWarningLines_();
   let ui = null;
   try { ui = SpreadsheetApp.getUi(); } catch (e) { ui = null; }
   if (ui) ui.alert('旅團 API Key（交 APP ADMIN）',
+    (warning.length ? warning.join('\n') + '\n' : '') +
     vercelEnvLines().join('\n') + '\n\n' + DEPLOYMENT_URL_NOTICE + '\n\n' + REGISTRATION_FORM_NOTICE +
     '\n\nVercel 功能變數全部由 APP ADMIN 設定，旅團毋須設定任何功能變數。',
     ui.ButtonSet.OK);
@@ -367,6 +391,13 @@ function authorizeConnection(){
   if(response.getResponseCode()!==405) throw new Error('連線服務未就緒，請檢查部署設定');
   return '連線正常，請更新 Apps Script 既有部署至新版本';
 }
+// 正規化 GAS 部署網址：Workspace 帳戶常回報 /a/<網域>/macros/s/<部署 ID>/exec，
+// 正規化後與「部署 → 管理部署」視窗顯示的公開 /exec 格式一致，避免字串形式不同導致驗票失敗。
+function canonicalServiceUrl_(u){
+  const s=String(u||'');
+  const m=s.match(/^https:\/\/script\.google\.com\/a\/[^\/]+\/macros\/s\/([A-Za-z0-9_-]+)\/exec\/?$/);
+  return m ? 'https://script.google.com/macros/s/'+m[1]+'/exec' : s;
+}
 function verifySuperTicket(ticket){
   if(typeof ticket!=='string' || ticket.length>4096) return false;
   const lock=LockService.getScriptLock();
@@ -377,7 +408,7 @@ function verifySuperTicket(ticket){
     if(cache.get(cacheKey)) return false;
     const response=UrlFetchApp.fetch(SUPER_VERIFY_URL, {
       method:'post', contentType:'application/json', muteHttpExceptions:true,
-      payload:JSON.stringify({ticket:ticket, apikey:getApiKey(), backend:ScriptApp.getService().getUrl()})
+      payload:JSON.stringify({ticket:ticket, apikey:getApiKey(), backend:canonicalServiceUrl_(ScriptApp.getService().getUrl())})
     });
     if(response.getResponseCode()!==200 || JSON.parse(response.getContentText()).ok!==true) return false;
     cache.put(cacheKey,'used',120);
@@ -564,7 +595,7 @@ function initializeSheets() {
     const ui=SpreadsheetApp.getUi();
     if(ui){
       // 生成 API Key 不需要旅團編號；由用戶在 ADMIN FORM 填寫，不新增 GS 設定步驟。
-      ui.alert('✅ 初始化完成！\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：只有已登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；登入頁一律顯示中性訊息唔透露帳號是否存在，未登記電郵嘅成員請由領袖登入後喺「用戶管理」重設臨時密碼。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
+      ui.alert('✅ 初始化完成！\n\n🔧 唯一更新步驟：重跑只會補建缺失的工作表、表頭欄、預設管理員及初始化版本標記，不會刪除、覆寫或重設任何既有帳號、進度、獎章、履歷或設定，亦不會更換現有 API Key。\n\nSheets：進度追蹤、成員名單、Users、Applications、Tokens、SystemConfig、待批完成、其他獎章、操作紀錄、活動履歷、待批履歷、密碼重設\n\n🔑 旅團 API Key 資料（交 APP ADMIN，請妥善保管）：\n'+vercelEnvLines().join('\n')+'\n\n👤 管理員 YMIS: '+ADMIN_YMIS+' 臨時密碼: '+ADMIN_PASS+'（首次登入必須更改）\n🔢 密碼最短 4 位；批量／審批初始密碼預設 '+DEFAULT_TEMP_PASSWORD+'\n\n📧 忘記密碼電郵提示：只有已登記電郵嘅用戶可自助重設（寄件人係本旅團部署帳戶，需授權寄件權限）；登入頁一律顯示中性訊息唔透露帳號是否存在，未登記電郵嘅成員請由領袖登入後喺「用戶管理」重設臨時密碼。\n\n'+DEPLOYMENT_URL_NOTICE+'\n\n'+REGISTRATION_FORM_NOTICE+'\n\nAPI Key 隨時再睇：showApiKey()／選單「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」；登記資料不寫入工作表');
     }
   }catch(e){}
   return {success:true,apiKey:apiKey,gsVersion:VS_GS_VERSION,initializedGsVersion:VS_GS_VERSION,gsInitializationCurrent:true};
@@ -2298,6 +2329,8 @@ function onOpen(){
   try{
     const ui=SpreadsheetApp.getUi();
     ui.createMenu('🔗 旅系統')
+      .addItem('🔧 初始化／更新（執行 initializeSheets）','menuInitializeSheets')
+      .addSeparator()
       .addItem('📤 匯出 JSON（含 hash）','menuExportUsersJson')
       .addItem('📥 匯入 JSON（upsertUser 直插 hash）','menuImportUsersJson')
       .addSeparator()
@@ -2374,13 +2407,17 @@ function menuShowLinkState(){
   return linkAlert('本機接駁狀態',lines.join('\n'));
 }
 function menuShowLinkCredentials(){
-  const lines = vercelEnvLines().concat([
+  const lines = initStatusWarningLines_().concat(vercelEnvLines(), [
     '',
     'API Key 由本節點產生，只交 APP ADMIN，請勿公開分享。',
     DEPLOYMENT_URL_NOTICE,
     REGISTRATION_FORM_NOTICE
   ]);
   return linkAlert('API KEY（交 ADMIN）', lines.join('\n'));
+}
+// 單一更新入口：執行 initializeSheets() 並顯示完成訊息（只呼叫 initializeSheets，不執行其他函式）。
+function menuInitializeSheets(){
+  initializeSheets();
 }
 function menuRegisterDownstream(){
   const id=linkPrompt('登記下游 1/4','下游編號（例：團 / 進度節點識別，只可用英文、數字、底線、連字號）：');

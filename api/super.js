@@ -2,6 +2,14 @@
 import { openSuper, equalSecret } from './_super.js';
 import { getTrustedTroop } from './_registry.js';
 
+// 正規化 GAS /exec 網址：Workspace 帳戶可能回報 /a/<網域>/macros/s/<部署 ID>/exec，
+// 與公開 /exec 格式正規化後相同，否則字串形式不同會導致驗票靜默失敗。
+function canonicalBackendUrl(u){
+  const s=String(u||'');
+  const m=s.match(/^https:\/\/script\.google\.com\/a\/[^\/]+\/macros\/s\/([A-Za-z0-9_-]+)\/exec\/?$/);
+  return m ? 'https://script.google.com/macros/s/'+m[1]+'/exec' : s;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') {
@@ -23,7 +31,9 @@ export default async function handler(req, res) {
     const ticket = openSuper('login', body?.ticket);
     const troop = ticket && getTrustedTroop(ticket.troopId);
     const ok = !!(troop && equalSecret(body.apikey, troop.apikey) &&
-      equalSecret(ticket.apikey, troop.apikey) && body.backend === troop.backend && ticket.backend === troop.backend);
+      equalSecret(ticket.apikey, troop.apikey) &&
+      canonicalBackendUrl(body.backend) === troop.backend &&
+      canonicalBackendUrl(ticket.backend) === troop.backend);
     return res.status(ok ? 200 : 401).json({ ok });
   } catch { return res.status(400).json({ ok: false }); }
 }
