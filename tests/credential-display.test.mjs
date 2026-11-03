@@ -388,3 +388,55 @@ test('Workspace 網域內 URL 只轉成相同部署 ID 的公開路徑；正規�
     delete process.env.TROOP_7777_APIKEY;
   }
 });
+
+test('未初始化時介面訊息最前方出現初始化警告，並指示執行 initializeSheets；Key 不變且不洩 URL', () => {
+  const { backend, alerts, calls, scriptProps } = setup();
+  assert.equal(scriptProps.getProperty('VS_GS_INITIALIZED_VERSION'), null, '預設未初始化');
+
+  // showApiKey：回傳值不變，彈窗最前方出現警告
+  assert.equal(backend.showApiKey(), KEY, '未初始化時 Key 照常回傳且不變');
+  const alertText = JSON.stringify(alerts);
+  assert.match(alertText, /尚未完成初始化/);
+  assert.match(alertText, /initializeSheets/);
+  assert.ok(alertText.includes('API Key = ' + KEY), 'Key 照常顯示');
+  assert.doesNotMatch(alertText, /https:\/\//, '警告不洩漏部署 URL');
+
+  // showVercelEnv：回傳值不變，彈窗最前方出現警告
+  alerts.length = 0;
+  const shown = backend.showVercelEnv();
+  assert.deepEqual(Array.from(shown), Array.from(['API Key = ' + KEY]), 'showVercelEnv 回傳值不變');
+  assert.match(JSON.stringify(alerts), /尚未完成初始化/);
+
+  // 旅系統選單：回傳文字最前方出現警告，Key 仍在其中
+  alerts.length = 0;
+  const menuText = backend.menuShowLinkCredentials();
+  assert.ok(menuText.includes('API Key = ' + KEY), '選單文字仍含 Key');
+  assert.match(menuText, /尚未完成初始化/);
+  assert.match(menuText, /initializeSheets/);
+  assert.doesNotMatch(menuText, /https:\/\//, '選單警告不洩漏部署 URL');
+
+  assert.deepEqual(calls, { getUrl: 0, fetch: 0 }, '顯示路徑絕不讀取 Google service URL');
+});
+
+test('初始化後介面警告消失，Key 與初始化版本標記不變', () => {
+  const { backend, alerts, scriptProps } = setup();
+  assert.equal(scriptProps.getProperty('VS_GS_INITIALIZED_VERSION'), null, '測試後端預設未初始化');
+
+  const init = backend.initializeSheets();
+  assert.equal(init.initializedGsVersion, 'v9.4', 'initializeSheets 寫入初始化版本標記');
+  assert.equal(scriptProps.getProperty('API_KEY'), KEY, '初始化不更換現有 API Key');
+
+  alerts.length = 0;
+  backend.showApiKey();
+  assert.doesNotMatch(JSON.stringify(alerts), /尚未完成初始化/, '初始化後 showApiKey 不再出現警告');
+  assert.ok(JSON.stringify(alerts).includes('API Key = ' + KEY));
+
+  alerts.length = 0;
+  backend.showVercelEnv();
+  assert.doesNotMatch(JSON.stringify(alerts), /尚未完成初始化/, '初始化後 showVercelEnv 不再出現警告');
+
+  alerts.length = 0;
+  const menuText = backend.menuShowLinkCredentials();
+  assert.doesNotMatch(menuText, /尚未完成初始化/, '初始化後選單不再出現警告');
+  assert.ok(menuText.includes('API Key = ' + KEY));
+});

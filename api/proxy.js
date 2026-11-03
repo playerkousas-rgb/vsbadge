@@ -151,6 +151,26 @@ export default async function handler(req, res) {
     const clamp = (value, max) => String(value === undefined || value === null ? '' : value).trim().substring(0, max);
     const regTroopId = clamp(data.troopId, 32);
     const rawNote = clamp(data.note, 480);
+    // 初始化閘：已在 Vercel Registry 登記的旅團，其後端若尚未完成 initializeSheets()，
+    // 不轉交管理員信箱，避免批准後才發現沒有任何帳號。未登記旅團無法經 Proxy 探查
+    // 其後端狀態（杜絕 SSRF／用戶不可夾帶後端 URL），視為「未知」而照常轉交，不阻止合法申請。
+    // 錯誤訊息不回顯後端網址。
+    const troop = getTrustedTroop(regTroopId);
+    if (troop) {
+      try {
+        const probe = await callUpstream(troop.backend, {
+          method: 'GET',
+          params: { action: 'ecStatus', apikey: troop.apikey }
+        });
+        const pj = probe && probe.json;
+        if (pj && pj.success === true && pj.initRequired === true && !pj.initializedGsVersion) {
+          safeLog({ result: 'registration_blocked_uninitialized', troopId: regTroopId, ms: Date.now() - t0 });
+          return sendJson(res, 422, { success: false, error: '該旅團後端尚未完成 initializeSheets()，請先在 Google Sheet 執行選單「🔧 初始化／更新」（只會補建缺失結構，不刪改現有資料，不換 API Key），完成後以同一後端網址重新提交接入申請' });
+        }
+      } catch (e) {
+        // Probe 不可達，或舊版後端不回傳 init 欄位＝「未知」，不阻止合法申請；不洩漏後端網址。
+      }
+    }
     const taggedNote = /^\[vsbadge\]/i.test(rawNote)
       ? rawNote
       : (rawNote ? `[vsbadge] ${rawNote}` : '[vsbadge]');
