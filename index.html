@@ -519,7 +519,7 @@ a:hover{text-decoration:underline}
 
       <div class="tutorial">
         <div class="steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (GS v9.4 單一檔案版)</h4><p>最新 GS v9.4：登入更安全（密碼儲存升級、連續登入失敗會暫時鎖定、登入畫面唔會透露帳號是否存在），「忘記密碼」改用 8 位重設碼並一律顯示中性訊息；保留現有資料及 API Key</p><a href="apps-script/Code.gs?gs=v9.4" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (GS v9.4)</a></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h4>共通：下載後端程式碼 (GS v9.5 單一檔案版)</h4><p>最新 GS v9.5：修正登入逾時（PBKDF2 改用 10,000 迭代，舊帳號原密碼照入、自動透明升級），批准其他獎章／重覆送出申請寫入修正；保留現有資料及 API Key</p><a href="apps-script/Code.gs?gs=v9.5" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ 下載 Code.gs (GS v9.5)</a></div></div>
           <div class="step"><div class="step-number">2</div><div class="step-content"><h4>共通：建立 Google Sheet 並部署</h4><p><b>2.1</b> 建新試算表<br><b>2.2</b> 擴充功能→Apps Script，貼上 Code.gs<br><b>2.3</b> 儲存→執行 initializeSheets，授權，複製 API Key（GS 彈窗及選單只提供 API Key，不顯示自動取得的網址；旅團編號毋須在 Sheet／Apps Script 預先設定）<br><b>2.4</b> 部署為網頁應用程式 (執行身分我，存取權任何人)，在 Google 部署視窗複製 URL (/exec)</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h4>提交給 vsbadge 管理員</h4><p>取得 API Key 及 Google 部署視窗提供的部署 URL 後，填寫下方接入申請（ADMIN FORM）。旅團編號直接在 ADMIN FORM 填寫，毋須在 GS 設定；連同名稱、URL、API Key 交 vsbadge 管理員加入 Vercel 環境變數，在 Vercel 重新部署後獨立可用。API Key 可在「🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）」查看</p></div></div>
           <div class="step"><div class="step-number">4</div><div class="step-content"><h4>首次登入（預設管理員帳號）</h4><p>initializeSheets 跑完會自動建立預設管理員。登記完成後，首頁揀該旅團卡片 → 用「👤 成員」分頁登入（YMIS 登入，唔好用「👨‍💼 領袖」＝Email 分頁）：</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 密碼</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>首次登入會<b style="color:var(--red)">強制改密碼</b>（最少 4 位）。之後去「👥 用戶管理」開返各領袖自己嘅帳號並設角色／權限，喺「✅ 審批中心」批成員申請。</p></div></div>
@@ -562,7 +562,11 @@ a:hover{text-decoration:underline}
         <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
       </div>
       <div class="info-section" style="margin-top:12px">
-        <h3>最新：GS v9.4 登入安全強化（2026-11-02）</h3>
+        <h3>最新：GS v9.5 修正登入逾時＋審批寫入（2026-11-05）</h3>
+        <p style="font-size:12px">修正「有時入得、有時逾時」：舊版每次登入要做 120,000 迭代 PBKDF2，喺 Apps Script 實測要 12–20 秒，冷啟動或負載高時會撞正 45 秒上游逾時（504）。新雜湊改用 10,000 迭代（約 1–2 秒）；舊帳號（單次 SHA-256 或 120,000 迭代）照用原密碼登入，成功一次後自動透明升級，毋須重設密碼或清資料。帳號不存在／鎖定中一律照做一次 dummy KDF（CacheService 重用 6 小時），杜絕時序枚舉同燒配額。領袖批准「其他獎章」（OT-*）申請而家正確寫入「其他獎章」工作表，一般項目批准做 Upsert 唔再重覆列；團員重按送出同一項目唔會洗版（冪等去重，支援批次）。Proxy 新增 slow_password_kdf 日誌供事後追查未更新旅團；未更新 GS 嘅旅團會喺公告見到「此版本登入會逾時」提示。此版本冇新增工作表或欄位；更新 Code.gs 後照慣例執行一次 initializeSheets()（只做增補、保留所有資料及 API Key）再重新部署。</p>
+      </div>
+      <div class="info-section" style="margin-top:12px">
+        <h3>GS v9.4 登入安全強化（2026-11-02）</h3>
         <p style="font-size:12px">密碼改用更安全的儲存方式，舊帳號照用原密碼登入，系統會自動升級（不用做任何事）。連續 5 次登入失敗會暫時鎖定 15 分鐘；登入失敗一律顯示「帳號或密碼錯誤」，畫面不會透露帳號是否存在。「🔑 忘記密碼？」改用 8 位重設碼（可直接貼上，空格自動去除）：只需輸入 YMIS 或登記電郵其中一項，畫面一律顯示同一句中性訊息；收不到信先檢查垃圾郵件，再聯絡領袖。未登記電郵的成員照舊由領袖在「👥 用戶管理」重設臨時密碼；領袖重設後帳號即可即時以新密碼登入，舊裝置登入會失效。此版本沒有新增工作表或欄位；按新慣例，每次更新 Code.gs 後仍請執行一次 initializeSheets()（只做增補、可安全重跑、保留現有資料及 API Key），由舊版本跨級升級時更必須執行。</p>
       </div>
       <div class="info-section" style="margin-top:12px">
@@ -1890,7 +1894,7 @@ setup:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">📋 Ne
 [主系統暫時隱藏 完] -->
 <div class="info-card" style="background:var(--maroon-light);margin-bottom:12px"><h3>🗺️ Setup map</h3><p style="font-size:11px">Download Code.gs → create a Sheet → run initializeSheets to get the API Key → deploy and copy the URL from Google's deployment dialog → enter Group number, name, URL and API Key in the ADMIN FORM for a vsbadge admin to add Vercel environment variables → first sign-in (step 4) → use vsbadge.vercel.app, pick your Group, sign in.</p><!-- [主系統暫時隱藏 2026-10] Path B, connect the main platform: still register with a vsbadge admin (from v3.0 the card only needs u=Group number). From v3.1 an admin must also register portalOrigin (main-platform URL) and portalRoles (allowed roles); portal sign-in is then verified server-side. Use: Dashboard, card, from=portal + src=main-platform-origin + embed=1 (ymis is now optional). Re-enable: restore this sentence as a visible line and rename the card to Two paths. --></div>
 <div class="tutorial"><div class="steps">
-  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (GS v9.4, single file)</h4><p>Latest GS v9.4: safer sign-in (stronger password storage, temporary lock after repeated failed sign-ins, and sign-in screens that never reveal whether an account exists); “Forgot password” now uses an 8-digit reset code with one neutral message. Existing data and API Key are preserved</p><a href="apps-script/Code.gs?gs=v9.4" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs (GS v9.4)</a></div></div>
+  <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Common: download the backend (GS v9.5, single file)</h4><p>Latest GS v9.5: fixes sign-in timeouts (PBKDF2 now uses 10,000 iterations; existing accounts keep their password and upgrade transparently), plus correct writes for Other-badge approvals and duplicate completion requests. Existing data and API Key are preserved</p><a href="apps-script/Code.gs?gs=v9.5" download="Code.gs" class="btn btn-primary btn-sm" style="margin-top:6px">⬇️ Download Code.gs (GS v9.5)</a></div></div>
   <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Common: create a Google Sheet and deploy</h4><p><b>2.1</b> New spreadsheet<br><b>2.2</b> Extensions → Apps Script, paste Code.gs<br><b>2.3</b> Save → run initializeSheets, authorise, copy the API Key (GS dialogs and menus provide only the API Key, never an automatically obtained URL; the Group number does not need to be set in the Sheet / Apps Script first)<br><b>2.4</b> Deploy as web app (execute as me, access anyone), and copy the /exec URL from Google's deployment dialog</p></div></div>
   <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Submit to a vsbadge admin</h4><p>With the API Key and the deployment URL from Google's deployment dialog, complete the connection request below (the ADMIN FORM). Enter the Group number directly in the ADMIN FORM; it never needs to be set in GS. Send number, name, URL and API Key so a vsbadge admin can add Vercel environment variables; after Vercel deploys, use it standalone. View the API Key anytime under “🔗 旅系統 → 🔑 顯示 API KEY（交 ADMIN）”.</p></div></div>
   <div class="step"><div class="step-number">4</div><div class="step-content"><h4>First sign-in (default admin account)</h4><p>initializeSheets creates the default admin automatically. After registration, open the home page, pick your Group card, and sign in on the “👤 Member” tab (YMIS sign-in; do not use the “👨‍💼 Leader” tab, which uses Email):</p><div style="background:#fff;border:2px solid var(--maroon);border-radius:8px;padding:8px 14px;margin:4px 0 6px;line-height:2.1"><span style="font-size:11px;color:var(--text-light)">🔑 YMIS</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">1111111111</b><br><span style="font-size:11px;color:var(--text-light)">🔑 Password</span>　<b style="font-family:monospace;font-size:17px;letter-spacing:1px;color:var(--maroon)">changeme</b></div><p>The first sign-in <b style="color:var(--red)">forces a password change</b> (minimum 4 characters). Then open accounts for your leaders under “👥 Users” with roles and rights, and approve member applications in “✅ Approvals”.</p></div></div>
@@ -1923,7 +1927,11 @@ changelog:`<h2 style="font-size:18px;color:var(--maroon);margin-bottom:12px">�
   <div style="margin-top:8px;font-size:11px;color:var(--text-light)">COPYRIGHT 2026 Scout System</div>
 </div>
 <div class="info-section" style="margin-top:12px">
-  <h3>Latest: GS v9.4 safer sign-in (2026-11-02)</h3>
+  <h3>Latest: GS v9.5 sign-in timeout fix + approval writes (2026-11-05)</h3>
+  <p style="font-size:12px">Fixes “sometimes I can sign in, sometimes it times out”: the old GS ran 120,000 PBKDF2 iterations per sign-in, which measures 12–20 seconds on Apps Script and hits the 45-second upstream timeout on cold starts or under load (504). New hashes use 10,000 iterations (about 1–2 seconds); existing accounts (single SHA-256 or 120,000-iteration hashes) keep the same password and are upgraded transparently after one successful sign-in — no password reset and no data wipe. Unknown-account and locked-account attempts now always run one dummy KDF (reused via CacheService for 6 hours), closing the timing-enumeration gap and the quota burn. Leader approval of “Other badge” (OT-*) requests now writes to the correct “其他獎章” sheet, normal items are upserted instead of duplicated, and re-submitting the same item is idempotent (batch supported). The proxy logs slow_password_kdf so un-updated Groups can be traced afterwards, and Groups still on the old GS see a “sign-in on this version can time out” notice. No new sheets or columns; after replacing Code.gs, run initializeSheets() once as usual (additive only, keeps all data and the API Key) and redeploy.</p>
+</div>
+<div class="info-section" style="margin-top:12px">
+  <h3>GS v9.4 safer sign-in (2026-11-02)</h3>
   <p style="font-size:12px">Passwords are now stored more safely; existing accounts keep signing in with the same password and are upgraded automatically. Five failed sign-ins in a row lock the account for 15 minutes, and every failed sign-in shows the same message so the screen never reveals whether an account exists. “🔑 Forgot password?” now uses an 8-digit reset code (paste it as-is — spaces are ignored): enter just your YMIS or your registered email and you always see the same neutral message; if no email arrives, check spam first, then ask a Leader. Members without a registered email still get a temporary password from a Leader under “👥 Users”, and after a Leader reset the account can sign in straight away while old devices are signed out. This release adds no sheet or column; under the new convention please still run initializeSheets() once after every Code.gs update (additive only, safe to re-run, keeps all data and the API Key) — it is essential when upgrading across several versions.</p>
 </div>
 <div class="info-section" style="margin-top:12px">
@@ -2000,7 +2008,7 @@ function todayISO(){ return new Date().toISOString().split('T')[0]; }
    只列最新版本，不設逐級補丁清單。GS 的 ecStatus 及登入後 load 會回報
    gsVersion（程式版本）及 initializedGsVersion（初始化版本），前端據此分辨：
    「GS 未更新」→ 警告、「已更新但未初始化」→ 警告、「全部完成」→ 綠色「已核對」。 */
-const LATEST_RELEASE=Object.freeze({updated:'2026-11-02',gsVersion:'v9.4',initializeRequired:true});
+const LATEST_RELEASE=Object.freeze({updated:'2026-11-05',gsVersion:'v9.5',initializeRequired:true});
 let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initializedGsVersion:'',error:''};
 let _releaseCheckSequence=0;
 function resetBackendRelease(){
@@ -2057,7 +2065,7 @@ function renderReleaseNotices(){
     else if(state.status==='demo') statusText=isEn()?'DEMO does not connect to a Group GS. A real Group still needs this update.':'示範模式唔連接旅團 GS；正式旅團仍須完成呢次更新。';
     else if(state.status==='checking') statusText=isEn()?'Checking the GS version deployed by this Group…':'正在核對此旅團實際部署嘅 GS 版本…';
     else if(state.status==='current') statusText=isEn()?`✅ Verified: GS ${LATEST_RELEASE.gsVersion}, and initialisation for this release is complete.`:`✅ 已核對：GS ${LATEST_RELEASE.gsVersion}，呢個版本嘅初始化亦已完成。`;
-    else if(state.status==='update') statusText=isEn()?`⚠️ GS update is still required (reported: ${state.reportedVersion||'unknown'}). The latest fixes are not active until GS is replaced and redeployed.`:`⚠️ 此旅團尚未完成 GS 更新（回報版本：${state.reportedVersion||'未知'}）。未更換並重新部署 GS，今次修正就唔會生效。`;
+    else if(state.status==='update') statusText=isEn()?`⚠️ GS update is still required (reported: ${state.reportedVersion||'unknown'}). Sign-in on this version can time out: the old GS spends 12–20 seconds per sign-in (high-iteration PBKDF2) and hits the 45-second upstream limit on cold starts. Replace Code.gs and redeploy first; existing passwords keep working and upgrade automatically.`:`⚠️ 此旅團尚未完成 GS 更新（回報版本：${state.reportedVersion||'未知'}）。此版本登入會逾時：舊 GS 每次登入要 12–20 秒（高迭代 PBKDF2），冷啟動或負載高時會撞正 45 秒上游逾時。請先更換 Code.gs 並重新部署；現有密碼照用，登入後自動升級，毋須重設。`;
     else if(state.status==='initialize') statusText=isEn()?`⚠️ GS ${LATEST_RELEASE.gsVersion} is deployed, but initializeSheets() has not completed for this release (record: ${state.initializedGsVersion||'none'}). Run it once, then re-check.`:`⚠️ GS 已係 ${LATEST_RELEASE.gsVersion}，但呢個版本嘅 initializeSheets() 尚未完成（初始化紀錄：${state.initializedGsVersion||'未記錄'}）。請執行一次，然後重新檢查。`;
     else if(state.status==='error') statusText=isEn()?'⚠️ The GS version cannot be verified right now. Do not assume the update is complete; use Re-check later.':'⚠️ 暫時未能核對 GS 版本。唔好當已經更新；稍後按「重新檢查」。';
     else statusText=isEn()?'Select a Group to verify its deployed GS version.':'選擇旅團後，系統會核對實際部署嘅 GS 版本。';
@@ -2081,7 +2089,10 @@ function renderReleaseNotices(){
 }
 
 async function apiRequest(action, data={}, opts={}){
-  const timeoutMs=opts.timeout||45000;
+  // 前端預設 58s：必須大過 Proxy 上游逾時（預設 45s；VSBADGE_PROXY_TIMEOUT_MS 可調、上限 55s），
+  // 同時細過 Vercel maxDuration 60s。咁樣 GAS 慢到爆嗰陣，用戶先收到 Proxy 嘅 504 JSON
+  // （「旅團後端回應逾時…」），而唔係瀏覽器自己 abort 咗先、兩邊 timeout 互相打架。
+  const timeoutMs=opts.timeout||58000;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(), timeoutMs);
   let res;
@@ -2417,7 +2428,15 @@ async function doLogin(){
         if(currentUser.force_change_password) setTimeout(()=>showChangePasswordModal(true),250);
       },600);
     }else{ msg.textContent=d.error||i18n('login.fail'); msg.className='login-msg error'; }
-  }catch(e){ console.error(e); msg.textContent=(e && e.message) ? e.message : i18n('login.net'); msg.className='login-msg error'; }
+  }catch(e){
+    console.error(e);
+    let em=(e && e.message) ? e.message : i18n('login.net');
+    // 版本核對已知此旅團 GS 未更新：登入逾時好可能係舊 GS 高迭代 KDF（12–20 秒）所致，直接講明。
+    if(backendReleaseState.troopId===currentTroopId && backendReleaseState.status==='update'){
+      em+=isEn()?' This Group’s GS is not updated — sign-in on this version can time out (12–20s per attempt). Ask a Leader to update Code.gs.':'（此旅團 GS 未更新——此版本登入會逾時，每次登入要 12–20 秒；請領袖更新 Code.gs。）';
+    }
+    msg.textContent=em; msg.className='login-msg error';
+  }
   finally{ btn.disabled=false; btn.textContent=i18n('login.submit'); }
 }
 function doLogout(){

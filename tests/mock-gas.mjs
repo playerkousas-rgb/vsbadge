@@ -205,13 +205,31 @@ export function startMockGas({ port, name, users, apikey = '' }) {
       }
       case 'requestComplete': {
         if (!tokenYmis) return { success: false, error: '未授權，請重新登入' };
-        const rid = 'REQ_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-        state.requests.push({
-          request_id: rid, ymis: tokenYmis, name: body.name || tokenYmis,
-          item_id: body.itemId, item_name: body.itemName || body.itemId,
-          requested_date: body.requested_date, evidence: body.evidence || '', status: 'pending'
-        });
-        return { success: true, request_id: rid };
+        // 與 Code.gs 一致：冪等去重（同一 ymis+itemId 已有 pending 就更新）＋批次 items[]
+        const raw = (Array.isArray(body.items) && body.items.length) ? body.items
+          : [{ itemId: body.itemId, itemName: body.itemName, requested_date: body.requested_date, evidence: body.evidence }];
+        if (raw.length > 50) return { success: false, error: '每次最多提交 50 個項目，請分批' };
+        const results = [];
+        for (let i = 0; i < raw.length; i++) {
+          const it = raw[i] || {};
+          const itemId = String(it.itemId || '').trim();
+          if (!itemId) return { success: false, error: '第 ' + (i + 1) + ' 個項目缺少 itemId' };
+          const existing = state.requests.find(r => r.ymis === tokenYmis && r.item_id === itemId && r.status === 'pending');
+          if (existing) {
+            existing.requested_date = it.requested_date || existing.requested_date;
+            existing.evidence = it.evidence || '';
+            results.push({ request_id: existing.request_id, item_id: itemId, deduplicated: true });
+          } else {
+            const rid = 'REQ_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+            state.requests.push({
+              request_id: rid, ymis: tokenYmis, name: body.name || tokenYmis,
+              item_id: itemId, item_name: it.itemName || itemId,
+              requested_date: it.requested_date || '2026-11-05', evidence: it.evidence || '', status: 'pending'
+            });
+            results.push({ request_id: rid, item_id: itemId, deduplicated: false });
+          }
+        }
+        return { success: true, request_id: results[0].request_id, request_ids: results.map(r => r.request_id), requests: results, processed: results.length, deduplicated: results[0].deduplicated };
       }
       case 'getPendingRequests': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
@@ -223,8 +241,15 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (!req) return { success: false, error: '找不到申請' };
         req.status = body.decision;
         if (body.decision === 'approved') {
+          const date = body.confirmed_date || req.requested_date;
+          // 與 Code.gs 一致：OT-* 寫其他獎章（Upsert），其餘寫進度（Upsert）
+          if (String(req.item_id || '').indexOf('OT-') === 0) {
+            if (!state.otherBadges[req.ymis]) state.otherBadges[req.ymis] = {};
+            state.otherBadges[req.ymis][req.item_id] = { name: req.item_name || req.item_id, date, cert: '', note: '由申請轉入：' + (body.review_note || '') };
+            return { success: true, message: '已批准並寫入其他獎章' };
+          }
           if (!state.progress[req.ymis]) state.progress[req.ymis] = {};
-          state.progress[req.ymis][req.item_id] = { date: body.confirmed_date || req.requested_date, confirmer: tokenYmis };
+          state.progress[req.ymis][req.item_id] = { date, confirmer: tokenYmis, note: '由申請轉入：' + (body.review_note || '') };
           return { success: true, message: '已批准並寫入進度' };
         }
         return { success: true, message: '已拒絕' };

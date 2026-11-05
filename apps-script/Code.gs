@@ -11,8 +11,9 @@
 //   只有已登記電郵的帳號提供自助重設（8 位重設碼、只存加鹽雜湊、15 分鐘有效、最多 5 次嘗試、單次使用）；
 //   公開入口一律回覆中性訊息（帳號不存在／未登記電郵／寄件失敗／成功寄出完全一致），不建立待批請求；
 //   未登記電郵的成員由領袖登入後在「用戶管理」以 resetPassword 重設臨時密碼
-// 登入安全（A3／A5／A17）：密碼以 PBKDF2-HMAC-SHA256（120000 迭代＋每用戶隨機鹽）儲存，
-//   舊單次 SHA-256 雜湊仍可登入並於成功登入時自動升級；同一帳號連續 5 次登入失敗鎖定 15 分鐘；
+// 登入安全（A3／A5／A17）：密碼以 PBKDF2-HMAC-SHA256（10,000 迭代＋每用戶隨機鹽）儲存，
+//   驗證一律用雜湊自帶嘅迭代次數（接受 1,000–2,000,000）；舊單次 SHA-256 或舊高迭代雜湊
+//   仍可登入並於成功登入時透明升級（密碼不變）；同一帳號連續 5 次登入失敗鎖定 15 分鐘；
 //   公開登入失敗一律回覆「帳號或密碼錯誤」；改密碼／重設密碼一律踢走舊登入並清除失敗鎖定
 // 用戶管理及唯一身份：YMIS / Email 在單筆、批量、申請及編輯流程均由後端鎖內檢查，不可重複；
 //   getAllUsers 合併「Users」及「成員名單」；領袖可重設成員密碼；刪除後保留識別碼 tombstone 及歷史進度
@@ -39,7 +40,7 @@ const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
 
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
-const VS_GS_VERSION = 'v9.4';
+const VS_GS_VERSION = 'v9.5';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
 // 此版本是否強制要求旅團執行 initializeSheets()；與前端 LATEST_RELEASE.initializeRequired 保持一致。
 const GS_INIT_REQUIRED = true;
@@ -119,11 +120,20 @@ function hashPassword(p) {
   const raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, p, Utilities.Charset.UTF_8);
   return raw.map(function(b){return ('0' + (b & 0xFF).toString(16)).slice(-2);}).join('');
 }
-// ===== A3 密碼雜湊：PBKDF2-HMAC-SHA256（120000 迭代 + 每用戶 16-byte 隨機鹽 + 時序安全比對）=====
+// ===== A3 密碼雜湊：PBKDF2-HMAC-SHA256（每用戶 16-byte 隨機鹽 + 時序安全比對）=====
 // 新格式寫入 Users.password_hash 同一欄：pbkdf2$<iter>$<saltHex>$<dkHex>
 // 舊格式（64 hex 單次 SHA-256）仍可驗證；登入成功時自動升級為新格式（密碼本身不變，屬增補式升級）。
 // hashPassword() 本身保留作 SHA-256 工具（sig／重設碼雜湊／舊格式驗證），新設密碼一律用 hashPasswordV2。
-const PBKDF2_ITERATIONS = 120000;
+//
+// 迭代次數點解由 120,000 降到 10,000：Apps Script 冇原生 PBKDF2，每一輪迭代都係一次獨立
+// Utilities.computeHmacSha256Signature() 服務呼叫（實測約 0.1ms／次）。120,000 迭代每次登入
+// 要 12–20 秒，撞正同源 Proxy 45 秒上游逾時只係時間問題（GAS 冷啟動／負載高／Google 慢嗰日
+// 就 504，用戶見到「有時入得、有時逾時」）。10,000 迭代約 1–2 秒，先至留到足夠緩衝。
+// 驗證一律用雜湊自帶嘅 iter（下限 1,000、上限 2,000,000），所以舊 120,000 迭代帳號照入得；
+// 舊雜湊（64-hex 或唔等於目前 iter 嘅 pbkdf2$）成功登入一次後透明改寫做目前 iter，毋須重設密碼。
+const PBKDF2_ITERATIONS = 10000;
+const PBKDF2_MIN_ITERATIONS = 1000;
+const PBKDF2_MAX_ITERATIONS = 2000000;
 const LOGIN_MAX_FAILS = 5;
 const LOGIN_LOCK_MS = 15*60*1000;
 function hexToBytes_(hex){ const out=[]; hex=String(hex||'').replace(/[^0-9a-f]/gi,''); for(let i=0;i+1<hex.length;i+=2) out.push(parseInt(hex.substr(i,2),16)); return out; }
@@ -144,21 +154,93 @@ function hashPasswordV2(p){
   return 'pbkdf2$'+PBKDF2_ITERATIONS+'$'+saltHex+'$'+toHex(dk);
 }
 function isLegacyPasswordHash_(h){ return /^[0-9a-f]{64}$/i.test(String(h||'')); }
-// 驗證密碼：自動接受舊格式（單次 SHA-256）與新格式（pbkdf2$...）；比對用 safeEqualText（防時序洩漏）
+// 驗證密碼：自動接受舊格式（單次 SHA-256）與新格式（pbkdf2$...）；比對用 safeEqualText（防時序洩漏）。
+// 迭代次數以雜湊自帶嘅為準（唔係用目前常數），舊高迭代雜湊先至驗證得到。
 function verifyPassword(p, stored){
   stored = String(stored||'');
   if(stored.indexOf('pbkdf2$')===0){
     const parts = stored.split('$');
     if(parts.length!==4) return false;
-    const iter = parseInt(parts[1],10)||0; if(iter<100000||iter>1000000) return false;
+    const iter = parseInt(parts[1],10)||0; if(iter<PBKDF2_MIN_ITERATIONS||iter>PBKDF2_MAX_ITERATIONS) return false;
     const salt = hexToBytes_(parts[2]); if(!salt.length) return false;
     const dk = pbkdf2HmacSha256_(String(p||''), salt, iter);
     return safeEqualText(toHex(dk), parts[3]);
   }
   return safeEqualText(sha256Hex(String(p||'')), stored);
 }
+// 使唔使透明升級：舊 64-hex，或者 pbkdf2$ 但迭代次數唔等於目前常數（例如舊 120,000）。
+// 只喺「驗證成功」之後先改寫；壞格式／超出接受範圍嘅雜湊唔會行到呢度（verifyPassword 已拒）。
+function passwordHashNeedsUpgrade_(stored){
+  stored=String(stored||'');
+  if(isLegacyPasswordHash_(stored)) return true;
+  if(stored.indexOf('pbkdf2$')===0){
+    const parts=stored.split('$');
+    if(parts.length!==4) return false;
+    const iter=parseInt(parts[1],10)||0;
+    return iter>=PBKDF2_MIN_ITERATIONS && iter<=PBKDF2_MAX_ITERATIONS && iter!==PBKDF2_ITERATIONS;
+  }
+  return false;
+}
+// A17 假 KDF 用嘅 dummy 雜湊：帳號不存在／鎖定中都要做一次同成本嘅 KDF 先回統一中性訊息。
+// GAS 每次請求都係新執行，單次執行變數等於冇 cache——舊寫法每個「帳號不存在」請求都燒一次
+// 完整 KDF 配額。改用 CacheService 重用 6 小時（GAS script cache 上限），key 帶迭代次數，
+// 改常數後唔會重用舊成本嘅 dummy。Cache 唔可用／未命中時退回單次執行記憶，行為不變。
 let __dummyPasswordHash_ = null;
-function dummyPasswordHash_(){ if(!__dummyPasswordHash_) __dummyPasswordHash_ = hashPasswordV2('timing-equalizer'); return __dummyPasswordHash_; }
+const DUMMY_HASH_CACHE_SECONDS = 6*60*60;
+function dummyCacheKey_(){ return 'PWD_DUMMY_HASH:'+PBKDF2_ITERATIONS; }
+function cachedDummyPasswordHash_(){
+  if(__dummyPasswordHash_) return __dummyPasswordHash_;
+  try{
+    const cached=CacheService.getScriptCache().get(dummyCacheKey_());
+    if(cached && String(cached).indexOf('pbkdf2$'+PBKDF2_ITERATIONS+'$')===0){ __dummyPasswordHash_=String(cached); return __dummyPasswordHash_; }
+  }catch(e){}
+  return null;
+}
+function dummyPasswordHash_(){
+  const cached=cachedDummyPasswordHash_();
+  if(cached) return cached;
+  const fresh=hashPasswordV2('timing-equalizer');
+  try{ CacheService.getScriptCache().put(dummyCacheKey_(),fresh,DUMMY_HASH_CACHE_SECONDS); }catch(e){}
+  __dummyPasswordHash_=fresh;
+  return fresh;
+}
+// A17 時序對齊：帳號不存在／鎖定中／搵唔到用戶紀錄，都要做「恰好一次」KDF 先回中性訊息。
+// Cache 命中→用 dummy 雜湊驗證一次（1 次 KDF）；未命中→即場生成 dummy（都係 1 次 KDF，
+// 成本同驗證一致）並寫入 CacheService 重用 6 小時——唔好生成完又驗證一次燒雙倍配額。
+function equalizeLoginTiming_(password){
+  try{
+    const cached=cachedDummyPasswordHash_();
+    if(cached){ verifyPassword(password, cached); return; }
+    dummyPasswordHash_();
+  }catch(e){}
+}
+// ===== 密碼 KDF 即場基準（Apps Script 原路徑實測，唔係 Node 估算）=====
+// 喺 Apps Script 編輯器揀 benchmarkPasswordKdf 執行（或選單「⏱️ 密碼 KDF 速度測試」），
+// 用真正嘅 Utilities.computeHmacSha256Signature 路徑量度 120,000 次 vs 10,000 次（及目前常數）
+// 嘅真實毫秒數。結果寫入 Logger（檢視 → 執行紀錄）並回傳 JSON，用嚟填寫修前／修後實測秒數。
+// 預設每個次數只跑 1 次（避免燒配額）；runs 參數最多 3。固定鹽令各次數可直接比較。
+function benchmarkPasswordKdf(runs){
+  const n=Math.max(1,Math.min(3,parseInt(runs,10)||1));
+  const salt=hexToBytes_('00112233445566778899aabbccddeeff');
+  const counts=[];
+  [120000,10000,PBKDF2_ITERATIONS].forEach(function(c){ if(counts.indexOf(c)<0) counts.push(c); });
+  const results=counts.map(function(iter){
+    let best=null,total=0;
+    for(let r=0;r<n;r++){
+      const t0=new Date().getTime();
+      pbkdf2HmacSha256_('benchmark-password',salt,iter);
+      const ms=new Date().getTime()-t0;
+      total+=ms; if(best===null||ms<best) best=ms;
+    }
+    const avg=Math.round(total/n);
+    return {iterations:iter,runs:n,bestMs:best,avgMs:avg,avgSeconds:Math.round(avg/100)/10};
+  });
+  const report={success:true,gsVersion:VS_GS_VERSION,defaultIterations:PBKDF2_ITERATIONS,measuredAt:now(),results:results,
+    note:'Apps Script 原路徑實測。每次登入＝1 次驗證 KDF；舊雜湊首次成功登入另加 1 次目前迭代嘅升級 KDF（一次性）。'};
+  Logger.log('benchmarkPasswordKdf '+JSON.stringify(report));
+  results.forEach(function(r){ Logger.log(r.iterations+' 迭代：平均 '+r.avgMs+' ms（最佳 '+r.bestMs+' ms，'+r.runs+' 次）'); });
+  return report;
+}
 // ===== A5 登入失敗鎖定（ScriptProperties，key = LOGIN_FAIL:<ymis>；不寫入工作表）=====
 function loginFailKey_(ymis){ return 'LOGIN_FAIL:'+String(ymis||''); }
 function readLoginFail_(ymis){
@@ -1312,16 +1394,21 @@ function handleLogin(loginId,password,superTicket){
     if(!verifySuperTicket(superTicket)) return jsonResponse({success:false,error:'帳號或密碼錯誤'});
     // 保留帳號已由 getUser() 直接建立，不讀寫 Users／Tokens／操作紀錄工作表。
     const token=createToken(user.ymis);
-    return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password});
+    return jsonResponse({success:true,token:token,user:user,force_change_password:user.force_change_password,gsVersion:VS_GS_VERSION});
   }
   // A17 防枚舉（只限未登入公開入口）：找不到帳號（包括已停用）與密碼錯誤回完全相同訊息；
   // 找不到帳號時照做一次假 KDF，令回應時序一致。後台管理查詢不受影響，領袖仍可正常搵人。
-  if(!user){ try{ verifyPassword(password, dummyPasswordHash_()); }catch(e){} return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
+  if(!user){ equalizeLoginTiming_(password); return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
   // A5 登入鎖定：同一帳號連續失敗達上限後鎖 15 分鐘，鎖定期間連正確密碼都拒（回同一訊息）。
+  // A17：鎖定中唔可以提早 return——都要照做一次 dummy KDF，否則時序上分得出
+  // 「帳號存在但被鎖」（即时回）同「帳號不存在」（等 KDF），係反枚舉漏洞。
   const failRec=readLoginFail_(user.ymis);
-  if(failRec && Number(failRec.until||0)>Date.now()) return jsonResponse({success:false,error:'帳號或密碼錯誤'});
+  if(failRec && Number(failRec.until||0)>Date.now()){
+    equalizeLoginTiming_(password);
+    return jsonResponse({success:false,error:'帳號或密碼錯誤'});
+  }
   const rec=findUserRecord(user.ymis);
-  if(!rec){ try{ verifyPassword(password, dummyPasswordHash_()); }catch(e){} return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
+  if(!rec){ equalizeLoginTiming_(password); return jsonResponse({success:false,error:'帳號或密碼錯誤'}); }
   const map=rec.map;
   const storedHash=String(rec.data[map.password_hash]||'');
   if(!verifyPassword(String(password||''),storedHash)){
@@ -1329,13 +1416,16 @@ function handleLogin(loginId,password,superTicket){
     return jsonResponse({success:false,error:'帳號或密碼錯誤'});
   }
   clearLoginFail_(user.ymis);
-  // A3 自動升級：舊單次 SHA-256 雜湊在成功登入時改寫為 PBKDF2 格式（密碼不變）。
-  if(isLegacyPasswordHash_(storedHash)){ try{ rec.sheet.getRange(rec.row,map.password_hash+1).setValue(hashPasswordV2(String(password))); }catch(e){} }
+  // A3 透明升級：舊單次 SHA-256，或舊迭代次數（例如 120,000）嘅 PBKDF2 雜湊，
+  // 成功登入後改寫做目前迭代次數（密碼不變，毋須重設）。每次登入只做 1 次「驗證」KDF；
+  // 升級改寫係一次性額外 KDF（用目前較低次數，成本低），之後登入就只剩驗證嗰一次。
+  if(passwordHashNeedsUpgrade_(storedHash)){ try{ rec.sheet.getRange(rec.row,map.password_hash+1).setValue(hashPasswordV2(String(password))); }catch(e){} }
   rec.sheet.getRange(rec.row,map.last_login+1).setValue(now());
   const token=createToken(user.ymis);
   // 仍用緊預設密碼（已成功驗證，輸入密碼即預設值）一律當要強制改密，新舊雜湊格式都一樣。
   const forceChange=!!user.force_change_password || String(password)===ADMIN_PASS;
-  return jsonResponse({success:true,token:token,user:user,force_change_password:forceChange});
+  // gsVersion 屬增補欄位：供 Proxy slow_password_kdf 日誌及前端分辨未更新 GS（失敗回應維持完全一致，不加任何欄位）。
+  return jsonResponse({success:true,token:token,user:user,force_change_password:forceChange,gsVersion:VS_GS_VERSION});
 }
 function handleChangePassword(ymis,oldP,newP,keepToken){
   newP=String(newP||'');
@@ -2059,14 +2149,50 @@ function handleGetAuditLog(){
   if(sh){ const d=sh.getDataRange().getValues(); for(let i=Math.max(1,d.length-200);i<d.length;i++) out.push(d[i]); }
   return jsonResponse({success:true,records:out});
 }
-// 待批完成
+// 待批完成（冪等去重：同一 (requesterYmis, itemId) 已有 pending 列就更新該列，唔重覆新增，
+// 回傳既有 request_id；支援單筆 body.itemId（向下相容）或批次 body.items[]，全部一律寫入 pending。
+// VSBOOK 個人電子紀錄冊經伺服器端轉發同一 action，重按送出／批次送出都唔會洗版。）
 function handleRequestComplete(body, requesterYmis){
   if(isSuperAdminId(requesterYmis)) return jsonResponse({success:false,error:'找不到申請人'});
   const sheet=getSheet().getSheetByName('待批完成'); if(!sheet) return jsonResponse({success:false,error:'Sheet not found'});
-  const reqId='REQ_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  const raw=(Array.isArray(body.items)&&body.items.length)?body.items:[{itemId:body.itemId,itemName:body.itemName,requested_date:body.requested_date,evidence:body.evidence}];
+  if(raw.length>50) return jsonResponse({success:false,error:'每次最多提交 50 個項目，請分批'});
+  const items=[];
+  for(let i=0;i<raw.length;i++){
+    const it=raw[i]||{};
+    const itemId=String(it.itemId||'').trim();
+    if(!itemId) return jsonResponse({success:false,error:'第 '+(i+1)+' 個項目缺少 itemId'});
+    items.push({itemId:itemId,itemName:safeSheetText(it.itemName||itemId,120),date:String(it.requested_date||formatDate(new Date())).substring(0,20),evidence:safeSheetText(it.evidence||'',500)});
+  }
   const user=getUser(requesterYmis)||{name:body.name||requesterYmis};
-  sheet.appendRow([reqId,requesterYmis,user.name||body.name,body.itemId,body.itemName||body.itemId,body.requested_date||formatDate(new Date()),body.evidence||'','pending',now(),'','','', '']);
-  return jsonResponse({success:true,request_id:reqId});
+  // 鎖內做「讀→改→寫」，避免兩個同時送出嘅請求各自睇唔到對方而重覆開列。
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) return jsonResponse({success:false,error:'系統正處理另一項申請，請稍後重試'});
+  try{
+    const data=sheet.getDataRange().getValues();
+    const results=[];
+    items.forEach(function(it){
+      let rowIndex=-1;
+      for(let i=1;i<data.length;i++){
+        if(String(data[i][1]||'')===String(requesterYmis) && String(data[i][3]||'')===it.itemId && String(data[i][7]||'')==='pending'){ rowIndex=i+1; break; }
+      }
+      if(rowIndex>0){
+        // 已有同一項目嘅 pending 申請：只更新申請日期（第 6 欄）及證明／備註（第 7 欄），
+        // 保留原有 request_id、created_at 及其餘欄位，唔新增列。
+        sheet.getRange(rowIndex,6).setValue(it.date);
+        sheet.getRange(rowIndex,7).setValue(it.evidence);
+        results.push({request_id:String(data[rowIndex-1][0]),item_id:it.itemId,deduplicated:true});
+      }else{
+        const reqId='REQ_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+        const newRow=[reqId,requesterYmis,user.name||body.name,it.itemId,it.itemName,it.date,it.evidence,'pending',now(),'','','',''];
+        sheet.appendRow(newRow);
+        data.push(newRow); // 批次內重覆項目同樣去重
+        results.push({request_id:reqId,item_id:it.itemId,deduplicated:false});
+      }
+    });
+    const first=results[0];
+    return jsonResponse({success:true,request_id:first.request_id,request_ids:results.map(function(r){return r.request_id;}),requests:results,processed:results.length,deduplicated:first.deduplicated});
+  } finally { lock.releaseLock(); }
 }
 function handleGetPendingRequests(){
   const sheet=getSheet().getSheetByName('待批完成'); const list=[];
@@ -2079,8 +2205,19 @@ function handleReviewRequest(reqId,decision,note,reviewer,confirmed_date){
   for(let i=1;i<data.length;i++){ if(data[i][0].toString()===reqId){ row=data[i]; sheet.getRange(i+1,8).setValue(decision); sheet.getRange(i+1,10).setValue(persistedActorId(reviewer)); sheet.getRange(i+1,11).setValue(now()); sheet.getRange(i+1,12).setValue(note||''); sheet.getRange(i+1,13).setValue(confirmed_date||formatDate(new Date())); break; } }
   if(!row) return jsonResponse({success:false,error:'找不到申請'});
   if(decision==='approved'){
-    const pSheet=getSheet().getSheetByName('進度追蹤');
-    pSheet.appendRow([row[1],row[3],confirmed_date||row[5],new Date(),persistedActorId(reviewer), '由申請轉入：'+(note||'')]);
+    const itemId=String(row[3]||'');
+    const date=confirmed_date||row[5];
+    const transferNote='由申請轉入：'+(note||'');
+    // OT-* 其他獎章必須寫「其他獎章」工作表：handleLoad.otherBadges 同前端 resolveOtherBadgeRecord
+    // 只讀嗰張表，舊寫法硬寫「進度追蹤」會令批准後畫面仍然顯示未完成。
+    // 其餘項目（L1–L4 等）經 handleSave 做 (ymis,itemId) Upsert，唔再 appendRow 製造重覆列。
+    if(itemId.indexOf('OT-')===0){
+      if(!getSheet().getSheetByName('其他獎章')) return jsonResponse({success:false,error:'「其他獎章」工作表不存在，請先執行 initializeSheets()'});
+      handleSaveOtherBadge([{ymis:row[1],badgeId:itemId,name:row[4]||itemId,date:date,note:transferNote}]);
+      return jsonResponse({success:true,message:'已批准並寫入其他獎章'});
+    }
+    if(!getSheet().getSheetByName('進度追蹤')) return jsonResponse({success:false,error:'「進度追蹤」工作表不存在，請先執行 initializeSheets()'});
+    handleSave([{ymis:row[1],itemId:itemId,date:date,note:transferNote}],reviewer);
     return jsonResponse({success:true,message:'已批准並寫入進度'});
   }
   return jsonResponse({success:true,message:'已拒絕'});
@@ -2330,6 +2467,7 @@ function onOpen(){
     const ui=SpreadsheetApp.getUi();
     ui.createMenu('🔗 旅系統')
       .addItem('🔧 初始化／更新（執行 initializeSheets）','menuInitializeSheets')
+      .addItem('⏱️ 密碼 KDF 速度測試（實測毫秒）','menuBenchmarkPasswordKdf')
       .addSeparator()
       .addItem('📤 匯出 JSON（含 hash）','menuExportUsersJson')
       .addItem('📥 匯入 JSON（upsertUser 直插 hash）','menuImportUsersJson')
@@ -2418,6 +2556,15 @@ function menuShowLinkCredentials(){
 // 單一更新入口：執行 initializeSheets() 並顯示完成訊息（只呼叫 initializeSheets，不執行其他函式）。
 function menuInitializeSheets(){
   initializeSheets();
+}
+// 密碼 KDF 速度測試選單入口：即場量度 Apps Script 原路徑毫秒數，供填寫修前／修後實測秒數。
+function menuBenchmarkPasswordKdf(){
+  const r=benchmarkPasswordKdf(1);
+  const lines=r.results.map(function(x){ return '・'+x.iterations+' 迭代：平均 '+x.avgMs+' ms（最佳 '+x.bestMs+' ms，約 '+x.avgSeconds+' 秒）'; });
+  return linkAlert('密碼 KDF 速度測試（Apps Script 實測）',
+    '目前新雜湊迭代次數：'+r.defaultIterations+'\n\n'+lines.join('\n')+
+    '\n\n每次登入只做 1 次驗證 KDF；舊雜湊首次成功登入會另加 1 次目前迭代嘅升級 KDF（一次性）。'+
+    '\n詳細 JSON 已寫入「檢視 → 執行紀錄（Logger）」。');
 }
 function menuRegisterDownstream(){
   const id=linkPrompt('登記下游 1/4','下游編號（例：團 / 進度節點識別，只可用英文、數字、底線、連字號）：');

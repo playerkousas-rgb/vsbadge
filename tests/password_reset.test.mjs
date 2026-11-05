@@ -242,7 +242,8 @@ test('驗證碼可完成重設：更新密碼、撤銷所有既有登入、寫�
   const map = node.context.getHeaderMap(users);
   const data = users.getDataRange().getValues();
   const row = data.find(r => String(r[map.ymis]) === '1234567890');
-  assert.match(String(row[map.password_hash]), /^pbkdf2\$120000\$[0-9a-f]{32}\$[0-9a-f]{64}$/, '新密碼以 PBKDF2 寫入');
+  const iter = vm.runInContext('PBKDF2_ITERATIONS', node.context); // 唔硬編碼迭代次數
+  assert.match(String(row[map.password_hash]), new RegExp('^pbkdf2\\$' + iter + '\\$[0-9a-f]{32}\\$[0-9a-f]{64}$'), '新密碼以 PBKDF2 寫入');
   assert.equal(node.context.verifyPassword('BrandNew1', String(row[map.password_hash])), true, '新密碼可驗證');
   assert.equal(row[map.force_change_password], false, '自助重設不需要再強制改密碼');
   const remainTokens = tokens.getDataRange().getValues().slice(1).map(r => String(r[0]));

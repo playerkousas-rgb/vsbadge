@@ -2,8 +2,9 @@
 // 登入安全強化回歸測試 — 對應 readme repo PLAYBOOK 硬規則 A3／A5／A17 及重設密碼授權
 //
 //   A3 密碼雜湊：新開戶／批量／改密碼／領袖重設／電郵重設一律寫 PBKDF2-HMAC-SHA256
-//      （120000 迭代＋每用戶 16-byte 隨機鹽，格式 pbkdf2$<iter>$<salt>$<dk>）；
-//      舊單次 SHA-256 仍可登入並於成功登入時自動升級；upsertUser／importUsers 同時接受兩種格式
+//      （迭代次數以 GS 常數為準＋每用戶 16-byte 隨機鹽，格式 pbkdf2$<iter>$<salt>$<dk>）；
+//      舊單次 SHA-256 仍可登入並於成功登入時自動升級；upsertUser／importUsers 同時接受兩種格式。
+//      測試唔硬編碼迭代次數：全部由 Code.gs 嘅 PBKDF2_ITERATIONS／MIN／MAX 常數推導
 //   A5 登入閘：同一帳號連續 5 次失敗鎖 15 分鐘（ScriptProperties LOGIN_FAIL:<ymis>，審計 login_locked）；
 //      鎖定期間正確密碼都拒；改密碼後踢走其他 session 保留當前 token；重設後清鎖定＋踢走全部舊 session
 //   A17 防枚舉（只限未登入公開端點）：找不到帳號／已停用／密碼錯誤／鎖定中回完全相同訊息，
@@ -134,6 +135,8 @@ function freshNode() {
   node.context.initializeSheets(); // 建立內置管理員 1111111111／changeme（PBKDF2）
   return node;
 }
+// 讀 GS 頂層常數（const 唔會掛喺 context 物件，要用 runInContext 取值）——測試唔硬編碼迭代次數
+const gasConst = (node, name) => vm.runInContext(name, node.context);
 const post = (node, body) => node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify(body) } });
 const login = (node, id, pw) => post(node, { action: 'login', login_id: id, password: pw });
 const storedHash = (node, ymis) => { const rec = node.context.findUserRecord(ymis); return rec ? String(rec.data[rec.map.password_hash] || '') : ''; };
@@ -147,22 +150,34 @@ test('A3 PBKDF2 實作與 Node crypto 對照一致；hashPasswordV2 格式及鹽
   const actual = node.context.toHex(node.context.pbkdf2HmacSha256_('password', saltBytes, 4096));
   assert.equal(actual, expected, 'PBKDF2-HMAC-SHA256 迭代結果要同標準實作一致');
 
+  const ITER = gasConst(node, 'PBKDF2_ITERATIONS');
+  const MIN_ITER = gasConst(node, 'PBKDF2_MIN_ITERATIONS');
+  const MAX_ITER = gasConst(node, 'PBKDF2_MAX_ITERATIONS');
   const h1 = node.context.hashPasswordV2('Correct!1');
   const h2 = node.context.hashPasswordV2('Correct!1');
-  assert.match(h1, /^pbkdf2\$120000\$[0-9a-f]{32}\$[0-9a-f]{64}$/);
+  assert.match(h1, new RegExp('^pbkdf2\\$' + ITER + '\\$[0-9a-f]{32}\\$[0-9a-f]{64}$'));
   assert.notEqual(h1.split('$')[2], h2.split('$')[2], '每次鹽都唔同');
   assert.equal(node.context.verifyPassword('Correct!1', h1), true);
   assert.equal(node.context.verifyPassword('Wrong!1', h1), false);
-  // 外部以 120000 迭代產生的 pbkdf2$ 字串（跨節點格式）照樣驗證得到
+  // 外部以「唔等於目前常數」嘅迭代次數產生嘅 pbkdf2$ 字串（跨節點／舊高迭代格式）照樣驗證得到：
+  // 驗證一律用雜湊自帶 iter，唔係用目前常數。次數由常數推導，唔硬編碼。
+  const otherIter = Math.min(MAX_ITER, ITER * 12);
   const saltHex = 'ab'.repeat(16);
-  const dk = pbkdf2Sync('Correct!1', Buffer.from(saltHex, 'hex'), 120000, 32, 'sha256').toString('hex');
-  assert.equal(node.context.verifyPassword('Correct!1', `pbkdf2$120000$${saltHex}$${dk}`), true);
+  const dk = pbkdf2Sync('Correct!1', Buffer.from(saltHex, 'hex'), otherIter, 32, 'sha256').toString('hex');
+  assert.equal(node.context.verifyPassword('Correct!1', `pbkdf2$${otherIter}$${saltHex}$${dk}`), true);
   // 舊格式及壞格式
   assert.equal(node.context.verifyPassword('oldpw', sha256('oldpw')), true);
   assert.equal(node.context.isLegacyPasswordHash_(sha256('oldpw')), true);
   assert.equal(node.context.isLegacyPasswordHash_(h1), false);
   assert.equal(node.context.verifyPassword('oldpw', ''), false);
-  assert.equal(node.context.verifyPassword('oldpw', 'pbkdf2$999$zz$yy'), false, '迭代不足／壞格式拒絕');
+  assert.equal(node.context.verifyPassword('oldpw', `pbkdf2$${MIN_ITER - 1}$zz$yy`), false, '低於下限／壞格式拒絕');
+  assert.equal(node.context.verifyPassword('oldpw', `pbkdf2$${MAX_ITER + 1}$zz$yy`), false, '高於上限拒絕');
+  assert.equal(node.context.verifyPassword('oldpw', `pbkdf2$${MIN_ITER}$${saltHex}$${dk}`), false, '下限次數但 dk 唔啱都要拒');
+  // 透明升級判斷：舊 64-hex 要升級；唔等於目前 iter 嘅 pbkdf2 要升級；等於目前 iter 唔使
+  assert.equal(node.context.passwordHashNeedsUpgrade_(sha256('oldpw')), true);
+  assert.equal(node.context.passwordHashNeedsUpgrade_(`pbkdf2$${otherIter}$${saltHex}$${dk}`), true);
+  assert.equal(node.context.passwordHashNeedsUpgrade_(h1), false);
+  assert.equal(node.context.passwordHashNeedsUpgrade_('garbage'), false);
 });
 
 test('A3 新開戶密碼以 PBKDF2 儲存並可登入；預設管理員觸發強制改密', () => {
@@ -268,7 +283,7 @@ test('A3 upsertUser／importUsers 同時接受舊 SHA-256 與 PBKDF2，拒壞格
   assert.equal(storedHash(node, '1234560301'), sha256('legacy1'), '舊 hash 原樣直插（保留舊密碼）');
   assert.equal(login(node, '1234560301', 'legacy1').success, true, '匯入的舊 hash 可直接登入');
 
-  const v2 = 'pbkdf2$120000$' + 'ab'.repeat(16) + '$' + 'cd'.repeat(32);
+  const v2 = 'pbkdf2$' + gasConst(node, 'PBKDF2_ITERATIONS') + '$' + 'ab'.repeat(16) + '$' + 'cd'.repeat(32);
   const r2 = node.context.upsertUser({ ymis: '1234560302', name: '新搬來', password_hash: v2 }, 'admin');
   assert.equal(r2.success, true, JSON.stringify(r2));
   assert.equal(storedHash(node, '1234560302'), v2, '新 hash 原樣直插');
@@ -278,7 +293,7 @@ test('A3 upsertUser／importUsers 同時接受舊 SHA-256 與 PBKDF2，拒壞格
 
   const imported = node.context.importUsersFromText(JSON.stringify({ users: [
     { ymis: '1234560304', name: '匯入舊', password_hash: sha256('imp-old') },
-    { ymis: '1234560305', name: '匯入新', password_hash: 'pbkdf2$120000$' + 'ef'.repeat(16) + '$' + '01'.repeat(32) }
+    { ymis: '1234560305', name: '匯入新', password_hash: 'pbkdf2$' + gasConst(node, 'PBKDF2_ITERATIONS') + '$' + 'ef'.repeat(16) + '$' + '01'.repeat(32) }
   ] }), 'admin');
   assert.equal(imported.success, true, JSON.stringify(imported));
   assert.equal(imported.created, 2);
