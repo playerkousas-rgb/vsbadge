@@ -22,6 +22,17 @@ const UPSTREAM_TIMEOUT_MS = (() => {
   if (Number.isNaN(v)) return 45000;
   return Math.max(1000, Math.min(55000, v));
 })();
+// 密碼 KDF 緩慢偵測：login／changePassword／resetPassword／completePasswordReset 超過呢個毫秒
+// 就記 slow_password_kdf（只記 metadata：旅團、action、毫秒、GS 版本，永不記密碼／token）。
+// 舊版 GS 用 120,000 迭代 PBKDF2，每次登入 12–20 秒；新版 10,000 迭代約 1–2 秒。
+// 事後喺 Vercel Runtime Logs 搜 "slow_password_kdf" 就知邊個旅團仲未更新 GS。
+// 設 VSBADGE_SLOW_KDF_MS=0 可記錄每一次密碼操作（除錯用）。
+const SLOW_KDF_MS = (() => {
+  const v = parseInt(process.env.VSBADGE_SLOW_KDF_MS || '8000', 10);
+  if (Number.isNaN(v)) return 8000;
+  return Math.max(0, Math.min(55000, v));
+})();
+const KDF_ACTIONS = new Set(['login', 'changePassword', 'resetPassword', 'completePasswordReset']);
 const MAX_DATA_BYTES = 2 * 1024 * 1024; // 單次請求 data 上限（bulkAddUsers 一批 100 人 << 1MB）
 
 // 中央管理員收件匣（新旅團接入申請及統一回報）。目的地是伺服器端固定常數，不由用戶輸入決定。
@@ -109,6 +120,12 @@ async function callUpstream(url, { method, params, payload }) {
 
 export default async function handler(req, res) {
   const t0 = Date.now();
+
+  // 跨系統相容（VSBOOK 個人電子紀錄冊）：呢個 Proxy 刻意唔檢查 Origin／Sec-Fetch-Site 等
+  // 瀏覽器 header。VSBOOK 嘅 /api/vsbadge 由後端 Node fetch 轉發 login／logout／load／
+  // requestComplete，伺服器對伺服器請求冇嗰啲 header，必須照常受理。
+  // 保安靠：action 白名單＋伺服器端 Registry 解析 GAS URL＋apikey 注入＋GAS token 驗證，
+  // 唔係靠瀏覽器 header（嗰啲可以任意偽造，唔係授權依據）。
 
   // 只接受所需 HTTP method
   if (req.method !== 'POST') {
@@ -327,11 +344,20 @@ export default async function handler(req, res) {
       up.json.user.email = '';
       up.json.token = sealSuper('session', { troopId, token: up.json.token }, 30 * 24 * 60 * 60);
     }
-    safeLog({ result: 'ok', troopId, action, status: up.status, ms: Date.now() - t0 });
+    const elapsedMs = Date.now() - t0;
+    // 密碼操作慢過門檻＝該旅團 GS 好可能仲用緊高迭代 PBKDF2（或未更新），記低供事後追查。
+    if (KDF_ACTIONS.has(action) && elapsedMs >= SLOW_KDF_MS) {
+      safeLog({ result: 'slow_password_kdf', troopId, action, ms: elapsedMs, gsVersion: String(up.json.gsVersion || '') });
+    }
+    safeLog({ result: 'ok', troopId, action, status: up.status, ms: elapsedMs });
     // GAS 業務錯誤（success:false）照原樣回傳，前端按語意顯示
     return sendJson(res, 200, up.json);
   } catch (e) {
     const timeout = e && (e.name === 'TimeoutError' || e.name === 'AbortError');
+    // 密碼操作逾時／連線失敗同樣係「KDF 慢到爆」嘅事後證據（例如舊 GS 冷啟動）。
+    if (KDF_ACTIONS.has(action)) {
+      safeLog({ result: 'slow_password_kdf', troopId, action, ms: Date.now() - t0, timeout: true });
+    }
     safeLog({ result: timeout ? 'upstream_timeout' : 'upstream_fetch_error', troopId, action, ms: Date.now() - t0 });
     return sendJson(res, timeout ? 504 : 502, {
       success: false,

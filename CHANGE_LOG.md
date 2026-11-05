@@ -2,6 +2,21 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
+## 2026-11-05 — GS v9.5 修正 PBKDF2 登入逾時＋審批／申請寫入（VSBOOK 對接）
+
+**影響範圍**：`apps-script/Code.gs`（`VS_GS_VERSION` 升至 v9.5）、`api/proxy.js`（slow_password_kdf 日誌）、`index.html`（timeout 鏈、未更新 GS「此版本登入會逾時」提示、公告）、測試與文件。工作表欄名／結構、旅系統接入協定（sig／ALLOW_LOCAL_LOGIN）、Proxy action 白名單不變。
+
+**行為改變**
+
+- 登入逾時根因修復：Apps Script 每輪 PBKDF2 迭代都係一次 `Utilities.computeHmacSha256Signature()` 呼叫，120,000 迭代實測 12–20 秒，撞正 Proxy 45s 上游逾時只係時間問題。新雜湊改用 **10,000 迭代**（約 1–2 秒）；驗證接受範圍放寬做 **1,000–2,000,000** 並一律用雜湊自帶 iter。舊 64-hex 同 `pbkdf2$120000$` 帳號照用原密碼登入，成功一次後**透明改寫**做新次數（一次性額外 KDF），毋須重設密碼或清資料。
+- 防枚舉／配額：dummy 雜湊改用 `CacheService` 重用 6 小時（key 帶迭代次數）；帳號不存在／鎖定中一律做**恰好一次** KDF 先回中性訊息（鎖定路徑唔再 0-KDF 提早 return）。每條登入路徑恰好 1 次驗證 KDF，由 `tests/login-kdf.test.mjs` 逐條斷言。
+- 可觀測性：新增 `benchmarkPasswordKdf()`（Apps Script 原路徑實測 120,000 vs 10,000 毫秒，選單「⏱️ 密碼 KDF 速度測試」）；Proxy 密碼操作慢過 8s／逾時記 `slow_password_kdf`（只含 metadata）；登入成功回應增補 `gsVersion`。前端 `apiRequest` 預設 timeout 45s→**58s**（大過 Proxy 上限 55s、細過 Vercel 60s，唔再互相打架）；未更新 GS 旅團喺公告同登入錯誤訊息顯示「此版本登入會逾時」。
+- VSBOOK 對接修正：`handleReviewRequest` 批准 `OT-*` 改寫「其他獎章」（Upsert，`handleLoad.otherBadges` 即時可見），其餘項目經 `handleSave` Upsert 唔再重覆列；`handleRequestComplete` 同一 `(ymis,itemId)` pending 冪等去重（更新申請日期／證明、回傳既有 request_id），支援批次 `body.items[]`（向下相容單筆）。`GET /api/troops` 契约不變；Proxy 繼續受理冇 Origin／Sec-Fetch-Site 嘅伺服器對伺服器請求。
+
+**資料與部署**：冇新增工作表／欄位／action。更新 Code.gs 後照慣例執行一次 `initializeSheets()`（只做增補、記錄版本、保留所有資料及 API Key）再「新版本」部署；前端公告「重新檢查」至綠色已核對。**唔好回退舊 Code.gs**（舊驗證下限會拒絕已升級嘅 10,000 迭代雜湊）。實測方法、各路徑成本表、部署步驟詳見 `operations/PBKDF2_LOGIN_TIMEOUT.md`。
+
+**驗證**：`npm run lint && npm run check && npm test`（新增 `tests/login-kdf.test.mjs` 7 項、`tests/request-review.test.mjs` 8 項；既有測試嘅迭代次數全部改為由 GS 常數推導，唔硬編碼）＋ `npm run build && npm run test:build`；e2e 172 項通過。
+
 ## 2026-11-02 — GS v9.4 登入安全強化（A3／A5／A17）
 
 **影響範圍**：`apps-script/Code.gs`（`VS_GS_VERSION` 升至 v9.4）、`index.html`（前端公告、忘記密碼流程與中英字串）、測試與文件、新增 `.github/workflows/ci.yml`。`api/` Proxy 白名單、旅系統接入協定（sig／ALLOW_LOCAL_LOGIN）、深資綱要與後台查詢顯示不變。

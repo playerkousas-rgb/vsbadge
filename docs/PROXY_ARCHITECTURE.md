@@ -34,10 +34,11 @@ Vercel /api/proxy（api/proxy.js）
 | troopId | 格式 `^[0-9A-Za-z_-]{1,32}$`；未登記 → 404 |
 | 上游 URL | 只接受 `https://script.google.com/macros/s/.../exec`（拒絕 /dev 及其他 host） |
 | 前端 URL 注入 | `data` 內任何 backend/url 欄位一律忽略，目的地只由 Registry 決定 |
-| 逾時 | 預設 45s（`VSBADGE_PROXY_TIMEOUT_MS` 可調，上限 55s），逾時 → 504 |
+| 逾時 | 預設 45s（`VSBADGE_PROXY_TIMEOUT_MS` 可調，上限 55s），逾時 → 504。前端 `apiRequest` 預設 58s：刻意大過 Proxy 上限、細過 Vercel maxDuration 60s，確保用戶先收到 Proxy 嘅 504 JSON 而唔係瀏覽器自己 abort（兩邊 timeout 唔會互相打架） |
 | 上游錯誤 | 非 JSON / HTTP 錯誤 → 502 友善訊息；業務錯誤（success:false）照原樣回傳 |
 | Cache | 所有回應 `Cache-Control: no-store` |
-| Log | 只記 troopId/action/status/耗時；**永不記** token、密碼、apikey、payload |
+| Log | 只記 troopId/action/status/耗時；**永不記** token、密碼、apikey、payload。密碼操作（login／changePassword／resetPassword／completePasswordReset）慢過 `VSBADGE_SLOW_KDF_MS`（預設 8000ms）或逾時，額外記 `result: "slow_password_kdf"`（含 ms、gsVersion／timeout），供事後追查未更新 GS 嘅旅團 |
+| 跨系統請求 | 刻意**唔檢查** Origin／Sec-Fetch-Site 等瀏覽器 header：姊妹系統（VSBOOK 個人電子紀錄冊）由後端 Node fetch 轉發 login／logout／load／requestComplete，伺服器對伺服器請求冇嗰啲 header，必須照常受理。授權靠 action 白名單＋Registry＋apikey 注入＋GAS token 驗證 |
 
 ## 前端約定
 
@@ -93,6 +94,7 @@ Vercel /api/proxy（api/proxy.js）
 | `TROOP_{ID}_PORTALDISABLED` | 可選（例外才用） | 設 `1` = 即使有全域預設，呢個旅團都**唔開放** portal |
 | `SCOUT_ADMIN_API` | 可選 | 新旅團接入申請及回報的中央收件匣 GAS URL（預設內建值，亦相容別名 `VSBADGE_ADMIN_API`／`SCOUTBADGE_ADMIN_API`）；接入申請送 `type: apply` 及 `backendUrl`（回覆 `status: success`），回報使用 Scout Admin 統一回報格式 v1（`sourceApp: vsbadge`，問題／意見分別為 `type: issue`／`type: feedback`） |
 | `VSBADGE_PROXY_TIMEOUT_MS` | 可選 | 上游逾時（預設 45000，範圍 1000–55000） |
+| `VSBADGE_SLOW_KDF_MS` | 可選 | 密碼操作緩慢日誌門檻（預設 8000，範圍 0–55000；設 0＝記錄每一次密碼操作，除錯用） |
 
 > ⚠️ `VSBADGE_PROXY_TEST=1` 只供本機測試使用（允許 mock http://127.0.0.1 上游），**切勿設在 Vercel**。
 

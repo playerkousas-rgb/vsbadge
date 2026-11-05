@@ -26,3 +26,21 @@
 
 建置時若提示 Project Settings 的 Node.js 24.x 被 `package.json` 的 22.x 覆蓋，這是警告，不是上述登入錯誤。此版本的 `package.json` 及建置產生的 Functions runtime 均指定 22.x；將 Project Settings 同步設為 22.x 即可消除版本不一致，無需為此把程式改成 24.x。
 
+
+---
+
+## 一般成員登入「有時入得、有時逾時」（GS v9.5 已修）
+
+**根因**：舊版 GS 每次登入做 120,000 迭代 PBKDF2，而 Apps Script 每輪迭代係一次獨立 `Utilities.computeHmacSha256Signature()` 呼叫（約 0.1ms／次）→ 每次登入 12–20 秒。Proxy 上游逾時 45 秒，「通常」過得，但 GAS 冷啟動／負載高／Google 慢嗰日就 504，用戶見到「後端服務連線逾時」。
+
+**點樣確認係呢個問題**：
+
+1. Vercel Runtime Logs 搜 `slow_password_kdf`：`{"svc":"vsbadge-proxy","result":"slow_password_kdf","troopId":"…","action":"login","ms":15000,"gsVersion":"v9.4"}` 即係該旅團 GS 未更新（或 GAS 異常慢）。逾時個案會多記 `"timeout":true`。日誌只含 metadata，唔會有密碼／token。
+2. 前端揀該旅團時，公告會顯示「⚠️ 此旅團尚未完成 GS 更新…此版本登入會逾時」。
+3. 喺該旅團 Apps Script 執行 `benchmarkPasswordKdf()`（或選單「🔗 旅系統 → ⏱️ 密碼 KDF 速度測試」），Logger 會輸出 120,000 vs 10,000 迭代嘅真實毫秒數。
+
+**解法**：跟 `operations/PBKDF2_LOGIN_TIMEOUT.md` 第 5 節部署 v9.5（覆蓋 Code.gs → `initializeSheets()` → 新版本部署，沿用現有 URL／API Key）。舊帳號原密碼照入，首次成功登入會透明升級雜湊（一次性，可能 13–22 秒），之後每次登入約 1–2 秒。**唔需要**叫用戶重設密碼或清資料。
+
+**Timeout 鏈（v9.5 起）**：前端 `apiRequest` 預設 58s ＞ Proxy 上游 45s（`VSBADGE_PROXY_TIMEOUT_MS` 可調、上限 55s）＜ Vercel maxDuration 60s。GAS 慢到爆時用戶會先收到 Proxy 嘅 504 JSON 友善訊息，唔會瀏覽器同 Proxy 同時 abort 互相打架。
+
+**注意**：唔好回退舊 Code.gs——舊版驗證下限 100,000 會拒絕已升級做 10,000 迭代嘅雜湊，已升級帳號要由領袖重設密碼先入得。只向前升級。

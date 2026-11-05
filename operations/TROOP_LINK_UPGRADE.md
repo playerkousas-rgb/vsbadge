@@ -1,4 +1,6 @@
-# 旅系統升級（旅 > 團 > 進度）— v9.0（及後續版本紀錄，最新 GS v9.4）
+# 旅系統升級（旅 > 團 > 進度）— v9.0（及後續版本紀錄，最新 GS v9.5）
+
+> **2026-11-05｜GS v9.5 修正 PBKDF2 登入逾時＋審批／申請寫入**：`VS_GS_VERSION` 升至 v9.5，與旅系統接入協定（sig／落口）無關。要點：新密碼雜湊改用 10,000 迭代（Apps Script 每輪迭代係一次 Utilities 呼叫，120,000 迭代要 12–20 秒、會撞正 Proxy 45s 逾時）；驗證接受 1,000–2,000,000 並用雜湊自帶 iter，舊 64-hex／120,000 迭代帳號原密碼照入、成功一次後透明升級；dummy KDF 用 CacheService 重用 6 小時，鎖定路徑照做一次 dummy KDF；新增 `benchmarkPasswordKdf()` 實測入口；Proxy 記 `slow_password_kdf`；前端 timeout 改 58s 並對未更新 GS 顯示「此版本登入會逾時」。另修正 `handleReviewRequest` OT-* 寫錯表／冇 Upsert、`handleRequestComplete` 重覆 pending（冪等去重＋批次 items[]）。冇新增工作表／欄位／action；部署照「覆蓋 Code.gs → initializeSheets() → 新版本部署」。**唔好回退舊版**（舊驗證下限會拒已升級雜湊）。詳情見 `operations/PBKDF2_LOGIN_TIMEOUT.md`、`CHANGE_LOG.md` 及測試 `tests/login-kdf.test.mjs`／`tests/request-review.test.mjs`。
 
 > **2026-11-02｜GS v9.4 登入安全強化（A3／A5／A17）**：`VS_GS_VERSION` 升至 v9.4，與旅系統接入協定（sig／落口）無關，只改登入與密碼層。要點：密碼改用 PBKDF2-HMAC-SHA256（120,000 迭代＋逐用戶鹽，存現有 `password_hash` 欄），舊雜湊登入成功自動升級；`upsertUser`／`importUsers` 雙格式接受，跨節點（含舊 GS 節點）搬帳號不中斷；同一帳號 5 次失敗鎖 15 分鐘（Script Properties `LOGIN_FAIL:<ymis>`，審計 `login_locked`）；登入與申請重設碼回應完全中性；電郵重設碼改為 8 位（升級前未過期舊碼可完成）；任何重設成功清鎖＋撤銷登入＋要求下次改密碼（領袖重設）。沒有新增工作表／欄位／action；部署慣例改為「每次覆蓋 Code.gs 後執行一次只做增補的 `initializeSheets()` 再新版本部署」，跨 v9.3 升級尤其必要（補建「密碼重設」工作表）。詳情見 repo 根目錄 `CHANGE_LOG.md` 及測試 `tests/auth-hardening.test.mjs`。
 
