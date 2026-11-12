@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 // 接入資料只准顯示 API Key，絕不顯示自動取得／推算／快取的部署 URL。
 // 用戶流程固定：初始化生成／保留 API Key → 在 Google 部署視窗取得 URL →
 // 自己在原有 ADMIN FORM 填旅團編號、名稱、URL 和 API Key。
@@ -136,7 +137,7 @@ function setup({ fresh = false } = {}) {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
-      computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(message) ? Buffer.from(message.map(b => b & 0xFF)) : Buffer.from(String(message), 'utf8')).digest()),
+      computeHmacSha256Signature: gasHmac, newBlob: gasBlob,
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },

@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 // ============================================================
 // 登入安全強化回歸測試 — 對應 readme repo PLAYBOOK 硬規則 A3／A5／A17 及重設密碼授權
 //
@@ -107,7 +108,7 @@ function buildNode() {
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
       // 真 GAS 接受 String 或 Byte[] 作 data；PBKDF2 會傳 byte[]，stub 要同 semantics
-      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
+      computeHmacSha256Signature: gasHmac, newBlob: gasBlob,
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },
@@ -149,6 +150,15 @@ test('A3 PBKDF2 實作與 Node crypto 對照一致；hashPasswordV2 格式及鹽
   const expected = pbkdf2Sync('password', 'salt', 4096, 32, 'sha256').toString('hex');
   const actual = node.context.toHex(node.context.pbkdf2HmacSha256_('password', saltBytes, 4096));
   assert.equal(actual, expected, 'PBKDF2-HMAC-SHA256 迭代結果要同標準實作一致');
+  // High bytes in both salt and intermediate HMAC output, plus non-ASCII UTF-8 passwords.
+  for (const password of ['密碼🔑', 'café', 'a'.repeat(100)]) {
+    const salt = Buffer.from('0080ff0123456789abcdef0123456789', 'hex');
+    for (const iterations of [1, 2, 17]) {
+      const expectedHex = pbkdf2Sync(password, salt, iterations, 32, 'sha256').toString('hex');
+      assert.equal(node.context.toHex(node.context.pbkdf2HmacSha256_(password, Array.from(salt), iterations)), expectedHex);
+    }
+  }
+
 
   const ITER = gasConst(node, 'PBKDF2_ITERATIONS');
   const MIN_ITER = gasConst(node, 'PBKDF2_MIN_ITERATIONS');
