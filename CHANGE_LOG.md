@@ -2,6 +2,10 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
+## 2026-11-12 — GS v9.6 PBKDF2 簽章及版本核對修正
+
+修正 Apps Script PBKDF2 的 HMAC 參數類型，避免初始化及密碼操作報錯；前端和 GS 發佈識別同步更新為 v9.6，確保舊 v9.5 不再被誤認為最新。更新 Code.gs、執行 initializeSheets()，再以新版本部署，然後重新檢查。保留現有資料及 API Key。曾自行修改 PBKDF2 的雜湊可能不相容，請先備份並參考 `operations/PBKDF2_GAS_SIGNATURE_FIX.md`，不要刪除帳號或重建試算表。
+
 ## 2026-11-05 — GS v9.5 修正 PBKDF2 登入逾時＋審批／申請寫入（VSBOOK 對接）
 
 **影響範圍**：`apps-script/Code.gs`（`VS_GS_VERSION` 升至 v9.5）、`api/proxy.js`（slow_password_kdf 日誌）、`index.html`（timeout 鏈、未更新 GS「此版本登入會逾時」提示、公告）、測試與文件。工作表欄名／結構、旅系統接入協定（sig／ALLOW_LOCAL_LOGIN）、Proxy action 白名單不變。

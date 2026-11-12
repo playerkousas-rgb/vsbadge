@@ -1,3 +1,5 @@
+> **最新 GS v9.6（2026-11-12）**：修正 PBKDF2 簽章參數造成的初始化及密碼操作錯誤。更新 `apps-script/Code.gs`、執行 `initializeSheets()`，再部署新版本並重新檢查。曾自行修改 PBKDF2 的旅團請先備份，並參閱 [相容性及更新指引](operations/PBKDF2_GAS_SIGNATURE_FIX.md)。
+
 # 🔥 深資童軍進度及行政平台 v4.0.0
 
 > 基於 2026 年第11版《深資童軍訓練綱要》 • 2025 保護兒童更新  

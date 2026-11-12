@@ -237,7 +237,7 @@ test('普通 HTTP 請求唔會發現、儲存或回傳自報的 backend URL；�
     postData: { contents: JSON.stringify({ action: 'ecStatus', apikey: KEY, backend: FALSE_URLS[1] }) }
   });
   assert.equal(post.success, true);
-  assert.equal(post.gsVersion, 'v9.5');
+  assert.equal(post.gsVersion, 'v9.6');
   for (const apikey of ['', 'wrong', KEY]) {
     const self = backend.doGet({ parameter: { action: 'selfUrl', apikey } });
     assert.equal(self.success, false, 'selfUrl 循環自我核實入口唔准存在');
@@ -424,7 +424,7 @@ test('初始化後介面警告消失，Key 與初始化版本標記不變', () =
   assert.equal(scriptProps.getProperty('VS_GS_INITIALIZED_VERSION'), null, '測試後端預設未初始化');
 
   const init = backend.initializeSheets();
-  assert.equal(init.initializedGsVersion, 'v9.5', 'initializeSheets 寫入初始化版本標記');
+  assert.equal(init.initializedGsVersion, 'v9.6', 'initializeSheets 寫入初始化版本標記');
   assert.equal(scriptProps.getProperty('API_KEY'), KEY, '初始化不更換現有 API Key');
 
   alerts.length = 0;
