@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 // 忘記密碼守護測試（8 位重設碼＋公開入口中性回應）
 // 1) 免登入入口不洩露帳號是否存在：不存在／未登記電郵／寄件失敗／成功寄出回應完全一致（A17）
 // 2) 重設碼只以加鹽雜湊儲存，15 分鐘有效、最多 5 次嘗試、單次使用；新申請令舊碼即時失效
@@ -99,7 +100,7 @@ function buildNode() {
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
       // 真 GAS 接受 String 或 Byte[] 作 data；PBKDF2 會傳 byte[]，stub 要同 semantics
-      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
+      computeHmacSha256Signature: gasHmac, newBlob: gasBlob,
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },

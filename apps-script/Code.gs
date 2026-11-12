@@ -140,10 +140,14 @@ function hexToBytes_(hex){ const out=[]; hex=String(hex||'').replace(/[^0-9a-f]/
 function xorBytes_(a,b){ const out=[]; for(let i=0;i<a.length;i++) out.push((a[i]^b[i])&0xFF); return out; }
 function pbkdf2HmacSha256_(password, saltBytes, iterations){
   // dkLen=32（一個 block）：T = U1 ^ U2 ^ ... ^ Uc；U1 = PRF(P, S||INT(1))；Ui = PRF(P, U_{i-1})
-  let u = Utilities.computeHmacSha256Signature(saltBytes.concat([0,0,0,1]), String(password||''));
+  // GAS 只接受 (Byte[], Byte[]) 或 (String, String)；PBKDF2 必須保留原始 bytes。
+  // salt 由 hex 解碼成 0..255，轉成 GAS 的 signed bytes。密碼使用 UTF-8。
+  const keyBytes = Utilities.newBlob(String(password||''), 'text/plain').getBytes();
+  const firstBlock = saltBytes.concat([0,0,0,1]).map(function(b){ return (b & 255) > 127 ? (b & 255) - 256 : (b & 255); });
+  let u = Utilities.computeHmacSha256Signature(firstBlock, keyBytes);
   let t = u.slice();
   for(let i=1;i<iterations;i++){
-    u = Utilities.computeHmacSha256Signature(u, String(password||''));
+    u = Utilities.computeHmacSha256Signature(u, keyBytes);
     t = xorBytes_(t, u);
   }
   return t;

@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 // 最新版本公告、GS 初始化核對及用戶資料保全守護測試
 // 1) 前端 LATEST_RELEASE 同 GS 的 VS_GS_VERSION 必須一致（唔一致公告會永遠顯示「未更新」）
 // 2) ecStatus／load 回報 gsVersion + initializedGsVersion；initializeSheets() 之後先記錄初始化版本
@@ -87,7 +88,7 @@ function buildNode() {
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
       // 真 GAS 接受 String 或 Byte[] 作 data；PBKDF2 會傳 byte[]，stub 要同 semantics
-      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
+      computeHmacSha256Signature: gasHmac, newBlob: gasBlob,
       formatDate: formatDateStub
     },
     DriveApp: { getRootFolder: () => ({ createFile: () => { throw new Error('test should not export'); } }) },

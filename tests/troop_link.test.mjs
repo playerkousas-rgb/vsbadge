@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 // 旅系統（旅 > 團 > 進度）上下游接駁守護測試
 // 用 in-memory GAS stub 載入真實 apps-script/Code.gs，起兩個節點（上游／下游）經假網路對打，
 // 驗證：sig 簽署與驗證、直接入口掣（ALLOW_LOCAL_LOGIN）、開戶落下游、匯出 JSON（含 hash）→ 匯入 upsertUser、
@@ -137,7 +138,7 @@ function makeNode({ name, apikey, url }) {
       DigestAlgorithm: { SHA_256: 'SHA_256' },
       Charset: { UTF_8: 'UTF_8' },
       computeDigest: (algo, value) => Array.from(createHash('sha256').update(String(value), 'utf8').digest()),
-      computeHmacSha256Signature: (value, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(value) ? Buffer.from(value.map(b => b & 0xFF)) : Buffer.from(String(value), 'utf8')).digest()),
+      computeHmacSha256Signature: gasHmac, newBlob: gasBlob,
       formatDate: formatDateStub
     },
     DriveApp: {

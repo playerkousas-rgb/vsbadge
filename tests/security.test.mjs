@@ -1,3 +1,4 @@
+import { gasHmac, gasBlob } from './gas-hmac-mock.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -382,7 +383,7 @@ test('submitRegistration 初始化閘：已登記但未初始化的旅團回 422
 function gasContext() {
   const used = new Map(); let verified = false; let fetches = 0;
   const context = vm.createContext({
-    Utilities: { computeHmacSha256Signature: (message, key) => Array.from(createHmac('sha256', String(key)).update(Array.isArray(message) ? Buffer.from(message.map(b => b & 0xFF)) : Buffer.from(String(message), 'utf8')).digest()) },
+    Utilities: { computeHmacSha256Signature: gasHmac, newBlob: gasBlob },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
     CacheService: { getScriptCache: () => ({ get: k => used.get(k), put: (k, v) => used.set(k, v) }) },
     ScriptApp: { getService: () => ({ getUrl: () => backend }) },
