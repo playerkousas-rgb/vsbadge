@@ -71,6 +71,16 @@
 
 訓練綱要採用香港童軍總會第11版官方英文譯名（Membership Badge、Venture Scout Epaulettes、Venture Scout Award、Dragon Scout Award、Project / Service / Multiple Skills / Outdoor Exploration Achievement Badge 及 Bar）。**項目 ID 不變**，雲端進度、審批、履歷紀錄中英共用同一套資料，只換顯示語言。
 
+## YMIS 獎章匯出（試行，領袖專用）
+
+領袖登入 →「👥 全團總覽」→「⬇️ 匯出 YMIS 獎章（試行）」，為已正式獲頒的成員勾選獎章並逐人填寫實際獲獎日期，輸出 YMIS「新增支部獎章紀錄」上傳用的 `.xlsx`（工作表 `Sheet1`，四欄：`Scout ID`、`Badge-Section`、`Badge-Badge`、`Badge-award date (YYYYMMDD)`）。
+
+- `Badge-Section` 固定 `Venture Scout`；`Badge-Badge` 只限 `Membership Badge`、`The Venture Scout Award`、`The Dragon Scout Award`、`King's Scout Award`。
+- 成員帳號看不到入口。每次匯出一款獎章、多位成員；SCOUT ID 及日期以文字儲存（保留前導零）；同一成員同一獎章不可重複；不是 10 位數字的成員顯示但不能勾選。
+- **不會把考核完成視作已頒章**：不讀取考核進度、不寫回任何紀錄、不呼叫後端，亦不需更新 Apps Script。
+- **試行版**：尚未有真實資料在 YMIS 實測，匯出不等於匯入成功；沒有跨次重複上傳偵測。
+- 下載後由領袖到 YMIS「成員註冊 → 資料檔案上傳 → 新增支部獎章紀錄」上傳。詳見 [docs/YMIS_BADGE_EXPORT.md](docs/YMIS_BADGE_EXPORT.md)。
+
 ## 快速結構
 
 ```
@@ -80,11 +90,13 @@ data/mock_members.json  — 10 MOCK 成員測試數據
 data/mock_import.csv    — 進度測試 CSV
 data/members_template.csv — 前端批量開戶範本
 assets/vs-logo-*.png    — LOGO 128px + 256px + SVG fallback
+assets/ymis-parse.js    — YMIS 自訂報表解析（批量開戶）
+assets/ymis-export.js   — YMIS 獎章匯出對應表及驗證（瀏覽器／Node 共用，試行版）
 apps-script/Code.gs     — Google Sheet後端（單一檔案版 v8.7：進度/獎章/審批/帳戶/活動履歷/履歷申報/自助申請，含唯一身份、成員管理、領袖重設密碼）
 api/proxy.js            — ⭐ 同源多旅團 GAS Proxy（SSRF 防護、逾時、錯誤標準化）
 api/_registry.js        — 伺服器端可信旅團 Registry（僅 Vercel 環境變數、URL 白名單）
 api/troops.js           — Vercel API（只回傳旅團 id/name，不洩 backend/apikey）
-tests/                  — e2e 測試（雙 mock GAS 旅團）+ YMIS 解析單元測試 + 本機 dev server
+tests/                  — e2e 測試（雙 mock GAS 旅團）+ YMIS 解析／獎章匯出單元測試 + 本機 dev server
 vercel.json             — 部署設定
 docs/                   — 成員/執委/領袖教學 MD（含 .en.md）+ PROXY_ARCHITECTURE.md
 ```
