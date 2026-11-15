@@ -984,6 +984,7 @@ a:hover{text-decoration:underline}
 </footer>
 
 <script src="assets/ymis-parse.js"></script>
+<script src="assets/ymis-export.js"></script>
 <script>
 /* ================== i18n：一鍵全中／全英（同一套後端紀錄，只換顯示） ================== */
 const LANG_KEY='vsbadge_lang';
@@ -1231,6 +1232,20 @@ zh:{
   'ymis.go':'🚀 確認批量開戶（{n} 人）',
   'ymis.pickNone':'請先勾選至少一位可匯入的成員（YMIS 須為 10 位數字且有姓名）',
   'ymis.notLoaded':'未能載入 YMIS 解析器（assets/ymis-parse.js）',
+  'ymisExport.btn':'⬇️ 匯出 YMIS 獎章（試行）',
+  'ymisExport.cardTitle':'📤 YMIS 獎章紀錄匯出（試行版・領袖專用）',
+  'ymisExport.cardDesc':'為已正式獲頒會員章／深資童軍獎章／榮譽童軍獎章／英皇童軍獎章的成員，製作 YMIS「新增支部獎章紀錄」上傳用的 Excel 檔。尚未經 YMIS 實測；匯出不等於匯入成功。',
+  'ymisExport.title':'匯出 YMIS 獎章 — 試行版',
+  'ymisExport.beta':'⚠️ <b>試行版</b>：尚未以真實資料在 YMIS 實測，不保證 YMIS 接受此檔案。<b>匯出不代表已匯入</b>；上傳後請在 YMIS 核對紀錄，若出錯請經「回報 · 意見」告知。',
+  'ymisExport.explicit':'只選擇<b>已正式獲頒</b>此獎章的成員 —— 完成考核不等於已頒章。日期請填<b>實際獲獎日期</b>（沒有預設值）。此操作不會更改本系統任何進度。',
+  'ymisExport.award':'獎章','ymisExport.scope':'每次匯出一款獎章，其他獎章請另行匯出。不包括專科徽章、活動徽章、其他獎章及 2017 制過渡等同紀錄。',
+  'ymisExport.colPick':'選擇','ymisExport.colMember':'成員／SCOUT ID','ymisExport.colDate':'實際獲獎日期',
+  'ymisExport.badId':'SCOUT ID 並非 10 位數字，不能匯出','ymisExport.noMembers':'未有成員資料。',
+  'ymisExport.confirm':'我已核對成員 SCOUT ID、實際頒章及獲獎日期，並已檢查 YMIS 現有紀錄以免重複。',
+  'ymisExport.uploadHint':'下載後登入 YMIS：<b>成員註冊 → 資料檔案上傳 → 新增支部獎章紀錄</b>，上傳此檔並按系統指示確認。本系統不會偵測跨次重複上傳。檔案含成員編號，請妥善保管。',
+  'ymisExport.download':'⬇️ 下載 XLSX','ymisExport.needConfirm':'請先勾選確認已核對紀錄。','ymisExport.needDate':'請為「{m}」填寫實際獲獎日期。','ymisExport.loading':'正在準備 Excel 元件…',
+  'ymisExport.xlsxFail':'Excel 元件未能載入，請檢查網絡後再試。','ymisExport.stale':'成員資料已變更，請關閉後重新開啟。',
+  'ymisExport.done':'已匯出 {n} 筆（{badge}）。尚未確認已匯入 YMIS —— 請到 YMIS 上傳並核對，切勿重複上傳。',
   'bulk.ymisRec':'<b>最推薦：</b>從 YMIS 匯出自訂報表 PDF，在瀏覽器內解析後一次過開戶。PDF 不會離開你的裝置。',
   'bulk.flow2':' 亦可下載 CSV → 填寫 → 上傳預覽，或貼上 JSON。空白密碼預設為 1234，完成後請下載臨時密碼清單。',
   'bulk.ymisGuide':'📘 如何在 YMIS 匯出指定格式報告？',
@@ -1563,6 +1578,20 @@ en:{
   'ymis.go':'🚀 Confirm bulk onboard ({n})',
   'ymis.pickNone':'Select at least one member who can be imported (10-digit YMIS and a name).',
   'ymis.notLoaded':'YMIS parser not loaded (assets/ymis-parse.js)',
+  'ymisExport.btn':'⬇️ Export YMIS awards (Beta)',
+  'ymisExport.cardTitle':'📤 YMIS award record export (Beta · leaders only)',
+  'ymisExport.cardDesc':'Builds the Excel file for YMIS "Add section badge records" for members who have actually been presented the Membership Badge, the Venture Scout Award, the Dragon Scout Award or the King\'s Scout Award. Not yet tested against YMIS; exporting does not mean imported.',
+  'ymisExport.title':'Export YMIS awards — Beta',
+  'ymisExport.beta':'⚠️ <b>Beta</b>: not yet tested in YMIS with real data, so YMIS is not guaranteed to accept this file. <b>Exported does NOT mean imported</b> — check the records in YMIS after uploading and tell us about any error via "Report · Feedback".',
+  'ymisExport.explicit':'Select only members who have <b>actually been presented</b> this award — completing the checklist is not an award. Enter the <b>actual award date</b> (there is no default). Nothing is written back to progress in this system.',
+  'ymisExport.award':'Award','ymisExport.scope':'One award per export; export other awards separately. Proficiency badges, activity badges, other awards and 2017-scheme transition records are not included.',
+  'ymisExport.colPick':'Select','ymisExport.colMember':'Member / SCOUT ID','ymisExport.colDate':'Actual award date',
+  'ymisExport.badId':'SCOUT ID is not 10 digits — cannot be exported','ymisExport.noMembers':'No members yet.',
+  'ymisExport.confirm':'I have verified the SCOUT IDs, the actual awards and award dates, and checked existing YMIS records to avoid duplicates.',
+  'ymisExport.uploadHint':'After downloading, sign in to YMIS: <b>成員註冊 (Registration) → 資料檔案上傳 (Data file upload) → 新增支部獎章紀錄 (Add section badge records)</b>, upload this file and confirm as prompted. This system does not detect repeated uploads. The file contains member IDs — store it securely.',
+  'ymisExport.download':'⬇️ Download XLSX','ymisExport.needConfirm':'Please tick the confirmation first.','ymisExport.needDate':'Enter the actual award date for {m}.','ymisExport.loading':'Preparing the Excel component…',
+  'ymisExport.xlsxFail':'The Excel component could not be loaded — check your network and try again.','ymisExport.stale':'The member list has changed — close and reopen this window.',
+  'ymisExport.done':'Exported {n} record(s) ({badge}). Import into YMIS is NOT confirmed — upload and check in YMIS, and do not upload twice.',
   'bulk.ymisRec':'<b>Recommended:</b> export a YMIS custom-report PDF and parse it in the browser. The PDF never leaves your device.',
   'bulk.flow2':' You can also download a CSV, fill it in and preview, or paste JSON. Blank passwords default to 1234. Download the temporary-password list afterwards.',
   'bulk.ymisGuide':'📘 How to export the YMIS report in the required format',
@@ -3774,6 +3803,11 @@ function renderOverviewTab(){
       <div><b style="font-size:12px">${i18n('overview.pickItems')}</b><div id="batchItemList" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px"></div></div>
     </div>
   </div>
+  ${(currentUser&&canUserTickRole(currentUser.role))?`<div class="info-section" style="border-left:4px solid var(--orange);background:#FFFBEB;padding:12px">
+    <h3 style="color:var(--text);font-size:14px">${i18n('ymisExport.cardTitle')}</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:8px">${i18n('ymisExport.cardDesc')}</p>
+    <button class="btn btn-sm btn-secondary" onclick="openYmisExport()">${i18n('ymisExport.btn')}</button>
+  </div>`:''}
   <div class="filter-bar" style="margin-top:12px">
     <select id="overviewBadgeSelect" onchange="renderOverviewTable()">${badgeOptions}</select>
     <select id="overviewSegmentSelect" onchange="renderOverviewTable()"><option value="">${i18n('overview.allSeg')}</option></select>
@@ -3798,6 +3832,105 @@ function renderOverviewTab(){
   renderByItemListInner();
   const badgeSel=document.getElementById('overviewBadgeSelect');
   if(badgeSel){ badgeSel.addEventListener('change', updateSegmentOptions); updateSegmentOptions(); }
+}
+/* ---------- YMIS 獎章匯出（試行版，由 SCOUTBADGE 移植；說明見 docs/YMIS_BADGE_EXPORT.md） ----------
+   匯出是領袖的明確聲明：只輸出領袖勾選的成員、所選獎章及逐人填寫的實際獲獎日期。
+   不讀取考核進度、不由考核完成度推斷已頒章，不寫回任何進度，亦不呼叫後端。 */
+const SHEETJS_SRCS=[
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+];
+// xlsx@0.18.5 dist/xlsx.full.min.js 的 SRI（以 npm 套件檔案計算）；檔案內容不符即不執行，改試下一個來源
+const SHEETJS_SRI='sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==';
+let _sheetJsPromise=null;
+let ymisExportMembers=[];          // 開啟視窗時的成員快照（之後 members 重新載入亦不會錯位）
+function sheetJsReady(){ return !!(window.XLSX && window.XLSX.utils && typeof window.XLSX.writeFile==='function'); }
+// 只在領袖開啟匯出視窗時才載入 SheetJS（平時不增加頁面負擔）
+function loadSheetJs(){
+  if(sheetJsReady()) return Promise.resolve(window.XLSX);
+  if(_sheetJsPromise) return _sheetJsPromise;
+  _sheetJsPromise=new Promise((resolve,reject)=>{
+    let i=0;
+    const tryNext=()=>{
+      if(i>=SHEETJS_SRCS.length){ _sheetJsPromise=null; reject(new Error('xlsx_load_fail')); return; }
+      const s=document.createElement('script');
+      s.src=SHEETJS_SRCS[i++]; s.async=true; s.setAttribute('integrity',SHEETJS_SRI); s.setAttribute('crossorigin','anonymous');
+      s.onload=()=>{ if(sheetJsReady()) resolve(window.XLSX); else tryNext(); };
+      s.onerror=tryNext;
+      document.head.appendChild(s);
+    };
+    tryNext();
+  });
+  return _sheetJsPromise;
+}
+function closeYmisExport(){ const el=document.getElementById('ymisExportModal'); if(el) el.remove(); ymisExportMembers=[]; }
+function openYmisExport(){
+  if(!currentUser||!canUserTickRole(currentUser.role)) return showToast(i18n('overview.noPerm'),'warning');
+  if(!window.YmisExport){ showToast('assets/ymis-export.js not loaded','error'); return; }
+  closeYmisExport();
+  ymisExportMembers=(members||[]).slice();
+  const cell='padding:6px;border-bottom:1px solid var(--border);vertical-align:middle';
+  const head='padding:7px 6px;background:var(--maroon);color:#fff;position:sticky;top:0;z-index:1';
+  const rows=ymisExportMembers.map((m,i)=>{
+    const id=String(m.ymis==null?'':m.ymis).trim();
+    const okId=/^\d{10}$/.test(id);
+    const label=escapeHtmlText(m.name||id);
+    return `<tr>
+      <td style="${cell};text-align:center"><input type="checkbox" class="ymis-export-member" value="${i}" ${okId?'':'disabled'} aria-label="${i18n('ymisExport.colPick')} ${label}" style="width:18px;height:18px;accent-color:var(--maroon)"></td>
+      <td style="${cell};text-align:left">${label}<br><small style="color:var(--text-light)">${escapeHtmlText(id||'—')}</small>${okId?'':`<br><small style="color:var(--red)">${i18n('ymisExport.badId')}</small>`}</td>
+      <td style="${cell}"><input type="date" id="ymisExportDate_${i}" ${okId?'':'disabled'} aria-label="${i18n('ymisExport.colDate')} ${label}" style="width:100%;min-width:130px;padding:8px;border:2px solid var(--border);border-radius:8px;font-family:inherit"></td>
+    </tr>`;
+  }).join('');
+  const modal=document.createElement('div');
+  modal.id='ymisExportModal'; modal.className='modal active';
+  modal.innerHTML=`<div class="modal-content" style="max-width:700px">
+    <h3>${i18n('ymisExport.title')}</h3>
+    <div style="background:#FFFBEB;border-left:3px solid var(--orange);padding:8px 10px;border-radius:6px;font-size:12px;margin-bottom:8px">${i18n('ymisExport.beta')}</div>
+    <p style="font-size:12px;margin-bottom:10px">${i18n('ymisExport.explicit')}</p>
+    <div class="form-group"><label for="ymisExportBadge">${i18n('ymisExport.award')}</label>
+      <select id="ymisExportBadge">${YmisExport.badges.map(b=>`<option value="${escapeHtmlText(b[1])}">${escapeHtmlText(currentLang==='en'?b[1]:b[0]+'（'+b[1]+'）')}</option>`).join('')}</select>
+      <p style="font-size:11px;color:var(--text-light);margin-top:4px">${i18n('ymisExport.scope')}</p>
+    </div>
+    <div style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px">
+      ${rows?`<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr><th style="${head}">${i18n('ymisExport.colPick')}</th><th style="${head};text-align:left">${i18n('ymisExport.colMember')}</th><th style="${head}">${i18n('ymisExport.colDate')}</th></tr></thead><tbody>${rows}</tbody></table>`:`<p style="padding:14px;text-align:center;color:var(--text-light);font-size:12px">${i18n('ymisExport.noMembers')}</p>`}
+    </div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-size:12px"><input type="checkbox" id="ymisExportConfirm" style="margin-top:2px"> <span>${i18n('ymisExport.confirm')}</span></label>
+    <p style="font-size:11px;color:var(--text-light)">${i18n('ymisExport.uploadHint')}</p>
+    <div id="ymisExportStatus" role="status" aria-live="polite" style="font-size:12px;font-weight:600;margin-top:8px;min-height:18px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-sm btn-primary" style="flex:1" id="ymisExportDownloadBtn" onclick="downloadYmisAwards()">${i18n('ymisExport.download')}</button>
+      <button class="btn btn-sm btn-secondary" style="flex:1" onclick="closeYmisExport()">${i18n('btn.close')}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  loadSheetJs().catch(e=>console.warn('SheetJS 預載失敗，按下載時會再試', e&&e.message));   // 預先載入；失敗時按下載會再試並顯示提示
+}
+async function downloadYmisAwards(){
+  if(!currentUser||!canUserTickRole(currentUser.role)) return;
+  const status=document.getElementById('ymisExportStatus');
+  const btn=document.getElementById('ymisExportDownloadBtn');
+  if(!status||!btn||btn.disabled) return;
+  const say=(msg,color)=>{ status.style.color=color||'var(--red)'; status.textContent=msg; };
+  try{
+    if(!document.getElementById('ymisExportConfirm').checked) throw new Error(i18n('ymisExport.needConfirm'));
+    const badge=document.getElementById('ymisExportBadge').value;
+    const records=Array.from(document.querySelectorAll('#ymisExportModal .ymis-export-member:checked')).map(el=>{
+      const m=ymisExportMembers[Number(el.value)];
+      if(!m) throw new Error(i18n('ymisExport.stale'));
+      const dateEl=document.getElementById('ymisExportDate_'+el.value);
+      if(!dateEl.value){ try{ dateEl.focus(); }catch(e){} throw new Error(i18n('ymisExport.needDate',{m:m.name||m.ymis})); }
+      return {ymis:m.ymis, badge, date:dateEl.value};
+    });
+    const rows=YmisExport.buildRows(records);   // 先驗證，全部通過才產生檔案
+    btn.disabled=true; say(i18n('ymisExport.loading'),'var(--text-light)');
+    let XLSX_;
+    try{ XLSX_=await loadSheetJs(); }catch(e){ throw new Error(i18n('ymisExport.xlsxFail')); }
+    const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    XLSX_.writeFile(YmisExport.workbook(XLSX_,rows),'YMIS-badges-'+stamp+'.xlsx',{bookType:'xlsx'});
+    say(i18n('ymisExport.done',{n:rows.length,badge}),'var(--green)');
+  }catch(e){ say(e.message); }
+  finally{ btn.disabled=false; }
 }
 function showOverviewSubTab(which){
   const mv=document.getElementById('overviewMemberView');
