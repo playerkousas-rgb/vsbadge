@@ -181,6 +181,20 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(load.initializedGsVersion, 'v9.6', '登入後 load 都要回報初始化版本');
   assert.equal(load.gsInitializationCurrent, true);
 
+  // 後端頻道：正式發佈預設 release；試作版只靠 Script Property 標記，唔需要改程式。
+  // 同一份後端服務 vsbadge 同 vs_portal 兩個前端，兩個都會讀同一個欄位。
+  assert.equal(after.channel, 'release', 'ecStatus 預設回報正式頻道');
+  assert.equal(load.channel, 'release', 'load 亦回報頻道');
+  props.set('RELEASE_CHANNEL', 'isolated-test-only');
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'isolated-test-only', '試作標記即時反映');
+  const init3 = context.initializeSheets();
+  assert.equal(init3.success, true);
+  assert.equal(props.get('RELEASE_CHANNEL'), 'isolated-test-only', 'initializeSheets() 唔准清除頻道標記');
+  assert.equal(context.handleLoad().channel, 'isolated-test-only', 'load 亦保持一致');
+  props.set('RELEASE_CHANNEL', '!!! bad value');
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'release', '無效值一律當正式頻道');
+  props.delete('RELEASE_CHANNEL');
+
   // 重複初始化：安全、idempotent、資料同 API Key 原封不動
   const init2 = context.initializeSheets();
   assert.equal(init2.success, true);
@@ -223,4 +237,28 @@ test('舊 v9.5 不可顯示已核對；新版本需要初始化後才顯示已�
   assert.equal(sandbox.applyBackendRelease({ gsVersion: 'v9.5', initializedGsVersion: 'v9.5' }), 'update');
   assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: 'v9.5' }), 'initialize');
   assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'current');
+  // 試作頻道（UnifiedCode.gs 之類）：baseline 版本對得上，但唔可以顯示「已核對」
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2], channel: 'isolated-test-only', unifiedGsVersion: 'v9.6-u1-test' }), 'test');
+  // 之後嘅 load 唔帶 channel（管理員走 baseline 路徑）都要保持試作狀態，唔可以跌返綠燈
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test');
+  // 正式頻道明示 release 才回到正常判斷
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2], channel: 'release' }), 'current');
+});
+
+test('Registry 宣告試作頻道（TROOP_<ID>_CHANNEL）時，即使後端未回報 channel 都唔會顯示已核對', () => {
+  const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const release = html.match(/const LATEST_RELEASE=Object\.freeze\(\{updated:'([^']+)',gsVersion:'([^']+)',initializeRequired:(true|false)\}\)/);
+  const apply = html.match(/function applyBackendRelease\(payload\)\{[\s\S]*?\n\}/)[0];
+  const sandbox = { LATEST_RELEASE: { gsVersion: release[2] }, currentTroopId: '0082', backendReleaseState: {}, troopChannel: 'isolated-test-only', renderReleaseNotices() {} };
+  vm.createContext(sandbox);
+  vm.runInContext(apply, sandbox);
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test');
+  sandbox.troopChannel = '';
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test', '已判定試作後唔可以因為冇再宣告而跌返綠燈');
+});
+
+test('試作後端提示只可讀取可選欄位（唔會令舊後端誤報）', () => {
+  const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('🧪 試作後端'), '公告要有試作後端標籤');
+  assert.ok(/source\.channel/.test(html) && /source\.unifiedGsVersion/.test(html), '只由後端回報嘅可選欄位判斷');
 });

@@ -17,6 +17,9 @@ Vercel → Project → Settings → Environment Variables：
 - 三項未齊、URL 非 HTTPS GAS 正式 `/exec` → 不顯示／不可連線，不再憑空顯示 0082。
 - 名稱會以純文字顯示；前端 API 只回傳 ID、name、en，不回傳後端 URL 或 API key。
 - 英文名稱可選 `TROOP_0082_EN`，不填時沿用前端 `82nd Group` 自動顯示。
+- 後端頻道標籤可選 `TROOP_0082_CHANNEL`（例如 `isolated-test-only`）：只在該旅團跑試作／測試版 GS 時填。
+  填了之後 `/api/troops` 會多一個 additive `channel` 欄位（未填的旅團回應完全不變），前端公告會顯示紫色「🧪 試作後端」，
+  唔會再顯示綠色「✅ 已核對」。它不影響任何授權或連線；試作結束、回滾正式 `Code.gs` 後請刪掉此變數。
 - Portal 原有 `PORTAL_DEFAULT_ORIGIN`、`PORTAL_DEFAULT_ROLES` 及旅團例外變數照常使用；原先寫在 JSON 的例外須搬到 env。
 - 選擇正確環境（Production／Preview），儲存後**必須 Redeploy**。改環境變數不會自動更新已存在的部署。
 - 不使用 `NEXT_PUBLIC_`／`VITE_` 前綴，不把敏感值放 Git、HTML、截圖或聊天。

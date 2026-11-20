@@ -309,6 +309,22 @@ test('GET /api/troops 維持 { troops: { [id]: { name, en } } }（VSBOOK 下拉�
   assert.ok(!JSON.stringify(r.body).includes('secret-key-9001') && !JSON.stringify(r.body).includes('script.google'));
 });
 
+test('GET /api/troops 只喺明示宣告時加 additive channel（未宣告維持 { name, en }）', async () => {
+  process.env.TROOP_9001_CHANNEL = 'isolated-test-only';
+  try {
+    const r = res();
+    await troops({ method: 'GET' }, r);
+    assert.equal(r.code, 200);
+    assert.equal(r.body.troops['9001'].channel, 'isolated-test-only');
+    assert.equal(r.body.troops['9001'].name, '測試旅', '原有欄位不變');
+    const raw = JSON.stringify(r.body);
+    assert.ok(!raw.includes('secret-key-9001') && !raw.includes('script.google'), 'channel 唔會連帶洩漏 backend／apikey');
+  } finally { delete process.env.TROOP_9001_CHANNEL; }
+  const r2 = res();
+  await troops({ method: 'GET' }, r2);
+  assert.deepEqual(r2.body.troops['9001'], { name: '測試旅', en: 'Test Group' }, '未宣告頻道時回應契約完全不變');
+});
+
 test('slow_password_kdf 日誌：慢登入記低 ms＋gsVersion；逾時記 timeout:true；唔含密碼／token／apikey', async () => {
   const mock = mockUpstream(() => ({ success: true, token: 'tok-secret-xyz', user: { ymis: '1234560011' }, gsVersion: 'v9.4' }));
   let lines;

@@ -48,6 +48,13 @@ function parseRoleList(v){
   return v.split(',').map(x=>x.trim()).filter(Boolean);
 }
 
+// 後端頻道標籤（例如 isolated-test-only）。只作顯示／提示用途，不影響授權。
+// 留空 = 未宣告（照舊當正式頻道）；只接受短英數標籤，其餘一律忽略。
+function parseChannel(v){
+  const s=String(v||'').trim().toLowerCase();
+  return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(s) ? s : '';
+}
+
 // 本機測試專用：設 VSBADGE_PROXY_TEST=1 時允許 http://127.0.0.1|localhost 的 mock GAS。
 // 絕對不會影響 Vercel 正式環境（正式環境不會設定此變數）。
 const TEST_LOCAL_RE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/[A-Za-z0-9._~\-/?=&%]*)?$/;
@@ -71,7 +78,7 @@ function envVar(...names) {
 export function getRegistry() {
   const ids = new Set();
   for (const key of Object.keys(process.env)) {
-    const m = key.match(/^TROOP_([0-9A-Za-z_-]{1,32})_(NAME|EN|BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED)$/);
+    const m = key.match(/^TROOP_([0-9A-Za-z_-]{1,32})_(NAME|EN|BACKEND|APIKEY|PORTALORIGIN|PORTALROLES|PORTALDISABLED|CHANNEL)$/);
     if (m) ids.add(m[1]);
   }
   const defaultOrigin = normalizeOrigin(envVar('PORTAL_DEFAULT_ORIGIN', 'VSBADGE_PORTAL_ORIGIN'));
@@ -87,7 +94,8 @@ export function getRegistry() {
       backendTrusted: isTrustedExecUrl(backend),
       portalOrigin: normalizeOrigin(get('PORTALORIGIN')) || defaultOrigin,
       portalRoles: roles.length ? roles : defaultRoles,
-      portalEnabled: !isDisabledFlag(get('PORTALDISABLED'))
+      portalEnabled: !isDisabledFlag(get('PORTALDISABLED')),
+      channel: parseChannel(get('CHANNEL'))
     };
   }
   return out;
@@ -118,7 +126,11 @@ export function listPublicTroops() {
   for (const [id, t] of Object.entries(reg)) {
     // 三項必填設定齊備，並通過後端 URL 白名單才列出
     // 白名單輸出：只給 id + 顯示名稱。backend / apikey / portalOrigin / portalRoles 一律不外洩。
-    if (t.name && t.apikey && t.backendTrusted) out[id] = { name: t.name, en: t.en || '' };
+    if (!t.name || !t.apikey || !t.backendTrusted) continue;
+    out[id] = { name: t.name, en: t.en || '' };
+    // 只有明示宣告過頻道才加一個 additive 欄位；未宣告嘅旅團回應維持 { name, en } 不變。
+    // backend／apikey／portalOrigin／portalRoles 一律唔會出現在呢個公開回應。
+    if (t.channel) out[id].channel = t.channel;
   }
   return out;
 }

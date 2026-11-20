@@ -44,15 +44,26 @@ const VS_GS_VERSION = 'v9.6';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
 // 此版本是否強制要求旅團執行 initializeSheets()；與前端 LATEST_RELEASE.initializeRequired 保持一致。
 const GS_INIT_REQUIRED = true;
+// 後端頻道（同一份後端同時服務輕量前端 vsbadge 同完整版前端 vs_portal）。
+// 正式發佈 = 'release'。隔離測試／試作 build 只需喺 Script Properties 設 RELEASE_CHANNEL
+// （例如 isolated-test-only），唔需要改程式；純顯示／提示用途，不影響任何授權或資料。
+const RELEASE_CHANNEL_PROP = 'RELEASE_CHANNEL';
+const RELEASE_CHANNEL_DEFAULT = 'release';
+function releaseChannel_(){
+  let ch='';
+  try{ ch=String(PropertiesService.getScriptProperties().getProperty(RELEASE_CHANNEL_PROP)||''); }catch(e){}
+  ch=ch.trim().toLowerCase();
+  return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(ch)?ch:RELEASE_CHANNEL_DEFAULT;
+}
 function getVsGsReleaseStatus(){
   let initialized='';
   try{ initialized=String(PropertiesService.getScriptProperties().getProperty(VS_GS_INITIALIZED_PROP)||''); }catch(e){}
-  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION, initRequired:GS_INIT_REQUIRED };
+  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION, initRequired:GS_INIT_REQUIRED, channel:releaseChannel_() };
 }
 // 回報 GS 發佈／初始化狀態，供 showApiKey／showVercelEnv 等介面在未初始化時提醒領袖先執行 initializeSheets()。
 function gsVersionInfo_(){
   const st=getVsGsReleaseStatus();
-  return { gsVersion:st.gsVersion, initializedGsVersion:st.initializedGsVersion, gsInitializationCurrent:st.gsInitializationCurrent, initRequired:st.initRequired };
+  return { gsVersion:st.gsVersion, initializedGsVersion:st.initializedGsVersion, gsInitializationCurrent:st.gsInitializationCurrent, initRequired:st.initRequired, channel:st.channel };
 }
 // 當此版本要求初始化而 Script Properties 仍未記錄對應版本時，回傳警告行；否則回傳空陣列。API Key 本身仍照常顯示。
 function initStatusWarningLines_(){
@@ -2480,11 +2491,33 @@ function handleCancelLogRequest(requestId, user){
 
 // ===== 旅系統：Sheet 選單（匯出／匯入／登記下游／直接入口掣）=====
 // 選單只在 Sheet 內給擁有者按；匯出的 JSON 含 password_hash，只寫去 Drive（私人），绝不寫入工作表。
+// 試作頻道開關：只寫 Script Property，不寫 Sheet、不改任何帳戶或進度資料。
+// 同一份後端服務兩個前端，所以呢個標記會同時反映喺 vsbadge 同 vs_portal 嘅版本公告。
+function menuToggleReleaseChannel(){
+  const props=PropertiesService.getScriptProperties();
+  const current=releaseChannel_();
+  const next=current==='release'?'isolated-test-only':'';
+  try{
+    if(next) props.setProperty(RELEASE_CHANNEL_PROP,next);
+    else props.deleteProperty(RELEASE_CHANNEL_PROP);
+  }catch(e){
+    return {success:false,error:'未能寫入 Script Properties：'+String(e&&e.message||e)};
+  }
+  const now=releaseChannel_();
+  const msg='目前後端頻道：'+now+'\n\n'
+    +'• release（或未設定）＝正式發佈版\n'
+    +'• 其他值＝試作／隔離測試版，兩個前端嘅版本公告都會標示「🧪 試作後端」\n\n'
+    +'只改 Script Property，不會改動任何 Sheet、帳戶、進度或 API Key。';
+  try{ const ui=SpreadsheetApp.getUi(); if(ui) ui.alert('後端頻道',msg,ui.ButtonSet.OK); }catch(e){}
+  try{ Logger.log(msg); }catch(e){}
+  return {success:true,channel:now};
+}
 function onOpen(){
   try{
     const ui=SpreadsheetApp.getUi();
     ui.createMenu('🔗 旅系統')
       .addItem('🔧 初始化／更新（執行 initializeSheets）','menuInitializeSheets')
+      .addItem('🧪 標記／取消試作頻道（isolated-test-only）','menuToggleReleaseChannel')
       .addItem('⏱️ 密碼 KDF 速度測試（實測毫秒）','menuBenchmarkPasswordKdf')
       .addSeparator()
       .addItem('📤 匯出 JSON（含 hash）','menuExportUsersJson')

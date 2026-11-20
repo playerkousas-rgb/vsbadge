@@ -44,6 +44,7 @@
 - **現有 Sheet 不改動、不初始化**；須同步更新 Code.gs 的既有部署。
 - [必讀：環境變數及無資料遷移升級步驟](docs/ENV_MIGRATION.md)
 - [長期防增肥、圖片格式及緊急任務規範](docs/DEPLOYMENT_POLICY.md)
+- [Portal 對接協議](docs/PORTAL_INTEGRATION.md)／[Portal 同步紀錄（改動前必讀）](docs/PORTAL_SYNC.md)
 - 驗證：`npm run check`、`npm run lint`、`npm test`、`npm run build`（零 npm 依賴）。
 
 ## 第十版→第十一版過渡、活動細項及其他獎章

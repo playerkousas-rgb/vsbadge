@@ -2,6 +2,23 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
+## 2026-11-20 — 後端頻道標籤（避免把試作後端誤報「已核對」）
+
+**影響範圍**：`apps-script/Code.gs`（`getVsGsReleaseStatus()` 新增 `channel`、Script Property `RELEASE_CHANNEL`、選單「🧪 標記／取消試作頻道」）、`api/_registry.js`（可選 `TROOP_<ID>_CHANNEL`）、`api/troops.js`（additive `channel` 欄位）、`index.html`（版本公告顯示）、`tests/release-version.test.mjs`、`tests/request-review.test.mjs`、文件。**沒有**改動任何既有 GAS action、Proxy 白名單、Sheet 結構、Portal 對接參數或 role 名；API Key、帳戶、進度資料不受影響。
+
+**行為改變**
+
+- 公告由「只睇版本」改為「版本＋頻道」：後端若回報 `channel`（非 `release`）或有 `unifiedGsVersion`，或者管理員在 Registry 宣告 `TROOP_<ID>_CHANNEL`，公告會顯示紫色「🧪 試作後端」並說明只作測試、結果要 readback、驗收前要回滾正式 `Code.gs`；之后嘅 `load` 亦會保持 🧪，唔會跌返綠燈。
+- 未宣告頻道的旅團**完全不受影響**：`/api/troops` 回應仍然係 `{ name, en }`，公告仍然係原本嘅綠色「✅ 已核對」。
+- 用途：0082 已轉用 `vs_portal` 的 `UnifiedCode.gs`（`v9.6-u1-test`，isolated test）。它保留 `VS_GS_VERSION = 'v9.6'` 及同一初始化紀錄，所以只靠版本比對會誤報「已核對」；現在可以由 Registry 或 GAS 明確標示頻道。
+
+**部署**：
+1. 重貼 `Code.gs` 後，用選單「🧪 標記／取消試作頻道」＝正式開關（只寫 Script Property `RELEASE_CHANNEL`，不寫 Sheet、不改資料）。
+2. 未更新 `Code.gs` 嘅旅團（或 vendor 咗舊 baseline 嘅 `UnifiedCode.gs`）可暫用 Vercel `TROOP_<ID>_CHANNEL=isolated-test-only` 過渡；GAS 回報優先。
+3. 新 `Code.gs` SHA-256：`3a8f12ebef0cc5a14059126b4825b983bc65f5eae0e27b114aca866a91b0e057`；portal 嘅 vendored baseline 需同步更新。詳見 `docs/PORTAL_SYNC.md` §10.6。
+
+**驗證**：`npm run lint && npm test`（新增 Registry 頻道、公告 🧪 及「唔會跌返綠燈」回歸；`/api/troops` 未宣告時契約不變）。
+
 ## 2026-11-12 — GS v9.6 PBKDF2 簽章及版本核對修正
 
 修正 Apps Script PBKDF2 的 HMAC 參數類型，避免初始化及密碼操作報錯；前端和 GS 發佈識別同步更新為 v9.6，確保舊 v9.5 不再被誤認為最新。更新 Code.gs、執行 initializeSheets()，再以新版本部署，然後重新檢查。保留現有資料及 API Key。曾自行修改 PBKDF2 的雜湊可能不相容，請先備份並參考 `operations/PBKDF2_GAS_SIGNATURE_FIX.md`，不要刪除帳號或重建試算表。
