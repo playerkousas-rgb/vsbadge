@@ -42,6 +42,7 @@ function makeMemorySheet(name, rows = []) {
   }
   const sheet = {
     getName: () => name,
+    getSheetId: () => 1,
     getDataRange: () => range(1, 1, Math.max(data.length, 1), Math.max(1, ...data.map(row => row.length))),
     getRange: (r, c, nr, nc) => range(r, c, nr || 1, nc || 1),
     getLastRow: () => data.length,

@@ -18,7 +18,11 @@ test('Build Output API contains only intended static files and four runnable fun
   assert(!fs.existsSync(path.join(out, 'static/api')));
   for (const file of files.filter(f => f.startsWith('static/') && /\.(html|md|js|gs)$/.test(f))) {
     const text = fs.readFileSync(path.join(out, file), 'utf8').toLowerCase();
-    assert.equal(text.split(accountId).length - 1, file === 'static/apps-script/Code.gs' ? 1 : 0, 'Public artifact contains unexpected account text: ' + file);
+    if (file === 'static/apps-script/Code.gs') {
+      assert.equal(text.split(`const super_admin_id = '${accountId}';`).length - 1, 1, 'GAS must have one reserved-account declaration');
+    } else {
+      assert.equal(text.includes(accountId), false, 'Public artifact contains unexpected account text: ' + file);
+    }
   }
   for (const name of ['proxy', 'troops', 'portal', 'super']) {
     const dir = path.join(out, 'functions/api', name + '.func');

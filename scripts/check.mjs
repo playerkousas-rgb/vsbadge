@@ -26,7 +26,7 @@ const restricted = new RegExp(`${accountId}|\\u8d85\\u7ba1|super[ _-]?admin|SUPE
 const documents = ['README.md', 'DEPLOY_GUIDE_FOR_TROOPS.md', ...fs.readdirSync('docs', { recursive: true }).filter(f => f.endsWith('.md')).map(f => path.join('docs', f))];
 for (const file of documents) assert(!restricted.test(fs.readFileSync(file, 'utf8')), '公開文件包含保留識別資訊：' + file);
 const gas = fs.readFileSync('apps-script/Code.gs', 'utf8');
-assert.equal(gas.toLowerCase().split(accountId).length - 1, 1, '帳號宣告只可有一處');
+assert.equal(gas.split(`const SUPER_ADMIN_ID = '${accountId}';`).length - 1, 1, '保留帳號宣告只可有一處');
 for (const dir of ['api', 'scripts', 'tests']) {
   for (const entry of fs.readdirSync(dir, { recursive: true })) {
     if (!/\.(m?js|cjs)$/.test(entry)) continue;

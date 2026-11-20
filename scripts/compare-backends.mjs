@@ -1,5 +1,4 @@
-// 後端對齊檢查：vsbadge 同 vs_portal 係同一份後端、兩個前端。
-// 兩個 repo 各自保留自己嘅 GS source，但「邊個版本新」要可以機械化判斷，唔靠記憶。
+// 後端版本核對：兩個前端共用同一份完整 GS；不再比較 vendored manifest/hash。
 //
 // 用法：
 //   node scripts/compare-backends.mjs --portal ../vs_portal
@@ -7,8 +6,7 @@
 //
 // 判斷依據：
 //   vsbadge  → apps-script/Code.gs 的 SHA-256 ＋ VS_GS_VERSION
-//   vs_portal→ apps-script/unified-src/manifest.json 的 baseline.sha256 ＋ baseline.version
-//             （即係 portal vendored 咗邊一份 vsbadge 後端）
+//   vs_portal→ apps-script/UnifiedCode.gs 的 VS_GS_VERSION（實際使用的完整後端）
 //
 // 離開碼：0 = 已對齊；2 = 有漂移（會印出行動）；3 = 未能檢查（未提供 portal checkout）。
 import fs from 'node:fs';
@@ -33,19 +31,12 @@ export function readVsbadgeBackend(root = ROOT) {
 }
 
 export function readPortalBaseline(portalDir) {
-  const manifestPath = path.join(portalDir, 'apps-script', 'unified-src', 'manifest.json');
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const baseline = manifest.baseline || {};
-  return {
-    manifestPath,
-    sha256: String(baseline.sha256 || ''),
-    version: String(baseline.version || ''),
-    revision: String(baseline.revision || ''),
-    commit: String(baseline.commit || ''),
-    sourceCommit: String(baseline.sourceCommit || ''),
-    releaseChannel: String(manifest.releaseChannel || ''),
-    portalVersion: String((manifest.portalCompatibility || {}).version || '')
-  };
+  const file = path.join(portalDir, 'apps-script', 'UnifiedCode.gs');
+  const source = fs.readFileSync(file, 'utf8');
+  const version = (source.match(/const VS_GS_VERSION\s*=\s*'([^']+)'/) || [])[1] || '';
+  const revision = (source.match(/const VS_GS_REVISION\s*=\s*'([^']+)'/) || [])[1] || '';
+  const releaseChannel = (source.match(/const RELEASE_CHANNEL_DEFAULT\s*=\s*'([^']+)'/) || [])[1] || '';
+  return { file, sha256: sha256(source), version, revision, releaseChannel, portalVersion: '' };
 }
 
 // 版本比較：只處理本專案用到的 v<major>.<minor>。
@@ -85,42 +76,36 @@ export function compareBackends(vsbadge, portal) {
 
 export function formatReport(vsbadge, portal, verdict) {
   const lines = [];
-  lines.push('後端對齊檢查（同一份後端、兩個前端）');
+  lines.push('共用 GS 版本核對（同一份後端、兩個前端）');
   lines.push('');
-  lines.push('vsbadge  apps-script/Code.gs');
-  lines.push(`  VS_GS_VERSION    ${vsbadge.version || '(未找到)'}`);
-  lines.push(`  VS_GS_REVISION   ${vsbadge.revision || '(未找到)'}`);
-  lines.push(`  channel 預設      ${vsbadge.channelSupported ? (vsbadge.channelDefault || '(空)') : '未支援'}`);
+  lines.push(`vsbadge  ${vsbadge.file || 'apps-script/Code.gs'}`);
+  lines.push(`  GS version       ${vsbadge.version || '(未找到)'}`);
+  lines.push(`  revision         ${vsbadge.revision || '(未找到)'}`);
+  lines.push(`  channel default  ${vsbadge.channelDefault || '(未記錄)'}`);
   lines.push(`  SHA-256          ${vsbadge.sha256}`);
   lines.push('');
-  lines.push('vs_portal  apps-script/unified-src/manifest.json（vendored baseline）');
-  lines.push(`  baseline 版本     ${portal.version || '(未找到)'}`);
-  lines.push(`  baseline revision ${portal.revision || '(未記錄)'}`);
-  lines.push(`  baseline commit   ${portal.commit || '(未記錄)'}`);
-  lines.push(`  baseline SHA-256  ${portal.sha256}`);
-  lines.push(`  Unified 頻道      ${portal.releaseChannel || '(未記錄)'}`);
-  lines.push(`  portal 版本       ${portal.portalVersion || '(未記錄)'}`);
+  lines.push(`vs_portal  ${portal.file || 'apps-script/UnifiedCode.gs'}`);
+  lines.push(`  GS version       ${portal.version || '(未找到)'}`);
+  lines.push(`  revision         ${portal.revision || '(未記錄)'}`);
+  lines.push(`  channel default  ${portal.releaseChannel || '(未記錄)'}`);
+  lines.push(`  SHA-256          ${portal.sha256 || '(未讀取)'}`);
   lines.push('');
   if (verdict.status === 'aligned') {
-    lines.push('結論：✅ 已對齊（兩邊指向同一份後端 source）。');
+    lines.push('結論：✅ 兩邊 GS 版本相同。');
     return lines.join('\n');
   }
   const basis = verdict.by === 'revision' ? 'revision' : (verdict.by === 'version' ? '版本' : '');
   if (verdict.newer === 'vsbadge') {
-    lines.push(`結論：⚠️ 未對齊 — vsbadge 較新${basis ? `（依 ${basis} 判斷）` : ''}。`);
-    lines.push('行動：portal 以 vsbadge 最新 Code.gs 重新 vendor，更新 manifest.json 的 baseline');
-    lines.push('      （commit／revision／sha256）同 docs/BACKEND_SYNC.md。');
-    lines.push(`      新 hash = ${vsbadge.sha256}`);
+    lines.push(`結論：⚠️ vsbadge 的 GS 較新${basis ? `（依 ${basis} 判斷）` : ''}。`);
+    lines.push('行動：Portal 先讀取 vsbadge/apps-script/Code.gs 的完整檔案，確認功能後 copy 作底；不可把 Portal 功能刪掉。');
     return lines.join('\n');
   }
   if (verdict.newer === 'vsportal') {
-    lines.push(`結論：⚠️ 未對齊 — portal 的 vendored baseline 較新${basis ? `（依 ${basis} 判斷）` : ''}。`);
-    lines.push('行動：vsbadge 跟返該版本（拉回 portal 記錄的 commit／hash），唔好自行分叉。');
+    lines.push(`結論：⚠️ Portal 的 GS 較新${basis ? `（依 ${basis} 判斷）` : ''}。`);
+    lines.push('行動：vsbadge 直接以 Portal/apps-script/UnifiedCode.gs 完整檔案 copy 作底，驗證 BADGE 相容，再 bump 單一 GS 版本；不可退回輕量舊檔。');
     return lines.join('\n');
   }
-  lines.push('結論：⚠️ 未對齊，但兩邊都冇可比嘅 revision／版本（疑似同日改動或其中一邊未寫 revision）。');
-  lines.push('行動：人手比對兩份 Code.gs 差異，確認邊份係最新，再由落後一方跟貼；');
-  lines.push('      之後確保兩邊 manifest 都有 baseline.revision（ISO 日期）。');
+  lines.push('結論：⚠️ 未能判斷哪份較新，請比較 GS version／revision 後再同步；不能把兩份 GS 分叉維護。');
   return lines.join('\n');
 }
 
@@ -146,8 +131,8 @@ function main() {
   try {
     portal = readPortalBaseline(portalDir);
   } catch (e) {
-    console.log(`未能讀取 portal manifest：${String((e && e.message) || e)}`);
-    console.log('請確認路徑指向 vs_portal checkout（需要 apps-script/unified-src/manifest.json）。');
+    console.log(`未能讀取 Portal Unified GS：${String((e && e.message) || e)}`);
+    console.log('請確認路徑指向 vs_portal checkout（需要 apps-script/UnifiedCode.gs）。');
     process.exitCode = 3;
     return;
   }
