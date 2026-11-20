@@ -2,17 +2,13 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
-## 2026-11-20 — 全團資料共用投影（v9.7）
+## 2026-11-20 — 完整 Unified GS 共用版（v9.7）
 
-**影響範圍**：`apps-script/Code.gs` 抽出共用 `loadTroopData_()`；既有 `load` 維持回應契約，新增登入 token 驗證後的 `progressAll` action；`index.html` 發佈公告及版本守護測試更新至 v9.7。沒有新增工作表或修改既有欄位。
+**版本來源**：先讀取 `playerkousas-rgb/vs_portal` 公開 `apps-script/UnifiedCode.gs`（main commit `3203b52`，9,178 行，baseline GS v9.6），以此完整 Portal + BADGE 後端為底；不是以 2,700 行輕量 BADGE GS 取代 Unified。`apps-script/Code.gs` 現為完整 9,000+ 行共用後端，單一 GS 同時服務兩個前端及同一張 Sheet。
 
-**用途**：Portal 行政層原先只讀 Portal 專用資料庫 envelope，BADGE 分頁資料因此不在 Portal 的讀取來源內。Portal 可改呼叫 `progressAll`，直接取得 BADGE 分頁投影；毋須遷移或複製資料。回應包括 `members`、`progress`、`flatProgress`、`otherBadges`、`pendingRequests`、`logs`、`logRequests`、`viewScope:'troop'`、`counts` 及版本識別。`progress[ymis][itemId]` 含 `date/confirmer/note`；`flatProgress` 僅含日期。
+**修正**：新增 `progressAll`，由登入 session 解析真實角色後，重用 BADGE `loadProgressData()` 直接讀取「成員名單／進度追蹤／其他獎章／待批完成／活動履歷」等 BADGE 分頁。讀全團權限沿用 Unified 角色 scope；一般 member 只在 `SystemConfig.allow_member_view_others=true` 時獲准。回應帶 `viewScope:'troop'`、各資料集、counts、GS version/revision；拒絕回 `TROOP_VIEW_DENIED`，不回 roster。現有 `load`／`loadMine` 行為不改，Portal 行政 `loadDb` envelope 路徑亦保留，未遷移或覆寫任何表。
 
-**權限**：與輕量前端全團可見規則一致：`admin/group_leader/branch_leader/exec_committee/super_admin` 可查看；`member` 僅當 `SystemConfig.allow_member_view_others === 'true'`。此路由仍要求有效登入 token；拒絕時回 `TROOP_VIEW_DENIED`，不回傳團員資料。
-
-**部署／對接**：更新同一份 `apps-script/Code.gs` 至 v9.7，執行 `initializeSheets()` 後重新部署；Portal 同一後端請求 `action:'progressAll'`，不再依賴 `資料表` envelope 取得全團 BADGE 資料。兩個前端共用同一份完整 GS，Portal 端改用此契約後再驗收。版本採 copy-then-bump；不保留另一份分叉 GS。
-
-**驗證**：`npm run lint` 及 `node --test tests/release-version.test.mjs` 通過；完整 `npm test` 尚待執行。
+**相容性／驗證**：保留 Unified 的 Portal 與 BADGE dispatch、初始化和功能；補回 `ecStatus` 的版本核對契約。`progressAll` 需由 Portal 使用有效 BADGE/Unified session 呼叫；Portal 前端仍需改為讀此 BADGE 投影，之後才可驗證其畫面讀全團。更新 GS 後需執行 `initializeSheets()` 並部署新版本；v9.7 是候選共用版本，未代表 0082 已部署或 Portal 已驗收。
 
 ## 2026-11-20 — 後端 revision＋`sync:check`（兩個前端、同一份後端，邊份較新機械化判斷）
 

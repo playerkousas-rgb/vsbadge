@@ -40,6 +40,7 @@ function makeSheet(name) {
   }
   const sheet = {
     getName: () => name,
+    getSheetId: () => 1,
     appendRow(values) { rows.push(Array.from(values)); return sheet; },
     getLastRow: () => rows.length,
     getLastColumn: () => rows.reduce((max, row) => Math.max(max, row.length), 0),
@@ -55,6 +56,7 @@ function makeSpreadsheet(name) {
   const sheets = new Map();
   return {
     getName: () => name,
+    getSheetId: () => 1,
     getId: () => 'ss-' + name,
     getSheetByName: n => sheets.get(n) || null,
     insertSheet(n) { const s = makeSheet(n); sheets.set(n, s); return s; },

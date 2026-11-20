@@ -37,6 +37,7 @@ function makeSheet(name) {
   }
   const sheet = {
     getName: () => name,
+    getSheetId: () => 1,
     appendRow(values) { rows.push(Array.from(values)); return sheet; },
     getLastRow: () => rows.length,
     getLastColumn: () => rows.reduce((max, row) => Math.max(max, row.length), 0),
@@ -181,10 +182,11 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(load.initializedGsVersion, 'v9.7', '登入後 load 都要回報初始化版本');
   assert.equal(load.gsInitializationCurrent, true);
 
-  // 後端頻道：正式發佈預設 release；試作版只靠 Script Property 標記，唔需要改程式。
-  // 同一份後端服務 vsbadge 同 vs_portal 兩個前端，兩個都會讀同一個欄位。
-  assert.equal(after.channel, 'release', 'ecStatus 預設回報正式頻道');
-  assert.equal(load.channel, 'release', 'load 亦回報頻道');
+  // 新共用版本先標記 Portal 驗收中，避免未驗收就綠燈；通過後才明確切到 release。
+  assert.equal(after.channel, 'portal-acceptance', '未驗收版本不得預設正式綠燈');
+  assert.equal(load.channel, 'portal-acceptance', 'load 亦回報驗收頻道');
+  assert.equal(context.setReleaseChannel_('release').success, true);
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'release', '驗收通過後可明確切正式頻道');
   props.set('RELEASE_CHANNEL', 'isolated-test-only');
   assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'isolated-test-only', '試作標記即時反映');
   const init3 = context.initializeSheets();
@@ -192,7 +194,7 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(props.get('RELEASE_CHANNEL'), 'isolated-test-only', 'initializeSheets() 唔准清除頻道標記');
   assert.equal(context.handleLoad().channel, 'isolated-test-only', 'load 亦保持一致');
   props.set('RELEASE_CHANNEL', '!!! bad value');
-  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'release', '無效值一律當正式頻道');
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'portal-acceptance', '無效值一律保持驗收頻道，不誤報正式');
   props.delete('RELEASE_CHANNEL');
 
   // 重複初始化：安全、idempotent、資料同 API Key 原封不動
@@ -263,12 +265,38 @@ test('試作後端提示只可讀取可選欄位（唔會令舊後端誤報）',
   assert.ok(/source\.channel/.test(html) && /source\.unifiedGsVersion/.test(html), '只由後端回報嘅可選欄位判斷');
 });
 
-test('progressAll 全團視角依前端規則授權，拒絕時不讀取全團投影', () => {
+test('Unified progressAll 只在有效 session 後派發，沿用同一全團投影及角色 scope', () => {
   const { context } = buildNode();
-  assert.equal(context.canViewWholeTroop_({ role: 'branch_leader' }, { allow_member_view_others: 'false' }), true);
-  assert.equal(context.canViewWholeTroop_({ role: 'exec_committee' }, { allow_member_view_others: 'false' }), true);
-  assert.equal(context.canViewWholeTroop_({ role: 'member' }, { allow_member_view_others: 'false' }), false);
-  assert.equal(context.canViewWholeTroop_({ role: 'member' }, { allow_member_view_others: 'true' }), true);
-  assert.equal(context.canViewWholeTroop_(null, { allow_member_view_others: 'true' }), false);
-  assert.match(GAS_SOURCE, /if\(action==='progressAll'\) return handleProgressAll\(body\.token,user\)/, 'progressAll 只在 token 及 user 驗證後 dispatch');
+  assert.equal(context.unifiedCanViewTroop_({ ok: true, role: 'branch_leader', scopes: ['progress:manage'] }, { allow_member_view_others: 'false' }), true);
+  assert.equal(context.unifiedCanViewTroop_({ ok: true, role: 'exco', scopes: ['progress:manage'] }, { allow_member_view_others: 'false' }), true);
+  assert.equal(context.unifiedCanViewTroop_({ ok: true, role: 'member', scopes: ['progress:self'] }, { allow_member_view_others: 'false' }), false);
+  assert.equal(context.unifiedCanViewTroop_({ ok: true, role: 'member', scopes: ['progress:self'] }, { allow_member_view_others: 'true' }), true);
+  assert.equal(context.unifiedCanViewTroop_(null, { allow_member_view_others: 'true' }), false, 'public caller cannot inherit member opt-in');
+  assert.match(GAS_SOURCE, /if \(action === 'progressAll'\)[\s\S]{0,300}unifiedResolveActor_\(body, false\)[\s\S]{0,180}unifiedProgressAll_\(troopActor\)/, 'progressAll resolves a real server-side session before projection');
+  assert.match(GAS_SOURCE, /function unifiedProgressAll_\(actor\)[\s\S]*?unifiedOutputObject_\(handleLoad\(\)\)/, 'route reads the pinned global BADGE-sheet projection, not the namespaced Portal helper');
+
+  const node = buildNode();
+  const roster = node.ss.insertSheet('成員名單');
+  roster.appendRow(['YMIS', '姓名']); roster.appendRow(['1234567890', '甲']); roster.appendRow(['1234567891', '乙']);
+  const progress = node.ss.insertSheet('進度追蹤');
+  progress.appendRow(['YMIS', '項目 ID', '完成日期', '更新時間', '確認者', '備註']);
+  progress.appendRow(['1234567890', 'ITEM-1', '2026-01-02', '', 'leader', '']);
+  progress.appendRow(['1234567891', 'ITEM-2', '2026-01-03', '', 'leader', '']);
+  const cfg = node.ss.insertSheet('SystemConfig'); cfg.appendRow(['key', 'value']); cfg.appendRow(['allow_member_view_others', 'false']);
+  const full = node.context.unifiedProgressAll_({ ok: true, ymis: 'leader', role: 'branch_leader', scopes: ['progress:manage'] });
+  assert.equal(full.viewScope, 'troop');
+  assert.equal(full.members.length, 2, '全團投影同時含兩位 roster 成員');
+  assert.equal(full.flatProgress['1234567891']['ITEM-2'], '2026-01-03', '第二位成員的 BADGE 分頁進度有讀入');
+  const denied = node.context.unifiedProgressAll_({ ok: true, ymis: '1234567890', role: 'member', scopes: ['progress:self'] });
+  assert.equal(denied.code, 'TROOP_VIEW_DENIED');
+
+  const post = body => node.context.doPost({ parameter: {}, postData: { contents: JSON.stringify(body) } });
+  const init = node.context.initializeSheets();
+  assert.equal(init.success, true);
+  const login = post({ action: 'login', login_id: '1111111111', password: 'changeme' });
+  assert.equal(login.success, true);
+  const viaAction = post({ action: 'progressAll', token: login.token });
+  assert.equal(viaAction.viewScope, 'troop', '路由由真實登入 session 解出 admin scope 再回全團');
+  assert.equal(viaAction.members.length, 3, '兩位 roster 成員及既有 admin 都透過 BADGE 名冊合併返回');
+  assert.equal(viaAction.flatProgress['1234567891']['ITEM-2'], '2026-01-03');
 });

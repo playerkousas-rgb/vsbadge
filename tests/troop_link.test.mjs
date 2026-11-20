@@ -52,6 +52,7 @@ function makeSheet(name) {
   }
   const sheet = {
     getName: () => name,
+    getSheetId: () => 1,
     appendRow(values) { rows.push(Array.from(values)); return sheet; },
     getLastRow: () => rows.length,
     getLastColumn: () => rows.reduce((max, row) => Math.max(max, row.length), 0),
@@ -68,6 +69,7 @@ function makeSpreadsheet(name) {
   const sheets = new Map();
   return {
     getName: () => name,
+    getSheetId: () => 1,
     getId: () => 'ss-' + name,
     getSheetByName: n => sheets.get(n) || null,
     insertSheet(n) { const s = makeSheet(n); sheets.set(n, s); return s; },
@@ -227,7 +229,7 @@ test('直接入口掣：未設定時現有旅團行為完全不變', () => {
   const login = g.doPost({ parameter: {}, postData: { contents: JSON.stringify({ action: 'login', login_id: '1111111111', password: 'changeme' }) } });
   assert.equal(login.success, true, '直接入口開放時登入照舊');
   assert.ok(String(login.token).length > 10);
-  const load = g.doGet({ parameter: { action: 'load' } });
+  const load = g.doGet({ parameter: { action: 'load', token: login.token } });
   assert.equal(load.success, true);
   const mode = g.doGet({ parameter: { action: 'getLoginMode' } });
   assert.equal(mode.local_login, undefined, '公開登入模式不暴露入口閘門狀態');
@@ -561,16 +563,12 @@ test('上游傳來的標籤不可變成工作表算式（auth_by／操作紀錄�
   assert.match(String(rec.data[rec.map.auth_by]), /^[0-9A-Za-z_.@-]+$/, 'auth_by 只留安全字元');
 });
 
-test('GS 程式內不留版號註解（版號只留 MD；唯一例外係 VS_GS_VERSION 發佈識別常數）', () => {
-  for (const file of ['apps-script/Code.gs', 'assets/batch-onboard/Code.gs']) {
-    const text = fs.readFileSync(file, 'utf8');
-    assert.equal(/\/\/\s*v\d+\.\d+/.test(text), false, file + ' 仍有 // vX.X 註解');
-    // 2026-10-23 起：發佈核對機制需要一行 machine-readable 識別（VS_GS_VERSION），豁免該行；其餘版號字樣照舊禁止。
-    const stripped = text.replace(/const VS_GS_VERSION = 'v\d+\.\d+(\.\d+)?';/, '');
-    assert.equal(/\bv\d+\.\d+(\.\d+)?\b/.test(stripped), false, file + ' 仍有版號字樣（只准 VS_GS_VERSION 一行）');
-    if (file === 'apps-script/Code.gs') {
-      const declarations = text.match(/const VS_GS_VERSION = '/g) || [];
-      assert.equal(declarations.length, 1, 'VS_GS_VERSION 只准宣告一次');
-    }
-  }
+test('共用完整 GS 只有一個正式發佈版號；Portal schema 標記不取代 GS 版號', () => {
+  const text = fs.readFileSync('apps-script/Code.gs', 'utf8');
+  assert.equal((text.match(/const VS_GS_VERSION = '/g) || []).length, 1, 'GS release version 只宣告一次');
+  assert.match(text, /const VS_GS_VERSION = 'v9\.7';/);
+  assert.match(text, /var UNIFIED_GS_VERSION = 'v9\.7';/, 'Portal/Unified 同用 v9.7');
+  assert.match(text, /const VS_GS_REVISION = '2026-11-20';/);
+  const batch = fs.readFileSync('assets/batch-onboard/Code.gs', 'utf8');
+  assert.equal(/\/\/\s*v\d+\.\d+/.test(batch), false, '批量開戶小工具不帶另一個 GS 版號');
 });

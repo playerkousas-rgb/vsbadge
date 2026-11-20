@@ -1,7 +1,6 @@
 # 🔗 Portal 對接協議（主系統 ↔ vsbadge）
 
-> ℹ️ **2026-11-20 起：** 兩個前端（完整版 portal／輕量版 vsbadge）各自直接讀同一份後端，
-> portal 唔需要再用卡片深連結入 vsbadge；本文件嘅卡片路線保留作舊連結兼容。版本對齊用 `npm run sync:check`（見 `docs/PORTAL_SYNC.md` §1.1）。
+> ℹ️ **2026-11-20 起：** 兩個前端（完整版 Portal／輕量版 VSBADGE）共用同一份完整 GS、同一張 Sheet；Portal 不需要用卡片深連結入 VSBADGE。本文件的卡片路線只保留作舊連結兼容。`npm run sync:check` 直接讀兩邊實際完整 GS 的版本；BADGE 全團資料契約見 `docs/PORTAL_SYNC.md`。
 >
 > 對象：主系統（hub，例如 82venture）的開發者。
 > vsbadge 自己係**進度資料嘅擁有者**，主系統只做入口同管理；呢份文件講主系統要送出什麼、

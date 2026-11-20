@@ -1,5 +1,4 @@
-// 後端對齊守護：vsbadge 同 vs_portal 係同一份後端、兩個前端。
-// 呢個測試保證「邊份較新」可以機械化判斷（revision → 版本 → 人手），唔靠記憶或口頭協調。
+// 共用 GS 版本守護：直接讀兩邊實際使用的完整檔案，不比 manifest 或 vendored baseline。
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -13,7 +12,7 @@ test('vsbadge 後端有可比嘅識別：版本、revision、channel 支援、SH
   const local = readVsbadgeBackend();
   assert.equal(local.version, 'v9.7');
   assert.match(local.revision, /^\d{4}-\d{2}-\d{2}$/, '後端要有 ISO 日期 revision');
-  assert.equal(local.channelDefault, 'release');
+  assert.equal(local.channelDefault, 'portal-acceptance');
   assert.equal(local.channelSupported, true);
   assert.match(local.sha256, /^[0-9a-f]{64}$/);
 });
@@ -67,26 +66,27 @@ test('冇 revision 時退回版本比較；兩樣都比唔到就要求人手判�
     { version: 'v9.6', revision: '', sha256: 'c'.repeat(64), commit: '', releaseChannel: '', portalVersion: '' },
     unknown
   );
-  assert.match(report, /人手比對/, '唔確定時要講明要人手判斷');
+  assert.match(report, /未能判斷/, '唔確定時要講明要人手判斷');
 });
 
-test('portal manifest 讀到 baseline revision 就會自動用嚟比較', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'portal-manifest-'));
+test('Portal 版本讀取直接檢查 UnifiedCode.gs，不依賴 manifest 或 revendor checkpoint', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'portal-unified-'));
   try {
-    fs.mkdirSync(path.join(dir, 'apps-script', 'unified-src'), { recursive: true });
-    fs.writeFileSync(path.join(dir, 'apps-script', 'unified-src', 'manifest.json'), JSON.stringify({
-      schema: 1,
-      baseline: { repository: 'playerkousas-rgb/vsbadge', commit: 'abc', version: 'v9.6', revision: '2026-11-01', path: 'apps-script/Code.gs', sha256: 'd'.repeat(64) },
-      portalCompatibility: { version: 'v2.8.8' },
-      releaseChannel: 'isolated-test-only'
-    }), 'utf8');
+    fs.mkdirSync(path.join(dir, 'apps-script'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'apps-script', 'UnifiedCode.gs'), [
+      "const VS_GS_VERSION = 'v9.6';",
+      "const UNIFIED_GS_VERSION = 'v9.6-u1-test';"
+    ].join('\n'), 'utf8');
     const parsed = readPortalBaseline(dir);
-    assert.equal(parsed.revision, '2026-11-01');
-    assert.equal(parsed.releaseChannel, 'isolated-test-only');
+    assert.equal(parsed.version, 'v9.6');
+    assert.match(parsed.sha256, /^[0-9a-f]{64}$/);
     const local = readVsbadgeBackend();
     const verdict = compareBackends(local, parsed);
     assert.equal(verdict.status, 'drift');
-    assert.equal(verdict.newer, 'vsbadge', 'manifest revision 較舊 → vsbadge 較新，portal 要重新 vendor');
+    assert.equal(verdict.newer, 'vsbadge');
+    const report = formatReport(local, parsed, verdict);
+    assert.match(report, /copy 作底/);
+    assert.doesNotMatch(report, /manifest|vendor/i, '不再要求 revendor ritual');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
