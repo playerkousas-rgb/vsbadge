@@ -41,6 +41,9 @@ const DEFAULT_TEMP_PASSWORD = '1234';
 
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
 const VS_GS_VERSION = 'v9.6';
+// 後端 revision（最後一次改動後端 source 嘅日期）。兩個前端共用同一份後端，
+// 所以邊一方改完都要更新呢個值；對方用 revision 比較就知道邊份較新，唔靠記憶。
+const VS_GS_REVISION = '2026-11-20';
 const VS_GS_INITIALIZED_PROP = 'VS_GS_INITIALIZED_VERSION';
 // 此版本是否強制要求旅團執行 initializeSheets()；與前端 LATEST_RELEASE.initializeRequired 保持一致。
 const GS_INIT_REQUIRED = true;
@@ -58,12 +61,12 @@ function releaseChannel_(){
 function getVsGsReleaseStatus(){
   let initialized='';
   try{ initialized=String(PropertiesService.getScriptProperties().getProperty(VS_GS_INITIALIZED_PROP)||''); }catch(e){}
-  return { gsVersion:VS_GS_VERSION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION, initRequired:GS_INIT_REQUIRED, channel:releaseChannel_() };
+  return { gsVersion:VS_GS_VERSION, revision:VS_GS_REVISION, initializedGsVersion:initialized, gsInitializationCurrent:initialized===VS_GS_VERSION, initRequired:GS_INIT_REQUIRED, channel:releaseChannel_() };
 }
 // 回報 GS 發佈／初始化狀態，供 showApiKey／showVercelEnv 等介面在未初始化時提醒領袖先執行 initializeSheets()。
 function gsVersionInfo_(){
   const st=getVsGsReleaseStatus();
-  return { gsVersion:st.gsVersion, initializedGsVersion:st.initializedGsVersion, gsInitializationCurrent:st.gsInitializationCurrent, initRequired:st.initRequired, channel:st.channel };
+  return { gsVersion:st.gsVersion, revision:st.revision, initializedGsVersion:st.initializedGsVersion, gsInitializationCurrent:st.gsInitializationCurrent, initRequired:st.initRequired, channel:st.channel };
 }
 // 當此版本要求初始化而 Script Properties 仍未記錄對應版本時，回傳警告行；否則回傳空陣列。API Key 本身仍照常顯示。
 function initStatusWarningLines_(){
