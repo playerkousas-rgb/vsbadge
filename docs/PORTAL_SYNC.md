@@ -21,15 +21,30 @@
 6. **未完成以上步驟，唔准改**：`/api/portal` 驗證次序、`/api/proxy` action 白名單、
    `PORTAL_DEFAULT_*`／`TROOP_*` env 名、GAS action 名、role 名、Sheet 分頁／欄位。
 
-### 1.1 雙向對齊次序（同一個後端，唔係兩邊各做一份）
+### 1.1 邊份較新：機械化比較（唔靠記憶）
 
-因為兩個前端共用同一個後端 source，所以規則係**對稱**嘅：
+兩個前端共用同一份後端 source，所以「你 update 咗＝我 update 咗」，但兩個 repo 仍然各自保留一份 GS。
+為免口頭協調出錯，比較係機械化嘅：
 
-- 每次開工（兩邊都一樣）先睇對方最新 pin：vsbadge 睇 portal `docs/BACKEND_SYNC.md` 嘅 baseline hash，
-  portal 睇本文件 §2 嘅 `Code.gs` hash。兩份文件嘅 hash 一唔一样，就係「未對齊」，先做同步再改嘢。
-- 邊一方改咗 `apps-script/Code.gs`，就由**改嘅一方先**更新自己文件並出 PR；另一方其後 vendor／核對，
-  然後更新自己文件。次序係「改 source 嘅先行，跟嘅一方後行」，唔會兩個同時盲改。
-- 前端／文件嘅改動（唔掂後端 source、唔掂 action／env／role／Sheet）可以先行，但要喺 PR 寫明「無合約改動」。
+```bash
+git clone --depth 1 https://github.com/playerkousas-rgb/vs_portal.git ../vs_portal   # 未 clone 過才需要
+npm run sync:check -- --portal ../vs_portal
+# 或者：VS_PORTAL_DIR=../vs_portal npm run sync:check
+```
+
+判斷次序（`scripts/compare-backends.mjs`，離開碼 0＝對齊、2＝未對齊、3＝未能檢查）：
+
+1. **SHA-256 相同** → 已對齊，收工。
+2. **`revision`（ISO 日期）不同** → 較後日期嘅一方較新。
+3. 冇 revision 就**比 GS 版本**（`v9.5 < v9.6`）。
+4. 兩樣都比唔到 → 印「要人手比對」，唔會亂判。
+
+規則：
+
+- 較新嘅一方唔需要做嘢；**落後嘅一方跟貼**（portal 用 vsbadge 最新 `Code.gs` 重新 vendor，或 vsbadge 拉回 portal 記錄嘅版本）。
+- 改咗 `apps-script/Code.gs` 嘅一方，要同時更新 `VS_GS_REVISION`（ISO 日期）同 `docs/PORTAL_SYNC.md` §2；portal 側對應更新 `manifest.json` 嘅 `baseline.revision`／`commit`／`sha256`。
+- 唔准兩邊同時改同一份後端；亦唔准為咗快而自行分叉。
+- 前端／文件／測試（唔掂後端 source、action、env、role、Sheet）可以先行，但 PR 要寫明「無合約改動」。
 
 > 只係改前端文字／樣式、或者加測試，唔影響以上合約，可以唔使等 portal 回覆，但 PR 仍要寫「無合約改動」。
 
@@ -40,8 +55,8 @@
 | | vsbadge（本 repo） | vs_portal |
 |---|---|---|
 | 分支／commit | `main` @ `1085b03`（PR #41 merge） | `main` @ `3203b52`（PR #15 merge） |
-| 版本 | `package.json` 4.0.0／GS `VS_GS_VERSION = v9.6` | `APP_VERSION = v2.8.8` |
-| 後端 | `apps-script/Code.gs` SHA-256 **`3a8f12ebef…0e057`**（2026-11-20 加入 `channel`，見 §10.6） | vendored 版本仍係舊 hash `63148a3209…c34a10`，**下次同步要重新 vendor** |
+| 版本 | `package.json` 4.0.0／GS `VS_GS_VERSION = v9.6`／`VS_GS_REVISION = 2026-11-20` | `APP_VERSION = v2.8.8` |
+| 後端 | `apps-script/Code.gs` SHA-256 **`3daa4cd66a…889cfe`**（2026-11-20 加入 `channel`，見 §10.6） | vendored 版本仍係舊 hash `63148a3209…c34a10`，**下次同步要重新 vendor** |
 | 對接狀態 | 軌道 A（自己登入）＝已上線；軌道 B（`from=portal`）＝可測 | 完整版前端；接裸 v9.6 仍 fail closed |
 | **0082 實際部署** | **`vs_portal` 的 `UnifiedCode.gs`（`v9.6-u1-test`，isolated test）**（2026-11-20 起，見 §10） | 同左 |
 
@@ -63,9 +78,12 @@
 
 ```
 Portal 前端 ──▶ portal 同源 /api/progress、/api/proxy ──┐
-                                                       ├──▶ 同一旅團既有 BADGE GAS／Sheet／Users
+                                                       ├──▶ 同一份全功能 GAS／Sheet／Users
 BADGE 前端  ──▶ vsbadge 同源 /api/proxy ───────────────┘
 ```
+
+- **兩個前端各自直接讀同一個後端**：portal 唔需要（亦唔建議）用卡片深連結入 vsbadge；vsbadge 亦唔需要經 portal。
+- 兩個 repo 各自保留自己嘅 GS source，但**唔可以各自分叉**；邊份新由 §1.1 嘅機械檢查決定，落後一方跟貼。
 
 - 一個旅團＝一個後端、一份 Sheet、一套 `Users`；**唔准**為 Portal 另建 Sheet／GAS／帳戶，亦唔准複製帳戶。
 - Portal 係完整版前端；vsbadge 係輕量前端。兩個前端各自經自己嘅同源 proxy，互不依賴對方網站開機。
@@ -107,8 +125,10 @@ BADGE 共用後端 adapter（`apps-script/UnifiedCode.gs` 只係 `isolated-test-
 
 ---
 
-## 6. 由 Portal 卡片入 vsbadge（`?from=portal`）—— 裸 v9.6 實測行為
+## 6. 由 Portal 卡片入 vsbadge（`?from=portal`）—— **舊版兼容路線（唔再建議）**
 
+> ℹ️ Portal 已經直接讀後端，唔需要卡片深連結；本節保留只為舊連結／舊部署兼容。新整合唔好再用呢條路線。
+>
 > ⚠️ 以下數字係**裸 v9.6**（即 `apps-script/Code.gs`）嘅行為。0082 換咗 `UnifiedCode.gs` 之後，
 > `load` 會被 Unified router 攔截要求真 session，結果會變成 §10.3 嗰行「❌」——量度前先確認跑緊邊份 GS。
 
@@ -285,7 +305,7 @@ TROOP_0082_CHANNEL = isolated-test-only
 
 **portal 側要跟嘅（同一個後端嘅維護工作，唔算「另一邊嘅改動」）：**
 
-1. 重新 vendor 呢個 baseline（新 hash `3a8f12ebef…0e057`），令 Unified build 都識回報 `channel`；
+1. 重新 vendor 呢個 baseline（新 hash `3daa4cd66a…889cfe`），令 Unified build 都識回報 `channel`；
 2. `initializeSheets()`／選單**唔好**清除或覆寫 `RELEASE_CHANNEL`（現時 vsbadge 已保證保留）。
 
 完成後喺 portal `docs/BACKEND_SYNC.md` 記錄新 hash，等我更新 §2 版本表。
@@ -307,7 +327,7 @@ TROOP_0082_CHANNEL = isolated-test-only
 ## 9. 給 portal 嘅同步摘要（可直接貼去 portal 文件／issue）
 
 - **同一個後端**：`playerkousas-rgb/vsbadge` 嘅 `apps-script/Code.gs` 係 source of truth，Unified 係 vendor 佢再加 adapter。
-- 現時 baseline：GS `v9.6`，`Code.gs` SHA-256 **`3a8f12ebef…0e057`**（2026-11-20 加入 `channel`）。你哋 vendored 嘅仍然係舊 hash `63148a32…c34a10`，**下次同步要重新 vendor**。
+- 現時 baseline：GS `v9.6`，`Code.gs` SHA-256 **`3daa4cd66a…889cfe`**（2026-11-20 加入 `channel`）。你哋 vendored 嘅仍然係舊 hash `63148a32…c34a10`，**下次同步要重新 vendor**。
 - 頻道資訊已經喺後端：`getVsGsReleaseStatus()` 回 `channel`（預設 `release`，由 Script Property `RELEASE_CHANNEL` 決定）；`ecStatus` 同 `load` 都會帶。試作 Sheet 設 `RELEASE_CHANNEL=isolated-test-only` 即可，兩個前端都顯示「🧪 試作後端」。
 - 你哋 `main@3203b52`（PR #15，v2.8.8）嘅 `/api/progress` 要求 `authWhoAmI`，裸 v9.6 冇 → 仍然 fail closed，屬預期。
 - 你哋針對裸 v9.6 嘅缺失清單（`authLogin`／`authWhoAmI`／`authOpenAccounts`／`loadDb` 系列／`bulkReviewRequests`／`hub*`）同 vsbadge 現況**完全對得上**，冇新增差異。

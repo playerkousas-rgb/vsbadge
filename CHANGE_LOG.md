@@ -2,6 +2,20 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
+## 2026-11-20 — 後端 revision＋`sync:check`（兩個前端、同一份後端，邊份較新機械化判斷）
+
+**影響範圍**：`apps-script/Code.gs`（新增 `VS_GS_REVISION`，`getVsGsReleaseStatus()`／load 回報 `revision`）、新增 `scripts/compare-backends.mjs` 及 `npm run sync:check`、新增 `tests/backend-parity.test.mjs`、`docs/PORTAL_SYNC.md`（§1.1 對齊規則、架構說明、卡片路線標為舊版兼容）、`docs/PORTAL_INTEGRATION.md` 說明。**沒有**改動任何 GAS action、Proxy 白名單、Sheet 結構、Portal 參數或 role 名。
+
+**行為改變**
+
+- 後端多回一個 `revision`（ISO 日期），純識別用途；`gsVersion`、`channel`、初始化欄位不變，舊前端可忽略。
+- `npm run sync:check -- --portal ../vs_portal` 會比對 vsbadge `apps-script/Code.gs` 同 portal `apps-script/unified-src/manifest.json` 記錄嘅 vendored baseline：hash 相同＝對齊；否則依 `revision` → 版本 → 人手，印出邊份較新同要做咩。離開碼 0／2／3 方便日後接入 CI。
+- 文件寫明：兩個前端各自直接讀同一份後端，portal 唔需要卡片深連結；落後一方跟貼較新版本，唔准分叉。
+
+**部署**：重貼 `Code.gs` 後照常 `initializeSheets()` 及「新版本」部署；`revision` 唔需要初始化、亦唔會影響現有資料。portal 側更新 vendored baseline 時，`manifest.json` 嘅 `baseline` 要同時記錄 `revision`／`commit`／`sha256`。
+
+**驗證**：`npm run lint && npm test`（新增 `tests/backend-parity.test.mjs` 6 項：識別欄位、版本比較、hash 相同、revision 判斷、退回路徑、manifest 讀取）。
+
 ## 2026-11-20 — 後端頻道標籤（避免把試作後端誤報「已核對」）
 
 **影響範圍**：`apps-script/Code.gs`（`getVsGsReleaseStatus()` 新增 `channel`、Script Property `RELEASE_CHANNEL`、選單「🧪 標記／取消試作頻道」）、`api/_registry.js`（可選 `TROOP_<ID>_CHANNEL`）、`api/troops.js`（additive `channel` 欄位）、`index.html`（版本公告顯示）、`tests/release-version.test.mjs`、`tests/request-review.test.mjs`、文件。**沒有**改動任何既有 GAS action、Proxy 白名單、Sheet 結構、Portal 對接參數或 role 名；API Key、帳戶、進度資料不受影響。
@@ -15,7 +29,7 @@
 **部署**：
 1. 重貼 `Code.gs` 後，用選單「🧪 標記／取消試作頻道」＝正式開關（只寫 Script Property `RELEASE_CHANNEL`，不寫 Sheet、不改資料）。
 2. 未更新 `Code.gs` 嘅旅團（或 vendor 咗舊 baseline 嘅 `UnifiedCode.gs`）可暫用 Vercel `TROOP_<ID>_CHANNEL=isolated-test-only` 過渡；GAS 回報優先。
-3. 新 `Code.gs` SHA-256：`3a8f12ebef0cc5a14059126b4825b983bc65f5eae0e27b114aca866a91b0e057`；portal 嘅 vendored baseline 需同步更新。詳見 `docs/PORTAL_SYNC.md` §10.6。
+3. 新 `Code.gs` SHA-256：`3daa4cd66a4963eb953922606d6a2690b6897b202ed7c5636c736fc3a1889cfe`；portal 嘅 vendored baseline 需同步更新。詳見 `docs/PORTAL_SYNC.md` §10.6。
 
 **驗證**：`npm run lint && npm test`（新增 Registry 頻道、公告 🧪 及「唔會跌返綠燈」回歸；`/api/troops` 未宣告時契約不變）。
 
