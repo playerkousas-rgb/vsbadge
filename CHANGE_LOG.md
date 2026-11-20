@@ -2,6 +2,18 @@
 
 記錄每次發佈的日期與影響範圍。詳細技術文件見 `operations/`；部署步驟見 `DEPLOY_GUIDE_FOR_TROOPS.md`。
 
+## 2026-11-20 — 全團資料共用投影（v9.7）
+
+**影響範圍**：`apps-script/Code.gs` 抽出共用 `loadTroopData_()`；既有 `load` 維持回應契約，新增登入 token 驗證後的 `progressAll` action；`index.html` 發佈公告及版本守護測試更新至 v9.7。沒有新增工作表或修改既有欄位。
+
+**用途**：Portal 行政層原先只讀 Portal 專用資料庫 envelope，BADGE 分頁資料因此不在 Portal 的讀取來源內。Portal 可改呼叫 `progressAll`，直接取得 BADGE 分頁投影；毋須遷移或複製資料。回應包括 `members`、`progress`、`flatProgress`、`otherBadges`、`pendingRequests`、`logs`、`logRequests`、`viewScope:'troop'`、`counts` 及版本識別。`progress[ymis][itemId]` 含 `date/confirmer/note`；`flatProgress` 僅含日期。
+
+**權限**：與輕量前端全團可見規則一致：`admin/group_leader/branch_leader/exec_committee/super_admin` 可查看；`member` 僅當 `SystemConfig.allow_member_view_others === 'true'`。此路由仍要求有效登入 token；拒絕時回 `TROOP_VIEW_DENIED`，不回傳團員資料。
+
+**部署／對接**：更新同一份 `apps-script/Code.gs` 至 v9.7，執行 `initializeSheets()` 後重新部署；Portal 同一後端請求 `action:'progressAll'`，不再依賴 `資料表` envelope 取得全團 BADGE 資料。兩個前端共用同一份完整 GS，Portal 端改用此契約後再驗收。版本採 copy-then-bump；不保留另一份分叉 GS。
+
+**驗證**：`npm run lint` 及 `node --test tests/release-version.test.mjs` 通過；完整 `npm test` 尚待執行。
+
 ## 2026-11-20 — 後端 revision＋`sync:check`（兩個前端、同一份後端，邊份較新機械化判斷）
 
 **影響範圍**：`apps-script/Code.gs`（新增 `VS_GS_REVISION`，`getVsGsReleaseStatus()`／load 回報 `revision`）、新增 `scripts/compare-backends.mjs` 及 `npm run sync:check`、新增 `tests/backend-parity.test.mjs`、`docs/PORTAL_SYNC.md`（§1.1 對齊規則、架構說明、卡片路線標為舊版兼容）、`docs/PORTAL_INTEGRATION.md` 說明。**沒有**改動任何 GAS action、Proxy 白名單、Sheet 結構、Portal 參數或 role 名。

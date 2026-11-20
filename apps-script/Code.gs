@@ -40,7 +40,7 @@ const MAX_PASSWORD_LEN = 128;
 const DEFAULT_TEMP_PASSWORD = '1234';
 
 // 最新發佈識別：只列目前版本，唔記逐級補丁清單。initializeSheets() 成功跑完先會喺 Script Properties 記低初始化版本。
-const VS_GS_VERSION = 'v9.6';
+const VS_GS_VERSION = 'v9.7';
 // 後端 revision（最後一次改動後端 source 嘅日期）。兩個前端共用同一份後端，
 // 所以邊一方改完都要更新呢個值；對方用 revision 比較就知道邊份較新，唔靠記憶。
 const VS_GS_REVISION = '2026-11-20';
@@ -1310,6 +1310,7 @@ function doPost(e){
     const user=getUser(ymis);
     if(!user) return jsonResponse({success:false,error:'找不到用戶或帳號已停用'});
 
+    if(action==='progressAll') return handleProgressAll(body.token,user);
     if(action==='getConfig') return handleGetConfig();
     if(action==='getMembers') return jsonResponse({success:true,members:getMembers()});
     if(action==='getOtherBadges') return handleGetOtherBadges(body.target_ymis||ymis);
@@ -1571,7 +1572,7 @@ function handleUpdateConfig(key,value,ymis){
   writeAudit(ymis,'update_config',key,String(value));
   return jsonResponse({success:true});
 }
-function handleGetConfig(){
+function readConfigObject_(){
   const sheet=getSheet().getSheetByName('SystemConfig');
   const cfg={};
   if(sheet){
@@ -1582,7 +1583,10 @@ function handleGetConfig(){
   }
   // 默認值
   if(!cfg['allow_member_view_others']) cfg['allow_member_view_others']='false';
-  return jsonResponse({success:true,config:cfg});
+  return cfg;
+}
+function handleGetConfig(){
+  return jsonResponse({success:true,config:readConfigObject_()});
 }
 function getMembers(){
   const mSheet=getSheet().getSheetByName('成員名單'); const members=[]; const seen={};
@@ -1607,7 +1611,8 @@ function getMembers(){
   }
   return members;
 }
-function handleLoad(authToken){
+// 全團資料投影（唯一來源）：load 同 progressAll 都由此函式出，避免兩個前端各自砌一份。
+function loadTroopData_(authToken){
   const ss=getSheet();
   const pSheet=ss.getSheetByName('進度追蹤'); const progress={};
   if(pSheet){
@@ -1648,7 +1653,37 @@ function handleLoad(authToken){
   }:null;
   const payload={success:true,members:members,progress:progress,flatProgress:flat,pendingRequests:pending,otherBadges:other,logs:getLogRecordsList(),logsSupported:!!lSheet,logRequests:getLogRequestsList(),logRequestsSupported:!!lrSheet};
   if(me) payload.me=me;
-  return jsonResponse(Object.assign(payload,getVsGsReleaseStatus()));
+  return payload;
+}
+function handleLoad(authToken){
+  return jsonResponse(Object.assign(loadTroopData_(authToken),getVsGsReleaseStatus()));
+}
+// 「全團」視角：同前端完全一致 —— 領袖（非 member）一律可；member 只在團長開放 allow_member_view_others 時可。
+const TROOP_VIEW_ROLES=['admin','group_leader','branch_leader','exec_committee','super_admin'];
+function canViewWholeTroop_(user,cfg){
+  if(!user) return false;
+  if(TROOP_VIEW_ROLES.indexOf(String(user.role||''))>=0) return true;
+  return String((cfg||{})['allow_member_view_others']||'false')==='true';
+}
+/* progressAll：兩個前端（完整版 portal／輕量版 vsbadge）共用嘅「讀全團」路由。
+   為何要有：portal 嘅行政層讀「資料表」JSON envelope，BADGE Sheet 用逐表分頁（成員名單／進度追蹤／
+   其他獎章／活動履歷），envelope 喺 BADGE Sheet 上係空 → portal 只讀 envelope 就「讀唔到全團」。
+   呢個路由直接把分頁投影成同一個回應契約，portal 唔需要 envelope 都讀得晒全團。
+   回應契約：members / progress / flatProgress / otherBadges / pendingRequests / logs / logRequests
+   ＋viewScope（'troop' 表示全團，唔係單人投影）＋counts＋gsVersion／revision／channel。 */
+function handleProgressAll(authToken,user){
+  const cfg=readConfigObject_();
+  if(!canViewWholeTroop_(user,cfg)) return jsonResponse({success:false,code:'TROOP_VIEW_DENIED',viewScope:'denied',error:'權限不足：全團檢視只限領袖，或已由團長開放「成員可查看其他成員」'});
+  const data=loadTroopData_(authToken);
+  const flat=data.flatProgress||{};
+  let cells=0;
+  Object.keys(flat).forEach(function(y){ cells+=Object.keys(flat[y]||{}).length; });
+  return jsonResponse(Object.assign({},data,{
+    viewScope:'troop',
+    unit:String(cfg['unit_code']||cfg['unitCode']||''),
+    counts:{members:(data.members||[]).length,progressCells:cells,pendingRequests:(data.pendingRequests||[]).length,logs:(data.logs||[]).length,logRequests:(data.logRequests||[]).length},
+    config:{allow_member_view_others:cfg['allow_member_view_others']}
+  },getVsGsReleaseStatus()));
 }
 function handleSave(changes, confirmer){
   confirmer=persistedActorId(confirmer);

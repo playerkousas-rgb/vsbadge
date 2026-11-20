@@ -2040,7 +2040,7 @@ function todayISO(){ return new Date().toISOString().split('T')[0]; }
    只列最新版本，不設逐級補丁清單。GS 的 ecStatus 及登入後 load 會回報
    gsVersion（程式版本）及 initializedGsVersion（初始化版本），前端據此分辨：
    「GS 未更新」→ 警告、「已更新但未初始化」→ 警告、「全部完成」→ 綠色「已核對」。 */
-const LATEST_RELEASE=Object.freeze({updated:'2026-11-12',gsVersion:'v9.6',initializeRequired:true});
+const LATEST_RELEASE=Object.freeze({updated:'2026-11-20',gsVersion:'v9.7',initializeRequired:true});
 let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initializedGsVersion:'',error:''};
 // 由 Registry（/api/troops 嘅 additive `channel`）宣告嘅後端頻道；留空＝未宣告。
 let troopChannel='';
