@@ -223,4 +223,16 @@ test('舊 v9.5 不可顯示已核對；新版本需要初始化後才顯示已�
   assert.equal(sandbox.applyBackendRelease({ gsVersion: 'v9.5', initializedGsVersion: 'v9.5' }), 'update');
   assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: 'v9.5' }), 'initialize');
   assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'current');
+  // 試作頻道（UnifiedCode.gs 之類）：baseline 版本對得上，但唔可以顯示「已核對」
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2], channel: 'isolated-test-only', unifiedGsVersion: 'v9.6-u1-test' }), 'test');
+  // 之後嘅 load 唔帶 channel（管理員走 baseline 路徑）都要保持試作狀態，唔可以跌返綠燈
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test');
+  // 正式頻道明示 release 才回到正常判斷
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2], channel: 'release' }), 'current');
+});
+
+test('試作後端提示只可讀取可選欄位（唔會令舊後端誤報）', () => {
+  const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('🧪 試作後端'), '公告要有試作後端標籤');
+  assert.ok(/source\.channel/.test(html) && /source\.unifiedGsVersion/.test(html), '只由後端回報嘅可選欄位判斷');
 });

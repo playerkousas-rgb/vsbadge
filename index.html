@@ -317,6 +317,9 @@ a:hover{text-decoration:underline}
 .release-notice{border:2px solid #D97706;background:#FFFBEB;border-radius:12px;padding:12px 14px;margin:0 0 14px;box-shadow:var(--shadow);line-height:1.6}
 .release-notice.release-current{border-color:var(--green);background:#F0FFF4}
 .release-notice.release-checking{border-color:var(--blue);background:var(--blue-light)}
+.release-notice.release-test{border-color:#7C3AED;background:#F5F3FF}
+.release-test .release-head{color:#6D28D9}
+.release-test .release-status{color:#5B21B6}
 .release-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800;color:#8B5A00}
 .release-current .release-head{color:var(--green)}
 .release-chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700}
@@ -2042,15 +2045,24 @@ let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initialized
 let _releaseCheckSequence=0;
 function resetBackendRelease(){
   _releaseCheckSequence++;
-  backendReleaseState={troopId:currentTroopId||'',status:currentTroopId==='DEMO'?'demo':'idle',reportedVersion:'',initializedGsVersion:'',error:''};
+  backendReleaseState={troopId:currentTroopId||'',status:currentTroopId==='DEMO'?'demo':'idle',reportedVersion:'',initializedGsVersion:'',channel:'',unifiedVersion:'',error:''};
   renderReleaseNotices();
 }
 function applyBackendRelease(payload){
   const source=payload&&payload.release?payload.release:(payload||{});
   const actual=String(source.gsVersion||'').trim();
   const initialized=String(source.initializedGsVersion||'').trim();
-  const status=actual!==LATEST_RELEASE.gsVersion?'update':(initialized===LATEST_RELEASE.gsVersion?'current':'initialize');
-  backendReleaseState={troopId:currentTroopId||'',status,reportedVersion:actual||String(source.backendVersion||'').trim()||'unknown',initializedGsVersion:initialized,error:''};
+  // 試作頻道（例如 vs_portal 的 UnifiedCode.gs）會額外回報 channel／unifiedGsVersion。
+  // 呢啲後端嘅 baseline 仍然係 v9.6，所以單看版本會誤報「已核對」；有 channel 就必須講明係試作版。
+  const channel=String(source.channel||'').trim();
+  const unifiedVersion=String(source.unifiedGsVersion||'').trim();
+  const prev=backendReleaseState&&backendReleaseState.troopId===(currentTroopId||'')?backendReleaseState:null;
+  const testChannel=(channel&&channel!=='release')?channel:(unifiedVersion?'isolated-test-only':'');
+  let status;
+  if(testChannel) status='test';
+  else if(!channel&&prev&&prev.status==='test'&&actual===prev.reportedVersion) status='test';
+  else status=actual!==LATEST_RELEASE.gsVersion?'update':(initialized===LATEST_RELEASE.gsVersion?'current':'initialize');
+  backendReleaseState={troopId:currentTroopId||'',status,reportedVersion:actual||String(source.backendVersion||'').trim()||'unknown',initializedGsVersion:initialized,channel:testChannel||(prev&&prev.channel)||'',unifiedVersion:unifiedVersion||(prev&&prev.unifiedVersion)||'',error:''};
   renderReleaseNotices();
   return status;
 }
@@ -2059,7 +2071,7 @@ async function checkBackendRelease(){
   if(currentTroopId==='DEMO'){ backendReleaseState={troopId:'DEMO',status:'demo',reportedVersion:'',initializedGsVersion:'',error:''}; renderReleaseNotices(); return; }
   if(backendReleaseState.status==='checking'&&backendReleaseState.troopId===currentTroopId) return;
   const troopId=currentTroopId,sequence=++_releaseCheckSequence;
-  backendReleaseState={troopId,status:'checking',reportedVersion:'',initializedGsVersion:'',error:''};
+  backendReleaseState={troopId,status:'checking',reportedVersion:'',initializedGsVersion:'',channel:'',unifiedVersion:'',error:''};
   renderReleaseNotices();
   try{
     const result=await apiRequest('ecStatus',{},{troopId,timeout:15000});
@@ -2086,13 +2098,14 @@ function renderReleaseNotices(){
     const host=document.getElementById(hostId); if(!host) continue;
     const demo=!isHome&&currentTroopId==='DEMO';
     const state=isHome?{status:'idle'}:(demo?{status:'demo'}:(backendReleaseState.troopId===(currentTroopId||'')?backendReleaseState:{status:'idle'}));
-    const actionNeeded=['update','initialize','error'].includes(state.status);
-    const cardClass=state.status==='current'?'release-current':(state.status==='checking'?'release-checking':'');
+    const actionNeeded=['update','initialize','error','test'].includes(state.status);
+    const cardClass=state.status==='current'?'release-current':(state.status==='checking'?'release-checking':(state.status==='test'?'release-test':''));
     const title=isEn()?`📣 Latest update · ${LATEST_RELEASE.updated}`:`📣 最新更新公告｜${LATEST_RELEASE.updated}`;
     let statusText='';
     if(isHome) statusText=isEn()?'Each Group deploys its own GS backend — updating this website alone does not update any Group’s backend.':'每個旅團都要各自更新 GS 後端；只更新網頁，唔代表旅團後端已經更新。';
     else if(state.status==='demo') statusText=isEn()?'DEMO does not connect to a Group GS. A real Group still needs this update.':'示範模式唔連接旅團 GS；正式旅團仍須完成呢次更新。';
     else if(state.status==='checking') statusText=isEn()?'Checking the GS version deployed by this Group…':'正在核對此旅團實際部署嘅 GS 版本…';
+    else if(state.status==='test') statusText=isEn()?`🧪 TEST BACKEND (${state.unifiedVersion||state.channel||'isolated test'}): this Group’s GS is a pilot build on the v9.6 baseline, not the released v9.6 Code.gs. Keep it for testing only, check results with readback, and roll back to the released Code.gs before treating anything as verified.`:`🧪 試作後端（${state.unifiedVersion||state.channel||'isolated test'}）：呢個旅團嘅 GS 係以 v9.6 為 baseline 嘅試作版，唔係正式發佈嘅 v9.6 Code.gs。只作測試用途；結果要 readback 核對，當成「已驗收」之前請回滾返正式 Code.gs。`;
     else if(state.status==='current') statusText=isEn()?`✅ Verified: GS ${LATEST_RELEASE.gsVersion}, and initialisation for this release is complete.`:`✅ 已核對：GS ${LATEST_RELEASE.gsVersion}，呢個版本嘅初始化亦已完成。`;
     else if(state.status==='update') statusText=isEn()?`⚠️ GS update required (reported: ${state.reportedVersion||'unknown'}). The latest version fixes PBKDF2 errors affecting initialisation and password operations. Replace Code.gs, run initializeSheets() and deploy a new version.`:`⚠️ 此旅團需要更新 GS（回報版本：${state.reportedVersion||'未知'}）。最新版本修正可能影響初始化及密碼操作的 PBKDF2 錯誤。請更換 Code.gs、執行 initializeSheets() 並部署新版本。`;
     else if(state.status==='initialize') statusText=isEn()?`⚠️ GS ${LATEST_RELEASE.gsVersion} is deployed, but initializeSheets() has not completed for this release (record: ${state.initializedGsVersion||'none'}). Run it once, then re-check.`:`⚠️ GS 已係 ${LATEST_RELEASE.gsVersion}，但呢個版本嘅 initializeSheets() 尚未完成（初始化紀錄：${state.initializedGsVersion||'未記錄'}）。請執行一次，然後重新檢查。`;
@@ -2112,7 +2125,9 @@ function renderReleaseNotices(){
     const openSteps=!isHome&&actionNeeded?' open':'';
     const chip=state.status==='current'
       ?`<span class="release-chip verified">${isEn()?'✅ Verified':'✅ 已核對'}</span>`
-      :(LATEST_RELEASE.initializeRequired?`<span class="release-chip required">${isEn()?'initializeSheets() required once':'必須執行 initializeSheets() 一次'}</span>`:'');
+      :(state.status==='test'
+        ?`<span class="release-chip required">${isEn()?'🧪 Test backend':'🧪 試作後端'}</span>`
+        :(LATEST_RELEASE.initializeRequired?`<span class="release-chip required">${isEn()?'initializeSheets() required once':'必須執行 initializeSheets() 一次'}</span>`:''));
     host.innerHTML=`<section class="release-notice ${cardClass}" role="status" aria-live="polite"><div class="release-head"><span>${title}</span><span class="release-chip">${isEn()?'Latest GS':'最新 GS'}：${LATEST_RELEASE.gsVersion}</span>${chip}</div><div class="release-summary">${isEn()?'Current release only — no sequential patch installation is needed.':'只列最新版本；唔使逐級下載或安裝補丁。'}</div><div class="release-status">${escapeHtmlText(statusText)}</div><details${openSteps}><summary>${isEn()?'Update steps and download':'查看更新步驟及下載'}</summary><ol>${steps.map(step=>`<li>${escapeHtmlText(step)}</li>`).join('')}</ol><div class="release-actions"><a class="btn btn-sm btn-primary" href="apps-script/Code.gs?gs=${LATEST_RELEASE.gsVersion}" download="Code.gs">${isEn()?'⬇️ Download latest Code.gs':'⬇️ 下載最新 Code.gs'}</a>${!isHome&&currentTroopId&&!demo?`<button type="button" class="btn btn-sm btn-secondary" onclick="checkBackendRelease()">🔄 ${isEn()?'Re-check':'重新檢查'}</button>`:''}</div></details></section>`;
   }
 }

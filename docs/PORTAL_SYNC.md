@@ -231,11 +231,26 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
    它只做增補，原有帳號／進度／API Key 不受影響。
 4. 回滾後開 vsbadge 按「重新檢查」，應仍為 ✅（v9.6 baseline 一樣）。
 
-### 10.6 建議由 portal 補嘅一個位（唔急，但會少好多誤判）
+### 10.6 顯示「🧪 試作後端」：vsbadge 已就緒，等 portal 回報
 
-`UnifiedCode.gs` 嘅 `ecStatus`／`status` 應該回報 `channel: 'isolated-test-only'` 同
-`unifiedGsVersion`，等兩個前端都可以顯示「🧪 試作後端」而唔係綠色「已核對」。
-呢個屬新增回應欄位（向下相容），要 portal 側實作＋兩邊文件同步後才做前端顯示。
+**已做（2026-11-20，前端、無合約改動）：** vsbadge 公告會讀兩個**可選**欄位
+`channel`、`unifiedGsVersion`（來源：`ecStatus` 或 `load` 回應，位置同 `gsVersion` 一樣）。
+
+| 後端回報 | 公告顯示 |
+|---|---|
+| 冇 `channel`／`unifiedGsVersion`（現時全部後端） | 照舊：版本＋初始化都對 → 綠色「✅ 已核對」 |
+| `channel` 係 `release` | 照舊（正式頻道） |
+| `channel` 係其他值，或有 `unifiedGsVersion` | 紫色「🧪 試作後端」＋試作版說明，**唔會**顯示已核對 |
+| 之後嘅 `load` 冇再帶（管理員走 baseline 路徑） | 同一旅團保持「🧪」，唔會跌返綠燈 |
+
+**未做（要 portal 實作）：** `UnifiedCode.gs` 目前唔會回報呢兩個欄位，所以 0082 今日仍然係綠色。
+建議做法（任揀其一，向下相容、唔改現有欄位）：
+
+1. 在 Unified router 內攔 `ecStatus`，回應加 `channel: 'isolated-test-only'`、`unifiedGsVersion`；
+2. 或者在 `unified-extension.gs` 包住 baseline：`var st = getVsGsReleaseStatus(); st.channel = 'isolated-test-only'; st.unifiedGsVersion = UNIFIED_GS_VERSION; return st;`
+   —— 注意 GAS 檔案載入次序／函式宣告 hoisting，一定要喺真 Apps Script 試過先算。
+
+實作後請喺 portal `docs/BACKEND_SYNC.md` 記錄，等我更新本文件版本表。
 
 ---
 
@@ -259,5 +274,6 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 - 簽名 transport（`vsbadge-troop-sig-v1`、canonical `action\nts\nnonce\nsha256(rawBody)`、±5 分鐘、900,000 字元）兩邊一致；你哋 `/api/progress` 嘅 `makeLinkSig()` 可以直接用。
 - 由 portal 卡片深連結入 vsbadge 仍然可用：只放行「檢視＋直接勾選」；審批／申報／帳戶管理要有真 BADGE token。
 - **0082 而家跑緊你哋嘅 `UnifiedCode.gs`（`v9.6-u1-test`／isolated-test-only）**；因為 baseline 仍報 `VS_GS_VERSION = v9.6`，vsbadge 嘅公告會顯示綠色「已核對」而分辨唔到試作 channel。
-- 建議（向下相容）：`ecStatus`／`status` 加 `channel: 'isolated-test-only'` 同 `unifiedGsVersion`，兩個前端就可以顯示「🧪 試作後端」。
+- vsbadge 已支援（只讀可選欄位，無合約改動）：公告讀 `channel`／`unifiedGsVersion`；有非 `release` 的 channel 就顯示紫色「🧪 試作後端」，並喺之後嘅 load 保持。
+- 請你哋喺 `ecStatus`（或 `status`）回報 `channel: 'isolated-test-only'` 同 `unifiedGsVersion`（向下相容），兩個前端就可以避免綠色「已核對」嘅誤判。
 - 下次 vsbadge 更新前，我會再更新 `docs/PORTAL_SYNC.md` 並通知你哋；你哋改 action contract 亦請同步知會，兩邊同時更新文件才算同步完成。
