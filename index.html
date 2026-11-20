@@ -2042,6 +2042,9 @@ function todayISO(){ return new Date().toISOString().split('T')[0]; }
    「GS 未更新」→ 警告、「已更新但未初始化」→ 警告、「全部完成」→ 綠色「已核對」。 */
 const LATEST_RELEASE=Object.freeze({updated:'2026-11-12',gsVersion:'v9.6',initializeRequired:true});
 let backendReleaseState={troopId:'',status:'idle',reportedVersion:'',initializedGsVersion:'',error:''};
+// 由 Registry（/api/troops 嘅 additive `channel`）宣告嘅後端頻道；留空＝未宣告。
+let troopChannel='';
+function troopChannelOf(t){ return t&&typeof t.channel==='string'?t.channel.trim():''; }
 let _releaseCheckSequence=0;
 function resetBackendRelease(){
   _releaseCheckSequence++;
@@ -2057,7 +2060,8 @@ function applyBackendRelease(payload){
   const channel=String(source.channel||'').trim();
   const unifiedVersion=String(source.unifiedGsVersion||'').trim();
   const prev=backendReleaseState&&backendReleaseState.troopId===(currentTroopId||'')?backendReleaseState:null;
-  const testChannel=(channel&&channel!=='release')?channel:(unifiedVersion?'isolated-test-only':'');
+  const declaredTroop=(typeof troopChannel==='string')?troopChannel.trim():'';
+  const testChannel=(channel&&channel!=='release')?channel:(unifiedVersion?'isolated-test-only':((declaredTroop&&declaredTroop!=='release')?declaredTroop:''));
   let status;
   if(testChannel) status='test';
   else if(!channel&&prev&&prev.status==='test'&&actual===prev.reportedVersion) status='test';
@@ -2251,7 +2255,7 @@ async function handlePortalParams(){
       if(r2.ok){
         const d2=await r2.json();
         const t2=d2.troops[u];
-        if(t2){ troopRegistered=true; currentTroopName=troopDisplayName(t2,u)||troopNameParam; }
+        if(t2){ troopRegistered=true; troopChannel=troopChannelOf(t2); currentTroopName=troopDisplayName(t2,u)||troopNameParam; }
       }
     }catch(e){ console.warn('api/troops lookup failed',e); }
 
@@ -2431,7 +2435,7 @@ async function selectTroop(id){
       tr=(d2.troops||{})[id];
     }catch(e){}
     if(!tr){ showToast(i18n('unreg'),'error'); return; }
-    currentTroopId=id; currentTroopName=troopDisplayName(tr,id);
+    currentTroopId=id; currentTroopName=troopDisplayName(tr,id); troopChannel=troopChannelOf(tr);
     resetBackendRelease(); checkBackendRelease();
     document.getElementById('loginTroopInfo').textContent=`📍 ${currentTroopName} (ID: ${currentTroopId})`;
     document.getElementById('homePage').style.display='none';
@@ -2488,7 +2492,7 @@ function doLogout(){
   // 通知後端註銷 token（best-effort）：失敗只在 console 提示，不阻塞本機登出，亦不靜默
   if(currentTroopId&&currentTroopId!=='DEMO'&&currentToken) apiRequest('logout',{token:currentToken}).then(d=>{ if(!d.success) console.warn('[logout] 後端 token 註銷失敗:',d.error); }).catch(e=>console.warn('[logout] 後端 token 註銷失敗（已在本機登出）:',e.message||e));
   localStorage.removeItem(LS.session);
-  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName='';
+  currentUser=null; currentToken=''; currentTroopId=''; currentTroopName=''; troopChannel='';
   resetBackendRelease();
   feedbackSubmitState='idle';
   ['feedbackMessage','feedbackContact'].forEach(id=>{ const field=document.getElementById(id); if(field) field.value=''; });

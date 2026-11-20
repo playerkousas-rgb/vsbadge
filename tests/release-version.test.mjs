@@ -231,6 +231,18 @@ test('舊 v9.5 不可顯示已核對；新版本需要初始化後才顯示已�
   assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2], channel: 'release' }), 'current');
 });
 
+test('Registry 宣告試作頻道（TROOP_<ID>_CHANNEL）時，即使後端未回報 channel 都唔會顯示已核對', () => {
+  const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const release = html.match(/const LATEST_RELEASE=Object\.freeze\(\{updated:'([^']+)',gsVersion:'([^']+)',initializeRequired:(true|false)\}\)/);
+  const apply = html.match(/function applyBackendRelease\(payload\)\{[\s\S]*?\n\}/)[0];
+  const sandbox = { LATEST_RELEASE: { gsVersion: release[2] }, currentTroopId: '0082', backendReleaseState: {}, troopChannel: 'isolated-test-only', renderReleaseNotices() {} };
+  vm.createContext(sandbox);
+  vm.runInContext(apply, sandbox);
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test');
+  sandbox.troopChannel = '';
+  assert.equal(sandbox.applyBackendRelease({ gsVersion: release[2], initializedGsVersion: release[2] }), 'test', '已判定試作後唔可以因為冇再宣告而跌返綠燈');
+});
+
 test('試作後端提示只可讀取可選欄位（唔會令舊後端誤報）', () => {
   const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.ok(html.includes('🧪 試作後端'), '公告要有試作後端標籤');

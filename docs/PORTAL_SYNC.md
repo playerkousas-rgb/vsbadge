@@ -238,10 +238,25 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 
 | 後端回報 | 公告顯示 |
 |---|---|
-| 冇 `channel`／`unifiedGsVersion`（現時全部後端） | 照舊：版本＋初始化都對 → 綠色「✅ 已核對」 |
+| 冇 `channel`／`unifiedGsVersion`，Registry 亦冇宣告 | 照舊：版本＋初始化都對 → 綠色「✅ 已核對」 |
+| Registry env `TROOP_<ID>_CHANNEL=isolated-test-only` | 紫色「🧪 試作後端」（唔需要等 GAS 改；見 §10.6a） |
 | `channel` 係 `release` | 照舊（正式頻道） |
 | `channel` 係其他值，或有 `unifiedGsVersion` | 紫色「🧪 試作後端」＋試作版說明，**唔會**顯示已核對 |
 | 之後嘅 `load` 冇再帶（管理員走 baseline 路徑） | 同一旅團保持「🧪」，唔會跌返綠燈 |
+
+#### 10.6a 唔想等 portal 都可以即刻生效：Registry 宣告（vsbadge 內部做法）
+
+Vercel → vsbadge 專案 → Environment Variables 加一條（只限正在跑試作後端嘅旅團）：
+
+```
+TROOP_0082_CHANNEL = isolated-test-only
+```
+
+- `/api/troops` 會多一個 additive `channel` 欄位；**未填嘅旅團回應維持 `{ name, en }` 不變**（VSBOOK 等既有消費者不受影響）。
+- 前端一揀該旅團（或者經 portal 卡入）就會顯示紫色「🧪 試作後端」，登入後亦保持。
+- 只作顯示／提示，不影響授權、routing 或任何 API 行為；`channel` 唔會連帶公開 backend／apikey。
+- 試作完、回滾正式 `Code.gs` 之後，記得**刪走**呢條 env 並 Redeploy，否則會一直顯示 🧪。
+- 將來 portal 由 GAS 直接回報 `channel` 時，兩者可以並存；GAS 回報優先。
 
 **未做（要 portal 實作）：** `UnifiedCode.gs` 目前唔會回報呢兩個欄位，所以 0082 今日仍然係綠色。
 建議做法（任揀其一，向下相容、唔改現有欄位）：
