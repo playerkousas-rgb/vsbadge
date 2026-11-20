@@ -21,6 +21,16 @@
 6. **未完成以上步驟，唔准改**：`/api/portal` 驗證次序、`/api/proxy` action 白名單、
    `PORTAL_DEFAULT_*`／`TROOP_*` env 名、GAS action 名、role 名、Sheet 分頁／欄位。
 
+### 1.1 雙向對齊次序（同一個後端，唔係兩邊各做一份）
+
+因為兩個前端共用同一個後端 source，所以規則係**對稱**嘅：
+
+- 每次開工（兩邊都一樣）先睇對方最新 pin：vsbadge 睇 portal `docs/BACKEND_SYNC.md` 嘅 baseline hash，
+  portal 睇本文件 §2 嘅 `Code.gs` hash。兩份文件嘅 hash 一唔一样，就係「未對齊」，先做同步再改嘢。
+- 邊一方改咗 `apps-script/Code.gs`，就由**改嘅一方先**更新自己文件並出 PR；另一方其後 vendor／核對，
+  然後更新自己文件。次序係「改 source 嘅先行，跟嘅一方後行」，唔會兩個同時盲改。
+- 前端／文件嘅改動（唔掂後端 source、唔掂 action／env／role／Sheet）可以先行，但要喺 PR 寫明「無合約改動」。
+
 > 只係改前端文字／樣式、或者加測試，唔影響以上合約，可以唔使等 portal 回覆，但 PR 仍要寫「無合約改動」。
 
 ---
