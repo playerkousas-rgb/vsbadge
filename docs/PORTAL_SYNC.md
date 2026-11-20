@@ -31,11 +31,15 @@
 | 版本 | `package.json` 4.0.0／GS `VS_GS_VERSION = v9.6` | `APP_VERSION = v2.8.8` |
 | 後端 | `apps-script/Code.gs` SHA-256 `63148a3209…c34a10` | 同一份（vendored 作 baseline） |
 | 對接狀態 | 軌道 A（自己登入）＝已上線；軌道 B（`from=portal`）＝可測 | 完整版前端；接裸 v9.6 仍 fail closed |
+| **0082 實際部署** | **`vs_portal` 的 `UnifiedCode.gs`（`v9.6-u1-test`，isolated test）**（2026-11-20 起，見 §10） | 同左 |
 
 ✅ **無漂移**：現時 `Code.gs` 嘅 SHA-256 同 portal `docs/BACKEND_SYNC.md` §3 記錄嘅
 `63148a32095694a92a45d9fa14fc190b7fd8e35336080d2c48ad9adf61c34a10` 完全一樣。
 （portal 嗰邊釘嘅 commit 係 PR #40 嘅 `87c76a9`；PR #41 只加 `test-artifacts/` 測試 bundle，
 冇改 `apps-script/Code.gs`、`api/`、`index.html`，所以 hash 相同。）
+
+⚠️ **repo 無漂移 ≠ 部署無漂移**：0082 嘅 live 後端由 2026-11-20 起已經換成 `UnifiedCode.gs`
+（試作 channel），檔案 hash 同上面釘住嘅 v9.6 唔同。前端公告**分辨唔到**呢個分別，見 §10。
 
 ---
 
@@ -87,7 +91,10 @@ BADGE 共用後端 adapter（`apps-script/UnifiedCode.gs` 只係 `isolated-test-
 
 ---
 
-## 6. 由 Portal 卡片入 vsbadge（`?from=portal`）—— 現行實測行為
+## 6. 由 Portal 卡片入 vsbadge（`?from=portal`）—— 裸 v9.6 實測行為
+
+> ⚠️ 以下數字係**裸 v9.6**（即 `apps-script/Code.gs`）嘅行為。0082 換咗 `UnifiedCode.gs` 之後，
+> `load` 會被 Unified router 攔截要求真 session，結果會變成 §10.3 嗰行「❌」——量度前先確認跑緊邊份 GS。
 
 本機用 `tests/dev-with-mock.mjs`（mock GAS 行為同 `Code.gs` 對應分支一致）實測，
 `PORTAL_DEFAULT_ORIGIN=http://127.0.0.1:3900`、`PORTAL_DEFAULT_ROLES=exec_committee,branch_leader,group_leader`：
@@ -163,6 +170,64 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 （`/api/proxy` 要 `troopId`；payload 要放喺 `data` 入面。想略過來源檢查做 preview 測試，
 可加 `VSBADGE_PORTAL_TEST=1`；喺 Vercel 一定失效。）
 
+
+---
+
+## 10. 試作後端已上 0082（`UnifiedCode.gs`）：vsbadge 會見到什麼、點核實、點回滾
+
+**現況：** 0082 嘅 Apps Script 已由 `UnifiedCode.gs`（`UNIFIED_GS_VERSION = 'v9.6-u1-test'`，
+`releaseChannel: isolated-test-only`）取代原本 v9.6 `Code.gs`，並以「新版本」重新部署（同一 `/exec`／API Key）。
+
+### 10.1 為何 vsbadge 仍會顯示「✅ 已核對 v9.6」
+
+`UnifiedCode.gs` 內嘅 baseline 仍然係 `VS_GS_VERSION = 'v9.6'`，而它嘅 `initializeSheets()` 會呼叫
+`badgeInitializeSheets_()`，照樣寫入 `VS_GS_INITIALIZED_VERSION = 'v9.6'`；它亦**冇**改寫 `ecStatus`。
+所以 vsbadge 嘅版本公告會見到「GS v9.6 ＋ 初始化完成」→ 綠色「已核對」。
+
+> 即係：**綠色「已核對」只代表 baseline 版本對得上，唔代表跑緊正式發佈版。**
+> 綠燈唔可以當「已驗收」用；呢個係現時最快會令人誤判嘅位。
+
+### 10.2 30 秒核實「而家跑緊邊份 GS」
+
+1. Apps Script 編輯器最頂幾行註解：`UnifiedCode.gs` 會有
+   `Baseline: …/vsbadge@87c76a9… (v9.6)`、`Portal source: …/vs_portal@…`、
+   `Release channel: isolated test only`；正式版 `Code.gs` 冇呢三行。
+2. 或者喺 GAS 編輯器搜 `UNIFIED_GS_VERSION`：試作版有，正式版冇。
+3. 前端／API **分辨唔到**：`ecStatus`、staff `load` 都唔會回 `unifiedGsVersion`
+   （只有非管理員嘅 `load` 投影才帶）——所以唔可以用畫面判斷。
+
+### 10.3 接入測試時預期會見到嘅差異（屬試作版特性，唔算 bug）
+
+| 情況 | v9.6 正式版 | 試作版 `v9.6-u1-test` |
+|---|---|---|
+| 團員登入後 `load` | 回全團名冊／進度 | 只回**本人**投影（設計如此） |
+| 領袖／執事登入後 `load` | 全團 | 全團（走返 baseline 路徑） |
+| `save`／`saveOtherBadge`（經 proxy 注入 API Key） | 得 | 得 |
+| `reviewRequest`／`reviewRequest` 等審批（無 sig） | 走 baseline 分支 | 同樣走返 baseline 分支（結果應一致） |
+| 帶 `sig` 嘅請求 | 走 `handleSignedRequest()` | 先經 Unified router，白名單較窄（`bulkReviewRequests` 等要 sig） |
+| **Portal 卡（`from=portal`）讀資料** | ✅ 讀到全團（見 §6） | ❌ `load` 被攔截 → `SESSION_REQUIRED`（虛擬 token 唔算 session）；寫入仍會經 API Key 分支成功，讀寫會唔一致 |
+| Portal 前端（`authLogin`／`authWhoAmI`／`loadDb`…） | 不支援 | 支援（試作） |
+
+### 10.4 安全與範圍
+
+- `isolated-test-only`：**只可以 0082 試**，唔好套用到其他旅團、亦唔好當成已驗收成果。
+- 試之前先由 Google Sheet「檔案 → 版本記錄」或複製一份 Sheet 做備份；API Key 唔使換。
+- 任何寫入結果都要 readback 核對；唔確定就重讀，唔好盲目重送。
+
+### 10.5 回滾（唔需要改 Sheet）
+
+1. Apps Script 貼返 vsbadge 正式 `Code.gs`（`apps-script/Code.gs`，v9.6，hash `63148a32…c34a10`），儲存。
+2. 「部署 → 管理部署 → 編輯 → 選上一個版本」或者「新版本 → 部署」，**沿用同一 `/exec` 及 API Key**。
+3. 因為試作版同正式版用同一批工作表／欄位，回滾**唔需要**改資料；如曾跑試作版 `initializeSheets()`，
+   它只做增補，原有帳號／進度／API Key 不受影響。
+4. 回滾後開 vsbadge 按「重新檢查」，應仍為 ✅（v9.6 baseline 一樣）。
+
+### 10.6 建議由 portal 補嘅一個位（唔急，但會少好多誤判）
+
+`UnifiedCode.gs` 嘅 `ecStatus`／`status` 應該回報 `channel: 'isolated-test-only'` 同
+`unifiedGsVersion`，等兩個前端都可以顯示「🧪 試作後端」而唔係綠色「已核對」。
+呢個屬新增回應欄位（向下相容），要 portal 側實作＋兩邊文件同步後才做前端顯示。
+
 ---
 
 ## 8. 待決定（需 portal 回覆或你拍板）
@@ -172,6 +237,8 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
    `UnifiedCode.gs` 只供隔離測試，幾時做正式版、由邊個 repo 做 source of truth。
 3. 兩邊 Sheet 新增欄位時，邊邊負責寫 migration（現時只有 vsbadge `initializeSheets()` 有 idempotent 保證）。
 4. 平台保留角色（唔喺白名單列出嘅最高階身份）唔會、亦唔應該經 portal 卡入；避免將來有人手多加落白名單。
+5. `UnifiedCode.gs` 要唔要喺 `ecStatus`／`status` 回報 `channel`／`unifiedGsVersion`（見 §10.6）？
+6. 0082 試作期幾時結束、回滾定繼續升級做正式 shared adapter。
 
 ---
 
@@ -182,4 +249,6 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 - 你哋針對裸 v9.6 嘅缺失清單（`authLogin`／`authWhoAmI`／`authOpenAccounts`／`loadDb` 系列／`bulkReviewRequests`／`hub*`）同 vsbadge 現況**完全對得上**，冇新增差異。
 - 簽名 transport（`vsbadge-troop-sig-v1`、canonical `action\nts\nnonce\nsha256(rawBody)`、±5 分鐘、900,000 字元）兩邊一致；你哋 `/api/progress` 嘅 `makeLinkSig()` 可以直接用。
 - 由 portal 卡片深連結入 vsbadge 仍然可用：只放行「檢視＋直接勾選」；審批／申報／帳戶管理要有真 BADGE token。
+- **0082 而家跑緊你哋嘅 `UnifiedCode.gs`（`v9.6-u1-test`／isolated-test-only）**；因為 baseline 仍報 `VS_GS_VERSION = v9.6`，vsbadge 嘅公告會顯示綠色「已核對」而分辨唔到試作 channel。
+- 建議（向下相容）：`ecStatus`／`status` 加 `channel: 'isolated-test-only'` 同 `unifiedGsVersion`，兩個前端就可以顯示「🧪 試作後端」。
 - 下次 vsbadge 更新前，我會再更新 `docs/PORTAL_SYNC.md` 並通知你哋；你哋改 action contract 亦請同步知會，兩邊同時更新文件才算同步完成。
