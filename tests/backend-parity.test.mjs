@@ -11,7 +11,7 @@ import {
 
 test('vsbadge 後端有可比嘅識別：版本、revision、channel 支援、SHA-256', () => {
   const local = readVsbadgeBackend();
-  assert.equal(local.version, 'v9.6');
+  assert.equal(local.version, 'v9.7');
   assert.match(local.revision, /^\d{4}-\d{2}-\d{2}$/, '後端要有 ISO 日期 revision');
   assert.equal(local.channelDefault, 'release');
   assert.equal(local.channelSupported, true);
