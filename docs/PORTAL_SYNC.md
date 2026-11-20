@@ -205,8 +205,17 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 | `save`／`saveOtherBadge`（經 proxy 注入 API Key） | 得 | 得 |
 | `reviewRequest`／`reviewRequest` 等審批（無 sig） | 走 baseline 分支 | 同樣走返 baseline 分支（結果應一致） |
 | 帶 `sig` 嘅請求 | 走 `handleSignedRequest()` | 先經 Unified router，白名單較窄（`bulkReviewRequests` 等要 sig） |
-| **Portal 卡（`from=portal`）讀資料** | ✅ 讀到全團（見 §6） | ❌ `load` 被攔截 → `SESSION_REQUIRED`（虛擬 token 唔算 session）；寫入仍會經 API Key 分支成功，讀寫會唔一致 |
+| **Portal 卡（`from=portal`）讀資料** | ✅ 讀到全團（見 §6） | ❌ `load` 被攔截 → `SESSION_REQUIRED`；但**畫面可能仍然見到全團**，因為前端會跌返 localStorage 舊 cache（會彈「⚠️ 離線模式：顯示快取資料」）。寫入仍經 API Key 分支成功，變成「寫得、讀嘅係舊 cache」 |
 | Portal 前端（`authLogin`／`authWhoAmI`／`loadDb`…） | 不支援 | 支援（試作） |
+
+### 10.3a 見到「全團」點分辨真讀定假讀（cache）
+
+1. 開**無痕視窗**（唔帶 localStorage），由 Portal 卡同一條 link 入。
+2. F12 → Network → 揀 `/api/proxy` 嗰個 `action=load` 請求 → 睇 Response：
+   - `{"ok":false,"success":false,"code":"SESSION_REQUIRED"}` = Unified 拒絕，畫面唔應該有名冊／進度；
+   - `{"success":true,"members":[…]}` = 真讀到（即 Unified 行為同本節描述唔同，要即刻更新本節）。
+3. 有 cache 嘅正常視窗會彈「⚠️ 離線模式：顯示快取資料」；見到呢句就代表畫面數字係舊嘅，唔可以當測試結果。
+4. 正常登入（軌道 A）睇到全團係**預期**行為，同 Unified 無關。
 
 ### 10.4 安全與範圍
 
