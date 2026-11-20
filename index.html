@@ -621,11 +621,11 @@ a:hover{text-decoration:underline}
         <button class="btn btn-warning btn-sm" onclick="enterDemoMode()" style="width:100%" data-i18n="login.demoBtn">👀 試用 MOCK 效果 (免登入瀏覽器看)</button>
       </div>
       <div class="login-type-tabs">
-        <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')"><span data-i18n="login.member">👤 成員</span><br><small style="font-weight:normal" data-i18n="login.memberHint">YMIS 10位</small></div>
+        <div class="login-type-tab active" id="tabMember" onclick="switchLoginType('member')"><span data-i18n="login.member">👤 成員</span><br><small style="font-weight:normal" data-i18n="login.memberHint">YMIS 或 Email</small></div>
         <div class="login-type-tab" id="tabLeader" onclick="switchLoginType('leader')"><span data-i18n="login.leader">👨‍💼 領袖</span><br><small style="font-weight:normal" data-i18n="login.leaderHint">Email</small></div>
       </div>
       <div id="loginMsg" class="login-msg"></div>
-      <div class="form-group"><label id="loginIdLabel" data-i18n="login.ymis">YMIS（10位數字）</label><input type="text" id="loginId" placeholder="例如 1234567890" maxlength="10" data-i18n-placeholder="login.ymisPh"></div>
+      <div class="form-group"><label id="loginIdLabel" data-i18n="login.ymis">YMIS 或 Email</label><input type="text" id="loginId" placeholder="YMIS 或 Email" maxlength="100" data-i18n-placeholder="login.ymisPh"></div>
       <div class="form-group"><label data-i18n="login.password">密碼</label><input type="password" id="loginPassword" placeholder="請輸入密碼" data-i18n-placeholder="login.passwordPh"></div>
       <button class="btn btn-primary" onclick="doLogin()" style="width:100%" id="btnLogin" data-i18n="login.submit">登入</button>
       <div style="text-align:center;margin:14px 0 0"><a href="#" onclick="showPasswordResetModal();return false" style="font-size:14px;font-weight:700;display:inline-block;padding:8px 18px;border:1.5px solid var(--maroon);border-radius:999px" data-i18n="pwreset.loginLink">🔑 忘記密碼？</a></div>
@@ -1033,8 +1033,8 @@ zh:{
   'home.demoDesc':'點擊上方「👀 試用 MOCK 效果」即刻體驗 10 個 MOCK 成員的完整進度、全團總覽卡片、批量剔選、表格列印等所有功能',
   'home.demoNow':'👀 立即試用 MOCK 效果',
   'login.title':'🔐 登入系統','login.quick':'🎬 快速體驗','login.quickDesc':'無需部署、無需登入，即刻用 10 個 MOCK 成員試用所有功能',
-  'login.demoBtn':'👀 試用 MOCK 效果 (免登入瀏覽器看)','login.member':'👤 成員','login.memberHint':'YMIS 10位',
-  'login.leader':'👨‍💼 領袖','login.leaderHint':'Email','login.ymis':'YMIS（10位數字）','login.ymisPh':'例如 1234567890',
+  'login.demoBtn':'👀 試用 MOCK 效果 (免登入瀏覽器看)','login.member':'👤 成員','login.memberHint':'YMIS 或 Email',
+  'login.leader':'👨‍💼 領袖','login.leaderHint':'Email','login.ymis':'YMIS 或 Email','login.ymisPh':'輸入 10 位 YMIS 或 Email',
   'login.email':'Email','login.emailPh':'your@email.com','login.password':'密碼','login.passwordPh':'請輸入密碼',
   'login.submit':'登入','login.logging':'登入中...','login.apply':'🆕 申請帳戶（成員／執委／領袖）',
   'login.register':'新旅團登記','login.back':'← 返回首頁','login.fill':'請填寫帳號和密碼','login.ok':'登入成功！載入資料...',
@@ -1378,8 +1378,8 @@ en:{
   'home.demoDesc':'Tap “👀 Try MOCK demo” to try 10 MOCK members, unit overview cards, bulk ticking and form printing — all features.',
   'home.demoNow':'👀 Try MOCK demo now',
   'login.title':'🔐 Sign in','login.quick':'🎬 Quick look','login.quickDesc':'No deploy, no login — try every feature with 10 MOCK members',
-  'login.demoBtn':'👀 Try MOCK demo (browser only, no login)','login.member':'👤 Member','login.memberHint':'10-digit YMIS',
-  'login.leader':'👨‍💼 Leader','login.leaderHint':'Email','login.ymis':'YMIS (10 digits)','login.ymisPh':'e.g. 1234567890',
+  'login.demoBtn':'👀 Try MOCK demo (browser only, no login)','login.member':'👤 Member','login.memberHint':'YMIS or email',
+  'login.leader':'👨‍💼 Leader','login.leaderHint':'Email','login.ymis':'YMIS or email','login.ymisPh':'10-digit YMIS or email address',
   'login.email':'Email','login.emailPh':'your@email.com','login.password':'Password','login.passwordPh':'Enter password',
   'login.submit':'Sign in','login.logging':'Signing in...','login.apply':'🆕 Apply for an account (member / exec / leader)',
   'login.register':'Register a new Group','login.back':'← Home','login.fill':'Please enter ID and password','login.ok':'Signed in. Loading data...',
@@ -2431,7 +2431,7 @@ function switchLoginType(t){
   document.getElementById('tabMember').classList.toggle('active', t==='member');
   document.getElementById('tabLeader').classList.toggle('active', t==='leader');
   const l=document.getElementById('loginIdLabel'), i=document.getElementById('loginId');
-  if(t==='member'){ l.textContent=i18n('login.ymis'); i.placeholder=i18n('login.ymisPh'); i.type='text'; i.maxLength=10; }
+  if(t==='member'){ l.textContent=i18n('login.ymis'); i.placeholder=i18n('login.ymisPh'); i.type='text'; i.maxLength=100; }
   else{ l.textContent=i18n('login.email'); i.placeholder=i18n('login.emailPh'); i.type='email'; i.maxLength=100; }
 }
 async function doLogin(){
@@ -2863,6 +2863,28 @@ async function loadAppConfig(){
   }catch(e){ console.warn('load config failed',e); }
 }
 
+function syncCurrentUserFromLoad(me){
+  if(!currentUser || !me || typeof me!=='object') return false;
+  const validRoles=['super_admin','admin','group_leader','branch_leader','exec_committee','member'];
+  let changed=false;
+  if(typeof me.name==='string' && me.name!==currentUser.name){ currentUser.name=me.name; changed=true; }
+  if(validRoles.includes(me.role) && me.role!==currentUser.role){ currentUser.role=me.role; changed=true; }
+  if(typeof me.can_tick==='boolean' && me.can_tick!==currentUser.can_tick){ currentUser.can_tick=me.can_tick; changed=true; }
+  if(typeof me.allowed_badges==='string' && me.allowed_badges!==currentUser.allowed_badges){ currentUser.allowed_badges=me.allowed_badges; changed=true; }
+  if(typeof me.force_change_password==='boolean' && me.force_change_password!==currentUser.force_change_password){ currentUser.force_change_password=me.force_change_password; changed=true; }
+  if(!changed) return false;
+
+  const role=validRoles.includes(currentUser.role)?currentUser.role:'member';
+  const info=document.getElementById('userInfo');
+  if(info) info.innerHTML=`${escapeHtmlText(currentUser.name||'')} <span class="role-badge role-${role}">${escapeHtmlText(getRoleName(role))}</span>`;
+  if(currentTroopId!=='DEMO'){
+    try{ saveCurrentSession(); }catch(e){ console.warn('save synced session failed',e); }
+  }
+  // 角色、勾選閘或範圍有變時，立即重算導覽與前端勾選狀態；不需登出再登入。
+  try{ setupTabsByRole(); }catch(e){ console.warn('sync role tabs failed',e); }
+  return true;
+}
+
 async function loadItemsAndProgress(){
   const progTab=document.getElementById('tab-progress');
   progTab.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light)"><div class="spinner" style="margin:0 auto 12px"></div>'+i18n('progress.loading')+'</div>';
@@ -2877,6 +2899,7 @@ async function loadItemsAndProgress(){
     }catch(e){ console.warn('backend load fail',e); backendData={success:false}; }
     if(backendData.success){
       applyBackendRelease(backendData);
+      syncCurrentUserFromLoad(backendData.me);
       members=backendData.members||[];
       // 相容舊／新 GAS：同時正規化 flatProgress 與 rich progress，保留既有「備註」欄的細項內容。
       progressFlat=backendData.flatProgress||{};
@@ -5751,6 +5774,8 @@ async function toggleAllowMemberViewOthers(checked){
 }
 let currentPermUser=null;
 function openPermissionModal(ymis, name, role, allowed){
+  // 成員只可查看自己的／獲准查看的進度，無可勾選權；UI 上亦不提供成員的 ⚙️ 按鈕。
+  if(role==='member') return;
   currentPermUser={ymis, name, role, allowed: allowed||''};
   document.getElementById('permUserName').textContent=`${name} (${ymis}) [${role}]`;
   // badges list
@@ -5826,7 +5851,7 @@ async function savePermissions(){
   if(vals.length===totalBadges) allowedStr='*';
   else allowedStr=vals.join(',');
   try{
-    const d=await apiRequest('updateUserRole',{token:currentToken,target_ymis:currentPermUser.ymis,new_role:currentPermUser.role,can_tick:true,allowed_badges:allowedStr});
+    const d=await apiRequest('updatePermissions',{token:currentToken,target_ymis:currentPermUser.ymis,allowed_badges:allowedStr});
     if(d.success){
       showToast('✅ 權限已更新','success');
       closeModal('permissionModal');

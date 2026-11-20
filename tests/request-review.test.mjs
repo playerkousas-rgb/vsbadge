@@ -335,3 +335,119 @@ test('slow_password_kdf 日誌：慢登入記低 ms＋gsVersion；逾時記 time
   assert.equal(timeoutSlow.length, 1);
   assert.equal(timeoutSlow[0].timeout, true);
 });
+
+test('updatePermissions 只改 allowed_badges：保留角色及 can_tick，並回傳最新角色／勾選值', () => {
+  const { node, leaderToken } = setup();
+  seedUser(node, { ymis: 'L0007', name: '支部領袖', role: 'branch_leader', pass: 'Branch!1', canTick: true, email: 'branch@example.org' });
+
+  const result = post(node, {
+    action: 'updatePermissions', token: leaderToken,
+    target_ymis: 'l0007', allowed_badges: 'L1,L2'
+  });
+  assert.equal(result.success, true, JSON.stringify(result));
+  assert.equal(result.role, 'branch_leader');
+  assert.equal(result.can_tick, true);
+
+  const saved = node.context.findUserRecord('L0007');
+  assert.equal(saved.user.role, 'branch_leader', 'partial permissions update must not rewrite role');
+  assert.equal(saved.user.can_tick, true, 'missing can_tick must not silently revoke ticking rights');
+  assert.equal(saved.user.allowed_badges, 'L1,L2');
+});
+
+test('明確提供無效角色時回報「無效角色」且不改帳戶', () => {
+  const { node, leaderToken } = setup();
+  seedUser(node, { ymis: 'L0008', name: '支部領袖', role: 'branch_leader', pass: 'Branch!1', canTick: true });
+  const result = post(node, {
+    action: 'updateUserRole', token: leaderToken,
+    target_ymis: 'L0008', new_role: '', can_tick: false
+  });
+  assert.equal(result.success, false);
+  assert.equal(result.error, '無效角色');
+  const saved = node.context.findUserRecord('L0008');
+  assert.equal(saved.user.role, 'branch_leader');
+  assert.equal(saved.user.can_tick, true);
+});
+
+test('成員即使 Users.can_tick 為 TRUE，仍不可直接 save', () => {
+  const { node, memberToken } = setup();
+  const member = node.context.findUserRecord('1234560011');
+  member.sheet.getRange(member.row, member.map.can_tick + 1).setValue(true);
+  assert.equal(node.context.findUserRecord('1234560011').user.can_tick, true);
+
+  const denied = post(node, {
+    action: 'save', token: memberToken,
+    changes: [{ ymis: '1234560011', itemId: 'L1', date: '2026-11-20' }]
+  });
+  assert.equal(denied.success, false);
+  assert.equal(denied.error, '帳號沒有直接寫入進度權限');
+  assert.equal(rowsOf(node, '進度追蹤').filter(row => String(row[0]) === '1234560011' && String(row[1]) === 'L1').length, 0);
+});
+
+test('收回支部領袖 can_tick 後，既有 session 的 save 亦即時被後端拒絕', () => {
+  const { node, leaderToken } = setup();
+  seedUser(node, { ymis: 'L0050', name: '支部領袖', role: 'branch_leader', pass: 'Branch!1', canTick: true });
+  const target = post(node, { action: 'login', login_id: 'L0050', password: 'Branch!1' });
+  assert.equal(target.success, true);
+
+  const revoke = post(node, {
+    action: 'updateUserRole', token: leaderToken,
+    target_ymis: 'L0050', new_role: 'branch_leader', can_tick: false
+  });
+  assert.equal(revoke.success, true, JSON.stringify(revoke));
+  assert.equal(revoke.can_tick, false);
+
+  const denied = post(node, {
+    action: 'save', token: target.token,
+    changes: [{ ymis: '1234560011', itemId: 'L2', date: '2026-11-20' }]
+  });
+  assert.equal(denied.success, false);
+  assert.equal(denied.error, '帳號沒有直接寫入進度權限');
+  assert.equal(rowsOf(node, '進度追蹤').filter(row => String(row[1]) === 'L2').length, 0);
+});
+
+test('登入後端同時接受 YMIS／Email，L 編號大小寫不敏感', () => {
+  const { node } = setup();
+  seedUser(node, { ymis: 'L0042', name: '支部領袖', role: 'branch_leader', pass: 'Branch!1', canTick: true, email: 'branch@example.org' });
+
+  const byLowercaseId = post(node, { action: 'login', login_id: 'l0042', password: 'Branch!1' });
+  assert.equal(byLowercaseId.success, true, JSON.stringify(byLowercaseId));
+  assert.equal(byLowercaseId.user.ymis, 'L0042');
+  const byEmail = post(node, { action: 'login', login_id: 'BRANCH@EXAMPLE.ORG', password: 'Branch!1' });
+  assert.equal(byEmail.success, true, JSON.stringify(byEmail));
+  assert.equal(byEmail.user.ymis, 'L0042');
+});
+
+test('登入 UI 接受 YMIS 或 Email（100 字元），成員權限 modal 隱藏且 scope 更新只送 allowed_badges', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.match(html, /id="loginId"[^>]*maxlength="100"/i);
+  assert.match(html, /'login\.memberHint':'YMIS 或 Email'/);
+  const switchFn = html.match(/function switchLoginType\(t\)\{([\s\S]*?)\n\}/)?.[1] || '';
+  assert.match(switchFn, /if\(t==='member'\)[\s\S]*?i\.maxLength=100;/);
+  assert.match(html, /const permissionButton=u\.role==='member'\?'':/);
+  assert.match(html, /function openPermissionModal\(ymis, name, role, allowed\)\{\s*\/\/[^\n]*\n\s*if\(role==='member'\) return;/);
+  const saveFn = html.match(/async function savePermissions\(\)\{([\s\S]*?)\n\}/)?.[1] || '';
+  assert.match(saveFn, /apiRequest\('updatePermissions',\{token:currentToken,target_ymis:currentPermUser\.ymis,allowed_badges:allowedStr\}\)/);
+  assert.doesNotMatch(saveFn, /new_role:|can_tick:/);
+  assert.match(html, /syncCurrentUserFromLoad\(backendData\.me\)/);
+});
+
+test('handleLoad 只對有效 session 回傳 me，並攜帶最新自身權限、不泄露帳號識別碼', () => {
+  const { node, leaderToken } = setup();
+  seedUser(node, { ymis: 'L0051', name: '支部領袖', role: 'branch_leader', pass: 'Branch!1', canTick: true, email: 'branch@example.org' });
+  const target = post(node, { action: 'login', login_id: 'L0051', password: 'Branch!1' });
+  assert.equal(target.success, true);
+  const revoke = post(node, {
+    action: 'updateUserRole', token: leaderToken,
+    target_ymis: 'L0051', new_role: 'branch_leader', can_tick: false
+  });
+  assert.equal(revoke.success, true);
+
+  const loaded = node.context.doGet({ parameter: { action: 'load', apikey: 'test-api-key', token: target.token } });
+  assert.equal(loaded.success, true);
+  assert.equal(loaded.me.role, 'branch_leader');
+  assert.equal(loaded.me.can_tick, false, 'load returns fresh post-revocation permission');
+  assert.equal(loaded.me.allowed_badges, '*');
+  assert.equal(loaded.me.ymis, undefined);
+  assert.equal(loaded.me.email, undefined);
+  assert.equal(node.context.handleLoad().me, undefined, 'legacy unauthenticated load adds no identity');
+});
