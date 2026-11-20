@@ -9,7 +9,7 @@ import http from 'http';
 export function startMockGas({ port, name, users, apikey = '' }) {
   const state = {
     name,
-    users: {},                    // ymis -> {ymis,name,email,role,pass,can_tick,status}
+    users: {},                    // ymis -> {ymis,name,email,role,pass,can_tick,allowed_badges,status}
     members: {},                  // ymis -> {ymis,name,email,branch}; may include roster-only members
     tokens: {},                   // token -> ymis
     progress: {},                 // ymis -> {itemId:{date,confirmer}}
@@ -27,7 +27,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
     execCount: 0
   };
   for (const u of users) {
-    state.users[u.ymis] = { status: 'active', email: '', ...u };
+    state.users[u.ymis] = { status: 'active', email: '', allowed_badges: '*', force_change_password: false, ...u };
     state.members[u.ymis] = { ymis: u.ymis, name: u.name, email: u.email || '', branch: u.branch || '' };
   }
   const idKey = value => String(value || '').trim().toLowerCase();
@@ -75,7 +75,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         if (u.pass !== String(body.password || '')) return { success: false, error: '帳號或密碼錯誤' };
         const token = 'tok_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
         state.tokens[token] = u.ymis;
-        return { success: true, token, user: { ymis: u.ymis, name: u.name, role: u.role, can_tick: u.can_tick, email: u.email || '', allowed_badges: '*' } };
+        return { success: true, token, user: { ymis: u.ymis, name: u.name, role: u.role, can_tick: u.can_tick, email: u.email || '', allowed_badges: u.allowed_badges || '*', force_change_password: !!u.force_change_password } };
       }
       case 'logout': {
         delete state.tokens[body.token];
@@ -170,8 +170,10 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           flat[y] = {};
           for (const [iid, rec] of Object.entries(items)) flat[y][iid] = rec.date;
         }
+        const current = tokenYmis ? findUserById(tokenYmis) : null;
         return {
           success: true,
+          ...(current ? { me: { name: current.name, role: current.role, can_tick: current.can_tick, allowed_badges: current.allowed_badges || '*', force_change_password: !!current.force_change_password } } : {}),
           members: Object.values(state.members).map(u => ({ ymis: u.ymis, name: u.name })),
           flatProgress: flat,
           pendingRequests: state.requests.filter(r => r.status === 'pending'),
@@ -266,7 +268,7 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         const accountIds = new Set(Object.values(state.users).map(u => idKey(u.ymis)));
         const accounts = Object.values(state.users)
           .filter(u => u.status !== 'deleted')
-          .map(u => ({ ymis: u.ymis, name: u.name, email: u.email || '', branch: u.branch || '', role: u.role, can_tick: u.can_tick, status: u.status, has_account: true }));
+          .map(u => ({ ymis: u.ymis, name: u.name, email: u.email || '', branch: u.branch || '', role: u.role, can_tick: u.can_tick, allowed_badges: u.allowed_badges || '*', status: u.status, has_account: true }));
         const rosterOnly = Object.values(state.members)
           .filter(m => !accountIds.has(idKey(m.ymis)))
           .map(m => ({ ymis: m.ymis, name: m.name, email: m.email || '', branch: m.branch || '', role: 'member', can_tick: false, status: 'active', has_account: false }));
@@ -362,14 +364,17 @@ export function startMockGas({ port, name, users, apikey = '' }) {
         }
         return { success: true, created, failed: rawList.length - created, results };
       }
-      case 'updateUserRole': {
+      case 'updateUserRole':
+      case 'updatePermissions': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };
         const manager = state.users[tokenYmis];
         if (!manager || (ROLE_LEVEL[manager.role] || 0) < 40) return { success: false, error: '權限不足' };
-        const u = state.users[body.target_ymis];
+        const u = findUserById(body.target_ymis);
         if (!u) return { success: false, error: '找不到目標用戶' };
-        if (String(body.target_ymis) === String(tokenYmis)) return { success: false, error: '不可更改自己的角色或權限' };
-        const newRole = String(body.new_role || u.role);
+        if (idKey(body.target_ymis) === idKey(tokenYmis)) return { success: false, error: '不可更改自己的角色或權限' };
+        const hasRole = body.new_role !== undefined && body.new_role !== null;
+        const newRole = hasRole ? String(body.new_role).trim() : u.role;
+        if (!['admin', 'group_leader', 'branch_leader', 'exec_committee', 'member'].includes(newRole)) return { success: false, error: '無效角色' };
         if (!canManageUser(manager, u.role) || !canManageUser(manager, newRole)) return { success: false, error: '你的角色不可管理此用戶或設定此層級' };
 
         // 團長鎖死一位：已有現任團長就拒絕，並顯示現任姓名
@@ -380,9 +385,10 @@ export function startMockGas({ port, name, users, apikey = '' }) {
           }
         }
 
-        u.role = newRole;
-        if (body.can_tick !== undefined) u.can_tick = body.can_tick === true || body.can_tick === 'true';
-        return { success: true };
+        if (hasRole) u.role = newRole;
+        if (body.can_tick !== undefined) u.can_tick = ['admin', 'group_leader', 'branch_leader', 'exec_committee', 'super_admin'].includes(newRole) && (body.can_tick === true || String(body.can_tick).toLowerCase() === 'true' || String(body.can_tick) === '1');
+        if (body.allowed_badges !== undefined && body.allowed_badges !== null) u.allowed_badges = String(body.allowed_badges);
+        return { success: true, role: newRole, can_tick: u.can_tick };
       }
       case 'setUserStatus': {
         if (!tokenYmis) return { success: false, error: 'Token 無效或過期' };

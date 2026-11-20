@@ -370,6 +370,12 @@ console.log('\n【10d】團長鎖死一位：後端硬鎖（已有現任團長�
   const adminLogin = await apiA('login', { login_id: '1111111111', password: 'AdminA!234567' });
   const adminToken = adminLogin.token;
 
+  const scopeUpdate = await apiA('updatePermissions', { token: adminToken, target_ymis: '1234567890', allowed_badges: 'L1,L2' });
+  const scopedUsers = await apiA('getAllUsers', { token: adminToken });
+  const scopedLeader = scopedUsers.users?.find(u => u.ymis === '1234567890');
+  check('updatePermissions 只更新範圍、不改角色或 can_tick', scopeUpdate.success === true && scopeUpdate.role === 'group_leader' && scopeUpdate.can_tick === true && scopedLeader?.role === 'group_leader' && scopedLeader?.can_tick === true && scopedLeader?.allowed_badges === 'L1,L2');
+  await apiA('updatePermissions', { token: adminToken, target_ymis: '1234567890', allowed_badges: '*' });
+
   // 1) 當前已有現任團長陳大文，管理員嘗試單加團長被拒
   const addGslDup = await apiA('addUser', { token: adminToken, name: '第二團長', email: 'gsl2@example.org', role: 'group_leader', password: 'Password123' });
   check('已有現任團長時新增團長被拒', addGslDup.success === false && /團長只能有一位/.test(addGslDup.error || ''));

@@ -1204,7 +1204,7 @@ function handleSignedRequest(action,body){
     setLocalLoginAllowed(allow,'upstream:'+actor);
     return jsonResponse({success:true,allow_local_login:allow,message:allow?'直接入口已開啟':'直接入口已閂，只收上游 sig'});
   }
-  if(action==='load') return handleLoad();
+  if(action==='load') return handleLoad(body.token);
   if(action==='getLoginMode') return jsonResponse({success:true,login_mode:'standalone'});
   if(action==='getMembers') return jsonResponse({success:true,members:getMembers()});
   if(action==='getConfig') return handleGetConfig();
@@ -1245,7 +1245,7 @@ function doGet(e){
     // Legacy load compatibility: if an API key is provided, it must validate.
     const reqKey=params.apikey;
     if(reqKey && reqKey!==getApiKey()) return jsonResponse({success:false,error:'Invalid API Key'});
-    return handleLoad();
+    return handleLoad(params.token);
   }
   if(action==='getLoginMode') return jsonResponse({success:true,login_mode:'standalone'});
   return jsonResponse({success:false,error:'Unknown action'});
@@ -1524,7 +1524,8 @@ function handleUpdateUserRole(targetYmis,newRole,canTick,managerYmis,allowedBadg
   const manager=getUser(managerYmis); const rec=findUserRecord(targetYmis);
   if(!manager || !rec || rec.user.status!=='active') return jsonResponse({success:false,error:'找不到管理員或目標用戶'});
   if(String(targetYmis)===String(managerYmis)) return jsonResponse({success:false,error:'不可更改自己的角色或權限'});
-  const role=String(newRole||rec.user.role);
+  const hasRole=newRole!==undefined && newRole!==null;
+  const role=hasRole?String(newRole).trim():rec.user.role;
   if(VALID_ROLES.indexOf(role)<0) return jsonResponse({success:false,error:'無效角色'});
   if(!canManageUser(manager,rec.user.role) || !canManageUser(manager,role)) return jsonResponse({success:false,error:'你的角色不可管理此用戶或設定此層級'});
 
@@ -1536,15 +1537,18 @@ function handleUpdateUserRole(targetYmis,newRole,canTick,managerYmis,allowedBadg
     }
   }
 
-  const tick=canUserTick(role) && isTrue(canTick);
-  rec.sheet.getRange(rec.row,rec.map.role+1).setValue(role);
-  rec.sheet.getRange(rec.row,rec.map.can_tick+1).setValue(tick);
+  // 權限更新係局部更新：舊客戶端／updatePermissions 只送 allowed_badges 時，
+  // 唔可以因為 can_tick 缺席而撤權，亦唔應重寫角色。
+  const hasCanTick=canTick!==undefined;
+  const tick=hasCanTick?(canUserTick(role) && isTrue(canTick)):(rec.user.can_tick===true);
+  if(hasRole) rec.sheet.getRange(rec.row,rec.map.role+1).setValue(role);
+  if(hasCanTick) rec.sheet.getRange(rec.row,rec.map.can_tick+1).setValue(tick);
   rec.sheet.getRange(rec.row,rec.map.auth_by+1).setValue(persistedActorId(managerYmis));
   rec.sheet.getRange(rec.row,rec.map.auth_date+1).setValue(now());
   if(allowedBadges!==undefined && allowedBadges!==null) rec.sheet.getRange(rec.row,rec.map.allowed_badges+1).setValue(String(allowedBadges));
-  else if(role!==rec.user.role) rec.sheet.getRange(rec.row,rec.map.allowed_badges+1).setValue(defaultAllowedBadges(role));
+  else if(hasRole && role!==rec.user.role) rec.sheet.getRange(rec.row,rec.map.allowed_badges+1).setValue(defaultAllowedBadges(role));
   writeAudit(managerYmis,'update_role',targetYmis,rec.user.role+' → '+role+', can_tick='+tick);
-  return jsonResponse({success:true});
+  return jsonResponse({success:true,role:role,can_tick:tick});
 }
 function handleUpdateConfig(key,value,ymis){
   const sheet=getSheet().getSheetByName('SystemConfig'); const data=sheet.getDataRange().getValues(); let found=false;
@@ -1589,7 +1593,7 @@ function getMembers(){
   }
   return members;
 }
-function handleLoad(){
+function handleLoad(authToken){
   const ss=getSheet();
   const pSheet=ss.getSheetByName('進度追蹤'); const progress={};
   if(pSheet){
@@ -1620,7 +1624,17 @@ function handleLoad(){
   const lSheet=ss.getSheetByName(LOG_SHEET_NAME);
   // 待批履歷（團員自行申報，logRequestsSupported 讓前端分辨後端是否已升級）
   const lrSheet=ss.getSheetByName(LOG_REQ_SHEET_NAME);
-  return jsonResponse(Object.assign({success:true,members:members,progress:progress,flatProgress:flat,pendingRequests:pending,otherBadges:other,logs:getLogRecordsList(),logsSupported:!!lSheet,logRequests:getLogRequestsList(),logRequestsSupported:!!lrSheet},getVsGsReleaseStatus()));
+  // 帶有效 session 時回傳最新自身權限，讓前端恢復 session 後不用重新登入同步角色／勾選範圍。
+  // 不帶 token 的舊版 load 仍維持原有回應契約，亦不回傳任何用戶身份資料。
+  const tokenYmis=authToken?validateToken(authToken):null;
+  const current=tokenYmis?getUser(tokenYmis):null;
+  const me=current?{
+    name:current.name,role:current.role,can_tick:current.can_tick,
+    allowed_badges:current.allowed_badges,force_change_password:current.force_change_password
+  }:null;
+  const payload={success:true,members:members,progress:progress,flatProgress:flat,pendingRequests:pending,otherBadges:other,logs:getLogRecordsList(),logsSupported:!!lSheet,logRequests:getLogRequestsList(),logRequestsSupported:!!lrSheet};
+  if(me) payload.me=me;
+  return jsonResponse(Object.assign(payload,getVsGsReleaseStatus()));
 }
 function handleSave(changes, confirmer){
   confirmer=persistedActorId(confirmer);
