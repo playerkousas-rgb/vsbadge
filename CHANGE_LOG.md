@@ -4,7 +4,7 @@
 
 ## 2026-11-20 — 後端頻道標籤（避免把試作後端誤報「已核對」）
 
-**影響範圍**：`api/_registry.js`（新增可選 `TROOP_<ID>_CHANNEL`）、`api/troops.js`（additive `channel` 欄位）、`index.html`（版本公告顯示）、`tests/release-version.test.mjs`、`tests/request-review.test.mjs`、文件。**沒有**改動任何 GAS action、Proxy 白名單、Sheet 結構、Portal 對接參數或 role 名。
+**影響範圍**：`apps-script/Code.gs`（`getVsGsReleaseStatus()` 新增 `channel`、Script Property `RELEASE_CHANNEL`、選單「🧪 標記／取消試作頻道」）、`api/_registry.js`（可選 `TROOP_<ID>_CHANNEL`）、`api/troops.js`（additive `channel` 欄位）、`index.html`（版本公告顯示）、`tests/release-version.test.mjs`、`tests/request-review.test.mjs`、文件。**沒有**改動任何既有 GAS action、Proxy 白名單、Sheet 結構、Portal 對接參數或 role 名；API Key、帳戶、進度資料不受影響。
 
 **行為改變**
 
@@ -12,7 +12,10 @@
 - 未宣告頻道的旅團**完全不受影響**：`/api/troops` 回應仍然係 `{ name, en }`，公告仍然係原本嘅綠色「✅ 已核對」。
 - 用途：0082 已轉用 `vs_portal` 的 `UnifiedCode.gs`（`v9.6-u1-test`，isolated test）。它保留 `VS_GS_VERSION = 'v9.6'` 及同一初始化紀錄，所以只靠版本比對會誤報「已核對」；現在可以由 Registry 或 GAS 明確標示頻道。
 
-**部署**：Vercel 加 `TROOP_0082_CHANNEL=isolated-test-only`（只限試作旅團）→ Redeploy。試作結束、回滾正式 `Code.gs` 後刪除此變數再 Redeploy。詳見 `docs/PORTAL_SYNC.md` §10.6a。
+**部署**：
+1. 重貼 `Code.gs` 後，用選單「🧪 標記／取消試作頻道」＝正式開關（只寫 Script Property `RELEASE_CHANNEL`，不寫 Sheet、不改資料）。
+2. 未更新 `Code.gs` 嘅旅團（或 vendor 咗舊 baseline 嘅 `UnifiedCode.gs`）可暫用 Vercel `TROOP_<ID>_CHANNEL=isolated-test-only` 過渡；GAS 回報優先。
+3. 新 `Code.gs` SHA-256：`3a8f12ebef0cc5a14059126b4825b983bc65f5eae0e27b114aca866a91b0e057`；portal 嘅 vendored baseline 需同步更新。詳見 `docs/PORTAL_SYNC.md` §10.6。
 
 **驗證**：`npm run lint && npm test`（新增 Registry 頻道、公告 🧪 及「唔會跌返綠燈」回歸；`/api/troops` 未宣告時契約不變）。
 

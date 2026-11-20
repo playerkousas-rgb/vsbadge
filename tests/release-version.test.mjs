@@ -181,6 +181,20 @@ test('GS 版本同初始化獨立核對；初始化 idempotent 而且唔會改�
   assert.equal(load.initializedGsVersion, 'v9.6', '登入後 load 都要回報初始化版本');
   assert.equal(load.gsInitializationCurrent, true);
 
+  // 後端頻道：正式發佈預設 release；試作版只靠 Script Property 標記，唔需要改程式。
+  // 同一份後端服務 vsbadge 同 vs_portal 兩個前端，兩個都會讀同一個欄位。
+  assert.equal(after.channel, 'release', 'ecStatus 預設回報正式頻道');
+  assert.equal(load.channel, 'release', 'load 亦回報頻道');
+  props.set('RELEASE_CHANNEL', 'isolated-test-only');
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'isolated-test-only', '試作標記即時反映');
+  const init3 = context.initializeSheets();
+  assert.equal(init3.success, true);
+  assert.equal(props.get('RELEASE_CHANNEL'), 'isolated-test-only', 'initializeSheets() 唔准清除頻道標記');
+  assert.equal(context.handleLoad().channel, 'isolated-test-only', 'load 亦保持一致');
+  props.set('RELEASE_CHANNEL', '!!! bad value');
+  assert.equal(post({ action: 'ecStatus', apikey: 'test-api-key-keep-me' }).channel, 'release', '無效值一律當正式頻道');
+  props.delete('RELEASE_CHANNEL');
+
   // 重複初始化：安全、idempotent、資料同 API Key 原封不動
   const init2 = context.initializeSheets();
   assert.equal(init2.success, true);

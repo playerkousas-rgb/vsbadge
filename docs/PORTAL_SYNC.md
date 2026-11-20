@@ -13,6 +13,8 @@
 1. 拉 `vs_portal` 最新 `main`，記低 commit 同 `assets/js/lib/version.js` 嘅 `APP_VERSION`。
 2. 對 backend hash：`sha256sum apps-script/Code.gs`，同 portal `docs/BACKEND_SYNC.md` 記錄嘅
    BADGE baseline hash 比對；唔同就即係「後端已漂移」，要逐項對 §4 合約。
+   改過 `apps-script/Code.gs` 就要通知 portal 更新 vendored baseline（hash＋commit），
+   否則兩個前端會用唔同版本嘅後端 source。
 3. 逐項核對 §4（已一致）同 §5（未一致）兩張表；有新 action／新欄位／新 role 就兩邊一齊更新。
 4. 更新本文件（§2 版本表、§4／§5、日期），喺 PR 描述寫明「已同 portal 同步／邊幾項未同步」。
 5. 把 §9 摘要交去 portal 側，由 portal 更新自己 `docs/BACKEND_SYNC.md`。
@@ -29,7 +31,7 @@
 |---|---|---|
 | 分支／commit | `main` @ `1085b03`（PR #41 merge） | `main` @ `3203b52`（PR #15 merge） |
 | 版本 | `package.json` 4.0.0／GS `VS_GS_VERSION = v9.6` | `APP_VERSION = v2.8.8` |
-| 後端 | `apps-script/Code.gs` SHA-256 `63148a3209…c34a10` | 同一份（vendored 作 baseline） |
+| 後端 | `apps-script/Code.gs` SHA-256 **`3a8f12ebef…0e057`**（2026-11-20 加入 `channel`，見 §10.6） | vendored 版本仍係舊 hash `63148a3209…c34a10`，**下次同步要重新 vendor** |
 | 對接狀態 | 軌道 A（自己登入）＝已上線；軌道 B（`from=portal`）＝可測 | 完整版前端；接裸 v9.6 仍 fail closed |
 | **0082 實際部署** | **`vs_portal` 的 `UnifiedCode.gs`（`v9.6-u1-test`，isolated test）**（2026-11-20 起，見 §10） | 同左 |
 
@@ -40,6 +42,10 @@
 
 ⚠️ **repo 無漂移 ≠ 部署無漂移**：0082 嘅 live 後端由 2026-11-20 起已經換成 `UnifiedCode.gs`
 （試作 channel），檔案 hash 同上面釘住嘅 v9.6 唔同。前端公告**分辨唔到**呢個分別，見 §10。
+
+📌 **2026-11-20 後端已加 `channel`**（`getVsGsReleaseStatus()` 多回一個 `channel`，預設 `release`）。
+所以 portal 嘅 vendored baseline hash 已經過期；下次同步（或任何一方重建 Unified）都要重新 vendor，
+否則試作 build 仍然唔會回報頻道。喺重新 vendor 之前，用 §10.6a 嘅 Registry 宣告做過渡。
 
 ---
 
@@ -236,15 +242,15 @@ curl -s -X POST http://127.0.0.1:3900/api/proxy -H 'Content-Type: application/js
 **已做（2026-11-20，前端、無合約改動）：** vsbadge 公告會讀兩個**可選**欄位
 `channel`、`unifiedGsVersion`（來源：`ecStatus` 或 `load` 回應，位置同 `gsVersion` 一樣）。
 
-| 後端回報 | 公告顯示 |
+| 來源（優先次序由上至下） | 公告顯示 |
 |---|---|
-| 冇 `channel`／`unifiedGsVersion`，Registry 亦冇宣告 | 照舊：版本＋初始化都對 → 綠色「✅ 已核對」 |
-| Registry env `TROOP_<ID>_CHANNEL=isolated-test-only` | 紫色「🧪 試作後端」（唔需要等 GAS 改；見 §10.6a） |
-| `channel` 係 `release` | 照舊（正式頻道） |
-| `channel` 係其他值，或有 `unifiedGsVersion` | 紫色「🧪 試作後端」＋試作版說明，**唔會**顯示已核對 |
+| GAS `ecStatus`／`load` 回報 `channel`（非 `release`）或有 `unifiedGsVersion` | 紫色「🧪 試作後端」＋試作版說明，**唔會**顯示已核對 |
+| Registry env `TROOP_<ID>_CHANNEL`（過渡用，見 §10.6a） | 紫色「🧪 試作後端」 |
+| GAS 回報 `channel: 'release'` | 照舊綠燈 |
 | 之後嘅 `load` 冇再帶（管理員走 baseline 路徑） | 同一旅團保持「🧪」，唔會跌返綠燈 |
+| 完全冇 `channel`（舊 build／未更新 GS），Registry 亦冇宣告 | 照舊：版本＋初始化都對 → 綠色「✅ 已核對」 |
 
-#### 10.6a 唔想等 portal 都可以即刻生效：Registry 宣告（vsbadge 內部做法）
+#### 10.6a 過渡：Registry 宣告（喺重新 vendor 之前用）
 
 Vercel → vsbadge 專案 → Environment Variables 加一條（只限正在跑試作後端嘅旅團）：
 
@@ -256,16 +262,23 @@ TROOP_0082_CHANNEL = isolated-test-only
 - 前端一揀該旅團（或者經 portal 卡入）就會顯示紫色「🧪 試作後端」，登入後亦保持。
 - 只作顯示／提示，不影響授權、routing 或任何 API 行為；`channel` 唔會連帶公開 backend／apikey。
 - 試作完、回滾正式 `Code.gs` 之後，記得**刪走**呢條 env 並 Redeploy，否則會一直顯示 🧪。
-- 將來 portal 由 GAS 直接回報 `channel` 時，兩者可以並存；GAS 回報優先。
+- 將來 GAS 直接回報 `channel` 時，兩者可以並存；**GAS 回報優先**，屆時可以刪走呢條 env。
+- 目標：試作與否由後端（Script Property）講，Registry env 只做臨時開關。
 
-**未做（要 portal 實作）：** `UnifiedCode.gs` 目前唔會回報呢兩個欄位，所以 0082 今日仍然係綠色。
-建議做法（任揀其一，向下相容、唔改現有欄位）：
+**我哋係同一個後端，所以改動放喺後端 source（呢個 repo）：**
 
-1. 在 Unified router 內攔 `ecStatus`，回應加 `channel: 'isolated-test-only'`、`unifiedGsVersion`；
-2. 或者在 `unified-extension.gs` 包住 baseline：`var st = getVsGsReleaseStatus(); st.channel = 'isolated-test-only'; st.unifiedGsVersion = UNIFIED_GS_VERSION; return st;`
-   —— 注意 GAS 檔案載入次序／函式宣告 hoisting，一定要喺真 Apps Script 試過先算。
+- `apps-script/Code.gs` 嘅 `getVsGsReleaseStatus()` 已經回報 `channel`，值由 Script Property
+  `RELEASE_CHANNEL` 決定（預設 `release`）；選單「🧪 標記／取消試作頻道」可以直接切換。
+  因為係 runtime 讀 property，**同一個 Sheet 上兩個前端都會即刻見到**，唔需要改 build。
+- 正式發佈版（`Code.gs`）預設 `release`；試作 build（`UnifiedCode.gs`）喺同一個 Sheet
+  設 `RELEASE_CHANNEL=isolated-test-only` 之後，兩個前端都會標示 🧪。
 
-實作後請喺 portal `docs/BACKEND_SYNC.md` 記錄，等我更新本文件版本表。
+**portal 側要跟嘅（同一個後端嘅維護工作，唔算「另一邊嘅改動」）：**
+
+1. 重新 vendor 呢個 baseline（新 hash `3a8f12ebef…0e057`），令 Unified build 都識回報 `channel`；
+2. `initializeSheets()`／選單**唔好**清除或覆寫 `RELEASE_CHANNEL`（現時 vsbadge 已保證保留）。
+
+完成後喺 portal `docs/BACKEND_SYNC.md` 記錄新 hash，等我更新 §2 版本表。
 
 ---
 
@@ -283,12 +296,12 @@ TROOP_0082_CHANNEL = isolated-test-only
 
 ## 9. 給 portal 嘅同步摘要（可直接貼去 portal 文件／issue）
 
-- vsbadge 現時釘：`main@1085b03`、GS `v9.6`、`Code.gs` SHA-256 `63148a32…c34a10`（**同你哋 §3 記錄一樣，無漂移**）。
+- **同一個後端**：`playerkousas-rgb/vsbadge` 嘅 `apps-script/Code.gs` 係 source of truth，Unified 係 vendor 佢再加 adapter。
+- 現時 baseline：GS `v9.6`，`Code.gs` SHA-256 **`3a8f12ebef…0e057`**（2026-11-20 加入 `channel`）。你哋 vendored 嘅仍然係舊 hash `63148a32…c34a10`，**下次同步要重新 vendor**。
+- 頻道資訊已經喺後端：`getVsGsReleaseStatus()` 回 `channel`（預設 `release`，由 Script Property `RELEASE_CHANNEL` 決定）；`ecStatus` 同 `load` 都會帶。試作 Sheet 設 `RELEASE_CHANNEL=isolated-test-only` 即可，兩個前端都顯示「🧪 試作後端」。
 - 你哋 `main@3203b52`（PR #15，v2.8.8）嘅 `/api/progress` 要求 `authWhoAmI`，裸 v9.6 冇 → 仍然 fail closed，屬預期。
 - 你哋針對裸 v9.6 嘅缺失清單（`authLogin`／`authWhoAmI`／`authOpenAccounts`／`loadDb` 系列／`bulkReviewRequests`／`hub*`）同 vsbadge 現況**完全對得上**，冇新增差異。
 - 簽名 transport（`vsbadge-troop-sig-v1`、canonical `action\nts\nnonce\nsha256(rawBody)`、±5 分鐘、900,000 字元）兩邊一致；你哋 `/api/progress` 嘅 `makeLinkSig()` 可以直接用。
 - 由 portal 卡片深連結入 vsbadge 仍然可用：只放行「檢視＋直接勾選」；審批／申報／帳戶管理要有真 BADGE token。
-- **0082 而家跑緊你哋嘅 `UnifiedCode.gs`（`v9.6-u1-test`／isolated-test-only）**；因為 baseline 仍報 `VS_GS_VERSION = v9.6`，vsbadge 嘅公告會顯示綠色「已核對」而分辨唔到試作 channel。
-- vsbadge 已支援（只讀可選欄位，無合約改動）：公告讀 `channel`／`unifiedGsVersion`；有非 `release` 的 channel 就顯示紫色「🧪 試作後端」，並喺之後嘅 load 保持。
-- 請你哋喺 `ecStatus`（或 `status`）回報 `channel: 'isolated-test-only'` 同 `unifiedGsVersion`（向下相容），兩個前端就可以避免綠色「已核對」嘅誤判。
+- 你哋要做嘅只有：①重新 vendor 新 baseline；②`initializeSheets()`／選單唔好清除 `RELEASE_CHANNEL`；③喺 `docs/BACKEND_SYNC.md` 記錄新 hash。
 - 下次 vsbadge 更新前，我會再更新 `docs/PORTAL_SYNC.md` 並通知你哋；你哋改 action contract 亦請同步知會，兩邊同時更新文件才算同步完成。
